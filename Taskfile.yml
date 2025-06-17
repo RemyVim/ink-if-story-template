@@ -1,0 +1,118 @@
+version: '3'
+
+tasks:
+  compile:
+    desc: Compile Ink story to JSON
+    silent: true
+    cmds:
+      - |
+        echo "---- Compiling Ink story to JSON"
+        echo "./bin/inklecate -o build/story.json -j src/main.ink"
+        if ./bin/inklecate -o build/story.json -j src/main.ink; then
+          echo "✅ Compilation complete! Refresh your browser."
+        else
+          echo ""
+          echo "❌ Compilation failed. Fix errors and save to retry."
+        fi
+
+  serve:
+    desc: Start web server for development
+    silent: true
+    cmds:
+      - |
+        echo "---- Starting web server for development."
+        echo "cd build && python3 -m http.server 8000"
+        echo "Press Ctrl+C to stop"
+        cd build && python3 -m http.server 8000
+    interactive: true
+
+  watch:
+    desc: Watch for changes and auto-compile
+    silent: true
+    cmds:
+      - |
+        echo "---- Watching src/ for changes..."
+        echo "Press Ctrl+C to stop"
+        
+        # Initial compile
+        task compile
+        
+        # Watch for changes (requires inotify-tools on Linux)
+        if command -v inotifywait >/dev/null 2>&1; then
+          while inotifywait -e modify,create,delete -r src/ --exclude='.*\.swp$' 2>/dev/null; do
+            echo "📝 Changes detected, recompiling..."
+            task compile
+          done
+        else
+          echo "❌ inotify-tools not found."
+          echo "Run 'task setup' to install prerequisites."
+        fi
+    interactive: true
+
+  dev:
+    desc: Start development environment (watch + serve)
+    deps: [watch, serve]  # Ensure initial compile
+
+  clean:
+    desc: Clean build directory
+    silent: true
+    cmds:
+      - |
+        echo "---- Cleaning build directory"
+        echo "rm -f build/story.json"
+        rm -f build/story.json
+        echo "Done"
+
+  setup:
+    desc: Setup development environment
+    silent: true
+    cmds:
+      - |
+        echo "---- Setting up Ink development environment..."
+        
+        # Check if inklecate exists
+        if [ ! -f "./bin/inklecate" ]; then
+          echo "❌ inklecate not found in ./bin/ - Installing inklecate"
+          mkdir -p bin
+          cd bin
+          wget -q https://github.com/inkle/ink/releases/latest/download/inklecate_linux.zip
+          unzip inklecate_linux.zip
+          rm -rf inklecate_linux.zip
+          cd ..
+        fi
+        
+        # Make inklecate executable
+        chmod +x ./bin/inklecate
+        
+        # Check for inotify-tools (Linux)
+        if command -v apt-get >/dev/null 2>&1; then
+          if ! command -v inotifywait >/dev/null 2>&1; then
+            echo "- Installing inotify-tools for file watching..."
+            sudo apt-get update && sudo apt-get install -y inotify-tools
+          fi
+        elif command -v dnf >/dev/null 2>&1; then
+          if ! command -v inotifywait >/dev/null 2>&1; then
+            echo "- Installing inotify-tools for file watching..."
+            sudo dnf update && sudo dnf install -y inotify-tools
+          fi
+        fi
+
+        echo "Setup complete."
+        echo "Run 'task dev' to start development"
+
+  build:
+    desc: Build story for production
+    cmds:
+      - task clean
+      - task compile
+      - echo "Production build complete."
+
+  help:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  default:
+    desc: Default task - start development environment
+    cmds:
+      - task dev

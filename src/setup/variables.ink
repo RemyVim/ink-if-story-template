@@ -1,0 +1,28 @@
+// Story
+
+// Protagonist
+VAR Mc = ""
+
+VAR mc_gender = "male"
+VAR mc_man = "man"
+VAR mc_Man = "Man"
+VAR mc_guy = "guy"
+VAR mc_Guy = "Guy"
+VAR mc_boy = "boy"
+VAR mc_Boy = "Boy"
+VAR mc_son = "son"
+VAR mc_Son = "Son"
+VAR mc_brother = "brother"
+VAR mc_Brother = "Brother"
+VAR mc_papa = "papa"
+VAR mc_Papa = "Papa"
+VAR mc_father = "father"
+VAR mc_Father = "Father"
+VAR mc_he = "he"
+VAR mc_He = "He"
+VAR mc_his = "his"
+VAR mc_His = "His"
+VAR mc_hiss = "his"
+VAR mc_Hiss = "his"
+VAR mc_him = "him"
+VAR mc_Him = "Him"

@@ -1,0 +1,446 @@
+@import url("https://fonts.googleapis.com/css?family=Open+Sans:300,700|Quattrocento:700");
+
+body {
+  font-family: "Open Sans", sans-serif;
+  font-weight: lighter;
+  background: white;
+  overflow: hidden;
+}
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  body.switched {
+    transition:
+      color 0.6s,
+      background-color 0.6s;
+  }
+}
+
+h1,
+h2 {
+  text-align: center;
+  font-family: "Quattrocento", Georgia, "Times New Roman", Times, serif;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  font-size: 30pt;
+  margin-bottom: 10px;
+}
+
+h2 {
+  font-size: 14pt;
+  font-style: italic;
+  font-family: sans-serif;
+  font-weight: lighter;
+  color: #bbb;
+}
+
+/* Top Navigation Bar */
+.top-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 4;
+  background: white;
+  border-bottom: 1px solid #eee;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  .top-nav {
+    transition:
+      color 0.6s,
+      background 0.6s,
+      border-color 0.6s;
+  }
+}
+
+.nav-title-section {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.nav-title {
+  font-size: 18pt;
+  font-weight: 700;
+  margin: 0;
+  text-align: left;
+}
+
+.nav-byline {
+  font-size: 11pt;
+  font-style: italic;
+  font-weight: 300;
+  color: #888;
+  margin: 0;
+}
+
+.nav-controls {
+  display: flex;
+  gap: 12px;
+  font-size: 9pt;
+  align-items: center;
+}
+
+.nav-controls a {
+  font-weight: 700;
+  color: #b97c2c;
+  font-family: sans-serif;
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: 3px;
+  transition: background-color 0.2s;
+}
+
+.nav-controls a:hover {
+  background-color: rgba(185, 124, 44, 0.1);
+}
+
+.nav-controls [disabled] {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Mobile responsive design */
+@media screen and (max-width: 680px) {
+  .top-nav {
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 15px;
+  }
+
+  .nav-title-section {
+    justify-content: center;
+  }
+
+  .nav-title {
+    text-align: center;
+    font-size: 16pt;
+  }
+
+  .nav-byline {
+    display: none; /* Hide byline on mobile */
+  }
+
+  .nav-controls {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .nav-controls a {
+    font-size: 8pt;
+    padding: 3px 6px;
+  }
+}
+
+.header {
+  padding-top: 1em;
+  padding-bottom: 1em;
+}
+
+/*
+  Built-in class:
+    # author: Name
+*/
+.byline {
+  font-style: italic;
+}
+
+/* 
+  Enables <iframe> support work on itch.io when using mobile iOS
+*/
+.outerContainer {
+  position: absolute;
+  display: block;
+  margin: 0;
+  padding: 0;
+  -webkit-overflow-scrolling: touch;
+  overflow: scroll;
+  overflow-x: hidden;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  margin-top: 60px; /* Account for fixed top nav */
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+@media screen and (max-width: 680px) {
+  .outerContainer {
+    margin-top: 80px; /* More space for stacked mobile nav */
+  }
+}
+
+.container {
+  display: block;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  padding-top: 2em;
+  padding-bottom: 60px;
+  background: white;
+}
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  .switched .container {
+    transition: background-color 0.6s;
+  }
+}
+
+p {
+  font-size: 13pt;
+  color: #888;
+  line-height: 1.7em;
+  font-weight: lighter;
+}
+
+a {
+  font-weight: 700;
+  color: #b97c2c;
+  font-family: sans-serif;
+  text-decoration: none;
+}
+
+.unclickable {
+  font-weight: 700;
+  color: #4f3411;
+  font-family: sans-serif;
+  text-decoration: none;
+  cursor: not-allowed;
+}
+
+a:hover {
+  color: black;
+}
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  a {
+    transition: color 0.6s;
+  }
+
+  a:hover {
+    transition: color 0.1s;
+  }
+}
+
+strong {
+  color: black;
+  font-weight: bold;
+}
+
+img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+}
+
+.container .hide {
+  opacity: 0;
+}
+
+.container .invisible {
+  display: none;
+}
+
+.container > * {
+  opacity: 1;
+}
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  .container > * {
+    transition: opacity 1s;
+  }
+}
+
+/*
+  Class applied to all choices
+  (Will always appear inside <p> element by default.)
+*/
+.choice {
+  text-align: center;
+  line-height: 1.7em;
+}
+
+/* 
+  Class applied to first choice
+*/
+:not(.choice) + .choice {
+  padding-top: 1em;
+}
+
+/*
+  Class applied to choice links
+*/
+.choice a,
+.choice span {
+  font-size: 15pt;
+}
+
+/* 
+  Built-in class:
+    The End # CLASS: end
+*/
+.end {
+  text-align: center;
+  font-weight: bold;
+  color: black;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+/* Modal styles */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+  background-color: white;
+  margin: 5% auto;
+  padding: 0;
+  border: none;
+  width: 90%;
+  max-width: 600px;
+  border-radius: 8px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  padding: 20px 20px 10px 20px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #333;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-body h3 {
+  color: #333;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.close {
+  color: #aaa;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+}
+
+/* 
+  Dark Theme (Added in Inky 0.10.0)
+    # theme: dark
+*/
+
+body.dark {
+  background: black;
+  color: white;
+}
+
+.dark h2 {
+  color: #666;
+}
+
+.dark .container {
+  background: black;
+}
+
+.dark .top-nav {
+  background: black;
+  border-bottom-color: #333;
+}
+
+.dark .nav-controls a {
+  color: #cc8f1a;
+}
+
+.dark .nav-controls a:hover {
+  background-color: rgba(204, 143, 26, 0.1);
+}
+
+.dark a {
+  color: #cc8f1a;
+}
+.dark .unclickable {
+  color: #c4af87;
+  cursor: not-allowed;
+}
+
+.dark a:hover {
+  color: white;
+}
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  .dark a {
+    transition: color 0.6s;
+  }
+}
+
+.dark strong {
+  color: white;
+}
+
+.dark .nav-byline {
+  color: #666;
+}
+
+.dark .nav-controls [disabled] {
+  color: #444;
+}
+
+.dark .end {
+  color: white;
+}
+
+/* Dark theme support for modals */
+.dark .modal-content {
+  background-color: #222;
+}
+
+.dark .modal-header {
+  border-bottom: 1px solid #444;
+}
+
+.dark .modal-header h2,
+.dark .modal-body h3 {
+  color: white;
+}
+
+.dark .close {
+  color: #ccc;
+}
+
+.dark .close:hover,
+.dark .close:focus {
+  color: white;
+}
