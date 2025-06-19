@@ -3,6 +3,9 @@
 
 INCLUDE setup/variables.ink
 INCLUDE setup/functions.ink
+INCLUDE pages/credits.ink
+INCLUDE pages/about.ink
+INCLUDE pages/content-warnings.ink
 INCLUDE the_end.ink
 
 :: Prologue: Introducing the template
@@ -32,12 +35,20 @@ Make text ***bold and italic*** like this: \\*\\*\\*bold and italic\\*\\*\\*
 This is `inline *code*`.
 
 + Start story
-  -> main
+  -> second_page
 * Choice that leads nowhere
   -> main
 
 === main ===
 
 Main.
+
+-> the_end
+
+=== second_page ===
+
+This is the second page !!!!
+
+blablablablablabla
 
 -> the_end
