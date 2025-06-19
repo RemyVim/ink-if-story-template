@@ -25,25 +25,35 @@
         </div>
       </div>
 
+      <!-- Story container -->
       <div id="story" class="container"></div>
     </div>
 
-    <!-- Generic Modal Template -->
     <div id="modal-template" class="modal">
       <div class="modal-content">
         <div class="modal-header">
           <h2 id="modal-title">Modal Title</h2>
           <span class="close">&times;</span>
         </div>
-        <div class="modal-body" id="modal-body">
-          <!-- Content will be loaded from external files -->
-        </div>
+        <div class="modal-body" id="modal-body"></div>
       </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- Scripts - Load in dependency order -->
     <script src="ink.js"></script>
     <script src="modal.js"></script>
+
+    <!-- Utility modules -->
+    <script src="markdown.js"></script>
+    <script src="story-state.js"></script>
+    <script src="theme.js"></script>
+    <script src="dom-helpers.js"></script>
+    <script src="tags.js"></script>
+
+    <!-- Main controller -->
+    <script src="story-controller.js"></script>
+
+    <!-- Entry point -->
     <script src="main.js"></script>
   </body>
 </html>

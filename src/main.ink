@@ -33,6 +33,8 @@ This is `inline *code*`.
 
 + Start story
   -> main
+* Choice that leads nowhere
+  -> main
 
 === main ===
 
