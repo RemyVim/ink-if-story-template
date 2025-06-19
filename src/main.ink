@@ -5,7 +5,31 @@ INCLUDE setup/variables.ink
 INCLUDE setup/functions.ink
 INCLUDE the_end.ink
 
+:: Prologue: Introducing the template
+
+: H1 title
+:: H2 title
+::: H3 title
+
 Hello, this is a test template.
+
+This will be **bold** and *italic*.
+
+This will be ***bold and italic***.
+
+This will be ***bold and italic***.
+
+\\This will show **bold** and *italic* literally without processing.
+
+\\: Title
+
+Here's how to use markdown in this story:
+
+Make text **bold** like this: \\*\\*bold\\*\\*
+Make text *italic* like this: \\*italic\\*
+Make text ***bold and italic*** like this: \\*\\*\\*bold and italic\\*\\*\\*
+
+This is `inline *code*`.
 
 + Start story
   -> main

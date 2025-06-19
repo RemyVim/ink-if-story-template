@@ -79,72 +79,85 @@ fetch("story.json")
 
         // Any special tags included with this line
         var customClasses = [];
+
+        // Process all tags
         for (var i = 0; i < tags.length; i++) {
           var tag = tags[i];
 
           // Detect tags of the form "X: Y". Currently used for IMAGE and CLASS but could be
           // customised to be used for other things too.
           var splitTag = splitPropertyTag(tag);
-          splitTag.property = splitTag.property.toUpperCase();
 
-          // AUDIO: src
-          if (splitTag && splitTag.property == "AUDIO") {
-            if ("audio" in this) {
-              this.audio.pause();
-              this.audio.removeAttribute("src");
-              this.audio.load();
+          if (splitTag) {
+            splitTag.property = splitTag.property.toUpperCase();
+
+            // AUDIO: src
+            if (splitTag.property == "AUDIO") {
+              if ("audio" in this) {
+                this.audio.pause();
+                this.audio.removeAttribute("src");
+                this.audio.load();
+              }
+              this.audio = new Audio(splitTag.val);
+              this.audio.play();
             }
-            this.audio = new Audio(splitTag.val);
-            this.audio.play();
-          }
 
-          // AUDIOLOOP: src
-          else if (splitTag && splitTag.property == "AUDIOLOOP") {
-            if ("audioLoop" in this) {
-              this.audioLoop.pause();
-              this.audioLoop.removeAttribute("src");
-              this.audioLoop.load();
+            // AUDIOLOOP: src
+            else if (splitTag.property == "AUDIOLOOP") {
+              if ("audioLoop" in this) {
+                this.audioLoop.pause();
+                this.audioLoop.removeAttribute("src");
+                this.audioLoop.load();
+              }
+              this.audioLoop = new Audio(splitTag.val);
+              this.audioLoop.play();
+              this.audioLoop.loop = true;
             }
-            this.audioLoop = new Audio(splitTag.val);
-            this.audioLoop.play();
-            this.audioLoop.loop = true;
-          }
 
-          // IMAGE: src
-          if (splitTag && splitTag.property == "IMAGE") {
-            var imageElement = document.createElement("img");
-            imageElement.src = splitTag.val;
-            storyContainer.appendChild(imageElement);
-          }
+            // IMAGE: src
+            else if (splitTag.property == "IMAGE") {
+              var imageElement = document.createElement("img");
+              imageElement.src = splitTag.val;
+              storyContainer.appendChild(imageElement);
+            }
 
-          // LINK: url
-          else if (splitTag && splitTag.property == "LINK") {
-            window.location.href = splitTag.val;
-          }
+            // LINK: url
+            else if (splitTag.property == "LINK") {
+              window.location.href = splitTag.val;
+            }
 
-          // LINKOPEN: url
-          else if (splitTag && splitTag.property == "LINKOPEN") {
-            window.open(splitTag.val);
-          }
+            // LINKOPEN: url
+            else if (splitTag.property == "LINKOPEN") {
+              window.open(splitTag.val);
+            }
 
-          // BACKGROUND: src
-          else if (splitTag && splitTag.property == "BACKGROUND") {
-            outerScrollContainer.style.backgroundImage =
-              "url(" + splitTag.val + ")";
-          }
+            // BACKGROUND: src
+            else if (splitTag.property == "BACKGROUND") {
+              outerScrollContainer.style.backgroundImage =
+                "url(" + splitTag.val + ")";
+            }
 
-          // CLASS: className
-          else if (splitTag && splitTag.property == "CLASS") {
-            customClasses.push(splitTag.val);
-          }
+            // CLASS: className
+            else if (splitTag.property == "CLASS") {
+              customClasses.push(splitTag.val);
+            }
+          } else {
+            // Handle simple tags without colons
+            var simpleTag = tag.trim().toUpperCase();
 
-          // CLEAR - removes all existing content.
-          // RESTART - clears everything and restarts the story from the beginning
-          else if (tag == "CLEAR" || tag == "RESTART") {
+            // Skip system tags and add as class
+            if (simpleTag !== "CLEAR" && simpleTag !== "RESTART") {
+              customClasses.push(simpleTag);
+            }
+          }
+        }
+
+        // Handle special tags (separate loop to avoid conflicts)
+        for (var i = 0; i < tags.length; i++) {
+          var tag = tags[i];
+          if (tag == "CLEAR" || tag == "RESTART") {
             removeAll("p");
             removeAll("img");
-
-            // Comment out this line if you want to leave the header visible when clearing
             setVisible(".header", false);
 
             if (tag == "RESTART") {
@@ -161,12 +174,14 @@ fetch("story.json")
 
         // Create paragraph element
         var paragraphElement = document.createElement("p");
-        paragraphElement.innerHTML = paragraphText;
+        paragraphElement.innerHTML = processMarkdown(paragraphText);
+        // paragraphElement.innerHTML = paragraphText;
         storyContainer.appendChild(paragraphElement);
 
         // Add any custom classes derived from ink tags
-        for (var i = 0; i < customClasses.length; i++)
+        for (var i = 0; i < customClasses.length; i++) {
           paragraphElement.classList.add(customClasses[i]);
+        }
       }
 
       // Create HTML choices from ink choices
@@ -175,17 +190,27 @@ fetch("story.json")
         var choiceTags = choice.tags;
         var customClasses = [];
         var isClickable = true;
+
         for (var i = 0; i < choiceTags.length; i++) {
           var choiceTag = choiceTags[i];
           var splitTag = splitPropertyTag(choiceTag);
-          splitTag.property = splitTag.property.toUpperCase();
+
+          if (splitTag) {
+            splitTag.property = splitTag.property.toUpperCase();
+
+            if (splitTag.property == "CLASS") {
+              customClasses.push(splitTag.val);
+            }
+          } else {
+            // Handle simple tags for choices too
+            var simpleTag = choiceTag.trim().toUpperCase();
+            if (simpleTag !== "UNCLICKABLE") {
+              customClasses.push(simpleTag);
+            }
+          }
 
           if (choiceTag.toUpperCase() == "UNCLICKABLE") {
             isClickable = false;
-          }
-
-          if (splitTag && splitTag.property == "CLASS") {
-            customClasses.push(splitTag.val);
           }
         }
 
@@ -273,7 +298,7 @@ fetch("story.json")
     // e.g. IMAGE: source path
     function splitPropertyTag(tag) {
       var propertySplitIdx = tag.indexOf(":");
-      if (propertySplitIdx != null) {
+      if (propertySplitIdx != -1) {
         var property = tag.substr(0, propertySplitIdx).trim();
         var val = tag.substr(propertySplitIdx + 1).trim();
         return {
@@ -297,6 +322,38 @@ fetch("story.json")
         console.debug("Couldn't load save state");
       }
       return false;
+    }
+
+    function processMarkdown(text) {
+      // If line starts with backslash, remove it and skip all markdown processing
+      if (text.trim().startsWith("\\")) {
+        return text.trim().substring(1);
+      }
+
+      return (
+        text
+          // Bold: **text** or __text__ (but not if preceded by \)
+          .replace(/(?<!\\)\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+          .replace(/(?<!\\)__(.*?)__/g, "<strong>$1</strong>")
+          // Italic: *text* or _text_ (but not if preceded by \)
+          .replace(/(?<!\\)\*(.*?)\*/g, "<em>$1</em>")
+          .replace(/(?<!\\)_(.*?)_/g, "<em>$1</em>")
+          // Headers: :: Text (but not if preceded by \)
+          .replace(/^(?<!\\)::: (.*$)/gm, "<h3>$1</h3>")
+          .replace(/^(?<!\\):: (.*$)/gm, "<h2>$1</h2>")
+          .replace(/^(?<!\\): (.*$)/gm, "<h1>$1</h1>")
+          // Inline code: `code` (but not if preceded by \)
+          .replace(/(?<!\\)`(.*?)`/g, "<code>$1</code>")
+          // Custom inline styles: [text](style) (but not if preceded by \)
+          .replace(
+            /(?<!\\)\[(.*?)\]\((\w+)\)/g,
+            '<span class="inline-$2">$1</span>',
+          )
+          // Line breaks: Double spaces at end of line
+          .replace(/  $/gm, "<br>")
+          // Clean up the escape backslashes (remove \ before markdown symbols)
+          .replace(/\\(\*\*|\*|__|_|`|:::|::|:|\[)/g, "$1")
+      );
     }
 
     // Detects which theme (light or dark) to use

@@ -28,7 +28,8 @@ h1 {
   margin-bottom: 10px;
 }
 
-h2 {
+h2,
+.H2 {
   font-size: 14pt;
   font-style: italic;
   font-family: sans-serif;
@@ -357,6 +358,29 @@ img {
   color: #000;
 }
 
+code {
+  background: #f8f9fa;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-family: "Courier New", monospace;
+  font-size: 0.9em;
+}
+
+.inline-highlight {
+  background: yellow;
+  padding: 0.1em 0.3em;
+}
+
+.inline-important {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.inline-quiet {
+  color: #7f8c8d;
+  font-size: 0.9em;
+}
+
 /* 
   Dark Theme (Added in Inky 0.10.0)
     # theme: dark
@@ -367,7 +391,8 @@ body.dark {
   color: white;
 }
 
-.dark h2 {
+.dark h2,
+.dark .H2 {
   color: #666;
 }
 
@@ -443,4 +468,9 @@ body.dark {
 .dark .close:hover,
 .dark .close:focus {
   color: white;
+}
+
+.dark code {
+  background: #2d3748;
+  color: #e2e8f0;
 }
