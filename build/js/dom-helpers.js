@@ -26,6 +26,23 @@ class DOMHelpers {
     }
   }
 
+  createParagraphWithHistory(text, customClasses = []) {
+    const paragraphElement = this.domHelpers.createParagraph(
+      text,
+      customClasses,
+    );
+
+    // Track this content in display history
+    this.displayHistory.push({
+      type: "paragraph",
+      content: text,
+      classes: customClasses,
+      timestamp: Date.now(),
+    });
+
+    return paragraphElement;
+  }
+
   // Create a paragraph element with text and classes
   createParagraph(text, customClasses = []) {
     const paragraphElement = document.createElement("p");

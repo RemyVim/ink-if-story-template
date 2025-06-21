@@ -4,6 +4,9 @@ class StoryController {
     this.savePoint = "";
     this.currentPage = null; // Track if we're in a special page
 
+    // Track display history for saves
+    this.displayHistory = [];
+
     // Get DOM elements
     this.storyContainer = document.querySelector("#story");
     this.outerScrollContainer = document.querySelector(".outerContainer");
@@ -35,12 +38,14 @@ class StoryController {
     // Setup theme with settings integration
     this.themeManager.setup(globalTagTheme, this.settingsManager);
 
+    // Initialize saves manager
+    this.savesManager = new SavesManager(this, this.storyState);
+
     // Detect available special pages
     this.detectSpecialPages();
 
-    // Setup save/load state
-    const hasSave = this.loadFromSave();
-    this.setupButtons(hasSave);
+    // Setup buttons
+    this.setupButtons();
 
     // Set initial save point
     this.savePoint = this.story.state.toJson();
@@ -86,6 +91,24 @@ class StoryController {
     }
   }
 
+  // Create paragraph and track it in display history
+  createParagraphWithHistory(text, customClasses = []) {
+    const paragraphElement = this.domHelpers.createParagraph(
+      text,
+      customClasses,
+    );
+
+    // Track this content in display history
+    this.displayHistory.push({
+      type: "paragraph",
+      content: text,
+      classes: customClasses,
+      timestamp: Date.now(),
+    });
+
+    return paragraphElement;
+  }
+
   // Show a special page by evaluating its knot
   showSpecialPage(knotName) {
     if (!this.availablePages[knotName]) {
@@ -117,7 +140,7 @@ class StoryController {
       const tags = tempStory.currentTags;
       const { customClasses } = this.tagProcessor.processLineTags(tags);
 
-      // Create paragraphs
+      // Create paragraphs (don't track special pages in history)
       const processedText = MarkdownProcessor.process(paragraphText);
       this.domHelpers.createParagraph(processedText, [
         "special-page",
@@ -167,6 +190,8 @@ class StoryController {
       this.domHelpers.clearStoryContent();
       this.domHelpers.scrollToTop(this.outerScrollContainer);
       this.storyContainer.style.height = "";
+      // Clear display history when starting fresh
+      this.displayHistory = [];
     }
 
     // Generate story text - loop through available content
@@ -200,6 +225,7 @@ class StoryController {
       if (shouldClear || shouldRestart) {
         this.domHelpers.clearStoryContent();
         this.domHelpers.setVisible(".header", false);
+        this.displayHistory = []; // Clear history on clear/restart
 
         if (shouldRestart) {
           this.restart();
@@ -207,9 +233,9 @@ class StoryController {
         }
       }
 
-      // Create paragraph with processed markdown
+      // Create paragraph with processed markdown and track it
       const processedText = MarkdownProcessor.process(paragraphText);
-      this.domHelpers.createParagraph(processedText, customClasses);
+      this.createParagraphWithHistory(processedText, customClasses);
     }
 
     // Create choices
@@ -245,47 +271,58 @@ class StoryController {
     // Update save point
     this.savePoint = this.story.state.toJson();
 
-    // Auto-save if enabled
-    if (this.settingsManager.getSetting("autoSave")) {
-      this.saveGame();
-    }
-
-    // Continue the story
+    // Continue the story FIRST - this generates new content and choices
     this.continueStory();
+
+    // THEN auto-save if enabled - now it captures the complete state with choices
+    if (this.settingsManager.getSetting("autoSave")) {
+      // Update save point again to include the new content
+      this.savePoint = this.story.state.toJson();
+      this.savesManager.autosave();
+    }
   }
 
   restart() {
     this.story.ResetState();
     this.currentPage = null;
     this.storyStateBeforePage = null;
+    this.displayHistory = []; // Clear display history
     this.domHelpers.setVisible(".header", true);
     this.savePoint = this.story.state.toJson();
     this.continueStory(true);
     this.domHelpers.scrollToTop(this.outerScrollContainer);
   }
 
-  saveGame() {
-    // Only save main story state, not special pages
-    const stateToSave = this.currentPage
-      ? this.storyStateBeforePage
-      : this.savePoint;
-    const success = this.storyState.save(stateToSave);
-    if (success) {
-      document.getElementById("reload").removeAttribute("disabled");
-    }
-    return success;
+  // Get current display state for saving
+  getCurrentDisplayState() {
+    return {
+      history: [...this.displayHistory], // Copy the array
+      currentPage: this.currentPage,
+    };
   }
 
-  loadFromSave() {
-    const savedState = this.storyState.load();
-    if (savedState) {
-      this.story.state.LoadJson(savedState);
-      return true;
+  // Restore display state from save
+  restoreDisplayState(displayState) {
+    this.displayHistory = displayState.history || [];
+    this.currentPage = displayState.currentPage || null;
+
+    // Clear and rebuild the display
+    this.domHelpers.clearStoryContent();
+
+    // Recreate all the paragraphs from history
+    for (const item of this.displayHistory) {
+      if (item.type === "paragraph") {
+        this.domHelpers.createParagraph(item.content, item.classes || []);
+      }
     }
-    return false;
   }
 
-  setupButtons(hasSave) {
+  // Clear display history
+  clearDisplayHistory() {
+    this.displayHistory = [];
+  }
+
+  setupButtons() {
     // Restart button
     const rewindEl = document.getElementById("rewind");
     if (rewindEl) {
@@ -296,40 +333,7 @@ class StoryController {
       });
     }
 
-    // Save button
-    const saveEl = document.getElementById("save");
-    if (saveEl) {
-      saveEl.addEventListener("click", () => {
-        const success = this.saveGame();
-        if (success) {
-          this.settingsManager.showNotification("Game saved!");
-        } else {
-          this.settingsManager.showNotification("Failed to save game");
-        }
-      });
-    }
-
-    // Load button
-    const reloadEl = document.getElementById("reload");
-    if (!hasSave) {
-      reloadEl.setAttribute("disabled", "disabled");
-    }
-    reloadEl.addEventListener("click", () => {
-      if (reloadEl.getAttribute("disabled")) return;
-
-      this.domHelpers.clearStoryContent();
-      const savedState = this.storyState.load();
-      if (savedState) {
-        this.story.state.LoadJson(savedState);
-        this.settingsManager.showNotification("Game loaded!");
-      } else {
-        this.settingsManager.showNotification("Failed to load game");
-      }
-      this.continueStory(true);
-    });
-
-    // Note: Theme switch button is now handled by SettingsManager
-    // Remove the old theme switch event listener
+    // Note: Save/Load buttons are now handled by SavesManager
 
     // Special page buttons
     this.setupSpecialPageButtons();
