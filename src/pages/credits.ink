@@ -1,20 +1,23 @@
 === credits ===
-: Special Thanks
+: Template Credits
 
-Thanks to the **Ink** community for creating such a powerful interactive fiction framework, and to everyone who provided feedback during development.
+**Ink HTML Template** - A responsive web framework for interactive fiction
 
-:: Technical Credits
+:: Built With
+- **Ink** by Inkle Studios
+- **inkjs** for web playback
+- Vanilla JavaScript (no frameworks)
+- Modern CSS with responsive design
 
-Built with Ink by Inkle Studios
+:: Features
+- Mobile-friendly responsive layout
+- Light/dark theme switching
+- Save/load functionality
+- Markdown text formatting
+- Special page system
+- Audio support
+- Professional presentation
 
-Powered by inkjs
-
-:: Contact
-
-Questions, bug reports, or just want to chat about interactive fiction?
-
-TEST
-
-Find me at *remy@proton.me*
+Find the template, report issues, or contribute improvements through the project repository.
 
 * [Continue] -> DONE

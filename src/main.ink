@@ -1,54 +1,32 @@
 # author: Rémy Vim
 # title: Ink HTML Template
 
-INCLUDE setup/variables.ink
-INCLUDE setup/functions.ink
 INCLUDE pages/credits.ink
 INCLUDE pages/about.ink
 INCLUDE pages/content-warnings.ink
-INCLUDE the_end.ink
+INCLUDE features/text_formatting.ink
+INCLUDE features/ui.ink
+INCLUDE features/special_pages.ink
+INCLUDE features/advanced_features.ink
+INCLUDE features/getting_started.ink
+INCLUDE conclusion.ink
 
-:: Prologue: Introducing the template
+You are an interactive fiction writer.
 
-: H1 title
-:: H2 title
-::: H3 title
+You've been wrestling with presentation, formatting, and web deployment for your stories.
 
-Hello, this is a test template.
+This template might be what you've been missing.
 
-This will be **bold** and *italic*.
+-> feature_menu
 
-This will be ***bold and italic***.
+=== feature_menu ===
+: Template Feature Guide
 
-This will be ***bold and italic***.
+What would you like to explore?
 
-\\This will show **bold** and *italic* literally without processing.
-
-\\: Title
-
-Here's how to use markdown in this story:
-
-Make text **bold** like this: \\*\\*bold\\*\\*
-Make text *italic* like this: \\*italic\\*
-Make text ***bold and italic*** like this: \\*\\*\\*bold and italic\\*\\*\\*
-
-This is `inline *code*`.
-
-+ Start story
-  -> second_page
-* Choice that leads nowhere
-  -> main
-
-=== main ===
-
-Main.
-
--> the_end
-
-=== second_page ===
-
-This is the second page !!!!
-
-blablablablablabla
-
--> the_end
++ [Text Formatting] -> text_formatting
++ [Navigation & UI] -> navigation_ui  
++ [Special Pages] -> special_pages
++ [Advanced Features] -> advanced_features
++ [Getting Started] -> getting_started
+* [I'm ready to start building] -> conclusion

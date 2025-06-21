@@ -1,9 +1,14 @@
 === about ===
-: About This Game
+: About This Demo
 
-This is my amazing interactive fiction story about...
+This interactive demo showcases the **Ink HTML Template** capabilities.
 
-Created by [Your Name]
-Version 1.0
+The template provides a responsive, professional interface for interactive fiction without requiring web development knowledge.
+
+:: What You're Seeing
+- Markdown formatting in action
+- Navigation system demonstration  
+- Responsive design principles
+- Clean, accessible presentation
 
 * [Continue] -> DONE
