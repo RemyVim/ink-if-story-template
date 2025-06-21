@@ -21,5 +21,5 @@ Just write, compile, and deploy.
 > `style.css` - Styling (customize as needed)
 > JavaScript files handle the functionality
 
-* [Back to feature menu] -> feature_menu
+-> feature_menu
 

@@ -74,4 +74,4 @@ Here's a sample that uses multiple formatting options:
 
 Remember: formatting should [enhance](highlight) your story, not distract from it.
 
-* [Back to feature menu] -> feature_menu
+-> feature_menu

@@ -1,16 +1,41 @@
 /* =============================================================================
+   FONTS
+   ============================================================================= */
+
+@font-face {
+  font-family: "Merriweather";
+  src: url("../fonts/Merriweather-VariableFont_opsz,wdth,wght.ttf")
+    format("truetype-variations");
+  font-weight: 300 900; /* Supports all weights from Light (300) to Black (900) */
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Merriweather";
+  src: url("../fonts/Merriweather-Italic-VariableFont_opsz,wdth,wght.ttf")
+    format("truetype-variations");
+  font-weight: 300 900; /* Supports all weights from Light (300) to Black (900) */
+  font-style: italic;
+  font-display: swap;
+}
+
+/* =============================================================================
    CUSTOMIZATION VARIABLES
    ============================================================================= */
 
 :root {
   /* === FONTS === */
-  --font-main:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
-    Arial, sans-serif;
-  --font-heading: Georgia, "Times New Roman", Times, serif;
+  --font-main: "Merriweather", Georgia, "Times New Roman", Times, serif;
+  --font-heading: "Merriweather", Georgia, "Times New Roman", Times, serif;
   --font-monospace:
     "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New",
     monospace;
+
+  /* Use standard font weights for compatibility */
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-bold: 700;
 
   /* === FONT SIZES === */
   --text-size-base: 13pt;
@@ -124,6 +149,7 @@ h2 {
 
 h1 {
   font-size: var(--text-size-title);
+  font-weight: var(--font-weight-bold)
   margin-bottom: var(--spacing-lg);
 }
 
@@ -177,7 +203,7 @@ h2,
 
 .nav-title {
   font-size: var(--text-size-xxl);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   margin: 0;
   text-align: left;
   /* Fallback for older browsers */
@@ -189,7 +215,7 @@ h2,
 .nav-byline {
   font-size: var(--text-size-tiny);
   font-style: italic;
-  font-weight: 300;
+  font-weight: var(--font-weight-light);
   color: var(--color-text-primary);
   margin: 0;
 }
@@ -313,20 +339,18 @@ p {
   font-size: var(--text-size-base);
   color: var(--color-text-primary);
   line-height: var(--line-height-text);
-  font-weight: lighter;
+  font-weight: var(--font-weight-light);
 }
 
 a {
   font-weight: 700;
   color: var(--color-accent-primary);
-  font-family: sans-serif;
   text-decoration: none;
 }
 
 .unclickable {
   font-weight: 700;
   color: var(--color-accent-dark);
-  font-family: sans-serif;
   text-decoration: none;
   cursor: not-allowed;
 }
@@ -347,7 +371,7 @@ a:hover {
 
 strong {
   color: var(--color-text-strong);
-  font-weight: bold;
+  font-weight: var(--font-weight-bold);
 }
 
 /* =============================================================================
@@ -380,7 +404,6 @@ blockquote {
    ============================================================================= */
 
 .choice {
-  text-align: center;
   line-height: var(--line-height-choice);
 }
 

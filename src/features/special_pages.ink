@@ -20,5 +20,5 @@ Just create a knot with one of these names, and the template automatically:
 :: This Demo Has Examples
 Check the navigation bar - you'll see "about" and "credits" buttons because this demo includes those knots.
 
-* [Back to feature menu] -> feature_menu
+-> feature_menu
 

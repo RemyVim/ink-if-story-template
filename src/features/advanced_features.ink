@@ -26,5 +26,5 @@ The template automatically handles:
 > Semantic HTML for accessibility
 > Clean, readable output
 
-* [Back to feature menu] -> feature_menu
+-> feature_menu
 

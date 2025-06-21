@@ -11,7 +11,9 @@ INCLUDE features/advanced_features.ink
 INCLUDE features/getting_started.ink
 INCLUDE conclusion.ink
 
-You are an interactive fiction writer.
+: Template Feature Guide
+
+Welcome, intrepid interactive fiction writer!
 
 You've been wrestling with presentation, formatting, and web deployment for your stories.
 
@@ -20,7 +22,6 @@ This template might be what you've been missing.
 -> feature_menu
 
 === feature_menu ===
-: Template Feature Guide
 
 What would you like to explore?
 
@@ -29,4 +30,4 @@ What would you like to explore?
 + [Special Pages] -> special_pages
 + [Advanced Features] -> advanced_features
 + [Getting Started] -> getting_started
-* [I'm ready to start building] -> conclusion
++ [I'm ready to start building] -> conclusion

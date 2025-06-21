@@ -17,5 +17,5 @@ On mobile devices, the navigation stacks vertically for easy touch access.
 > Mobile-friendly responsive layout
 > No configuration required
 
-* [Back to feature menu] -> feature_menu
+-> feature_menu
 
