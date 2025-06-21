@@ -1,4 +1,3 @@
-// Enhanced Story Controller with knot-based pages
 class StoryController {
   constructor(storyContent) {
     this.story = new inkjs.Story(storyContent);
@@ -18,6 +17,12 @@ class StoryController {
     this.themeManager = new ThemeManager();
     this.storyState = new StoryState();
 
+    // Initialize settings manager
+    this.settingsManager = new SettingsManager(
+      this.themeManager,
+      this.storyState,
+    );
+
     this.init();
   }
 
@@ -26,7 +31,9 @@ class StoryController {
     const globalTagTheme = this.tagProcessor.processGlobalTags(
       this.story.globalTags,
     );
-    this.themeManager.setup(globalTagTheme);
+
+    // Setup theme with settings integration
+    this.themeManager.setup(globalTagTheme, this.settingsManager);
 
     // Detect available special pages
     this.detectSpecialPages();
@@ -238,6 +245,11 @@ class StoryController {
     // Update save point
     this.savePoint = this.story.state.toJson();
 
+    // Auto-save if enabled
+    if (this.settingsManager.getSetting("autoSave")) {
+      this.saveGame();
+    }
+
     // Continue the story
     this.continueStory();
   }
@@ -288,7 +300,12 @@ class StoryController {
     const saveEl = document.getElementById("save");
     if (saveEl) {
       saveEl.addEventListener("click", () => {
-        this.saveGame();
+        const success = this.saveGame();
+        if (success) {
+          this.settingsManager.showNotification("Game saved!");
+        } else {
+          this.settingsManager.showNotification("Failed to save game");
+        }
       });
     }
 
@@ -304,17 +321,15 @@ class StoryController {
       const savedState = this.storyState.load();
       if (savedState) {
         this.story.state.LoadJson(savedState);
+        this.settingsManager.showNotification("Game loaded!");
+      } else {
+        this.settingsManager.showNotification("Failed to load game");
       }
       this.continueStory(true);
     });
 
-    // Theme switch button
-    const themeSwitchEl = document.getElementById("theme-switch");
-    if (themeSwitchEl) {
-      themeSwitchEl.addEventListener("click", () => {
-        this.themeManager.toggle();
-      });
-    }
+    // Note: Theme switch button is now handled by SettingsManager
+    // Remove the old theme switch event listener
 
     // Special page buttons
     this.setupSpecialPageButtons();

@@ -137,6 +137,15 @@ class TagProcessor {
 
   // Media and interaction methods
   playAudio(src) {
+    // Check if audio is enabled in settings
+    if (
+      window.storyController &&
+      window.storyController.settingsManager &&
+      !window.storyController.settingsManager.getSetting("audioEnabled")
+    ) {
+      return; // Skip audio if disabled
+    }
+
     if (this.audio) {
       this.audio.pause();
       this.audio.removeAttribute("src");
@@ -147,6 +156,15 @@ class TagProcessor {
   }
 
   playAudioLoop(src) {
+    // Check if audio is enabled in settings
+    if (
+      window.storyController &&
+      window.storyController.settingsManager &&
+      !window.storyController.settingsManager.getSetting("audioEnabled")
+    ) {
+      return; // Skip audio if disabled
+    }
+
     if (this.audioLoop) {
       this.audioLoop.pause();
       this.audioLoop.removeAttribute("src");

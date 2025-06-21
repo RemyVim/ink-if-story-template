@@ -6,7 +6,7 @@
   font-family: "Merriweather";
   src: url("../fonts/Merriweather-VariableFont_opsz,wdth,wght.ttf")
     format("truetype-variations");
-  font-weight: 300 900; /* Supports all weights from Light (300) to Black (900) */
+  font-weight: 300 900;
   font-style: normal;
   font-display: swap;
 }
@@ -15,7 +15,52 @@
   font-family: "Merriweather";
   src: url("../fonts/Merriweather-Italic-VariableFont_opsz,wdth,wght.ttf")
     format("truetype-variations");
-  font-weight: 300 900; /* Supports all weights from Light (300) to Black (900) */
+  font-weight: 300 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Inter Font */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("../fonts/Inter-VariableFont_slnt,wght.ttf") format("truetype-variations");
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url("../fonts/Inter-Italic-VariableFont_opsz,wght.ttf") format("truetype-variations");
+  font-weight: 300 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* OpenDyslexic Font */
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('../fonts/OpenDyslexic-Regular.woff2') format('woff2'),
+       url('../fonts/OpenDyslexic-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('../fonts/OpenDyslexic-Bold.woff2') format('woff2'),
+       url('../fonts/OpenDyslexic-Bold.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('../fonts/OpenDyslexic-Italic.woff2') format('woff2'),
+       url('../fonts/OpenDyslexic-Italic.woff') format('woff');
+  font-weight: normal;
   font-style: italic;
   font-display: swap;
 }
@@ -26,11 +71,15 @@
 
 :root {
   /* === FONTS === */
-  --font-main: "Merriweather", Georgia, "Times New Roman", Times, serif;
+
+  --font-serif: "Merriweather", Georgia, "Times New Roman", Times, serif;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-dyslexic: "OpenDyslexic", Arial, sans-serif;
   --font-heading: "Merriweather", Georgia, "Times New Roman", Times, serif;
-  --font-monospace:
-    "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New",
-    monospace;
+  --font-monospace: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
+
+  /* === CURRENT FONT (can be overridden by settings) === */
+  --font-main: var(--font-serif);
 
   /* Use standard font weights for compatibility */
   --font-weight-light: 300;
