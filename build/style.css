@@ -1,52 +1,160 @@
-@import url("https://fonts.googleapis.com/css?family=Open+Sans:300,700|Quattrocento:700");
+/* =============================================================================
+   CUSTOMIZATION VARIABLES
+   ============================================================================= */
+
+:root {
+  /* === FONTS === */
+  --font-main:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+  --font-heading: Georgia, "Times New Roman", Times, serif;
+  --font-monospace:
+    "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New",
+    monospace;
+
+  /* === FONT SIZES === */
+  --text-size-base: 13pt;
+  --text-size-small: 8pt;
+  --text-size-medium: 9pt;
+  --text-size-large: 15pt;
+  --text-size-xl: 16pt;
+  --text-size-xxl: 18pt;
+  --text-size-title: 30pt;
+  --text-size-subtitle: 14pt;
+  --text-size-tiny: 11pt;
+
+  /* === COLORS - LIGHT THEME === */
+  --color-background: white;
+  --color-text-primary: #888;
+  --color-text-secondary: #bbb;
+  --color-text-tertiary: #666;
+  --color-text-strong: black;
+  --color-accent-primary: #b97c2c;
+  --color-accent-dark: #4f3411;
+  --color-accent-warning: #cc8f1a;
+  --color-border-light: #eee;
+  --color-border-medium: #ccc;
+  --color-disabled: #ccc;
+  --color-hover-bg: rgba(185, 124, 44, 0.1);
+  --color-highlight: yellow;
+  --color-important: #e74c3c;
+  --color-quiet: #7f8c8d;
+  --color-code-bg: #f8f9fa;
+  --color-blockquote-bg: #f9f9f9;
+  --color-blockquote-border: #ccc;
+  --color-blockquote-text: #666;
+
+  /* === SPACING === */
+  --spacing-xs: 3px;
+  --spacing-sm: 6px;
+  --spacing-md: 8px;
+  --spacing-lg: 10px;
+  --spacing-xl: 12px;
+  --spacing-xxl: 15px;
+  --spacing-huge: 20px;
+  --spacing-massive: 60px;
+
+  /* === LAYOUT === */
+  --content-max-width: 600px;
+  --nav-height-desktop: 60px;
+  --nav-height-mobile: 80px;
+  --border-radius: 3px;
+  --border-radius-lg: 8px;
+
+  /* === TRANSITIONS === */
+  --transition-fast: 0.1s;
+  --transition-medium: 0.2s;
+  --transition-slow: 0.6s;
+  --transition-very-slow: 1s;
+
+  /* === LINE HEIGHTS === */
+  --line-height-text: 1.7em;
+  --line-height-choice: 1.7em;
+  --line-height-list: 1.6em;
+  --line-height-tight: 1;
+}
+
+/* === DARK THEME COLORS === */
+body.dark {
+  --color-background: black;
+  --color-text-primary: white;
+  --color-text-secondary: #666;
+  --color-text-tertiary: #666;
+  --color-text-strong: white;
+  --color-accent-primary: #cc8f1a;
+  --color-accent-dark: #c4af87;
+  --color-accent-warning: #cc8f1a;
+  --color-border-light: #333;
+  --color-border-medium: #444;
+  --color-disabled: #444;
+  --color-hover-bg: rgba(204, 143, 26, 0.1);
+  --color-code-bg: #2d3748;
+  --color-blockquote-bg: #2d3748;
+  --color-blockquote-border: #555;
+  --color-blockquote-text: #bbb;
+}
+
+/* =============================================================================
+   BASE STYLES
+   ============================================================================= */
 
 body {
-  font-family: "Open Sans", sans-serif;
+  font-family: var(--font-main);
   font-weight: lighter;
-  background: white;
+  background: var(--color-background);
   overflow: hidden;
+  color: var(--color-text-primary);
 }
 
 @media screen and (prefers-reduced-motion: no-preference) {
   body.switched {
     transition:
-      color 0.6s,
-      background-color 0.6s;
+      color var(--transition-slow),
+      background-color var(--transition-slow);
   }
 }
 
 h1,
 h2 {
   text-align: center;
-  font-family: "Quattrocento", Georgia, "Times New Roman", Times, serif;
+  font-family: var(--font-heading);
   margin: 0;
   padding: 0;
 }
 
 h1 {
-  font-size: 30pt;
-  margin-bottom: 10px;
+  font-size: var(--text-size-title);
+  margin-bottom: var(--spacing-lg);
 }
 
 h2,
 .H2 {
-  font-size: 14pt;
+  font-size: var(--text-size-subtitle);
   font-style: italic;
   font-family: sans-serif;
   font-weight: lighter;
-  color: #bbb;
+  color: var(--color-text-secondary);
 }
 
-/* Top Navigation Bar */
+/* Title elements that get populated by JavaScript */
+.title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+}
+
+/* =============================================================================
+   TOP NAVIGATION
+   ============================================================================= */
+
 .top-nav {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 4;
-  background: white;
-  border-bottom: 1px solid #eee;
-  padding: 12px 20px;
+  background: var(--color-background);
+  border-bottom: 1px solid var(--color-border-light);
+  padding: var(--spacing-xl) var(--spacing-huge);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -55,65 +163,69 @@ h2,
 @media screen and (prefers-reduced-motion: no-preference) {
   .top-nav {
     transition:
-      color 0.6s,
-      background 0.6s,
-      border-color 0.6s;
+      color var(--transition-slow),
+      background var(--transition-slow),
+      border-color var(--transition-slow);
   }
 }
 
 .nav-title-section {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: var(--spacing-md);
 }
 
 .nav-title {
-  font-size: 18pt;
+  font-size: var(--text-size-xxl);
   font-weight: 700;
   margin: 0;
   text-align: left;
+  /* Fallback for older browsers */
+  font-family: "Quattrocento", Georgia, "Times New Roman", Times, serif;
+  /* Modern browsers with CSS variables */
+  font-family: var(--font-heading);
 }
 
 .nav-byline {
-  font-size: 11pt;
+  font-size: var(--text-size-tiny);
   font-style: italic;
   font-weight: 300;
-  color: #888;
+  color: var(--color-text-primary);
   margin: 0;
 }
 
 .nav-controls {
   display: flex;
-  gap: 12px;
-  font-size: 9pt;
+  gap: var(--spacing-xl);
+  font-size: var(--text-size-medium);
   align-items: center;
 }
 
 .nav-controls a {
   font-weight: 700;
-  color: #b97c2c;
+  color: var(--color-accent-primary);
   font-family: sans-serif;
   text-decoration: none;
-  padding: 4px 8px;
-  border-radius: 3px;
-  transition: background-color 0.2s;
+  padding: 4px var(--spacing-md);
+  border-radius: var(--border-radius);
+  transition: background-color var(--transition-medium);
 }
 
 .nav-controls a:hover {
-  background-color: rgba(185, 124, 44, 0.1);
+  background-color: var(--color-hover-bg);
 }
 
 .nav-controls [disabled] {
-  color: #ccc;
+  color: var(--color-disabled);
   cursor: not-allowed;
 }
 
-/* Mobile responsive design */
+/* === MOBILE NAVIGATION === */
 @media screen and (max-width: 680px) {
   .top-nav {
     flex-direction: column;
-    gap: 8px;
-    padding: 10px 15px;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg) var(--spacing-xxl);
   }
 
   .nav-title-section {
@@ -122,41 +234,38 @@ h2,
 
   .nav-title {
     text-align: center;
-    font-size: 16pt;
+    font-size: var(--text-size-xl);
   }
 
   .nav-byline {
-    display: none; /* Hide byline on mobile */
+    display: none;
   }
 
   .nav-controls {
     justify-content: center;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: var(--spacing-md);
   }
 
   .nav-controls a {
-    font-size: 8pt;
-    padding: 3px 6px;
+    font-size: var(--text-size-small);
+    padding: var(--spacing-xs) var(--spacing-sm);
   }
 }
+
+/* =============================================================================
+   LAYOUT CONTAINERS
+   ============================================================================= */
 
 .header {
   padding-top: 1em;
   padding-bottom: 1em;
 }
 
-/*
-  Built-in class:
-    # author: Name
-*/
 .byline {
   font-style: italic;
 }
 
-/* 
-  Enables <iframe> support work on itch.io when using mobile iOS
-*/
 .outerContainer {
   position: absolute;
   display: block;
@@ -169,72 +278,131 @@ h2,
   width: 100%;
   top: 0;
   left: 0;
-  margin-top: 60px; /* Account for fixed top nav */
+  margin-top: var(--nav-height-desktop);
   background-size: cover;
   background-repeat: no-repeat;
 }
 
 @media screen and (max-width: 680px) {
   .outerContainer {
-    margin-top: 80px; /* More space for stacked mobile nav */
+    margin-top: var(--nav-height-mobile);
   }
 }
 
 .container {
   display: block;
-  max-width: 600px;
+  max-width: var(--content-max-width);
   margin: 0 auto;
-  padding: 20px;
+  padding: var(--spacing-huge);
   padding-top: 2em;
-  padding-bottom: 60px;
-  background: white;
+  padding-bottom: var(--spacing-massive);
+  background: var(--color-background);
 }
 
 @media screen and (prefers-reduced-motion: no-preference) {
   .switched .container {
-    transition: background-color 0.6s;
+    transition: background-color var(--transition-slow);
   }
 }
 
+/* =============================================================================
+   TEXT STYLES
+   ============================================================================= */
+
 p {
-  font-size: 13pt;
-  color: #888;
-  line-height: 1.7em;
+  font-size: var(--text-size-base);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-text);
   font-weight: lighter;
 }
 
 a {
   font-weight: 700;
-  color: #b97c2c;
+  color: var(--color-accent-primary);
   font-family: sans-serif;
   text-decoration: none;
 }
 
 .unclickable {
   font-weight: 700;
-  color: #4f3411;
+  color: var(--color-accent-dark);
   font-family: sans-serif;
   text-decoration: none;
   cursor: not-allowed;
 }
 
 a:hover {
-  color: black;
+  color: var(--color-text-strong);
 }
 
 @media screen and (prefers-reduced-motion: no-preference) {
   a {
-    transition: color 0.6s;
+    transition: color var(--transition-slow);
   }
 
   a:hover {
-    transition: color 0.1s;
+    transition: color var(--transition-fast);
   }
 }
 
 strong {
-  color: black;
+  color: var(--color-text-strong);
   font-weight: bold;
+}
+
+/* =============================================================================
+   LISTS AND QUOTES
+   ============================================================================= */
+
+ul {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+  color: var(--color-text-primary);
+}
+
+li {
+  margin: 0.3em 0;
+  line-height: var(--line-height-list);
+  color: var(--color-text-primary);
+}
+
+blockquote {
+  margin: 1em 0;
+  padding: 0.5em 1em;
+  border-left: 3px solid var(--color-blockquote-border);
+  background: var(--color-blockquote-bg);
+  font-style: italic;
+  color: var(--color-blockquote-text);
+}
+
+/* =============================================================================
+   CHOICES
+   ============================================================================= */
+
+.choice {
+  text-align: center;
+  line-height: var(--line-height-choice);
+}
+
+:not(.choice) + .choice {
+  padding-top: 1em;
+}
+
+.choice a,
+.choice span {
+  font-size: var(--text-size-large);
+}
+
+/* =============================================================================
+   SPECIAL ELEMENTS
+   ============================================================================= */
+
+.end {
+  text-align: center;
+  font-weight: bold;
+  color: var(--color-text-strong);
+  padding-top: var(--spacing-huge);
+  padding-bottom: var(--spacing-huge);
 }
 
 img {
@@ -257,80 +425,42 @@ img {
 
 @media screen and (prefers-reduced-motion: no-preference) {
   .container > * {
-    transition: opacity 1s;
+    transition: opacity var(--transition-very-slow);
   }
 }
 
-ul {
-  margin: 0.5em 0;
-  padding-left: 1.5em;
+/* =============================================================================
+   INLINE STYLES
+   ============================================================================= */
+
+code {
+  background: var(--color-code-bg);
+  padding: 0.2em 0.4em;
+  border-radius: var(--border-radius);
+  font-family: var(--font-monospace);
+  font-size: 0.9em;
+  color: var(--color-text-primary);
 }
 
-li {
-  margin: 0.3em 0;
-  line-height: 1.6em;
+.inline-highlight {
+  background: var(--color-highlight);
+  padding: 0.1em 0.3em;
 }
 
-blockquote {
-  margin: 1em 0;
-  padding: 0.5em 1em;
-  border-left: 3px solid #ccc;
-  background: #f9f9f9;
-  font-style: italic;
-  color: #666;
-}
-
-.dark ul {
-  color: white;
-}
-
-.dark li {
-  color: white;
-}
-
-.dark blockquote {
-  background: #2d3748;
-  border-left-color: #555;
-  color: #bbb;
-}
-
-/*
-  Class applied to all choices
-  (Will always appear inside <p> element by default.)
-*/
-.choice {
-  text-align: center;
-  line-height: 1.7em;
-}
-
-/* 
-  Class applied to first choice
-*/
-:not(.choice) + .choice {
-  padding-top: 1em;
-}
-
-/*
-  Class applied to choice links
-*/
-.choice a,
-.choice span {
-  font-size: 15pt;
-}
-
-/* 
-  Built-in class:
-    The End # CLASS: end
-*/
-.end {
-  text-align: center;
+.inline-important {
+  color: var(--color-important);
   font-weight: bold;
-  color: black;
-  padding-top: 20px;
-  padding-bottom: 20px;
 }
 
-/* Modal styles */
+.inline-quiet {
+  color: var(--color-quiet);
+  font-size: 0.9em;
+}
+
+/* =============================================================================
+   MODALS
+   ============================================================================= */
+
 .modal {
   display: none;
   position: fixed;
@@ -344,20 +474,21 @@ blockquote {
 }
 
 .modal-content {
-  background-color: white;
+  background-color: var(--color-background);
   margin: 5% auto;
   padding: 0;
   border: none;
   width: 90%;
-  max-width: 600px;
-  border-radius: 8px;
+  max-width: var(--content-max-width);
+  border-radius: var(--border-radius-lg);
   max-height: 80vh;
   overflow-y: auto;
 }
 
 .modal-header {
-  padding: 20px 20px 10px 20px;
-  border-bottom: 1px solid #eee;
+  padding: var(--spacing-huge) var(--spacing-huge) var(--spacing-lg)
+    var(--spacing-huge);
+  border-bottom: 1px solid var(--color-border-light);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -365,21 +496,21 @@ blockquote {
 
 .modal-header h2 {
   margin: 0;
-  color: #333;
+  color: var(--color-text-strong);
 }
 
 .modal-body {
-  padding: 20px;
+  padding: var(--spacing-huge);
 }
 
 .modal-body h3 {
-  color: #333;
+  color: var(--color-text-strong);
   margin-top: 1.5em;
   margin-bottom: 0.5em;
 }
 
 .close {
-  color: #aaa;
+  color: var(--color-text-secondary);
   font-size: 28px;
   font-weight: bold;
   cursor: pointer;
@@ -388,122 +519,5 @@ blockquote {
 
 .close:hover,
 .close:focus {
-  color: #000;
-}
-
-code {
-  background: #f8f9fa;
-  padding: 0.2em 0.4em;
-  border-radius: 3px;
-  font-family: "Courier New", monospace;
-  font-size: 0.9em;
-}
-
-.inline-highlight {
-  background: yellow;
-  padding: 0.1em 0.3em;
-}
-
-.inline-important {
-  color: #e74c3c;
-  font-weight: bold;
-}
-
-.inline-quiet {
-  color: #7f8c8d;
-  font-size: 0.9em;
-}
-
-/* 
-  Dark Theme (Added in Inky 0.10.0)
-    # theme: dark
-*/
-
-body.dark {
-  background: black;
-  color: white;
-}
-
-.dark h2,
-.dark .H2 {
-  color: #666;
-}
-
-.dark .container {
-  background: black;
-}
-
-.dark .top-nav {
-  background: black;
-  border-bottom-color: #333;
-}
-
-.dark .nav-controls a {
-  color: #cc8f1a;
-}
-
-.dark .nav-controls a:hover {
-  background-color: rgba(204, 143, 26, 0.1);
-}
-
-.dark a {
-  color: #cc8f1a;
-}
-.dark .unclickable {
-  color: #c4af87;
-  cursor: not-allowed;
-}
-
-.dark a:hover {
-  color: white;
-}
-
-@media screen and (prefers-reduced-motion: no-preference) {
-  .dark a {
-    transition: color 0.6s;
-  }
-}
-
-.dark strong {
-  color: white;
-}
-
-.dark .nav-byline {
-  color: #666;
-}
-
-.dark .nav-controls [disabled] {
-  color: #444;
-}
-
-.dark .end {
-  color: white;
-}
-
-/* Dark theme support for modals */
-.dark .modal-content {
-  background-color: #222;
-}
-
-.dark .modal-header {
-  border-bottom: 1px solid #444;
-}
-
-.dark .modal-header h2,
-.dark .modal-body h3 {
-  color: white;
-}
-
-.dark .close {
-  color: #ccc;
-}
-
-.dark .close:hover,
-.dark .close:focus {
-  color: white;
-}
-
-.dark code {
-  background: #2d3748;
-  color: #e2e8f0;
+  color: var(--color-text-strong);
 }
