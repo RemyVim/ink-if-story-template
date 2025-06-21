@@ -17,7 +17,7 @@
         </div>
         <div class="nav-controls">
           <a id="rewind" title="Restart story from beginning">restart</a>
-          <a id="saves-btn" title="Save or load your progress">saves</a>
+          <a id="saves-btn" title="Save and load game">saves</a>
           <a id="stats-btn" title="View character stats" style="display: none"
             >stats</a
           >
@@ -43,30 +43,37 @@
       <div id="story" class="container"></div>
     </div>
 
-    <div id="modal-template" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2 id="modal-title">Modal Title</h2>
-          <span class="close">&times;</span>
-        </div>
-        <div class="modal-body" id="modal-body"></div>
-      </div>
-    </div>
-
     <!-- Scripts - Load in dependency order -->
+
+    <!-- Core Ink.js library -->
     <script src="js/ink.js"></script>
 
-    <!-- Utility modules -->
+    <!-- Utility modules (no dependencies) -->
     <script src="js/markdown.js"></script>
     <script src="js/story-state.js"></script>
-    <script src="js/theme.js"></script>
     <script src="js/dom-helpers.js"></script>
-    <script src="js/tags.js"></script>
-    <script src="js/settings.js"></script>
-    <script src="js/saves.js"></script>
 
-    <!-- Main controller -->
-    <script src="js/story-controller.js"></script>
+    <!-- Theme and tag processing -->
+    <script src="js/theme.js"></script>
+    <script src="js/tags.js"></script>
+
+    <!-- Settings system -->
+    <script src="js/settings.js"></script>
+
+    <!-- Save system -->
+    <script src="js/saves-modal-manager.js"></script>
+    <script src="js/game-save-system.js"></script>
+
+    <!-- Managers -->
+    <script src="js/display-manager.js"></script>
+    <script src="js/choice-manager.js"></script>
+    <script src="js/page-manager.js"></script>
+    <script src="js/navigation-manager.js"></script>
+    <script src="js/content-processor.js"></script>
+    <script src="js/save-manager.js"></script>
+
+    <!-- Main story orchestrator -->
+    <script src="js/story-manager.js"></script>
 
     <!-- Entry point -->
     <script src="js/main.js"></script>
