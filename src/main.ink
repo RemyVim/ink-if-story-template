@@ -1,5 +1,6 @@
 # author: Rémy Vim
 # title: Ink HTML Template
+# theme: dark
 
 INCLUDE pages/credits.ink
 INCLUDE pages/about.ink
