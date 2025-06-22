@@ -1,4 +1,5 @@
 === about ===
+# SPECIAL_PAGE
 : About This Demo
 
 This interactive demo showcases the **Ink HTML Template** capabilities.

@@ -8,7 +8,7 @@ class StoryManager {
       this.availablePages = {};
 
       this.initializeSubsystems();
-      this.detectFeatures();
+      this.detectSpecialPages(); // Changed from detectFeatures
       this.setupInitialState();
     } catch (error) {
       window.errorManager.critical(
@@ -16,7 +16,7 @@ class StoryManager {
         error,
         "story",
       );
-      throw error; // Re-throw so main.js can show fallback UI
+      throw error;
     }
   }
 
@@ -55,29 +55,69 @@ class StoryManager {
     }
   }
 
-  detectFeatures() {
+  // New method to detect special pages by scanning for SPECIAL_PAGE tag
+  detectSpecialPages() {
     this.availablePages = {};
-    const features = [
-      "content_warnings",
-      "about",
-      "stats_page",
-      "inventory",
-      "help",
-      "credits",
-    ];
 
-    features.forEach((feature) => {
-      try {
-        this.availablePages[feature] = this.story.HasFunction(feature);
-      } catch (error) {
-        window.errorManager.warning(
-          `Failed to detect feature ${feature}`,
-          error,
-          "story",
-        );
-        this.availablePages[feature] = false;
+    try {
+      // Get all named content from the main container
+      const namedContent = this.story.mainContentContainer.namedContent;
+
+      for (let [knotName, knotContent] of namedContent) {
+        try {
+          // Check if this knot is marked as a special page
+          if (this.isSpecialPage(knotName)) {
+            this.availablePages[knotName] = true;
+          }
+        } catch (error) {
+          window.errorManager.warning(
+            `Failed to check if ${knotName} is special page`,
+            error,
+            "story",
+          );
+        }
       }
-    });
+
+      console.log(
+        `Found ${Object.keys(this.availablePages).length} special pages:`,
+        Object.keys(this.availablePages),
+      );
+    } catch (error) {
+      window.errorManager.error(
+        "Failed to detect special pages",
+        error,
+        "story",
+      );
+    }
+  }
+
+  // Check if a knot is marked as a special page
+  isSpecialPage(knotName) {
+    try {
+      // Create a temporary story to test the knot
+      const tempStory = new inkjs.Story(this.story.ToJson());
+
+      // Try to navigate to the knot
+      tempStory.ChoosePathString(knotName);
+
+      // Check the first line for SPECIAL_PAGE tag
+      if (tempStory.canContinue) {
+        tempStory.Continue();
+        const tags = tempStory.currentTags || [];
+
+        // Look for SPECIAL_PAGE tag
+        for (let tag of tags) {
+          if (tag.trim().toUpperCase() === "SPECIAL_PAGE") {
+            return true;
+          }
+        }
+      }
+
+      return false;
+    } catch (error) {
+      // If we can't navigate to it, it's not a valid knot
+      return false;
+    }
   }
 
   setupInitialState() {
@@ -85,7 +125,7 @@ class StoryManager {
       // Process global tags for theme and metadata
       this.settings?.processGlobalTags?.(this.story.globalTags);
 
-      // Update navigation based on available features
+      // Update navigation based on available special pages
       this.navigation?.updateVisibility?.(this.availablePages);
 
       // Set initial save point and start
@@ -360,6 +400,7 @@ class StoryManager {
         hasChoices: this.hasChoices(),
         currentPage: this.currentPage,
         displayLength: this.display?.getHistoryLength?.() || 0,
+        specialPagesFound: Object.keys(this.availablePages).length,
       };
     } catch (error) {
       window.errorManager.warning("Failed to get stats", error, "story");
@@ -372,6 +413,7 @@ class StoryManager {
       availablePages: { ...this.availablePages },
       hasGlobalTags: this.story.globalTags?.length > 0,
       hasCurrentTags: this.story.currentTags?.length > 0,
+      specialPageCount: Object.keys(this.availablePages).length,
     };
   }
 

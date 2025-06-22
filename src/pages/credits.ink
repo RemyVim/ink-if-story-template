@@ -1,4 +1,5 @@
 === credits ===
+# SPECIAL_PAGE
 : Template Credits
 
 **Ink HTML Template** - A responsive web framework for interactive fiction

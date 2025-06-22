@@ -107,6 +107,11 @@ class TagProcessor {
           // Check for special system tags
           if (simpleTag === "CLEAR" || simpleTag === "RESTART") {
             specialActions.push(() => simpleTag);
+          } else if (simpleTag === "SPECIAL_PAGE") {
+            // SPECIAL_PAGE tag is just a marker - don't add any classes or actions
+            // It's used by the story manager to identify special pages
+            // but doesn't affect rendering
+            continue;
           } else {
             // Add as class
             customClasses.push(simpleTag.toLowerCase());
@@ -152,6 +157,9 @@ class TagProcessor {
 
           if (simpleTag === "UNCLICKABLE") {
             isClickable = false;
+          } else if (simpleTag === "SPECIAL_PAGE") {
+            // SPECIAL_PAGE tag doesn't affect choice behavior
+            continue;
           } else {
             customClasses.push(simpleTag.toLowerCase());
           }
@@ -163,6 +171,20 @@ class TagProcessor {
       window.errorManager.error("Failed to process choice tags", error, "tags");
       return { customClasses: [], isClickable: true };
     }
+  }
+
+  /**
+   * Check if a tag array contains the SPECIAL_PAGE marker
+   * @param {Array} tags - Array of tags to check
+   * @returns {boolean} True if SPECIAL_PAGE tag is present
+   */
+  static hasSpecialPageTag(tags) {
+    if (!Array.isArray(tags)) return false;
+
+    return tags.some((tag) => {
+      if (typeof tag !== "string") return false;
+      return tag.trim().toUpperCase() === "SPECIAL_PAGE";
+    });
   }
 
   // Media and interaction methods

@@ -29,9 +29,10 @@ class PageManager {
       return;
     }
 
-    if (!this.storyManager.availablePages?.[pageName]) {
+    // Check if this is actually a special page
+    if (!this.isSpecialPage(pageName)) {
       window.errorManager.warning(
-        `Page "${pageName}" does not exist in the story`,
+        `Page "${pageName}" is not marked as a special page`,
         null,
         "pages",
       );
@@ -56,6 +57,15 @@ class PageManager {
       this.addReturnButton();
       this.storyManager.display.scrollToTop();
     }
+  }
+
+  /**
+   * Check if a page is marked as a special page
+   * @param {string} pageName - Name of the page to check
+   * @returns {boolean} True if it's a special page
+   */
+  isSpecialPage(pageName) {
+    return !!(pageName && this.storyManager?.availablePages?.[pageName]);
   }
 
   /**
@@ -84,15 +94,23 @@ class PageManager {
       tempStory.ChoosePathString(pageName);
 
       const content = [];
+      let isFirstLine = true;
 
       while (tempStory.canContinue) {
         const text = tempStory.Continue();
+        const tags = tempStory.currentTags || [];
+
+        // Skip the first line if it only contains the SPECIAL_PAGE tag
+        if (isFirstLine && this.containsOnlySpecialPageTag(text, tags)) {
+          isFirstLine = false;
+          continue;
+        }
+        isFirstLine = false;
 
         // Skip empty paragraphs
         if (!text?.trim()) continue;
 
         // Process any tags in the page content
-        const tags = tempStory.currentTags || [];
         let customClasses = ["special-page"];
 
         if (this.tagProcessor?.processLineTags) {
@@ -124,6 +142,32 @@ class PageManager {
       );
       return [];
     }
+  }
+
+  /**
+   * Check if text/tags only contain the SPECIAL_PAGE marker
+   * @param {string} text - The text content
+   * @param {Array} tags - The tags array
+   * @returns {boolean} True if this line only marks the page as special
+   */
+  containsOnlySpecialPageTag(text, tags) {
+    // If there's actual text content, it's not just a marker
+    if (text && text.trim().length > 0) {
+      return false;
+    }
+
+    // Check if tags only contain SPECIAL_PAGE
+    if (!Array.isArray(tags) || tags.length === 0) {
+      return false;
+    }
+
+    const hasSpecialPageTag = tags.some(
+      (tag) => tag.trim().toUpperCase() === "SPECIAL_PAGE",
+    );
+
+    // If it has the special page tag and only whitespace/empty content,
+    // treat it as just a marker line
+    return hasSpecialPageTag && (!text || text.trim().length === 0);
   }
 
   /**
@@ -251,7 +295,7 @@ class PageManager {
    * @returns {boolean} True if the page exists
    */
   pageExists(pageName) {
-    return !!(pageName && this.storyManager?.availablePages?.[pageName]);
+    return this.isSpecialPage(pageName);
   }
 
   /**
@@ -275,8 +319,20 @@ class PageManager {
       tempStory.ChoosePathString(pageName);
 
       let fullText = "";
+      let isFirstLine = true;
+
       while (tempStory.canContinue) {
-        fullText += tempStory.Continue();
+        const text = tempStory.Continue();
+        const tags = tempStory.currentTags || [];
+
+        // Skip the first line if it only contains the SPECIAL_PAGE tag
+        if (isFirstLine && this.containsOnlySpecialPageTag(text, tags)) {
+          isFirstLine = false;
+          continue;
+        }
+        isFirstLine = false;
+
+        fullText += text;
       }
 
       return fullText.trim();

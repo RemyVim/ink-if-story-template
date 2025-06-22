@@ -2,14 +2,7 @@
 class NavigationManager {
   constructor(storyManager) {
     this.storyManager = storyManager;
-    this.buttonMappings = {
-      "content-warnings": "content_warnings",
-      "about-btn": "about",
-      "stats-btn": "stats_page",
-      "inventory-btn": "inventory",
-      "help-btn": "help",
-      credits: "credits",
-    };
+    this.dynamicButtons = new Map(); // Track dynamically created buttons
 
     if (!this.storyManager) {
       window.errorManager.critical(
@@ -24,7 +17,7 @@ class NavigationManager {
   }
 
   /**
-   * Update navigation button visibility based on available pages
+   * Update navigation button visibility based on available special pages
    * @param {Object} availablePages - Object mapping page names to availability
    */
   updateVisibility(availablePages) {
@@ -37,13 +30,110 @@ class NavigationManager {
       return;
     }
 
-    Object.entries(this.buttonMappings).forEach(([buttonId, knotName]) => {
-      const button = document.getElementById(buttonId);
-      if (button) {
-        const isAvailable = availablePages[knotName] || false;
-        button.style.display = isAvailable ? "inline-block" : "none";
+    // Remove existing dynamic buttons
+    this.clearDynamicButtons();
+
+    // Create buttons for each special page
+    this.createSpecialPageButtons(availablePages);
+  }
+
+  /**
+   * Clear all dynamically created buttons
+   */
+  clearDynamicButtons() {
+    for (let [buttonId, button] of this.dynamicButtons) {
+      if (button && button.parentNode) {
+        button.parentNode.removeChild(button);
+      }
+    }
+    this.dynamicButtons.clear();
+  }
+
+  /**
+   * Create navigation buttons for special pages
+   * @param {Object} availablePages - Object mapping page names to availability
+   */
+  createSpecialPageButtons(availablePages) {
+    const navControls = document.querySelector(".nav-controls");
+    if (!navControls) {
+      window.errorManager.warning(
+        "Navigation controls container not found",
+        null,
+        "navigation",
+      );
+      return;
+    }
+
+    // Get the settings button to insert before it
+    const settingsBtn = document.getElementById("settings-btn");
+    const insertBefore = settingsBtn || null;
+
+    Object.keys(availablePages).forEach((pageName) => {
+      if (availablePages[pageName]) {
+        this.createSpecialPageButton(pageName, navControls, insertBefore);
       }
     });
+  }
+
+  /**
+   * Create a single special page button
+   * @param {string} pageName - Name of the special page
+   * @param {Element} container - Container to add the button to
+   * @param {Element} insertBefore - Element to insert before
+   */
+  createSpecialPageButton(pageName, container, insertBefore) {
+    const buttonId = `special-page-${pageName}`;
+
+    // Don't create duplicate buttons
+    if (this.dynamicButtons.has(buttonId)) {
+      return;
+    }
+
+    const button = document.createElement("a");
+    button.id = buttonId;
+    button.href = "#";
+    button.title = `View ${this.formatPageName(pageName)}`;
+    button.textContent = this.formatPageName(pageName);
+
+    // Add click handler
+    button.addEventListener("click", (e) => {
+      try {
+        e.preventDefault();
+        this.storyManager.pages.show(pageName);
+      } catch (error) {
+        window.errorManager.error(
+          "Failed to show special page",
+          error,
+          "navigation",
+        );
+      }
+    });
+
+    // Insert the button
+    if (insertBefore) {
+      container.insertBefore(button, insertBefore);
+    } else {
+      container.appendChild(button);
+    }
+
+    // Track the button
+    this.dynamicButtons.set(buttonId, button);
+  }
+
+  /**
+   * Format page name for display
+   * @param {string} pageName - Raw page name
+   * @returns {string} Formatted display name
+   */
+  formatPageName(pageName) {
+    // Convert camelCase and snake_case to readable format
+    return pageName
+      .replace(/([a-z])([A-Z])/g, "$1 $2") // camelCase to words
+      .replace(/_/g, " ") // snake_case to words
+      .toLowerCase()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   }
 
   /**
@@ -51,7 +141,6 @@ class NavigationManager {
    */
   setupButtons() {
     this.setupCoreButtons();
-    this.setupSpecialPageButtons();
   }
 
   /**
@@ -64,35 +153,6 @@ class NavigationManager {
     });
 
     // Note: Saves and settings buttons are handled by their respective managers
-  }
-
-  /**
-   * Setup special page navigation buttons
-   */
-  setupSpecialPageButtons() {
-    if (!this.storyManager.pages) {
-      window.errorManager.warning(
-        "Pages manager not available for special page buttons",
-        null,
-        "navigation",
-      );
-      return;
-    }
-
-    Object.entries(this.buttonMappings).forEach(([buttonId, knotName]) => {
-      this.setupButton(buttonId, (e) => {
-        try {
-          e.preventDefault();
-          this.storyManager.pages.show(knotName);
-        } catch (error) {
-          window.errorManager.error(
-            "Failed to show special page",
-            error,
-            "navigation",
-          );
-        }
-      });
-    });
   }
 
   /**
@@ -112,14 +172,11 @@ class NavigationManager {
 
     const button = document.getElementById(buttonId);
     if (!button) {
-      // Don't warn for optional special page buttons
-      if (!this.isOptionalButton(buttonId)) {
-        window.errorManager.warning(
-          `Button not found: ${buttonId}`,
-          null,
-          "navigation",
-        );
-      }
+      window.errorManager.warning(
+        `Button not found: ${buttonId}`,
+        null,
+        "navigation",
+      );
       return;
     }
 
@@ -146,15 +203,6 @@ class NavigationManager {
         "navigation",
       );
     }
-  }
-
-  /**
-   * Check if a button is optional (special page buttons that may not exist)
-   * @param {string} buttonId - Button ID to check
-   * @returns {boolean} True if button is optional
-   */
-  isOptionalButton(buttonId) {
-    return Object.keys(this.buttonMappings).includes(buttonId);
   }
 
   /**
@@ -205,29 +253,37 @@ class NavigationManager {
    */
   getButtonStates() {
     const states = {};
-    const allButtons = [
-      "rewind",
-      "saves-btn",
-      "settings-btn",
-      ...Object.keys(this.buttonMappings),
-    ];
+    const coreButtons = ["rewind", "saves-btn", "settings-btn"];
 
-    allButtons.forEach((buttonId) => {
+    // Check core buttons
+    coreButtons.forEach((buttonId) => {
       const button = document.getElementById(buttonId);
       if (button) {
         states[buttonId] = {
           visible: button.style.display !== "none",
           enabled: !button.hasAttribute("disabled"),
           exists: true,
+          isDynamic: false,
         };
       } else {
         states[buttonId] = {
           visible: false,
           enabled: false,
           exists: false,
+          isDynamic: false,
         };
       }
     });
+
+    // Check dynamic buttons
+    for (let [buttonId, button] of this.dynamicButtons) {
+      states[buttonId] = {
+        visible: button.style.display !== "none",
+        enabled: !button.hasAttribute("disabled"),
+        exists: true,
+        isDynamic: true,
+      };
+    }
 
     return states;
   }
@@ -241,10 +297,8 @@ class NavigationManager {
     this.setButtonEnabled("saves-btn", true);
     this.setButtonEnabled("settings-btn", true);
 
-    // Reset special page button visibility
-    Object.keys(this.buttonMappings).forEach((buttonId) => {
-      this.setButtonVisible(buttonId, false);
-    });
+    // Clear dynamic buttons
+    this.clearDynamicButtons();
   }
 
   /**
@@ -254,23 +308,23 @@ class NavigationManager {
   getStats() {
     const buttonStates = this.getButtonStates();
     const totalButtons = Object.keys(buttonStates).length;
+    const dynamicButtons = Object.values(buttonStates).filter(
+      (s) => s.isDynamic,
+    ).length;
     const existingButtons = Object.values(buttonStates).filter(
       (s) => s.exists,
     ).length;
     const visibleButtons = Object.values(buttonStates).filter(
       (s) => s.visible,
     ).length;
-    const enabledButtons = Object.values(buttonStates).filter(
-      (s) => s.enabled,
-    ).length;
 
     return {
       hasStoryManager: !!this.storyManager,
       totalButtons,
+      dynamicButtons,
       existingButtons,
       visibleButtons,
-      enabledButtons,
-      buttonMappings: Object.keys(this.buttonMappings).length,
+      trackedDynamicButtons: this.dynamicButtons.size,
     };
   }
 
