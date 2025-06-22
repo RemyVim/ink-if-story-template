@@ -1,8 +1,9 @@
-// Tag processing utilities
+// tags.js
 class TagProcessor {
   constructor(storyContainer, outerScrollContainer) {
-    this.storyContainer = storyContainer;
-    this.outerScrollContainer = outerScrollContainer;
+    this.storyContainer = storyContainer || document.querySelector("#story");
+    this.outerScrollContainer =
+      outerScrollContainer || document.querySelector(".outerContainer");
     this.audio = null;
     this.audioLoop = null;
   }
@@ -11,153 +12,385 @@ class TagProcessor {
   //  # PROPERTY: value
   // e.g. IMAGE: source path
   static splitPropertyTag(tag) {
-    const propertySplitIdx = tag.indexOf(":");
-    if (propertySplitIdx !== -1) {
-      const property = tag.substr(0, propertySplitIdx).trim();
-      const val = tag.substr(propertySplitIdx + 1).trim();
-      return {
-        property: property,
-        val: val,
-      };
+    try {
+      if (!tag || typeof tag !== "string") {
+        return null;
+      }
+
+      const propertySplitIdx = tag.indexOf(":");
+      if (propertySplitIdx !== -1) {
+        const property = tag.substr(0, propertySplitIdx).trim();
+        const val = tag.substr(propertySplitIdx + 1).trim();
+        return {
+          property: property,
+          val: val,
+        };
+      }
+      return null;
+    } catch (error) {
+      window.errorManager.warning(
+        "Failed to split property tag",
+        error,
+        "tags",
+      );
+      return null;
     }
-    return null;
   }
 
   processLineTags(tags) {
-    const customClasses = [];
-    const specialActions = [];
+    try {
+      if (!Array.isArray(tags)) {
+        window.errorManager.warning(
+          "Invalid tags array passed to processLineTags",
+          null,
+          "tags",
+        );
+        return { customClasses: [], specialActions: [] };
+      }
 
-    for (let i = 0; i < tags.length; i++) {
-      const tag = tags[i];
-      const splitTag = TagProcessor.splitPropertyTag(tag);
+      const customClasses = [];
+      const specialActions = [];
 
-      if (splitTag) {
-        const property = splitTag.property.toUpperCase();
-        const value = splitTag.val;
+      for (let i = 0; i < tags.length; i++) {
+        const tag = tags[i];
+        if (typeof tag !== "string") continue;
 
-        switch (property) {
-          case "AUDIO":
-            specialActions.push(() => this.playAudio(value));
-            break;
-          case "AUDIOLOOP":
-            specialActions.push(() => this.playAudioLoop(value));
-            break;
-          case "IMAGE":
-            specialActions.push(() => this.showImage(value));
-            break;
-          case "LINK":
-            specialActions.push(() => this.navigateToLink(value));
-            break;
-          case "LINKOPEN":
-            specialActions.push(() => this.openLink(value));
-            break;
-          case "BACKGROUND":
-            specialActions.push(() => this.setBackground(value));
-            break;
-          case "CLASS":
-            customClasses.push(value);
-            break;
-        }
-      } else {
-        // Handle simple tags without colons
-        const simpleTag = tag.trim().toUpperCase();
+        const splitTag = TagProcessor.splitPropertyTag(tag);
 
-        // Check for special system tags
-        if (simpleTag === "CLEAR" || simpleTag === "RESTART") {
-          specialActions.push(() => simpleTag);
+        if (splitTag) {
+          const property = splitTag.property.toUpperCase();
+          const value = splitTag.val;
+
+          switch (property) {
+            case "AUDIO":
+              specialActions.push(() => this.playAudio(value));
+              break;
+            case "AUDIOLOOP":
+              specialActions.push(() => this.playAudioLoop(value));
+              break;
+            case "IMAGE":
+              specialActions.push(() => this.showImage(value));
+              break;
+            case "LINK":
+              specialActions.push(() => this.navigateToLink(value));
+              break;
+            case "LINKOPEN":
+              specialActions.push(() => this.openLink(value));
+              break;
+            case "BACKGROUND":
+              specialActions.push(() => this.setBackground(value));
+              break;
+            case "CLASS":
+              if (value) customClasses.push(value);
+              break;
+          }
         } else {
-          // Add as class
-          customClasses.push(simpleTag.toLowerCase());
+          // Handle simple tags without colons
+          const simpleTag = tag.trim().toUpperCase();
+
+          // Check for special system tags
+          if (simpleTag === "CLEAR" || simpleTag === "RESTART") {
+            specialActions.push(() => simpleTag);
+          } else {
+            // Add as class
+            customClasses.push(simpleTag.toLowerCase());
+          }
         }
       }
-    }
 
-    return { customClasses, specialActions };
+      return { customClasses, specialActions };
+    } catch (error) {
+      window.errorManager.error("Failed to process line tags", error, "tags");
+      return { customClasses: [], specialActions: [] };
+    }
   }
 
   processChoiceTags(choiceTags) {
-    const customClasses = [];
-    let isClickable = true;
+    try {
+      if (!Array.isArray(choiceTags)) {
+        window.errorManager.warning(
+          "Invalid choiceTags array passed to processChoiceTags",
+          null,
+          "tags",
+        );
+        return { customClasses: [], isClickable: true };
+      }
 
-    for (let i = 0; i < choiceTags.length; i++) {
-      const choiceTag = choiceTags[i];
-      const splitTag = TagProcessor.splitPropertyTag(choiceTag);
+      const customClasses = [];
+      let isClickable = true;
 
-      if (splitTag) {
-        const property = splitTag.property.toUpperCase();
+      for (let i = 0; i < choiceTags.length; i++) {
+        const choiceTag = choiceTags[i];
+        if (typeof choiceTag !== "string") continue;
 
-        if (property === "CLASS") {
-          customClasses.push(splitTag.val);
-        }
-      } else {
-        const simpleTag = choiceTag.trim().toUpperCase();
+        const splitTag = TagProcessor.splitPropertyTag(choiceTag);
 
-        if (simpleTag === "UNCLICKABLE") {
-          isClickable = false;
+        if (splitTag) {
+          const property = splitTag.property.toUpperCase();
+
+          if (property === "CLASS" && splitTag.val) {
+            customClasses.push(splitTag.val);
+          }
         } else {
-          customClasses.push(simpleTag.toLowerCase());
+          const simpleTag = choiceTag.trim().toUpperCase();
+
+          if (simpleTag === "UNCLICKABLE") {
+            isClickable = false;
+          } else {
+            customClasses.push(simpleTag.toLowerCase());
+          }
         }
       }
-    }
 
-    return { customClasses, isClickable };
+      return { customClasses, isClickable };
+    } catch (error) {
+      window.errorManager.error("Failed to process choice tags", error, "tags");
+      return { customClasses: [], isClickable: true };
+    }
   }
 
   // Media and interaction methods
   playAudio(src) {
-    // Check if audio is enabled in settings via the story manager
-    if (
-      window.storyManager &&
-      window.storyManager.settings &&
-      !window.storyManager.settings.getSetting("audioEnabled")
-    ) {
-      return; // Skip audio if disabled
-    }
+    try {
+      // Check if audio is enabled in settings
+      if (
+        window.storyManager?.settings &&
+        !window.storyManager.settings.getSetting("audioEnabled")
+      ) {
+        return; // Skip audio if disabled
+      }
 
-    if (this.audio) {
-      this.audio.pause();
-      this.audio.removeAttribute("src");
-      this.audio.load();
+      if (!src || typeof src !== "string") {
+        window.errorManager.warning(
+          "Invalid audio source provided",
+          null,
+          "tags",
+        );
+        return;
+      }
+
+      // Stop existing audio
+      if (this.audio) {
+        this.audio.pause();
+        this.audio.removeAttribute("src");
+        this.audio.load();
+      }
+
+      this.audio = new Audio(src);
+      this.audio.play().catch((error) => {
+        window.errorManager.warning(
+          `Failed to play audio: ${src}`,
+          error,
+          "tags",
+        );
+      });
+    } catch (error) {
+      window.errorManager.error("Failed to play audio", error, "tags");
     }
-    this.audio = new Audio(src);
-    this.audio.play();
   }
 
   playAudioLoop(src) {
-    // Check if audio is enabled in settings via the story manager
-    if (
-      window.storyManager &&
-      window.storyManager.settings &&
-      !window.storyManager.settings.getSetting("audioEnabled")
-    ) {
-      return; // Skip audio if disabled
-    }
+    try {
+      // Check if audio is enabled in settings
+      if (
+        window.storyManager?.settings &&
+        !window.storyManager.settings.getSetting("audioEnabled")
+      ) {
+        return; // Skip audio if disabled
+      }
 
-    if (this.audioLoop) {
-      this.audioLoop.pause();
-      this.audioLoop.removeAttribute("src");
-      this.audioLoop.load();
+      if (!src || typeof src !== "string") {
+        window.errorManager.warning(
+          "Invalid audio loop source provided",
+          null,
+          "tags",
+        );
+        return;
+      }
+
+      // Stop existing audio loop
+      if (this.audioLoop) {
+        this.audioLoop.pause();
+        this.audioLoop.removeAttribute("src");
+        this.audioLoop.load();
+      }
+
+      this.audioLoop = new Audio(src);
+      this.audioLoop.loop = true;
+      this.audioLoop.play().catch((error) => {
+        window.errorManager.warning(
+          `Failed to play audio loop: ${src}`,
+          error,
+          "tags",
+        );
+      });
+    } catch (error) {
+      window.errorManager.error("Failed to play audio loop", error, "tags");
     }
-    this.audioLoop = new Audio(src);
-    this.audioLoop.play();
-    this.audioLoop.loop = true;
   }
 
   showImage(src) {
-    const imageElement = document.createElement("img");
-    imageElement.src = src;
-    this.storyContainer.appendChild(imageElement);
+    try {
+      if (!this.storyContainer) {
+        window.errorManager.error(
+          "Story container not available for image display",
+          null,
+          "tags",
+        );
+        return;
+      }
+
+      if (!src || typeof src !== "string") {
+        window.errorManager.warning(
+          "Invalid image source provided",
+          null,
+          "tags",
+        );
+        return;
+      }
+
+      const imageElement = document.createElement("img");
+      imageElement.src = src;
+      imageElement.onerror = () => {
+        window.errorManager.warning(
+          `Failed to load image: ${src}`,
+          null,
+          "tags",
+        );
+      };
+
+      this.storyContainer.appendChild(imageElement);
+    } catch (error) {
+      window.errorManager.error("Failed to show image", error, "tags");
+    }
   }
 
   navigateToLink(url) {
-    window.location.href = url;
+    try {
+      if (!url || typeof url !== "string") {
+        window.errorManager.warning(
+          "Invalid URL provided for navigation",
+          null,
+          "tags",
+        );
+        return;
+      }
+
+      // Basic URL validation
+      try {
+        new URL(url, window.location.origin);
+        window.location.href = url;
+      } catch (urlError) {
+        window.errorManager.warning(
+          `Invalid URL format: ${url}`,
+          urlError,
+          "tags",
+        );
+      }
+    } catch (error) {
+      window.errorManager.error("Failed to navigate to link", error, "tags");
+    }
   }
 
   openLink(url) {
-    window.open(url);
+    try {
+      if (!url || typeof url !== "string") {
+        window.errorManager.warning(
+          "Invalid URL provided for opening link",
+          null,
+          "tags",
+        );
+        return;
+      }
+
+      // Basic URL validation
+      try {
+        new URL(url, window.location.origin);
+        window.open(url);
+      } catch (urlError) {
+        window.errorManager.warning(
+          `Invalid URL format for opening: ${url}`,
+          urlError,
+          "tags",
+        );
+      }
+    } catch (error) {
+      window.errorManager.error("Failed to open link", error, "tags");
+    }
   }
 
   setBackground(src) {
-    this.outerScrollContainer.style.backgroundImage = "url(" + src + ")";
+    try {
+      if (!this.outerScrollContainer) {
+        window.errorManager.warning(
+          "Outer scroll container not available for background",
+          null,
+          "tags",
+        );
+        return;
+      }
+
+      if (!src || typeof src !== "string") {
+        window.errorManager.warning(
+          "Invalid background source provided",
+          null,
+          "tags",
+        );
+        return;
+      }
+
+      this.outerScrollContainer.style.backgroundImage = "url(" + src + ")";
+    } catch (error) {
+      window.errorManager.error("Failed to set background", error, "tags");
+    }
+  }
+
+  /**
+   * Check if tag processor is ready to use
+   * @returns {boolean} True if ready
+   */
+  isReady() {
+    try {
+      return !!(this.storyContainer || this.outerScrollContainer);
+    } catch (error) {
+      window.errorManager.warning("Failed to check readiness", error, "tags");
+      return false;
+    }
+  }
+
+  /**
+   * Get tag processor statistics
+   * @returns {Object} Tag processor stats
+   */
+  getStats() {
+    try {
+      return {
+        hasStoryContainer: !!this.storyContainer,
+        hasOuterScrollContainer: !!this.outerScrollContainer,
+        hasActiveAudio: !!this.audio,
+        hasActiveAudioLoop: !!this.audioLoop,
+      };
+    } catch (error) {
+      window.errorManager.warning("Failed to get stats", error, "tags");
+      return {};
+    }
+  }
+
+  /**
+   * Clean up audio resources
+   */
+  cleanup() {
+    try {
+      if (this.audio) {
+        this.audio.pause();
+        this.audio = null;
+      }
+      if (this.audioLoop) {
+        this.audioLoop.pause();
+        this.audioLoop = null;
+      }
+    } catch (error) {
+      window.errorManager.warning("Failed to cleanup", error, "tags");
+    }
   }
 }

@@ -1,333 +1,387 @@
 // story-manager.js
-// Main story orchestration class - coordinates all subsystems
-
 class StoryManager {
   constructor(storyContent) {
-    this.story = new inkjs.Story(storyContent);
-    this.savePoint = "";
-    this.currentPage = null;
-    this.availablePages = {};
+    try {
+      this.story = new inkjs.Story(storyContent);
+      this.savePoint = "";
+      this.currentPage = null;
+      this.availablePages = {};
 
-    this.initializeSubsystems();
-    this.detectFeatures();
-    this.setupInitialState();
+      this.initializeSubsystems();
+      this.detectFeatures();
+      this.setupInitialState();
+    } catch (error) {
+      window.errorManager.critical(
+        "Failed to initialize story",
+        error,
+        "story",
+      );
+      throw error; // Re-throw so main.js can show fallback UI
+    }
   }
 
-  /**
-   * Initialize all subsystem managers
-   */
   initializeSubsystems() {
-    // Core display and interaction systems
-    this.display = new DisplayManager();
-    this.contentProcessor = new ContentProcessor();
+    // Core display and interaction systems with lite error handling
+    this.display = this.safeInit(() => new DisplayManager(), "display");
+    this.contentProcessor = this.safeInit(
+      () => new ContentProcessor(),
+      "content",
+    );
+    this.settings = this.safeInit(() => new SettingsManager(), "settings");
+    this.pages = this.safeInit(() => new PageManager(this), "pages");
+    this.choices = this.safeInit(() => new ChoiceManager(this), "choices");
+    this.navigation = this.safeInit(
+      () => new NavigationManager(this),
+      "navigation",
+    );
+    this.saves = this.safeInit(() => new SaveSystem(this), "saves");
 
-    // Settings manager (now handles all theme logic)
-    this.settings = new SettingsManager();
-
-    // Navigation and pages
-    this.navigation = new NavigationManager(this);
-    this.pages = new PageManager(this);
-    this.choices = new ChoiceManager(this);
-
-    // Save system
-    this.saves = new SaveSystem(this);
+    // Check if critical systems failed to initialize
+    if (!this.display || !this.story) {
+      throw new Error("Critical systems failed to initialize");
+    }
   }
 
-  /**
-   * Detect which special features/pages are available in the story
-   */
+  safeInit(initFunc, componentName) {
+    try {
+      return initFunc();
+    } catch (error) {
+      window.errorManager.error(
+        `Failed to initialize ${componentName}`,
+        error,
+        "story",
+      );
+      return null;
+    }
+  }
+
   detectFeatures() {
-    this.availablePages = {
-      content_warnings: this.story.HasFunction("content_warnings"),
-      about: this.story.HasFunction("about"),
-      stats_page: this.story.HasFunction("stats_page"),
-      inventory: this.story.HasFunction("inventory"),
-      help: this.story.HasFunction("help"),
-      credits: this.story.HasFunction("credits"),
-    };
+    this.availablePages = {};
+    const features = [
+      "content_warnings",
+      "about",
+      "stats_page",
+      "inventory",
+      "help",
+      "credits",
+    ];
+
+    features.forEach((feature) => {
+      try {
+        this.availablePages[feature] = this.story.HasFunction(feature);
+      } catch (error) {
+        window.errorManager.warning(
+          `Failed to detect feature ${feature}`,
+          error,
+          "story",
+        );
+        this.availablePages[feature] = false;
+      }
+    });
   }
 
-  /**
-   * Setup initial application state
-   */
   setupInitialState() {
-    // Process global tags for theme and metadata through settings manager
-    this.settings.processGlobalTags(this.story.globalTags);
+    try {
+      // Process global tags for theme and metadata
+      this.settings?.processGlobalTags?.(this.story.globalTags);
 
-    // Update navigation based on available features
-    this.navigation.updateVisibility(this.availablePages);
+      // Update navigation based on available features
+      this.navigation?.updateVisibility?.(this.availablePages);
 
-    // Set initial save point and start
-    this.savePoint = this.story.state.ToJson();
-    this.continue(true);
+      // Set initial save point and start
+      this.savePoint = this.story.state.ToJson();
+      this.continue(true);
+    } catch (error) {
+      window.errorManager.error(
+        "Failed to setup initial state",
+        error,
+        "story",
+      );
+    }
   }
 
-  /**
-   * Continue the story, generating new content and choices
-   * @param {boolean} isFirstTime - Whether this is the initial story start
-   */
   continue(isFirstTime = false) {
-    // Don't continue if viewing a special page
-    if (this.currentPage) return;
+    try {
+      // Don't continue if viewing a special page
+      if (this.currentPage) return;
 
-    if (!isFirstTime) {
-      this.display.clear();
-      this.display.scrollToTop();
+      if (!isFirstTime) {
+        this.display?.clear?.();
+        this.display?.scrollToTop?.();
+      }
+
+      // Generate story content
+      const storyContent = this.generateContent();
+
+      // Render content if any was generated
+      if (storyContent.length > 0) {
+        this.display?.render?.(storyContent);
+      }
+
+      // Generate and render choices
+      this.createChoices();
+
+      // Update save point after generating new content
+      this.savePoint = this.story.state.ToJson();
+    } catch (error) {
+      window.errorManager.error("Failed to continue story", error, "story");
     }
-
-    // Generate story content
-    const storyContent = this.generateContent();
-
-    // Render content if any was generated
-    if (storyContent.length > 0) {
-      this.display.render(storyContent);
-    }
-
-    // Generate and render choices
-    this.createChoices();
-
-    // Update save point after generating new content
-    // This ensures we always have the latest state for special page returns
-    this.savePoint = this.story.state.ToJson();
   }
 
-  /**
-   * Generate content from the current story state
-   * @returns {Array} Array of content objects
-   */
   generateContent() {
     const content = [];
 
-    while (this.story.canContinue) {
-      const text = this.story.Continue();
-      const tags = this.story.currentTags || [];
+    try {
+      while (this.story.canContinue) {
+        const text = this.story.Continue();
+        const tags = this.story.currentTags || [];
 
-      // Skip empty paragraphs
-      if (text.trim().length === 0) continue;
+        // Skip empty paragraphs
+        if (text.trim().length === 0) continue;
 
-      // Process content with tags
-      const processedContent = this.contentProcessor.process(text, tags);
+        // Process content with tags
+        const processedContent = this.contentProcessor?.process?.(text, tags);
 
-      // Handle special actions
-      if (processedContent.hasSpecialAction) {
-        const shouldContinue = this.handleSpecialAction(
-          processedContent.action,
-        );
-        if (!shouldContinue) {
-          break; // Stop processing if restart was triggered
+        // Handle special actions
+        if (processedContent?.hasSpecialAction) {
+          const shouldContinue = this.handleSpecialAction(
+            processedContent.action,
+          );
+          if (!shouldContinue) {
+            break; // Stop processing if restart was triggered
+          }
+        }
+
+        if (processedContent) {
+          content.push(processedContent);
         }
       }
-
-      content.push(processedContent);
+    } catch (error) {
+      window.errorManager.error(
+        "Error generating story content",
+        error,
+        "story",
+      );
+      // Return what we have so far
     }
 
     return content;
   }
 
-  /**
-   * Handle special actions like CLEAR and RESTART
-   * @param {string} action - The special action to handle
-   * @returns {boolean} Whether to continue processing content
-   */
   handleSpecialAction(action) {
-    switch (action) {
-      case "CLEAR":
-        this.display.clear();
-        this.display.hideHeader();
-        return true; // Continue processing
+    try {
+      switch (action) {
+        case "CLEAR":
+          this.display?.clear?.();
+          this.display?.hideHeader?.();
+          return true; // Continue processing
 
-      case "RESTART":
-        this.restart();
-        return false; // Stop processing
+        case "RESTART":
+          this.restart();
+          return false; // Stop processing
 
-      default:
-        return true; // Continue processing
+        default:
+          return true; // Continue processing
+      }
+    } catch (error) {
+      window.errorManager.error(
+        "Failed to handle special action",
+        error,
+        "story",
+      );
+      return true;
     }
   }
 
-  /**
-   * Create and render choices from the current story state
-   */
   createChoices() {
-    if (this.story.currentChoices && this.story.currentChoices.length > 0) {
-      const choices = this.choices.generate(this.story.currentChoices);
-      this.display.renderChoices(choices);
+    try {
+      if (this.story.currentChoices?.length > 0) {
+        const choices = this.choices?.generate?.(this.story.currentChoices);
+        if (choices) {
+          this.display?.renderChoices?.(choices);
+        }
+      }
+    } catch (error) {
+      window.errorManager.error("Failed to create choices", error, "choices");
     }
   }
 
-  /**
-   * Handle choice selection
-   * @param {number} choiceIndex - Index of the selected choice
-   */
   selectChoice(choiceIndex) {
-    // Remove existing choices from display
-    this.display.container.querySelectorAll(".choice").forEach((choice) => {
-      choice.remove();
-    });
+    try {
+      // Validate choice index
+      if (
+        typeof choiceIndex !== "number" ||
+        choiceIndex < 0 ||
+        choiceIndex >= this.story.currentChoices.length
+      ) {
+        throw new Error(`Invalid choice index: ${choiceIndex}`);
+      }
 
-    // Tell the story where to go next
-    this.story.ChooseChoiceIndex(choiceIndex);
+      // Remove existing choices from display
+      this.display?.container
+        ?.querySelectorAll?.(".choice")
+        .forEach((choice) => {
+          choice.remove();
+        });
 
-    // Update save point before continuing
-    this.savePoint = this.story.state.ToJson();
+      // Tell the story where to go next
+      this.story.ChooseChoiceIndex(choiceIndex);
 
-    // Continue the story
-    this.continue();
+      // Update save point before continuing
+      this.savePoint = this.story.state.ToJson();
 
-    // Auto-save if enabled
-    this.saves.autosave();
+      // Continue the story
+      this.continue();
+
+      // Auto-save if enabled
+      this.saves?.autosave?.();
+    } catch (error) {
+      window.errorManager.error("Failed to select choice", error, "navigation");
+    }
   }
 
-  /**
-   * Restart the story from the beginning
-   */
   restart() {
-    this.story.ResetState();
-    this.currentPage = null;
-    this.display.reset();
+    try {
+      this.story.ResetState();
+      this.currentPage = null;
+      this.display?.reset?.();
 
-    // Reset page manager state
-    this.pages.reset();
+      // Reset page manager state
+      this.pages?.reset?.();
 
-    this.savePoint = this.story.state.ToJson();
-    this.continue(true);
-    this.display.scrollToTop();
+      this.savePoint = this.story.state.ToJson();
+      this.continue(true);
+      this.display?.scrollToTop?.();
+    } catch (error) {
+      window.errorManager.error("Failed to restart story", error, "story");
+    }
   }
 
-  /**
-   * Get the current complete state for saving
-   * @returns {Object} Current state object
-   */
   getCurrentState() {
-    return {
-      gameState: this.story.state.ToJson(),
-      displayState: this.display.getState(),
-      currentPage: this.currentPage,
-      savePoint: this.savePoint,
-      timestamp: Date.now(),
-    };
+    try {
+      return {
+        gameState: this.story.state.ToJson(),
+        displayState: this.display?.getState?.() || null,
+        currentPage: this.currentPage,
+        savePoint: this.savePoint,
+        timestamp: Date.now(),
+      };
+    } catch (error) {
+      window.errorManager.error("Failed to get current state", error, "story");
+      return {};
+    }
   }
 
-  /**
-   * Load a previously saved state
-   * @param {Object} state - State object to load
-   */
   loadState(state) {
     try {
-      // Load game state
-      this.story.state.LoadJson(state.gameState);
+      if (!state?.gameState) {
+        throw new Error("Invalid save state");
+      }
 
-      // Restore other state
+      // Test the state first
+      const testStory = new inkjs.Story(this.story.ToJson());
+      testStory.state.LoadJson(state.gameState);
+
+      // Apply to real story
+      this.story.state.LoadJson(state.gameState);
       this.currentPage = state.currentPage || null;
       this.savePoint = state.savePoint || this.story.state.ToJson();
 
-      // Reset page manager state when loading
-      this.pages.reset();
+      this.pages?.reset?.();
 
-      // Restore display if available
       if (state.displayState) {
-        this.display.restoreState(state.displayState);
+        this.display?.restoreState?.(state.displayState);
       } else {
-        // Fallback for older saves
-        this.display.clear();
+        this.display?.clear?.();
         this.regenerateCurrentDisplay();
       }
 
-      // Regenerate choices
       this.createChoices();
-
-      // Scroll to top
-      this.display.scrollToTop();
+      this.display?.scrollToTop?.();
     } catch (error) {
-      console.error("Failed to load state:", error);
-      throw error;
+      window.errorManager.error("Failed to load state", error, "save-system");
     }
   }
 
-  /**
-   * Regenerate display from current story state (fallback for old saves)
-   */
   regenerateCurrentDisplay() {
-    const currentText = this.story.state.currentText;
+    try {
+      const currentText = this.story.state.currentText;
 
-    if (currentText && currentText.trim().length > 0) {
-      const content = [
-        {
-          text: currentText,
-          classes: [],
-        },
-      ];
-      this.display.render(content);
+      if (currentText?.trim?.().length > 0) {
+        const content = [
+          {
+            text: currentText,
+            classes: [],
+          },
+        ];
+        this.display?.render?.(content);
+      }
+    } catch (error) {
+      window.errorManager.error(
+        "Failed to regenerate display",
+        error,
+        "display",
+      );
     }
   }
 
-  /**
-   * Check if the story can continue
-   * @returns {boolean} True if the story can continue
-   */
   canContinue() {
-    return this.story.canContinue;
+    try {
+      return this.story.canContinue;
+    } catch (error) {
+      window.errorManager.warning(
+        "Failed to check canContinue",
+        error,
+        "story",
+      );
+      return false;
+    }
   }
 
-  /**
-   * Check if there are choices available
-   * @returns {boolean} True if choices are available
-   */
   hasChoices() {
-    return this.story.currentChoices && this.story.currentChoices.length > 0;
+    try {
+      return this.story.currentChoices?.length > 0;
+    } catch (error) {
+      window.errorManager.warning("Failed to check hasChoices", error, "story");
+      return false;
+    }
   }
 
-  /**
-   * Check if the story has ended
-   * @returns {boolean} True if the story has ended
-   */
   hasEnded() {
     return !this.canContinue() && !this.hasChoices();
   }
 
-  /**
-   * Get current story statistics
-   * @returns {Object} Story statistics
-   */
   getStats() {
-    return {
-      currentTurnIndex: this.story.state.currentTurnIndex,
-      hasEnded: this.hasEnded(),
-      canContinue: this.canContinue(),
-      hasChoices: this.hasChoices(),
-      currentPage: this.currentPage,
-      displayLength: this.display.getHistoryLength(),
-    };
+    try {
+      return {
+        currentTurnIndex: this.story.state.currentTurnIndex,
+        hasEnded: this.hasEnded(),
+        canContinue: this.canContinue(),
+        hasChoices: this.hasChoices(),
+        currentPage: this.currentPage,
+        displayLength: this.display?.getHistoryLength?.() || 0,
+      };
+    } catch (error) {
+      window.errorManager.warning("Failed to get stats", error, "story");
+      return {};
+    }
   }
 
-  /**
-   * Get information about available features
-   * @returns {Object} Available features information
-   */
   getFeatureInfo() {
     return {
       availablePages: { ...this.availablePages },
-      hasGlobalTags: this.story.globalTags && this.story.globalTags.length > 0,
-      hasCurrentTags:
-        this.story.currentTags && this.story.currentTags.length > 0,
+      hasGlobalTags: this.story.globalTags?.length > 0,
+      hasCurrentTags: this.story.currentTags?.length > 0,
     };
   }
 
-  /**
-   * Cleanup resources (call when disposing of the story manager)
-   */
   cleanup() {
-    // Clean up any resources, event listeners, etc.
-    if (this.saves) {
-      this.saves.cleanup && this.saves.cleanup();
-    }
-
-    if (this.settings) {
-      this.settings.cleanup && this.settings.cleanup();
-    }
-
-    if (this.pages) {
-      this.pages.reset && this.pages.reset();
+    try {
+      this.saves?.cleanup?.();
+      this.settings?.cleanup?.();
+      this.pages?.reset?.();
+    } catch (error) {
+      window.errorManager.warning("Failed to cleanup", error, "system");
     }
   }
 }

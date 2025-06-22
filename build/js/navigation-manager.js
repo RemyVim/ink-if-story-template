@@ -1,6 +1,4 @@
 // navigation-manager.js
-// Handles navigation setup and button interactions
-
 class NavigationManager {
   constructor(storyManager) {
     this.storyManager = storyManager;
@@ -13,6 +11,15 @@ class NavigationManager {
       credits: "credits",
     };
 
+    if (!this.storyManager) {
+      window.errorManager.critical(
+        "NavigationManager requires a story manager",
+        new Error("Invalid story manager"),
+        "navigation",
+      );
+      return;
+    }
+
     this.setupButtons();
   }
 
@@ -21,6 +28,15 @@ class NavigationManager {
    * @param {Object} availablePages - Object mapping page names to availability
    */
   updateVisibility(availablePages) {
+    if (!availablePages || typeof availablePages !== "object") {
+      window.errorManager.warning(
+        "Invalid availablePages object passed to updateVisibility",
+        null,
+        "navigation",
+      );
+      return;
+    }
+
     Object.entries(this.buttonMappings).forEach(([buttonId, knotName]) => {
       const button = document.getElementById(buttonId);
       if (button) {
@@ -47,21 +63,34 @@ class NavigationManager {
       this.storyManager.restart();
     });
 
-    // Saves button - handled by save manager
-    // (Save manager sets up its own button listener)
-
-    // Settings button - handled by settings manager
-    // (Settings manager sets up its own button listener)
+    // Note: Saves and settings buttons are handled by their respective managers
   }
 
   /**
    * Setup special page navigation buttons
    */
   setupSpecialPageButtons() {
+    if (!this.storyManager.pages) {
+      window.errorManager.warning(
+        "Pages manager not available for special page buttons",
+        null,
+        "navigation",
+      );
+      return;
+    }
+
     Object.entries(this.buttonMappings).forEach(([buttonId, knotName]) => {
       this.setupButton(buttonId, (e) => {
-        e.preventDefault();
-        this.storyManager.pages.show(knotName);
+        try {
+          e.preventDefault();
+          this.storyManager.pages.show(knotName);
+        } catch (error) {
+          window.errorManager.error(
+            "Failed to show special page",
+            error,
+            "navigation",
+          );
+        }
       });
     });
   }
@@ -72,10 +101,60 @@ class NavigationManager {
    * @param {Function} clickHandler - Function to call on click
    */
   setupButton(buttonId, clickHandler) {
-    const button = document.getElementById(buttonId);
-    if (button) {
-      button.addEventListener("click", clickHandler);
+    if (!buttonId || typeof clickHandler !== "function") {
+      window.errorManager.warning(
+        `Invalid parameters for button ${buttonId}`,
+        null,
+        "navigation",
+      );
+      return;
     }
+
+    const button = document.getElementById(buttonId);
+    if (!button) {
+      // Don't warn for optional special page buttons
+      if (!this.isOptionalButton(buttonId)) {
+        window.errorManager.warning(
+          `Button not found: ${buttonId}`,
+          null,
+          "navigation",
+        );
+      }
+      return;
+    }
+
+    try {
+      // Clone button to remove existing listeners
+      const newButton = button.cloneNode(true);
+      button.parentNode.replaceChild(newButton, button);
+
+      newButton.addEventListener("click", (e) => {
+        try {
+          clickHandler(e);
+        } catch (error) {
+          window.errorManager.error(
+            `Button click failed: ${buttonId}`,
+            error,
+            "navigation",
+          );
+        }
+      });
+    } catch (error) {
+      window.errorManager.warning(
+        `Failed to setup button ${buttonId}`,
+        error,
+        "navigation",
+      );
+    }
+  }
+
+  /**
+   * Check if a button is optional (special page buttons that may not exist)
+   * @param {string} buttonId - Button ID to check
+   * @returns {boolean} True if button is optional
+   */
+  isOptionalButton(buttonId) {
+    return Object.keys(this.buttonMappings).includes(buttonId);
   }
 
   /**
@@ -85,14 +164,14 @@ class NavigationManager {
    */
   setButtonEnabled(buttonId, enabled) {
     const button = document.getElementById(buttonId);
-    if (button) {
-      if (enabled) {
-        button.removeAttribute("disabled");
-        button.style.cursor = "pointer";
-      } else {
-        button.setAttribute("disabled", "disabled");
-        button.style.cursor = "not-allowed";
-      }
+    if (!button) return;
+
+    if (enabled) {
+      button.removeAttribute("disabled");
+      button.style.cursor = "pointer";
+    } else {
+      button.setAttribute("disabled", "disabled");
+      button.style.cursor = "not-allowed";
     }
   }
 
@@ -113,6 +192,8 @@ class NavigationManager {
    * @param {boolean} hasSaves - Whether saves are available
    */
   updateSaveLoadButtons(hasSaves) {
+    if (!this.storyManager.pages) return;
+
     // Saves button is always enabled when not on a special page
     const isOnSpecialPage = this.storyManager.pages.isViewingSpecialPage();
     this.setButtonEnabled("saves-btn", !isOnSpecialPage);
@@ -124,19 +205,26 @@ class NavigationManager {
    */
   getButtonStates() {
     const states = {};
-
-    // Check all buttons with IDs
-    [
+    const allButtons = [
       "rewind",
       "saves-btn",
       "settings-btn",
       ...Object.keys(this.buttonMappings),
-    ].forEach((buttonId) => {
+    ];
+
+    allButtons.forEach((buttonId) => {
       const button = document.getElementById(buttonId);
       if (button) {
         states[buttonId] = {
           visible: button.style.display !== "none",
           enabled: !button.hasAttribute("disabled"),
+          exists: true,
+        };
+      } else {
+        states[buttonId] = {
+          visible: false,
+          enabled: false,
+          exists: false,
         };
       }
     });
@@ -152,5 +240,45 @@ class NavigationManager {
     this.setButtonEnabled("rewind", true);
     this.setButtonEnabled("saves-btn", true);
     this.setButtonEnabled("settings-btn", true);
+
+    // Reset special page button visibility
+    Object.keys(this.buttonMappings).forEach((buttonId) => {
+      this.setButtonVisible(buttonId, false);
+    });
+  }
+
+  /**
+   * Get navigation statistics for debugging
+   * @returns {Object} Navigation statistics
+   */
+  getStats() {
+    const buttonStates = this.getButtonStates();
+    const totalButtons = Object.keys(buttonStates).length;
+    const existingButtons = Object.values(buttonStates).filter(
+      (s) => s.exists,
+    ).length;
+    const visibleButtons = Object.values(buttonStates).filter(
+      (s) => s.visible,
+    ).length;
+    const enabledButtons = Object.values(buttonStates).filter(
+      (s) => s.enabled,
+    ).length;
+
+    return {
+      hasStoryManager: !!this.storyManager,
+      totalButtons,
+      existingButtons,
+      visibleButtons,
+      enabledButtons,
+      buttonMappings: Object.keys(this.buttonMappings).length,
+    };
+  }
+
+  /**
+   * Validate that navigation manager is working
+   * @returns {boolean} True if navigation manager is ready
+   */
+  isReady() {
+    return !!(this.storyManager && document.getElementById("rewind"));
   }
 }

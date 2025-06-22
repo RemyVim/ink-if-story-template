@@ -4,68 +4,95 @@
 fetch("story.json")
   .then((response) => response.json())
   .then((storyContent) => {
-    // Initialize the story manager which handles everything
-    window.storyManager = new StoryManager(storyContent);
+    try {
+      // Initialize the story manager which handles everything
+      window.storyManager = new StoryManager(storyContent);
 
-    // Optional: expose for debugging in development
-    if (
-      window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1"
-    ) {
-      window.debug = {
-        story: window.storyManager.story,
-        display: window.storyManager.display,
-        saves: window.storyManager.saves,
-        settings: window.storyManager.settings,
-        getStats: () => window.storyManager.getStats(),
-        getFeatureInfo: () => window.storyManager.getFeatureInfo(),
-      };
-      console.log("Debug tools available in window.debug");
+      // Optional: expose for debugging in development
+      if (
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1"
+      ) {
+        window.debug = {
+          story: window.storyManager.story,
+          display: window.storyManager.display,
+          saves: window.storyManager.saves,
+          settings: window.storyManager.settings,
+          errors: window.errorManager,
+          getStats: () => window.storyManager.getStats(),
+          getFeatureInfo: () => window.storyManager.getFeatureInfo(),
+        };
+        console.log("Debug tools available in window.debug");
+      }
+    } catch (error) {
+      window.errorManager.critical(
+        "Failed to initialize story manager",
+        error,
+        "story",
+      );
+      showFallbackUI(error);
     }
   })
   .catch((error) => {
-    console.error("Error loading story:", error);
-
-    // Show user-friendly error message
-    const storyContainer = document.getElementById("story");
-    if (storyContainer) {
-      storyContainer.innerHTML = `
-        <div style="text-align: center; padding: 2rem; color: var(--color-important);">
-          <h2>Story Loading Error</h2>
-          <p>Unable to load the story file. Please check that story.json exists and try refreshing the page.</p>
-          <details style="margin-top: 1rem; text-align: left;">
-            <summary>Technical Details</summary>
-            <pre style="background: var(--color-code-bg); padding: 1rem; border-radius: var(--border-radius); margin-top: 0.5rem; overflow-x: auto;">${error.message}</pre>
-          </details>
-        </div>
-      `;
-    }
+    window.errorManager.critical("Failed to load story file", error, "story");
+    showFallbackUI(error);
   });
 
-// Global error handler for uncaught errors
-window.addEventListener("error", (event) => {
-  console.error("Uncaught error:", event.error);
+// Show fallback UI when story fails to load
+function showFallbackUI(error) {
+  const storyContainer = document.getElementById("story");
+  if (!storyContainer) return;
 
-  // Show user-friendly error message if story manager exists
-  if (window.storyManager && window.storyManager.display) {
-    const errorContent = [
-      {
-        text: `An unexpected error occurred: ${event.error.message}. Please try refreshing the page.`,
-        classes: ["error-message"],
-      },
-    ];
+  storyContainer.innerHTML = `
+    <div style="text-align: center; padding: 2rem; color: var(--color-important);">
+      <h2>⚠️ Story Loading Error</h2>
+      <p>Unable to load the story. Please check the browser console (F12) for details.</p>
+      <div style="margin: 2rem 0;">
+        <button onclick="window.location.reload()" style="
+          background: var(--color-accent-primary);
+          color: white;
+          border: none;
+          padding: 0.75rem 1.5rem;
+          border-radius: 4px;
+          cursor: pointer;
+          margin-right: 1rem;
+          font-size: 1rem;
+        ">Reload Page</button>
+        <button onclick="showConsoleHelp()" style="
+          background: var(--color-border-medium);
+          color: var(--color-text-primary);
+          border: 1px solid var(--color-border-medium);
+          padding: 0.75rem 1.5rem;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 1rem;
+        ">How to Check Console</button>
+      </div>
+      <details style="margin-top: 1rem; text-align: left; max-width: 500px; margin-left: auto; margin-right: auto;">
+        <summary style="cursor: pointer; font-weight: 600;">Technical Details</summary>
+        <div style="background: var(--color-code-bg); padding: 1rem; border-radius: 4px; margin-top: 0.5rem; font-family: monospace; font-size: 0.8rem; overflow-x: auto;">
+          Error: ${error.message}<br>
+          Time: ${new Date().toLocaleString()}<br>
+          ${error.stack ? `Stack: ${error.stack}` : ""}
+        </div>
+      </details>
+    </div>
+  `;
+}
 
-    window.storyManager.display.render(errorContent);
-  }
-});
+// Help users find the console
+function showConsoleHelp() {
+  alert(`To check the console for error details:
 
-// Handle unhandled promise rejections
-window.addEventListener("unhandledrejection", (event) => {
-  console.error("Unhandled promise rejection:", event.reason);
-  event.preventDefault(); // Prevent default console error
-});
+• Chrome/Edge: Press F12 or Ctrl+Shift+I, then click "Console"
+• Firefox: Press F12 or Ctrl+Shift+K
+• Safari: Press Cmd+Option+I (Mac), then click "Console"
+• Mobile: Console not easily accessible, try on desktop
 
-// Optional: Add keyboard shortcuts for power users
+Look for red error messages that show what went wrong.`);
+}
+
+// Keyboard shortcuts for power users
 document.addEventListener("keydown", (event) => {
   // Only handle shortcuts if story manager is initialized
   if (!window.storyManager) return;
@@ -77,50 +104,50 @@ document.addEventListener("keydown", (event) => {
 
   // Ctrl/Cmd + shortcuts
   if (event.ctrlKey || event.metaKey) {
-    switch (event.key) {
-      case "s":
-        event.preventDefault();
-        window.storyManager.saves.showSaveDialog();
-        break;
+    try {
+      switch (event.key) {
+        case "s":
+          event.preventDefault();
+          window.storyManager.saves?.showSaveDialog?.();
+          break;
 
-      case "r":
-        event.preventDefault();
-        if (confirm("Restart the story from the beginning?")) {
-          window.storyManager.restart();
-        }
-        break;
+        case "r":
+          event.preventDefault();
+          if (confirm("Restart the story from the beginning?")) {
+            window.storyManager.restart();
+          }
+          break;
 
-      case ",":
-        event.preventDefault();
-        if (window.storyManager.settings) {
-          window.storyManager.settings.showSettings();
-        }
-        break;
+        case ",":
+          event.preventDefault();
+          window.storyManager.settings?.showSettings?.();
+          break;
+      }
+    } catch (error) {
+      window.errorManager.error(
+        "Keyboard shortcut failed",
+        error,
+        "navigation",
+      );
     }
   }
 
   // Escape key - return from special pages
   if (
     event.key === "Escape" &&
-    window.storyManager.pages.isViewingSpecialPage()
+    window.storyManager.pages?.isViewingSpecialPage?.()
   ) {
-    window.storyManager.pages.returnToStory();
+    try {
+      window.storyManager.pages.returnToStory();
+    } catch (error) {
+      window.errorManager.error(
+        "Failed to return from special page",
+        error,
+        "navigation",
+      );
+    }
   }
 });
 
-// Add CSS for error styling if not already present
-if (!document.querySelector("#error-styles")) {
-  const errorStyles = document.createElement("style");
-  errorStyles.id = "error-styles";
-  errorStyles.textContent = `
-    .error-message {
-      color: var(--color-important);
-      background: var(--color-code-bg);
-      padding: 1rem;
-      border-radius: var(--border-radius);
-      border-left: 4px solid var(--color-important);
-      margin: 1rem 0;
-    }
-  `;
-  document.head.appendChild(errorStyles);
-}
+// Make showConsoleHelp available globally for the fallback UI
+window.showConsoleHelp = showConsoleHelp;

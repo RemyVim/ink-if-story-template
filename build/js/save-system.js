@@ -1,5 +1,4 @@
 // save-system.js
-
 class SaveSystem {
   constructor(storyManager) {
     this.storyManager = storyManager;
@@ -9,7 +8,6 @@ class SaveSystem {
 
     // Initialize the modal UI
     this.modal = new SavesModalManager(this);
-
     this.setupEventListeners();
   }
 
@@ -17,7 +15,6 @@ class SaveSystem {
    * Setup event listeners for save/load buttons
    */
   setupEventListeners() {
-    // Saves button (combines save and load functionality)
     const savesBtn = document.getElementById("saves-btn");
     if (savesBtn) {
       savesBtn.addEventListener("click", (e) => {
@@ -33,7 +30,17 @@ class SaveSystem {
    */
   saveToSlot(slotNumber) {
     try {
-      // Use ink.js built-in state serialization
+      // Validate input
+      if (typeof slotNumber !== "number" || slotNumber < 0) {
+        throw new Error(`Invalid slot number: ${slotNumber}`);
+      }
+
+      // Check localStorage availability
+      if (!this.isStorageAvailable()) {
+        throw new Error("localStorage not available");
+      }
+
+      // Get game state
       const gameState = this.storyManager.story.state.ToJson();
 
       const saveData = {
@@ -44,21 +51,22 @@ class SaveSystem {
         version: "1.0",
         isAutosave: slotNumber === this.autosaveSlot,
         currentPage: this.storyManager.currentPage,
-        // Store any additional UI state we need
         displayState: this.storyManager.display.getState(),
       };
 
+      // Try to save
       this.writeSaveData(slotNumber, saveData);
 
       const slotName =
         slotNumber === this.autosaveSlot ? "Autosave" : `Slot ${slotNumber}`;
       this.showNotification(`Game saved to ${slotName}!`);
 
-      // Refresh the modal display
-      this.modal.populateSaveSlots();
+      // Refresh modal if open
+      this.modal?.populateSaveSlots?.();
+      return true;
     } catch (error) {
-      console.error("Failed to save game:", error);
-      this.showNotification("Failed to save game.", true);
+      window.errorManager.error("Failed to save game", error, "save-system");
+      return false;
     }
   }
 
@@ -72,42 +80,25 @@ class SaveSystem {
       if (!saveData) {
         const slotName =
           slotNumber === this.autosaveSlot ? "autosave" : "this slot";
-        this.showNotification(`No save data found in ${slotName}.`, true);
-        return;
+        throw new Error(`No save data found in ${slotName}`);
       }
 
-      // Use ink.js built-in state loading
-      this.storyManager.story.state.LoadJson(saveData.gameState);
-
-      // Restore additional state
-      this.storyManager.currentPage = saveData.currentPage || null;
-
-      // Restore display state if available
-      if (saveData.displayState) {
-        this.storyManager.display.restoreState(saveData.displayState);
-      } else {
-        // Fallback for older saves - regenerate from current story state
-        this.storyManager.display.clear();
-        this.regenerateDisplay();
+      // Validate save data
+      if (!saveData.gameState) {
+        throw new Error("Save data is corrupted - missing game state");
       }
 
-      // Show header and create choices
-      this.storyManager.display.showHeader();
-      this.storyManager.createChoices();
-
-      // Update save point in story manager
-      this.storyManager.savePoint = this.storyManager.story.state.ToJson();
-
-      // Scroll to top
-      this.storyManager.display.scrollToTop();
+      // Try to load
+      this.storyManager.loadState(saveData);
 
       const slotName =
         slotNumber === this.autosaveSlot ? "Autosave" : `Slot ${slotNumber}`;
       this.showNotification(`Game loaded from ${slotName}!`);
       this.hideSaveDialog();
+      return true;
     } catch (error) {
-      console.error("Failed to load game:", error);
-      this.showNotification("Failed to load game.", true);
+      window.errorManager.error("Failed to load game", error, "save-system");
+      return false;
     }
   }
 
@@ -115,26 +106,19 @@ class SaveSystem {
    * Autosave the current game state
    */
   autosave() {
-    // Don't autosave if user is on a special page
+    // Only attempt autosave if enabled and not on special page
     if (
-      this.storyManager.pages &&
-      this.storyManager.pages.isViewingSpecialPage()
+      !this.shouldAutosave() ||
+      this.storyManager.pages?.isViewingSpecialPage?.()
     ) {
-      return;
-    }
-
-    // Check if autosave is enabled in settings
-    if (!this.shouldAutosave()) {
       return;
     }
 
     try {
       this.saveToSlot(this.autosaveSlot);
-      // Override notification for autosave to be more subtle
-      this.showNotification("Game autosaved", false, 2000);
+      console.log("[AUTOSAVE] Game autosaved successfully");
     } catch (error) {
-      console.error("Failed to autosave game:", error);
-      // Don't show error notification for autosave failures
+      window.errorManager.error("Autosave failed", error, "save-system");
     }
   }
 
@@ -144,20 +128,36 @@ class SaveSystem {
    * @param {boolean} isAutosave - Whether this is the autosave slot
    */
   deleteSlot(slotNumber, isAutosave = false) {
-    const slotName = isAutosave ? "autosave" : `Slot ${slotNumber}`;
-    const message = isAutosave
-      ? "Are you sure you want to clear the autosave? This will remove your automatic backup."
-      : `Are you sure you want to delete the save in Slot ${slotNumber}?`;
+    try {
+      const slotName = isAutosave ? "autosave" : `Slot ${slotNumber}`;
+      const message = isAutosave
+        ? "Are you sure you want to clear the autosave?"
+        : `Are you sure you want to delete the save in Slot ${slotNumber}?`;
 
-    if (confirm(message)) {
-      const saveKey = this.savePrefix + slotNumber;
-      localStorage.removeItem(saveKey);
+      if (confirm(message)) {
+        if (!this.isStorageAvailable()) {
+          throw new Error("localStorage not available");
+        }
 
-      const confirmMessage = isAutosave
-        ? "Autosave cleared."
-        : `Slot ${slotNumber} deleted.`;
-      this.showNotification(confirmMessage);
-      this.modal.populateSaveSlots();
+        const saveKey = this.savePrefix + slotNumber;
+        localStorage.removeItem(saveKey);
+
+        const confirmMessage = isAutosave
+          ? "Autosave cleared."
+          : `Slot ${slotNumber} deleted.`;
+        this.showNotification(confirmMessage);
+
+        this.modal?.populateSaveSlots?.();
+        return true;
+      }
+      return false;
+    } catch (error) {
+      window.errorManager.error(
+        "Failed to delete save slot",
+        error,
+        "save-system",
+      );
+      return false;
     }
   }
 
@@ -169,38 +169,23 @@ class SaveSystem {
     try {
       const saveData = this.getSaveData(slotNumber);
       if (!saveData) {
-        this.showNotification(
-          "No save data found in this slot to export.",
-          true,
-        );
-        return;
+        throw new Error("No save data found in this slot to export");
       }
 
+      // Create and download file
       const dataStr = JSON.stringify(saveData, null, 2);
       const dataBlob = new Blob([dataStr], { type: "application/json" });
-
       const link = document.createElement("a");
       link.href = URL.createObjectURL(dataBlob);
 
       // Generate filename
-      const titleElement = document.querySelector(".title");
-      let storyTitle = "ink-story";
-
-      if (titleElement && titleElement.textContent) {
-        storyTitle = titleElement.textContent
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/^-+|-+$/g, "");
-      }
-
       const timestamp = new Date(saveData.timestamp)
         .toISOString()
         .slice(0, 19)
         .replace(/:/g, "-");
-
       const slotName =
         slotNumber === this.autosaveSlot ? "autosave" : `slot${slotNumber}`;
-      link.download = `${storyTitle}-${slotName}-${timestamp}.json`;
+      link.download = `ink-story-${slotName}-${timestamp}.json`;
 
       document.body.appendChild(link);
       link.click();
@@ -209,9 +194,10 @@ class SaveSystem {
       const exportSlotName =
         slotNumber === this.autosaveSlot ? "Autosave" : `Slot ${slotNumber}`;
       this.showNotification(`Save exported from ${exportSlotName}!`);
+      return true;
     } catch (error) {
-      console.error("Failed to export save:", error);
-      this.showNotification("Failed to export save file.", true);
+      window.errorManager.error("Failed to export save", error, "save-system");
+      return false;
     }
   }
 
@@ -229,17 +215,36 @@ class SaveSystem {
       const file = event.target.files[0];
       if (!file) return;
 
+      // Validate file size (10MB limit)
+      if (file.size > 10 * 1024 * 1024) {
+        window.errorManager.error(
+          "Import file too large (>10MB)",
+          new Error("File size exceeds limit"),
+          "save-system",
+        );
+        return;
+      }
+
       const reader = new FileReader();
+      const timeout = setTimeout(() => {
+        reader.abort();
+        window.errorManager.error(
+          "File import timed out",
+          new Error("FileReader timeout"),
+          "save-system",
+        );
+      }, 30000);
+
       reader.onload = (e) => {
+        clearTimeout(timeout);
         try {
           const importData = JSON.parse(e.target.result);
 
-          // Validate the imported data
-          if (!importData.gameState || !importData.version) {
+          if (!importData?.gameState || !importData?.version) {
             throw new Error("Invalid save file format");
           }
 
-          // Test if the game state can be loaded (validation)
+          // Test if the game state can be loaded
           const testStory = new inkjs.Story(this.storyManager.story.ToJson());
           testStory.state.LoadJson(importData.gameState);
 
@@ -251,14 +256,24 @@ class SaveSystem {
               ? "Autosave"
               : `Slot ${slotNumber}`;
           this.showNotification(`Save imported to ${slotName}!`);
-          this.modal.populateSaveSlots();
+
+          this.modal?.populateSaveSlots?.();
         } catch (error) {
-          console.error("Failed to import save:", error);
-          this.showNotification(
-            "Failed to import save file. Please check the file format.",
-            true,
+          window.errorManager.error(
+            "Failed to import save file",
+            error,
+            "save-system",
           );
         }
+      };
+
+      reader.onerror = () => {
+        clearTimeout(timeout);
+        window.errorManager.error(
+          "Failed to read import file",
+          reader.error,
+          "save-system",
+        );
       };
 
       reader.readAsText(file);
@@ -270,18 +285,29 @@ class SaveSystem {
     fileInput.click();
   }
 
+  isStorageAvailable() {
+    try {
+      const test = "__storage_test__";
+      localStorage.setItem(test, test);
+      localStorage.removeItem(test);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   /**
    * Show the save/load dialog
    */
   showSaveDialog() {
-    this.modal.show();
+    this.modal?.show?.();
   }
 
   /**
    * Hide the save/load dialog
    */
   hideSaveDialog() {
-    this.modal.hide();
+    this.modal?.hide?.();
   }
 
   /**
@@ -290,15 +316,11 @@ class SaveSystem {
    */
   hasSaves() {
     // Check autosave slot
-    if (this.getSaveData(this.autosaveSlot)) {
-      return true;
-    }
+    if (this.getSaveData(this.autosaveSlot)) return true;
 
     // Check regular save slots
     for (let i = 1; i <= this.maxSaveSlots; i++) {
-      if (this.getSaveData(i)) {
-        return true;
-      }
+      if (this.getSaveData(i)) return true;
     }
     return false;
   }
@@ -310,11 +332,17 @@ class SaveSystem {
    */
   getSaveData(slotNumber) {
     try {
+      if (!this.isStorageAvailable()) return null;
+
       const saveKey = this.savePrefix + slotNumber;
       const saveJson = localStorage.getItem(saveKey);
       return saveJson ? JSON.parse(saveJson) : null;
     } catch (error) {
-      console.error("Failed to get save data:", error);
+      window.errorManager.error(
+        "Failed to get save data",
+        error,
+        "save-system",
+      );
       return null;
     }
   }
@@ -325,8 +353,31 @@ class SaveSystem {
    * @param {Object} saveData - Save data to write
    */
   writeSaveData(slotNumber, saveData) {
+    if (!this.isStorageAvailable()) {
+      throw new Error("localStorage not available");
+    }
+
     const saveKey = this.savePrefix + slotNumber;
-    localStorage.setItem(saveKey, JSON.stringify(saveData));
+    const dataStr = JSON.stringify(saveData);
+
+    try {
+      localStorage.setItem(saveKey, dataStr);
+    } catch (e) {
+      if (e.name === "QuotaExceededError") {
+        // Try to free space by removing oldest saves
+        this.attemptStorageCleanup();
+        // Retry once
+        try {
+          localStorage.setItem(saveKey, dataStr);
+        } catch (retryError) {
+          throw new Error(
+            "Storage quota exceeded - please delete some saves manually",
+          );
+        }
+      } else {
+        throw e;
+      }
+    }
   }
 
   /**
@@ -337,7 +388,7 @@ class SaveSystem {
   generateSaveName(slotNumber) {
     let baseName;
 
-    // Try to get current location for save name using ink.js state
+    // Try to get current location for save name
     const currentPath = this.storyManager.story.state.currentPathString;
 
     if (currentPath) {
@@ -373,7 +424,7 @@ class SaveSystem {
    */
   generateDescription() {
     const currentText = this.storyManager.story.state.currentText;
-    if (currentText && currentText.length > 0) {
+    if (currentText?.length > 0) {
       // Get first sentence or first 100 characters
       let description = currentText.split(".")[0];
       if (description.length > 100) {
@@ -389,56 +440,50 @@ class SaveSystem {
    * @returns {boolean} True if autosave should be performed
    */
   shouldAutosave() {
-    // Check if autosave is enabled in settings
-    if (this.storyManager.settings) {
-      return this.storyManager.settings.getSetting("autoSave");
-    }
-    return false;
-  }
-
-  /**
-   * Regenerate display from current story state (fallback for old saves)
-   */
-  regenerateDisplay() {
-    const currentText = this.storyManager.story.state.currentText;
-
-    if (currentText && currentText.trim().length > 0) {
-      const processedText = MarkdownProcessor.process(currentText);
-      this.storyManager.display.render([
-        {
-          text: processedText,
-          classes: [],
-        },
-      ]);
+    try {
+      return this.storyManager.settings?.getSetting?.("autoSave") || false;
+    } catch (error) {
+      return false;
     }
   }
 
   /**
    * Show a notification to the user
    * @param {string} message - Message to show
-   * @param {boolean} isError - Whether this is an error message
    * @param {number} duration - How long to show the notification (ms)
    */
-  showNotification(message, isError = false, duration = 4000) {
-    this.modal.showNotification(message, isError, duration);
+  showNotification(message, duration = 4000) {
+    this.modal?.showNotification?.(message, false, duration);
   }
 
   /**
-   * Clear all saves (useful for testing or reset)
+   * Attempt to free storage space by removing oldest saves
    */
-  clearAllSaves() {
-    if (
-      confirm(
-        "Are you sure you want to delete ALL saves? This action cannot be undone.",
-      )
-    ) {
-      for (let i = 0; i <= this.maxSaveSlots; i++) {
-        const saveKey = this.savePrefix + i;
-        localStorage.removeItem(saveKey);
+  attemptStorageCleanup() {
+    try {
+      const saves = [];
+
+      // Collect all saves with timestamps
+      for (let i = 1; i <= this.maxSaveSlots; i++) {
+        const saveData = this.getSaveData(i);
+        if (saveData?.timestamp) {
+          saves.push({ slot: i, timestamp: saveData.timestamp });
+        }
       }
 
-      this.showNotification("All saves cleared.");
-      this.modal.populateSaveSlots();
+      // Sort by timestamp (oldest first) and remove oldest
+      saves.sort((a, b) => a.timestamp - b.timestamp);
+
+      if (saves.length > 0) {
+        const oldestSlot = saves[0].slot;
+        const saveKey = this.savePrefix + oldestSlot;
+        localStorage.removeItem(saveKey);
+        console.log(
+          `[STORAGE] Automatically removed oldest save from slot ${oldestSlot}`,
+        );
+      }
+    } catch (error) {
+      window.errorManager.error("Storage cleanup failed", error, "save-system");
     }
   }
 
@@ -476,160 +521,9 @@ class SaveSystem {
   }
 
   /**
-   * Export current game state as downloadable file
-   * @param {string} filename - Optional custom filename
-   */
-  exportCurrentState(filename = null) {
-    const state = this.getCurrentState();
-
-    if (!filename) {
-      // Generate filename from story title and timestamp
-      const titleElement = document.querySelector(".title");
-      let storyTitle = "ink-story";
-
-      if (titleElement && titleElement.textContent) {
-        storyTitle = titleElement.textContent
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/^-+|-+$/g, "");
-      }
-
-      const timestamp = new Date()
-        .toISOString()
-        .slice(0, 19)
-        .replace(/:/g, "-");
-      filename = `${storyTitle}-export-${timestamp}.json`;
-    }
-
-    // Create and download file
-    const dataStr = JSON.stringify(state, null, 2);
-    const dataBlob = new Blob([dataStr], { type: "application/json" });
-
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(dataBlob);
-    link.download = filename;
-
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-
-  /**
-   * Import game state from file
-   * @param {File} file - File to import
-   * @returns {Promise<boolean>} Promise that resolves to success status
-   */
-  async importCurrentState(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-
-      reader.onload = (e) => {
-        try {
-          const importedState = JSON.parse(e.target.result);
-
-          // Validate the imported state
-          if (!importedState.gameState) {
-            throw new Error("Invalid save file format");
-          }
-
-          const success = this.loadState(importedState);
-          resolve(success);
-        } catch (error) {
-          console.error("Failed to import state:", error);
-          reject(error);
-        }
-      };
-
-      reader.onerror = () => {
-        reject(new Error("Failed to read file"));
-      };
-
-      reader.readAsText(file);
-    });
-  }
-
-  /**
-   * Get the current complete state for saving
-   * @returns {Object} Current state object
-   */
-  getCurrentState() {
-    return {
-      gameState: this.storyManager.story.state.ToJson(),
-      displayState: this.storyManager.display.getState(),
-      timestamp: Date.now(),
-      currentPage: this.storyManager.currentPage,
-    };
-  }
-
-  /**
-   * Load a game state
-   * @param {Object} state - Game state to load
-   * @returns {boolean} True if loading succeeded
-   */
-  loadState(state) {
-    try {
-      // Use ink.js built-in state loading
-      this.storyManager.story.state.LoadJson(state.gameState);
-
-      // Reset special page state
-      this.storyManager.currentPage = state.currentPage || null;
-
-      // Restore display state if available
-      if (state.displayState) {
-        this.storyManager.display.restoreState(state.displayState);
-      } else {
-        // Fallback for older saves
-        this.storyManager.display.clear();
-        this.regenerateDisplay();
-      }
-
-      // Update save point
-      this.storyManager.savePoint = this.storyManager.story.state.ToJson();
-
-      // Regenerate choices
-      this.storyManager.createChoices();
-
-      // Scroll to top
-      this.storyManager.display.scrollToTop();
-
-      return true;
-    } catch (error) {
-      console.error("Failed to load state:", error);
-      return false;
-    }
-  }
-
-  /**
-   * Quick save to a default slot
-   */
-  quickSave() {
-    try {
-      this.saveToSlot(1); // Save to slot 1
-      this.showNotification("Quick saved!");
-    } catch (error) {
-      console.error("Quick save failed:", error);
-      this.showNotification("Quick save failed!", true);
-    }
-  }
-
-  /**
-   * Quick load from default slot
-   */
-  quickLoad() {
-    try {
-      this.loadFromSlot(1); // Load from slot 1
-    } catch (error) {
-      console.error("Quick load failed:", error);
-      this.showNotification("Quick load failed!", true);
-    }
-  }
-
-  /**
    * Cleanup resources
    */
   cleanup() {
-    if (this.modal && this.modal.modalElement) {
-      this.modal.modalElement.remove();
-    }
+    this.modal?.modalElement?.remove?.();
   }
 }

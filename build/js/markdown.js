@@ -1,60 +1,86 @@
-// Simple token-based markdown processor
-//
-// IMPORTANT: We use % for markdown escaping to avoid conflicts with Ink's reserved characters:
-// Ink reserved: \ | * + - > < = ~ { } [ ] ( ) : # @ & ! ^ /
-// Our markdown escape character: % (safe because Ink doesn't use it)
-//
+// markdown.js
 class MarkdownProcessor {
+  // Cache regex patterns for better performance
+  static patterns = {
+    escape: [
+      [/%\*/g, "&#42;"],
+      [/%_/g, "&#95;"],
+      [/%`/g, "&#96;"],
+      [/%:/g, "&#58;"],
+      [/%\[/g, "&#91;"],
+      [/%\]/g, "&#93;"],
+      [/%\(/g, "&#40;"],
+      [/%\)/g, "&#41;"],
+      [/%%/g, "&#37;"],
+    ],
+    block: [
+      [/^::: (.*$)/gm, "<h3>$1</h3>"],
+      [/^:: (.*$)/gm, "<h2>$1</h2>"],
+      [/^: (.*$)/gm, "<h1>$1</h1>"],
+      [/^>> (.+)$/gm, "<blockquote>$1</blockquote>"],
+      [/^> (.+)$/gm, "<li>$1</li>"],
+    ],
+    inline: [
+      [/___([^_\n]+?)___/g, "<strong><em>$1</em></strong>"],
+      [/__([^_\n]+?)__/g, "<strong>$1</strong>"],
+      [/(?<!_)_([^_\n]+?)_(?!_)/g, "<em>$1</em>"],
+      [/\[(.*?)\]\((\w+)\)/g, '<span class="inline-$2">$1</span>'],
+      [/  $/gm, "<br>"],
+    ],
+  };
+
   static process(text) {
-    // If line starts with %, remove it and skip all markdown processing
+    if (!text || typeof text !== "string") return "";
+
+    // Skip processing if line starts with %
     if (text.trim().startsWith("%")) {
       return text.trim().substring(1);
     }
 
-    // Handle markdown escaping with pipe character first
-    text = this.handleMarkdownEscaping(text);
+    try {
+      // Handle markdown escaping first
+      for (const [pattern, replacement] of this.patterns.escape) {
+        text = text.replace(pattern, replacement);
+      }
 
-    // Process block-level elements BEFORE tokenization
-    text = text
-      // Headers
-      .replace(/^::: (.*$)/gm, "<h3>$1</h3>")
-      .replace(/^:: (.*$)/gm, "<h2>$1</h2>")
-      .replace(/^: (.*$)/gm, "<h1>$1</h1>")
-      // Block quotes using >>
-      .replace(/^>> (.+)$/gm, "<blockquote>$1</blockquote>")
-      // Bullet points using >
-      .replace(/^> (.+)$/gm, "<li>$1</li>")
+      // Process block-level elements
+      for (const [pattern, replacement] of this.patterns.block) {
+        text = text.replace(pattern, replacement);
+      }
+
       // Wrap consecutive list items in <ul>
-      .replace(/(<li>.*?<\/li>(?:\s*<li>.*?<\/li>)*)/gs, "<ul>$1</ul>");
+      text = text.replace(
+        /(<li>.*?<\/li>(?:\s*<li>.*?<\/li>)*)/gs,
+        "<ul>$1</ul>",
+      );
 
-    // Now tokenize and process inline elements
+      // Process inline elements (avoiding code blocks)
+      text = this.processInlineWithCodeBlocks(text);
+
+      return text;
+    } catch (error) {
+      window.errorManager.warning(
+        "Markdown processing failed",
+        error,
+        "markdown",
+      );
+      return text; // Return original text on error
+    }
+  }
+
+  static processInlineWithCodeBlocks(text) {
     const tokens = this.tokenize(text);
-
     let result = "";
+
     for (const token of tokens) {
       if (token.type === "code") {
         result += `<code>${token.content}</code>`;
       } else if (token.type === "text") {
-        result += this.processTextMarkdown(token.content);
+        result += this.processInlineMarkdown(token.content);
       }
     }
 
     return result;
-  }
-
-  static handleMarkdownEscaping(text) {
-    // Use percent character (%) to escape markdown characters
-    // %* becomes literal *, %_ becomes literal _, %` becomes literal `, etc.
-    return text
-      .replace(/%\*/g, "&#42;") // %* -> literal *
-      .replace(/%_/g, "&#95;") // %_ -> literal _
-      .replace(/%`/g, "&#96;") // %` -> literal `
-      .replace(/%:/g, "&#58;") // %: -> literal :
-      .replace(/%\[/g, "&#91;") // %[ -> literal [
-      .replace(/%\]/g, "&#93;") // %] -> literal ]
-      .replace(/%\(/g, "&#40;") // %( -> literal (
-      .replace(/%\)/g, "&#41;") // %) -> literal )
-      .replace(/%%/g, "&#37;"); // %% -> literal %
   }
 
   static tokenize(text) {
@@ -95,19 +121,49 @@ class MarkdownProcessor {
     return tokens;
   }
 
-  static processTextMarkdown(text) {
-    return (
-      text
-        // Bold + Italic: ___text___
-        .replace(/___([^_\n]+?)___/g, "<strong><em>$1</em></strong>")
-        // Bold: __text__
-        .replace(/__([^_\n]+?)__/g, "<strong>$1</strong>")
-        // Italic: _text_
-        .replace(/(?<!_)_([^_\n]+?)_(?!_)/g, "<em>$1</em>")
-        // Custom inline styles
-        .replace(/\[(.*?)\]\((\w+)\)/g, '<span class="inline-$2">$1</span>')
-        // Line breaks
-        .replace(/  $/gm, "<br>")
-    );
+  static processInlineMarkdown(text) {
+    try {
+      for (const [pattern, replacement] of this.patterns.inline) {
+        text = text.replace(pattern, replacement);
+      }
+      return text;
+    } catch (error) {
+      window.errorManager.warning(
+        "Inline markdown processing failed",
+        error,
+        "markdown",
+      );
+      return text;
+    }
+  }
+
+  /**
+   * Test if the processor is working correctly
+   * @returns {boolean} True if basic functionality works
+   */
+  static selfTest() {
+    try {
+      const testInput = "__bold__ and _italic_ text";
+      const result = this.process(testInput);
+      return result.includes("<strong>") && result.includes("<em>");
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
+   * Get processor statistics for debugging
+   * @returns {Object} Processor statistics
+   */
+  static getStats() {
+    return {
+      selfTest: this.selfTest(),
+      patternCount: {
+        escape: this.patterns.escape.length,
+        block: this.patterns.block.length,
+        inline: this.patterns.inline.length,
+      },
+      timestamp: new Date().toISOString(),
+    };
   }
 }
