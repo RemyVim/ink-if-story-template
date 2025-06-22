@@ -21,8 +21,8 @@ class StoryManager {
     this.display = new DisplayManager();
     this.contentProcessor = new ContentProcessor();
 
-    // Settings and theme (initialize early since other systems depend on them)
-    this.settings = new SettingsManager(new ThemeManager());
+    // Settings manager (now handles all theme logic)
+    this.settings = new SettingsManager();
 
     // Navigation and pages
     this.navigation = new NavigationManager(this);
@@ -51,12 +51,9 @@ class StoryManager {
    * Setup initial application state
    */
   setupInitialState() {
-    // Process global tags for theme and metadata
-    const globalTagTheme = this.contentProcessor.processGlobalTags(
-      this.story.globalTags,
-    );
+    // Process global tags for theme and metadata through settings manager
+    this.settings.processGlobalTags(this.story.globalTags);
 
-    // Setup theme (this is handled by settings manager now)
     // Update navigation based on available features
     this.navigation.updateVisibility(this.availablePages);
 

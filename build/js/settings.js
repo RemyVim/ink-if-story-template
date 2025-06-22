@@ -1,7 +1,6 @@
 // Settings management with modal interface
 class SettingsManager {
-  constructor(themeManager) {
-    this.themeManager = themeManager;
+  constructor() {
     this.modalElement = null;
     this.settings = {
       theme: "auto", // 'light', 'dark', 'auto'
@@ -12,7 +11,7 @@ class SettingsManager {
       autoSave: true,
       animations: true,
     };
-
+    this.modalElement = null;
     this.init();
   }
 
@@ -20,7 +19,122 @@ class SettingsManager {
     this.loadSettings();
     this.createSettingsModal();
     this.setupEventListeners();
+    this.setupThemeDetection();
     this.applySettings();
+  }
+
+  /**
+   * Setup automatic theme detection for 'auto' mode
+   */
+  setupThemeDetection() {
+    // Listen for system theme changes when in auto mode
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    mediaQuery.addEventListener("change", () => {
+      if (this.settings.theme === "auto") {
+        this.applyTheme();
+      }
+    });
+  }
+
+  /**
+   * Process global tags from the story for initial theme setup
+   * @param {Array} globalTags - Array of global tags from the story
+   */
+  processGlobalTags(globalTags) {
+    if (!globalTags) return;
+
+    for (const tag of globalTags) {
+      const colonIndex = tag.indexOf(":");
+      if (colonIndex === -1) continue;
+
+      const property = tag.substring(0, colonIndex).trim().toLowerCase();
+      const value = tag.substring(colonIndex + 1).trim();
+
+      switch (property) {
+        case "theme":
+          // Only apply global theme if user hasn't set a preference
+          const storedSettings = this.getStoredSettings();
+          if (!storedSettings?.theme) {
+            this.settings.theme = value === "dark" ? "dark" : "light";
+          }
+          break;
+
+        case "title":
+          const titleElements = document.querySelectorAll(".title");
+          titleElements.forEach((el) => (el.textContent = value));
+          break;
+
+        case "author":
+          const bylineElement = document.querySelector(".byline");
+          if (bylineElement) {
+            bylineElement.textContent = `by ${value}`;
+          }
+          break;
+      }
+    }
+  }
+
+  applyTheme() {
+    const body = document.body;
+
+    // Remove existing theme classes
+    body.classList.remove("dark");
+
+    if (this.settings.theme === "dark") {
+      body.classList.add("dark");
+    } else if (this.settings.theme === "light") {
+      // Light theme is default, no class needed
+    } else if (this.settings.theme === "auto") {
+      // Use system preference
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
+      if (prefersDark) {
+        body.classList.add("dark");
+      }
+    }
+
+    // Add transition class for smooth theme switching
+    body.classList.add("switched");
+  }
+
+  /**
+   * Toggle theme between light and dark (for potential theme toggle button)
+   */
+  toggleTheme() {
+    const currentIsDark = document.body.classList.contains("dark");
+
+    if (this.settings.theme === "auto") {
+      // If auto, switch to opposite of current state
+      this.settings.theme = currentIsDark ? "light" : "dark";
+    } else if (this.settings.theme === "light") {
+      this.settings.theme = "dark";
+    } else {
+      this.settings.theme = "light";
+    }
+
+    this.storeSettings();
+    this.applyTheme();
+  }
+
+  /**
+   * Check if animations are enabled (used by other parts of the app)
+   */
+  isAnimationEnabled() {
+    return this.settings.animations;
+  }
+
+  /**
+   * Get stored settings from localStorage
+   */
+  getStoredSettings() {
+    try {
+      const stored = localStorage.getItem("ink-template-settings");
+      return stored ? JSON.parse(stored) : null;
+    } catch (e) {
+      console.warn("Could not load settings from localStorage");
+      return null;
+    }
   }
 
   createSettingsModal() {
@@ -412,6 +526,7 @@ class SettingsManager {
     const body = document.body;
 
     if (this.settings.theme === "dark") {
+      body.classList.remove("dark");
       body.classList.add("dark");
     } else if (this.settings.theme === "light") {
       body.classList.remove("dark");
@@ -420,6 +535,7 @@ class SettingsManager {
       const prefersDark = window.matchMedia(
         "(prefers-color-scheme: dark)",
       ).matches;
+      body.classList.remove("dark");
       if (prefersDark) {
         body.classList.add("dark");
       } else {
@@ -550,12 +666,10 @@ class SettingsManager {
     }, 3000);
   }
 
-  // Public method to get current setting values
   getSetting(key) {
     return this.settings[key];
   }
 
-  // Public method to update a setting programmatically
   setSetting(key, value) {
     if (key in this.settings) {
       this.settings[key] = value;

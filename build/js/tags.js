@@ -23,38 +23,6 @@ class TagProcessor {
     return null;
   }
 
-  processGlobalTags(globalTags) {
-    let globalTagTheme = null;
-
-    if (!globalTags) return globalTagTheme;
-
-    for (let i = 0; i < globalTags.length; i++) {
-      const globalTag = globalTags[i];
-      const splitTag = TagProcessor.splitPropertyTag(globalTag);
-
-      // THEME: dark
-      if (splitTag && splitTag.property === "theme") {
-        globalTagTheme = splitTag.val;
-      }
-      // title: IF Title
-      else if (splitTag && splitTag.property === "title") {
-        const titleElements = document.querySelectorAll(".title");
-        for (let i = 0; i < titleElements.length; i++) {
-          titleElements[i].innerHTML = splitTag.val;
-        }
-      }
-      // author: Your Name
-      else if (splitTag && splitTag.property === "author") {
-        const byline = document.querySelector(".byline");
-        if (byline) {
-          byline.innerHTML = "by " + splitTag.val;
-        }
-      }
-    }
-
-    return globalTagTheme;
-  }
-
   processLineTags(tags) {
     const customClasses = [];
     const specialActions = [];
@@ -137,11 +105,11 @@ class TagProcessor {
 
   // Media and interaction methods
   playAudio(src) {
-    // Check if audio is enabled in settings
+    // Check if audio is enabled in settings via the story manager
     if (
-      window.storyController &&
-      window.storyController.settingsManager &&
-      !window.storyController.settingsManager.getSetting("audioEnabled")
+      window.storyManager &&
+      window.storyManager.settings &&
+      !window.storyManager.settings.getSetting("audioEnabled")
     ) {
       return; // Skip audio if disabled
     }
@@ -156,11 +124,11 @@ class TagProcessor {
   }
 
   playAudioLoop(src) {
-    // Check if audio is enabled in settings
+    // Check if audio is enabled in settings via the story manager
     if (
-      window.storyController &&
-      window.storyController.settingsManager &&
-      !window.storyController.settingsManager.getSetting("audioEnabled")
+      window.storyManager &&
+      window.storyManager.settings &&
+      !window.storyManager.settings.getSetting("audioEnabled")
     ) {
       return; // Skip audio if disabled
     }
