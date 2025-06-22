@@ -1,7 +1,6 @@
-// game-save-system.js
-// Streamlined save system that leverages ink.js state management
+// save-system.js
 
-class GameSaveSystem {
+class SaveSystem {
   constructor(storyManager) {
     this.storyManager = storyManager;
     this.savePrefix = "ink-save-slot-";
@@ -10,6 +9,22 @@ class GameSaveSystem {
 
     // Initialize the modal UI
     this.modal = new SavesModalManager(this);
+
+    this.setupEventListeners();
+  }
+
+  /**
+   * Setup event listeners for save/load buttons
+   */
+  setupEventListeners() {
+    // Saves button (combines save and load functionality)
+    const savesBtn = document.getElementById("saves-btn");
+    if (savesBtn) {
+      savesBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        this.showSaveDialog();
+      });
+    }
   }
 
   /**
@@ -89,7 +104,7 @@ class GameSaveSystem {
       const slotName =
         slotNumber === this.autosaveSlot ? "Autosave" : `Slot ${slotNumber}`;
       this.showNotification(`Game loaded from ${slotName}!`);
-      this.hideSavesModal();
+      this.hideSaveDialog();
     } catch (error) {
       console.error("Failed to load game:", error);
       this.showNotification("Failed to load game.", true);
@@ -101,7 +116,10 @@ class GameSaveSystem {
    */
   autosave() {
     // Don't autosave if user is on a special page
-    if (this.storyManager.pages.isViewingSpecialPage()) {
+    if (
+      this.storyManager.pages &&
+      this.storyManager.pages.isViewingSpecialPage()
+    ) {
       return;
     }
 
@@ -253,17 +271,36 @@ class GameSaveSystem {
   }
 
   /**
-   * Show the saves modal
+   * Show the save/load dialog
    */
-  showSavesModal() {
+  showSaveDialog() {
     this.modal.show();
   }
 
   /**
-   * Hide the saves modal
+   * Hide the save/load dialog
    */
-  hideSavesModal() {
+  hideSaveDialog() {
     this.modal.hide();
+  }
+
+  /**
+   * Check if any saves exist
+   * @returns {boolean} True if saves are available
+   */
+  hasSaves() {
+    // Check autosave slot
+    if (this.getSaveData(this.autosaveSlot)) {
+      return true;
+    }
+
+    // Check regular save slots
+    for (let i = 1; i <= this.maxSaveSlots; i++) {
+      if (this.getSaveData(i)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -290,25 +327,6 @@ class GameSaveSystem {
   writeSaveData(slotNumber, saveData) {
     const saveKey = this.savePrefix + slotNumber;
     localStorage.setItem(saveKey, JSON.stringify(saveData));
-  }
-
-  /**
-   * Check if any saves exist
-   * @returns {boolean} True if saves are available
-   */
-  hasSaves() {
-    // Check autosave slot
-    if (this.getSaveData(this.autosaveSlot)) {
-      return true;
-    }
-
-    // Check regular save slots
-    for (let i = 1; i <= this.maxSaveSlots; i++) {
-      if (this.getSaveData(i)) {
-        return true;
-      }
-    }
-    return false;
   }
 
   /**
@@ -455,6 +473,155 @@ class GameSaveSystem {
       oldestSave,
       newestSave,
     };
+  }
+
+  /**
+   * Export current game state as downloadable file
+   * @param {string} filename - Optional custom filename
+   */
+  exportCurrentState(filename = null) {
+    const state = this.getCurrentState();
+
+    if (!filename) {
+      // Generate filename from story title and timestamp
+      const titleElement = document.querySelector(".title");
+      let storyTitle = "ink-story";
+
+      if (titleElement && titleElement.textContent) {
+        storyTitle = titleElement.textContent
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+      }
+
+      const timestamp = new Date()
+        .toISOString()
+        .slice(0, 19)
+        .replace(/:/g, "-");
+      filename = `${storyTitle}-export-${timestamp}.json`;
+    }
+
+    // Create and download file
+    const dataStr = JSON.stringify(state, null, 2);
+    const dataBlob = new Blob([dataStr], { type: "application/json" });
+
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(dataBlob);
+    link.download = filename;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  /**
+   * Import game state from file
+   * @param {File} file - File to import
+   * @returns {Promise<boolean>} Promise that resolves to success status
+   */
+  async importCurrentState(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        try {
+          const importedState = JSON.parse(e.target.result);
+
+          // Validate the imported state
+          if (!importedState.gameState) {
+            throw new Error("Invalid save file format");
+          }
+
+          const success = this.loadState(importedState);
+          resolve(success);
+        } catch (error) {
+          console.error("Failed to import state:", error);
+          reject(error);
+        }
+      };
+
+      reader.onerror = () => {
+        reject(new Error("Failed to read file"));
+      };
+
+      reader.readAsText(file);
+    });
+  }
+
+  /**
+   * Get the current complete state for saving
+   * @returns {Object} Current state object
+   */
+  getCurrentState() {
+    return {
+      gameState: this.storyManager.story.state.ToJson(),
+      displayState: this.storyManager.display.getState(),
+      timestamp: Date.now(),
+      currentPage: this.storyManager.currentPage,
+    };
+  }
+
+  /**
+   * Load a game state
+   * @param {Object} state - Game state to load
+   * @returns {boolean} True if loading succeeded
+   */
+  loadState(state) {
+    try {
+      // Use ink.js built-in state loading
+      this.storyManager.story.state.LoadJson(state.gameState);
+
+      // Reset special page state
+      this.storyManager.currentPage = state.currentPage || null;
+
+      // Restore display state if available
+      if (state.displayState) {
+        this.storyManager.display.restoreState(state.displayState);
+      } else {
+        // Fallback for older saves
+        this.storyManager.display.clear();
+        this.regenerateDisplay();
+      }
+
+      // Update save point
+      this.storyManager.savePoint = this.storyManager.story.state.ToJson();
+
+      // Regenerate choices
+      this.storyManager.createChoices();
+
+      // Scroll to top
+      this.storyManager.display.scrollToTop();
+
+      return true;
+    } catch (error) {
+      console.error("Failed to load state:", error);
+      return false;
+    }
+  }
+
+  /**
+   * Quick save to a default slot
+   */
+  quickSave() {
+    try {
+      this.saveToSlot(1); // Save to slot 1
+      this.showNotification("Quick saved!");
+    } catch (error) {
+      console.error("Quick save failed:", error);
+      this.showNotification("Quick save failed!", true);
+    }
+  }
+
+  /**
+   * Quick load from default slot
+   */
+  quickLoad() {
+    try {
+      this.loadFromSlot(1); // Load from slot 1
+    } catch (error) {
+      console.error("Quick load failed:", error);
+      this.showNotification("Quick load failed!", true);
+    }
   }
 
   /**

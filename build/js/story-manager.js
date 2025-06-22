@@ -30,7 +30,7 @@ class StoryManager {
     this.choices = new ChoiceManager(this);
 
     // Save system
-    this.saves = new SaveManager(this);
+    this.saves = new SaveSystem(this);
   }
 
   /**
