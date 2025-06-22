@@ -24,10 +24,93 @@ class MarkdownProcessor {
       [/___([^_\n]+?)___/g, "<strong><em>$1</em></strong>"],
       [/__([^_\n]+?)__/g, "<strong>$1</strong>"],
       [/(?<!_)_([^_\n]+?)_(?!_)/g, "<em>$1</em>"],
-      [/\[(.*?)\]\((\w+)\)/g, '<span class="inline-$2">$1</span>'],
+      // Smart link/class detection - this will be processed by processInlineMarkdown
+      [
+        /\[(.*?)\]\(([^)]+)\)/g,
+        (match, text, target) => {
+          return MarkdownProcessor.processLinkOrClass(text, target);
+        },
+      ],
       [/  $/gm, "<br>"],
     ],
   };
+
+  /**
+   * Process [text](target) - detect if target is URL or class name
+   */
+  static processLinkOrClass(text, target) {
+    // Check if target looks like a URL
+    if (this.isURL(target)) {
+      // Add protocol if missing for domain-like URLs
+      let href = target;
+      if (
+        /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/.*)?$/.test(target) ||
+        /^www\./i.test(target)
+      ) {
+        href = "https://" + target;
+      }
+
+      // Determine if external link (for styling/behavior)
+      const isExternal = this.isExternalURL(href);
+      const externalAttr = isExternal
+        ? ' target="_blank" rel="noopener noreferrer"'
+        : "";
+      return `<a href="${href}"${externalAttr}>${text}</a>`;
+    } else {
+      // Treat as class name for inline styling
+      return `<span class="inline-${target}">${text}</span>`;
+    }
+  }
+
+  /**
+   * Check if a string looks like a URL
+   */
+  static isURL(str) {
+    // Check for common URL patterns
+    const urlPatterns = [
+      /^https?:\/\//i, // http:// or https://
+      /^\/\//i, // Protocol-relative URLs
+      /^mailto:/i, // Email links
+      /^tel:/i, // Phone links
+      /^#/, // Hash/anchor links
+      /^\//, // Relative URLs starting with /
+      /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/.*)?$/, // Domain names like example.com or example.com/path
+      /^www\./i, // URLs starting with www.
+    ];
+
+    return urlPatterns.some((pattern) => pattern.test(str));
+  }
+
+  /**
+   * Check if URL is external (different domain)
+   */
+  static isExternalURL(url) {
+    try {
+      // Handle relative URLs
+      if (url.startsWith("/") || url.startsWith("#")) {
+        return false;
+      }
+
+      // Handle protocol-relative URLs
+      if (url.startsWith("//")) {
+        url = "https:" + url;
+      }
+
+      // Add protocol if missing for domain-like URLs
+      if (
+        /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/.*)?$/.test(url) ||
+        /^www\./i.test(url)
+      ) {
+        url = "https://" + url;
+      }
+
+      const urlObj = new URL(url, window.location.origin);
+      return urlObj.hostname !== window.location.hostname;
+    } catch (error) {
+      // If URL parsing fails, assume it's external to be safe
+      return true;
+    }
+  }
 
   static process(text) {
     if (!text || typeof text !== "string") return "";
@@ -143,9 +226,37 @@ class MarkdownProcessor {
    */
   static selfTest() {
     try {
-      const testInput = "__bold__ and _italic_ text";
-      const result = this.process(testInput);
-      return result.includes("<strong>") && result.includes("<em>");
+      const testCases = [
+        {
+          input: "__bold__ and _italic_ text",
+          shouldContain: ["<strong>", "<em>"],
+        },
+        {
+          input: "[Visit Google](google.com)",
+          shouldContain: ['<a href="https://google.com"', 'target="_blank"'],
+        },
+        {
+          input: "[Visit Site](example.com/page.html)",
+          shouldContain: ['<a href="https://example.com/page.html"'],
+        },
+        {
+          input: "[Highlighted](highlight)",
+          shouldContain: ['<span class="inline-highlight"'],
+        },
+        { input: "[Internal link](/page)", shouldContain: ['<a href="/page"'] },
+        { input: "[Anchor](#section)", shouldContain: ['<a href="#section"'] },
+        {
+          input: "[WWW Site](www.example.com)",
+          shouldContain: ['<a href="https://www.example.com"'],
+        },
+      ];
+
+      return testCases.every((test) => {
+        const result = this.process(test.input);
+        return test.shouldContain.every((substring) =>
+          result.includes(substring),
+        );
+      });
     } catch (error) {
       return false;
     }
@@ -163,6 +274,8 @@ class MarkdownProcessor {
         block: this.patterns.block.length,
         inline: this.patterns.inline.length,
       },
+      supportsLinks: true,
+      supportsInlineClasses: true,
       timestamp: new Date().toISOString(),
     };
   }
