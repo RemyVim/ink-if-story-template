@@ -10,16 +10,9 @@ Using this template is straightforward:
 4. __Customize__ the CSS if desired (optional)
 5. __Deploy__ anywhere that serves static files
 
-:: No Build Process Required
-This template uses vanilla JavaScript - no npm, webpack, or complex tooling needed.
+This template uses vanilla JavaScript - no npm, webpack, or any complex tooling needed.
 
 Just write, compile, and deploy.
-
-:: File Structure
-> `index.html` - Main page
-> `story.json` - Your compiled ink story
-> `style.css` - Styling (customize as needed)
-> JavaScript files handle the functionality
 
 -> feature_menu
 

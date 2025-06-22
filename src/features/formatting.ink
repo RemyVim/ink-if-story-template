@@ -1,9 +1,10 @@
-=== text_formatting ===
+=== formatting_demo ===
 : Text Formatting Made Simple
 
-Here's what you can do __without__ touching HTML:
+This template uses a markdown-adjacent system. Here's what you can do __without__ touching a single HTML tag:
 
 :: Basic Text Styling
+
 Make text __bold__ with double underscores: `__bold__`
 
 Make text _italic_ with single underscores: `_italic_`
@@ -18,10 +19,6 @@ Use colons at the start of lines for headers:
 > `: Header 1` creates the largest header
 > `:: Header 2` creates a medium header  
 > `::: Header 3` creates the smallest header
-
-
-> this is `::: Header 3`
-> this is __bold__
 
 :: Lists Are Easy
 Use `>` at the start of lines for bullet points:
@@ -38,14 +35,6 @@ Use `>>` for block quotes and emphasis:
 
 You can quote dialogue, important notes, or emphasis text this way.
 
-:: Escaping Characters
-Need to show markdown characters literally? Use the ` % ` character:
-
-% %_%_this won't be bold or italic%_%_
-
-% %`this won't be code%`
-
-% %> this won't be a bullet point
 
 :: Custom Inline Styles
 The template also supports custom styling with brackets:
@@ -56,22 +45,25 @@ The template also supports custom styling with brackets:
 
 `[quiet aside](quiet)` becomes: [quiet aside](quiet)
 
+:: Links
+
+`[link text](example.com)` becomes: [link text](example.com)
+`[link text](example.com/page.html)` becomes: [link text](example.com/page.html)
+
 :: Line Breaks
 End a line with two spaces for a manual line break.  
 Like this!
 
-:: Putting It All Together
-Here's a sample that uses multiple formatting options:
+:: Escaping Characters
+Need to show markdown characters literally? Use the ` % ` character right before:
 
-::: Recipe for Great Interactive Fiction
+`%%_%%_this won't be bold%%_%%_` becomes: %_%_this won't be bold%_%_
 
-> Start with a __compelling premise__
-> Add _engaging characters_
-> Mix in `smart choices` that matter
-> Season with professional presentation
 
->> "The best stories make readers forget they're reading." - Anonymous Writer
+`%%`this won't be code%%`` becomes: %`this won't be code%`
 
-Remember: formatting should [enhance](highlight) your story, not distract from it.
+`%> this won't be a bullet point` becomes: > this won't be a bullet point
+
+You can also simply start a line with a ` % ` character and markdown processing will be disabled for the entire line.
 
 -> feature_menu
