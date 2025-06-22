@@ -61,7 +61,7 @@ class StoryManager {
     this.navigation.updateVisibility(this.availablePages);
 
     // Set initial save point and start
-    this.savePoint = this.story.state.toJson();
+    this.savePoint = this.story.state.ToJson();
     this.continue(true);
   }
 
@@ -88,6 +88,10 @@ class StoryManager {
 
     // Generate and render choices
     this.createChoices();
+
+    // Update save point after generating new content
+    // This ensures we always have the latest state for special page returns
+    this.savePoint = this.story.state.ToJson();
   }
 
   /**
@@ -167,8 +171,8 @@ class StoryManager {
     // Tell the story where to go next
     this.story.ChooseChoiceIndex(choiceIndex);
 
-    // Update save point
-    this.savePoint = this.story.state.toJson();
+    // Update save point before continuing
+    this.savePoint = this.story.state.ToJson();
 
     // Continue the story
     this.continue();
@@ -184,7 +188,11 @@ class StoryManager {
     this.story.ResetState();
     this.currentPage = null;
     this.display.reset();
-    this.savePoint = this.story.state.toJson();
+
+    // Reset page manager state
+    this.pages.reset();
+
+    this.savePoint = this.story.state.ToJson();
     this.continue(true);
     this.display.scrollToTop();
   }
@@ -195,7 +203,7 @@ class StoryManager {
    */
   getCurrentState() {
     return {
-      gameState: this.story.state.toJson(),
+      gameState: this.story.state.ToJson(),
       displayState: this.display.getState(),
       currentPage: this.currentPage,
       savePoint: this.savePoint,
@@ -214,7 +222,10 @@ class StoryManager {
 
       // Restore other state
       this.currentPage = state.currentPage || null;
-      this.savePoint = state.savePoint || this.story.state.toJson();
+      this.savePoint = state.savePoint || this.story.state.ToJson();
+
+      // Reset page manager state when loading
+      this.pages.reset();
 
       // Restore display if available
       if (state.displayState) {
@@ -316,6 +327,10 @@ class StoryManager {
 
     if (this.settings) {
       this.settings.cleanup && this.settings.cleanup();
+    }
+
+    if (this.pages) {
+      this.pages.reset && this.pages.reset();
     }
   }
 }

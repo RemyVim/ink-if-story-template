@@ -5,6 +5,10 @@ class PageManager {
   constructor(storyManager) {
     this.storyManager = storyManager;
     this.tagProcessor = new TagProcessor();
+
+    // Store the display state before entering special pages
+    this.savedDisplayState = null;
+    this.savedStoryState = null;
   }
 
   /**
@@ -16,6 +20,9 @@ class PageManager {
       console.warn(`Page "${pageName}" does not exist in the story`);
       return;
     }
+
+    // Save current state before showing special page
+    this.saveCurrentState();
 
     // Mark that we're in a special page
     this.storyManager.currentPage = pageName;
@@ -32,6 +39,18 @@ class PageManager {
 
     // Scroll to top
     this.storyManager.display.scrollToTop();
+  }
+
+  /**
+   * Save the current display and story state before entering special page
+   */
+  saveCurrentState() {
+    // Save current display state
+    this.savedDisplayState = this.storyManager.display.getState();
+
+    // Save current story state (use the existing savePoint if available)
+    this.savedStoryState =
+      this.storyManager.savePoint || this.storyManager.story.state.ToJson();
   }
 
   /**
@@ -83,13 +102,64 @@ class PageManager {
   returnToStory() {
     if (!this.storyManager.currentPage) return;
 
-    // Restore story state to the save point
-    this.storyManager.story.state.LoadJson(this.storyManager.savePoint);
+    // Clear the current page flag
     this.storyManager.currentPage = null;
 
-    // Clear and regenerate display from save point
+    // Clear current display
     this.storyManager.display.clear();
-    this.storyManager.continue(true);
+
+    // Restore the saved story state if we have one
+    if (this.savedStoryState) {
+      try {
+        this.storyManager.story.state.LoadJson(this.savedStoryState);
+      } catch (error) {
+        console.error("Failed to restore story state:", error);
+        // Fallback to the current savePoint
+        this.storyManager.story.state.LoadJson(this.storyManager.savePoint);
+      }
+    }
+
+    // Restore the saved display state if we have it
+    if (this.savedDisplayState) {
+      try {
+        this.storyManager.display.restoreState(this.savedDisplayState);
+      } catch (error) {
+        console.error("Failed to restore display state:", error);
+        // Fallback to regenerating from story state
+        this.regenerateDisplayFromStoryState();
+      }
+    } else {
+      // Fallback to regenerating from story state
+      this.regenerateDisplayFromStoryState();
+    }
+
+    // Show header and regenerate choices
+    this.storyManager.display.showHeader();
+    this.storyManager.createChoices();
+
+    // Scroll to top
+    this.storyManager.display.scrollToTop();
+
+    // Clean up saved states
+    this.savedDisplayState = null;
+    this.savedStoryState = null;
+  }
+
+  /**
+   * Regenerate display from current story state (fallback method)
+   */
+  regenerateDisplayFromStoryState() {
+    const currentText = this.storyManager.story.state.currentText;
+
+    if (currentText && currentText.trim().length > 0) {
+      const processedText = MarkdownProcessor.process(currentText);
+      this.storyManager.display.render([
+        {
+          text: processedText,
+          classes: [],
+        },
+      ]);
+    }
   }
 
   /**
@@ -144,5 +214,14 @@ class PageManager {
     }
 
     return fullText.trim();
+  }
+
+  /**
+   * Reset the page manager state (useful for cleanup)
+   */
+  reset() {
+    this.savedDisplayState = null;
+    this.savedStoryState = null;
+    this.storyManager.currentPage = null;
   }
 }
