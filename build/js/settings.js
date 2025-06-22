@@ -1,8 +1,7 @@
 // Settings management with modal interface
 class SettingsManager {
-  constructor(themeManager, storyState) {
+  constructor(themeManager) {
     this.themeManager = themeManager;
-    this.storyState = storyState;
     this.modalElement = null;
     this.settings = {
       theme: "auto", // 'light', 'dark', 'auto'

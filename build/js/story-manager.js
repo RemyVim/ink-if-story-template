@@ -22,7 +22,7 @@ class StoryManager {
     this.contentProcessor = new ContentProcessor();
 
     // Settings and theme (initialize early since other systems depend on them)
-    this.settings = new SettingsManager(new ThemeManager(), new StoryState());
+    this.settings = new SettingsManager(new ThemeManager());
 
     // Navigation and pages
     this.navigation = new NavigationManager(this);

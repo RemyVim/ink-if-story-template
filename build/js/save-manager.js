@@ -1,12 +1,12 @@
-// save-manager.js
-// Simplified save interface that wraps the GameSaveSystem
+// save-manager.js (updated)
+// Save interface that wraps the game save system
 
 class SaveManager {
   constructor(storyManager) {
     this.storyManager = storyManager;
 
-    // Initialize the game saves system
-    this.gameSaveSystem = new GameSaveSystem(storyManager);
+    // Initialize the game save system
+    this.saveSystem = new GameSaveSystem(storyManager);
 
     this.setupEventListeners();
   }
@@ -29,49 +29,21 @@ class SaveManager {
    * Perform an autosave if enabled in settings
    */
   autosave() {
-    // Check if we should autosave
-    if (!this.shouldAutosave()) {
-      return;
-    }
-
-    try {
-      this.gameSaveSystem.autosave();
-    } catch (error) {
-      console.error("Autosave failed:", error);
-      // Don't show user notification for autosave failures
-    }
+    this.saveSystem.autosave();
   }
 
   /**
    * Show the save/load dialog
    */
   showSaveDialog() {
-    this.gameSaveSystem.showSavesModal();
+    this.saveSystem.showSavesModal();
   }
 
   /**
    * Hide the save/load dialog
    */
   hideSaveDialog() {
-    this.gameSaveSystem.hideSavesModal();
-  }
-
-  /**
-   * Check if we should perform an autosave
-   * @returns {boolean} True if autosave should be performed
-   */
-  shouldAutosave() {
-    // Don't autosave if user is on a special page
-    if (this.storyManager.pages.isViewingSpecialPage()) {
-      return false;
-    }
-
-    // Check if autosave is enabled in settings
-    if (this.storyManager.settings) {
-      return this.storyManager.settings.getSetting("autoSave");
-    }
-
-    return false;
+    this.saveSystem.hideSavesModal();
   }
 
   /**
@@ -79,7 +51,7 @@ class SaveManager {
    * @returns {boolean} True if saves are available
    */
   hasSaves() {
-    return this.gameSaveSystem.hasSaves();
+    return this.saveSystem.hasSaves();
   }
 
   /**
@@ -87,7 +59,7 @@ class SaveManager {
    * @param {number} slotNumber - Slot number to save to
    */
   saveToSlot(slotNumber) {
-    this.gameSaveSystem.saveToSlot(slotNumber);
+    this.saveSystem.saveToSlot(slotNumber);
   }
 
   /**
@@ -95,7 +67,7 @@ class SaveManager {
    * @param {number} slotNumber - Slot number to load from
    */
   loadFromSlot(slotNumber) {
-    this.gameSaveSystem.loadFromSlot(slotNumber);
+    this.saveSystem.loadFromSlot(slotNumber);
   }
 
   /**
@@ -104,7 +76,7 @@ class SaveManager {
    * @param {boolean} isAutosave - Whether this is the autosave slot
    */
   deleteSlot(slotNumber, isAutosave = false) {
-    this.gameSaveSystem.deleteSlot(slotNumber, isAutosave);
+    this.saveSystem.deleteSlot(slotNumber, isAutosave);
   }
 
   /**
@@ -112,7 +84,7 @@ class SaveManager {
    * @param {number} slotNumber - Slot number to export from
    */
   exportFromSlot(slotNumber) {
-    this.gameSaveSystem.exportFromSlot(slotNumber);
+    this.saveSystem.exportFromSlot(slotNumber);
   }
 
   /**
@@ -120,7 +92,7 @@ class SaveManager {
    * @param {number} slotNumber - Slot number to import to
    */
   importToSlot(slotNumber) {
-    this.gameSaveSystem.importToSlot(slotNumber);
+    this.saveSystem.importToSlot(slotNumber);
   }
 
   /**
@@ -129,16 +101,16 @@ class SaveManager {
    * @returns {Object|null} Save data or null if not found
    */
   getSaveData(slotNumber) {
-    return this.gameSaveSystem.getSaveData(slotNumber);
+    return this.saveSystem.getSaveData(slotNumber);
   }
 
   /**
-   * Get the current game state for saving
+   * Get the current game state for saving (now uses ink.js directly)
    * @returns {Object} Current game state
    */
   getCurrentState() {
     return {
-      gameState: this.storyManager.story.state.ToJson(),
+      gameState: this.storyManager.story.state.ToJson(), // Use ink.js built-in
       displayState: this.storyManager.display.getState(),
       timestamp: Date.now(),
       currentPage: this.storyManager.currentPage,
@@ -146,13 +118,13 @@ class SaveManager {
   }
 
   /**
-   * Load a game state
+   * Load a game state (now uses ink.js directly)
    * @param {Object} state - Game state to load
    * @returns {boolean} True if loading succeeded
    */
   loadState(state) {
     try {
-      // Load the game state into the story
+      // Use ink.js built-in state loading
       this.storyManager.story.state.LoadJson(state.gameState);
 
       // Reset special page state
@@ -277,7 +249,7 @@ class SaveManager {
    * Clear all saves (useful for testing or reset)
    */
   clearAllSaves() {
-    this.gameSaveSystem.clearAllSaves();
+    this.saveSystem.clearAllSaves();
   }
 
   /**
@@ -285,7 +257,7 @@ class SaveManager {
    * @returns {Object} Save statistics
    */
   getSaveStats() {
-    return this.gameSaveSystem.getSaveStats();
+    return this.saveSystem.getSaveStats();
   }
 
   /**
@@ -293,7 +265,7 @@ class SaveManager {
    */
   quickSave() {
     try {
-      this.gameSaveSystem.saveToSlot(1); // Save to slot 1
+      this.saveSystem.saveToSlot(1); // Save to slot 1
       this.showNotification("Quick saved!");
     } catch (error) {
       console.error("Quick save failed:", error);
@@ -306,7 +278,7 @@ class SaveManager {
    */
   quickLoad() {
     try {
-      this.gameSaveSystem.loadFromSlot(1); // Load from slot 1
+      this.saveSystem.loadFromSlot(1); // Load from slot 1
     } catch (error) {
       console.error("Quick load failed:", error);
       this.showNotification("Quick load failed!", true);
@@ -319,8 +291,8 @@ class SaveManager {
    * @param {boolean} isError - Whether this is an error message
    */
   showNotification(message, isError = false) {
-    if (this.gameSaveSystem && this.gameSaveSystem.showNotification) {
-      this.gameSaveSystem.showNotification(message, isError);
+    if (this.saveSystem && this.saveSystem.showNotification) {
+      this.saveSystem.showNotification(message, isError);
     }
   }
 
@@ -328,8 +300,8 @@ class SaveManager {
    * Cleanup resources
    */
   cleanup() {
-    if (this.gameSaveSystem) {
-      this.gameSaveSystem.cleanup();
+    if (this.saveSystem) {
+      this.saveSystem.cleanup();
     }
   }
 }

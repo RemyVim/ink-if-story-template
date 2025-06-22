@@ -1,8 +1,6 @@
 // Theme management utilities (updated for settings integration)
 class ThemeManager {
-  constructor() {
-    this.storyState = new StoryState();
-  }
+  constructor() {}
 
   setup(globalTagTheme, settingsManager = null) {
     this.settingsManager = settingsManager;
@@ -13,9 +11,6 @@ class ThemeManager {
       this.settingsManager.applyTheme();
       return;
     }
-
-    // Fallback to original behavior if no settings manager
-    const savedTheme = this.storyState.loadTheme();
 
     // Check whether the OS/browser is configured for dark mode
     const browserDark = window.matchMedia(

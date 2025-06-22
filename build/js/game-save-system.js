@@ -1,5 +1,5 @@
 // game-save-system.js
-// Complete save/load logic
+// Streamlined save system that leverages ink.js state management
 
 class GameSaveSystem {
   constructor(storyManager) {
@@ -13,37 +13,24 @@ class GameSaveSystem {
   }
 
   /**
-   * Show the saves modal
-   */
-  showSavesModal() {
-    this.modal.show();
-  }
-
-  /**
-   * Hide the saves modal
-   */
-  hideSavesModal() {
-    this.modal.hide();
-  }
-
-  /**
-   * Save game to a specific slot
+   * Save game to a specific slot using ink.js state
    * @param {number} slotNumber - Slot number to save to
    */
   saveToSlot(slotNumber) {
     try {
+      // Use ink.js built-in state serialization
       const gameState = this.storyManager.story.state.ToJson();
-      const displayState = this.storyManager.display.getState();
 
       const saveData = {
         gameState: gameState,
-        displayState: displayState,
         saveName: this.generateSaveName(slotNumber),
         description: this.generateDescription(),
         timestamp: Date.now(),
         version: "1.0",
         isAutosave: slotNumber === this.autosaveSlot,
         currentPage: this.storyManager.currentPage,
+        // Store any additional UI state we need
+        displayState: this.storyManager.display.getState(),
       };
 
       this.writeSaveData(slotNumber, saveData);
@@ -61,7 +48,7 @@ class GameSaveSystem {
   }
 
   /**
-   * Load game from a specific slot
+   * Load game from a specific slot using ink.js state
    * @param {number} slotNumber - Slot number to load from
    */
   loadFromSlot(slotNumber) {
@@ -74,17 +61,17 @@ class GameSaveSystem {
         return;
       }
 
-      // Load the game state
+      // Use ink.js built-in state loading
       this.storyManager.story.state.LoadJson(saveData.gameState);
 
-      // Reset page state
+      // Restore additional state
       this.storyManager.currentPage = saveData.currentPage || null;
 
-      // Restore display state
+      // Restore display state if available
       if (saveData.displayState) {
         this.storyManager.display.restoreState(saveData.displayState);
       } else {
-        // Fallback for older saves
+        // Fallback for older saves - regenerate from current story state
         this.storyManager.display.clear();
         this.regenerateDisplay();
       }
@@ -93,7 +80,7 @@ class GameSaveSystem {
       this.storyManager.display.showHeader();
       this.storyManager.createChoices();
 
-      // Update save point
+      // Update save point in story manager
       this.storyManager.savePoint = this.storyManager.story.state.ToJson();
 
       // Scroll to top
@@ -115,6 +102,11 @@ class GameSaveSystem {
   autosave() {
     // Don't autosave if user is on a special page
     if (this.storyManager.pages.isViewingSpecialPage()) {
+      return;
+    }
+
+    // Check if autosave is enabled in settings
+    if (!this.shouldAutosave()) {
       return;
     }
 
@@ -229,7 +221,11 @@ class GameSaveSystem {
             throw new Error("Invalid save file format");
           }
 
-          // Save the imported data to the specified slot
+          // Test if the game state can be loaded (validation)
+          const testStory = new inkjs.Story(this.storyManager.story.ToJson());
+          testStory.state.LoadJson(importData.gameState);
+
+          // If we get here, the save is valid - store it
           this.writeSaveData(slotNumber, importData);
 
           const slotName =
@@ -254,6 +250,20 @@ class GameSaveSystem {
 
     document.body.appendChild(fileInput);
     fileInput.click();
+  }
+
+  /**
+   * Show the saves modal
+   */
+  showSavesModal() {
+    this.modal.show();
+  }
+
+  /**
+   * Hide the saves modal
+   */
+  hideSavesModal() {
+    this.modal.hide();
   }
 
   /**
@@ -309,7 +319,7 @@ class GameSaveSystem {
   generateSaveName(slotNumber) {
     let baseName;
 
-    // Try to get current location for save name
+    // Try to get current location for save name using ink.js state
     const currentPath = this.storyManager.story.state.currentPathString;
 
     if (currentPath) {
@@ -357,6 +367,18 @@ class GameSaveSystem {
   }
 
   /**
+   * Check if we should perform an autosave
+   * @returns {boolean} True if autosave should be performed
+   */
+  shouldAutosave() {
+    // Check if autosave is enabled in settings
+    if (this.storyManager.settings) {
+      return this.storyManager.settings.getSetting("autoSave");
+    }
+    return false;
+  }
+
+  /**
    * Regenerate display from current story state (fallback for old saves)
    */
   regenerateDisplay() {
@@ -384,7 +406,26 @@ class GameSaveSystem {
   }
 
   /**
-   * Get statistics about saves
+   * Clear all saves (useful for testing or reset)
+   */
+  clearAllSaves() {
+    if (
+      confirm(
+        "Are you sure you want to delete ALL saves? This action cannot be undone.",
+      )
+    ) {
+      for (let i = 0; i <= this.maxSaveSlots; i++) {
+        const saveKey = this.savePrefix + i;
+        localStorage.removeItem(saveKey);
+      }
+
+      this.showNotification("All saves cleared.");
+      this.modal.populateSaveSlots();
+    }
+  }
+
+  /**
+   * Get save statistics
    * @returns {Object} Save statistics
    */
   getSaveStats() {
@@ -417,61 +458,9 @@ class GameSaveSystem {
   }
 
   /**
-   * Clear all saves (useful for testing or reset)
-   */
-  clearAllSaves() {
-    if (
-      confirm(
-        "Are you sure you want to delete ALL saves? This action cannot be undone.",
-      )
-    ) {
-      for (let i = 0; i <= this.maxSaveSlots; i++) {
-        const saveKey = this.savePrefix + i;
-        localStorage.removeItem(saveKey);
-      }
-
-      this.showNotification("All saves cleared.");
-      this.modal.populateSaveSlots();
-    }
-  }
-
-  /**
-   * Get the total number of saves
-   * @returns {number} Total number of saves
-   */
-  getTotalSaves() {
-    return this.getSaveStats().totalSaves;
-  }
-
-  /**
-   * Check if autosave exists
-   * @returns {boolean} True if autosave exists
-   */
-  hasAutosave() {
-    return !!this.getSaveData(this.autosaveSlot);
-  }
-
-  /**
-   * Get the oldest save
-   * @returns {Object|null} Oldest save data or null
-   */
-  getOldestSave() {
-    return this.getSaveStats().oldestSave;
-  }
-
-  /**
-   * Get the newest save
-   * @returns {Object|null} Newest save data or null
-   */
-  getNewestSave() {
-    return this.getSaveStats().newestSave;
-  }
-
-  /**
    * Cleanup resources
    */
   cleanup() {
-    // Clean up any event listeners or resources if needed
     if (this.modal && this.modal.modalElement) {
       this.modal.modalElement.remove();
     }
