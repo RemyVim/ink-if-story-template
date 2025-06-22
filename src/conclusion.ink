@@ -1,5 +1,8 @@
 === conclusion ===
 : Ready to Build
+# ACHIEVEMENT: You did it!
+# NOTIFICATION: notification
+# ERROR: WTF just happened?
 
 This template handles the technical details so you can focus on what matters: __telling great stories__.
 

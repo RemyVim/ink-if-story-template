@@ -1,4 +1,4 @@
-// modal.js - Refactored with CSS separation
+// modal.js
 class BaseModal {
   constructor(options = {}) {
     this.config = {
@@ -256,30 +256,8 @@ class BaseModal {
   }
 
   showNotification(message, isError = false, duration = 4000) {
-    const notification = document.createElement("div");
-    notification.className = `modal-notification ${
-      isError ? "modal-notification-error" : "modal-notification-success"
-    }`;
-    notification.textContent = message;
-
-    document.body.appendChild(notification);
-
-    // Animate in
-    requestAnimationFrame(() => {
-      notification.style.transform = "translateY(0)";
-      notification.style.opacity = "1";
-    });
-
-    // Auto remove
-    setTimeout(() => {
-      notification.style.transform = "translateY(100px)";
-      notification.style.opacity = "0";
-      setTimeout(() => {
-        if (notification.parentNode) {
-          notification.parentNode.removeChild(notification);
-        }
-      }, 300);
-    }, duration);
+    const type = isError ? "error" : "success";
+    window.notificationManager.show(message, { type, duration });
   }
 
   createButton(text, options = {}) {

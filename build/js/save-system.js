@@ -59,7 +59,8 @@ class SaveSystem {
 
       const slotName =
         slotNumber === this.autosaveSlot ? "Autosave" : `Slot ${slotNumber}`;
-      this.showNotification(`Game saved to ${slotName}!`);
+
+      if (slotNumber != 0) this.showNotification(`Game saved to ${slotName}!`);
 
       // Refresh modal if open
       this.modal?.populateSaveSlots?.();

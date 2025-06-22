@@ -50,63 +50,8 @@ class ErrorManager {
   }
 
   showNotification(message, severity) {
-    const notification = document.createElement("div");
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      max-width: 350px;
-      background: ${severity === "critical" ? "#dc2626" : "#ea580c"};
-      color: white;
-      padding: 1rem;
-      border-radius: 6px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      z-index: 9999;
-      font-size: 0.9rem;
-      transform: translateX(100%);
-      transition: transform 0.3s ease;
-    `;
-
-    const icon = severity === "critical" ? "🚨" : "⚠️";
-    notification.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-        <div>
-          <div style="font-weight: 600; margin-bottom: 0.5rem;">
-            ${icon} ${severity === "critical" ? "Critical Error" : "Error"}
-          </div>
-          <div>Something went wrong. Check console (F12) for details.</div>
-        </div>
-        <button onclick="this.parentElement.parentElement.remove()" style="
-          background: none;
-          border: none;
-          color: white;
-          font-size: 1.2rem;
-          cursor: pointer;
-          padding: 0;
-          margin-left: 1rem;
-        ">&times;</button>
-      </div>
-    `;
-
-    document.body.appendChild(notification);
-
-    // Animate in
-    requestAnimationFrame(() => {
-      notification.style.transform = "translateX(0)";
-    });
-
-    // Auto-remove after delay
-    setTimeout(
-      () => {
-        notification.style.transform = "translateX(100%)";
-        setTimeout(() => {
-          if (notification.parentNode) {
-            notification.remove();
-          }
-        }, 300);
-      },
-      severity === "critical" ? 8000 : 5000,
-    );
+    const type = severity === "critical" ? "critical" : "error";
+    window.notificationManager.show(message, { type });
   }
 
   attemptRecovery(source) {

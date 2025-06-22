@@ -80,6 +80,22 @@ class TagProcessor {
             case "BACKGROUND":
               specialActions.push(() => this.setBackground(value));
               break;
+            case "NOTIFICATION":
+              specialActions.push(() => this.showNotification(value, "info"));
+              break;
+            case "ACHIEVEMENT":
+              specialActions.push(() =>
+                this.showNotification(value, "success", 6000),
+              );
+              break;
+            case "WARNING":
+              specialActions.push(() =>
+                this.showNotification(value, "warning"),
+              );
+              break;
+            case "ERROR":
+              specialActions.push(() => this.showNotification(value, "error"));
+              break;
             case "CLASS":
               if (value) customClasses.push(value);
               break;
@@ -262,6 +278,12 @@ class TagProcessor {
       this.storyContainer.appendChild(imageElement);
     } catch (error) {
       window.errorManager.error("Failed to show image", error, "tags");
+    }
+  }
+
+  showNotification(message, type = "info", duration = 4000) {
+    if (window.notificationManager) {
+      window.notificationManager.show(message, { type, duration });
     }
   }
 
