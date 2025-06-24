@@ -18,7 +18,7 @@ INCLUDE conclusion.ink
 
 Welcome, storyteller!
 
-So you're thinking about using Ink for your interactive fiction? Excellent choice. And you've found this template to go with it? Even better.
+So you're thinking about using [Ink](www.inklestudios.com/ink/) for your interactive fiction? Excellent choice. And you've found this template to go with it? Even better.
 
 Here's what this template adds to your Ink stories:
 
