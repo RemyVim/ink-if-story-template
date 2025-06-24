@@ -1,156 +1,254 @@
-# ink-if-html-template
-A simple HTML/CSS/JS for ink/inkjs stories.  In the spirit of Twine games.
+# Ink Story Template
 
-## What This Is
+So you've written an amazing interactive story in [Ink](https://www.inklestudios.com/ink/), and now you want to share it with the world? This template has you covered.
 
-A modern, responsive HTML template for publishing Ink interactive fiction stories to the web. Features:
+Transform your Ink stories into polished, professional web experiences without touching a single line of HTML, CSS, or JavaScript (although you definitely can if you want!). Just write your story, compile it, and you're ready to publish.
 
-- **Save/Load system** with multiple save slots
-- **Responsive design** that works on mobile and desktop  
-- **Modern UI** with dark/light theme switching
-- **Development tools** for live editing and compilation
-- **Modal system** for credits, warnings, etc.
+## Features
 
-Perfect for authors who want to publish polished IF games without diving deep into web development.
+### Responsive Design
 
-## Two Ways to Use This Template
+- Beautiful on desktop, tablet, and mobile
+- Accessible design
+- Customizable themes (light/dark/auto)
 
-### Option A: With Inky (Simple)
-1. Write your story in [Inky editor](https://github.com/inkle/inky/releases)
-2. Export as HTML from Inky
-3. Replace the `build/` folder in your export with the `build/` folder from this template
-4. Done! You now have a story with save/load, themes, etc.
+### Save System
 
-### Option B: Development Setup (Fancy)
-Want auto-compilation and easy testing? Set up the development environment below.
+- 5 save slots + automatic autosave
+- Export/import saves as files
+- Cross-device save sharing
+- Keyboard shortcuts (`Ctrl+S` to save, `Ctrl+R` to restart)
 
-## Development Setup
+### Rich Formatting
 
-**TL;DR:** This gives you auto-compilation so you can write Ink, save, and refresh your browser to see changes instantly.
+- Markdown-style text formatting (`__bold__`, `_italic_`, etc.)
+- Custom inline styles with `[text](style)` syntax
+- Automatic link detection
+- Code blocks, lists, and blockquotes
 
-You can absolutely use this template without any development setup - just edit the files directly. But if you want the "save your Ink file, hit refresh, and see changes instantly" experience, here's how:
+### Media Support
 
-### What You'll Get
-- Type in your Ink editor → Save → Auto-compilation happens
-- Hit `Ctrl+R` in browser → See your changes instantly
-- Local web server so you can test everything
-- No manual compilation steps
+- Background images and music
+- Sound effects and ambient loops
+- Image embedding
+- All controlled via simple Ink tags
+
+### Special Pages
+
+- Create reference pages outside story flow
+- Character sheets, maps, credits, etc.
+- Automatic navigation integration
+- Return-to-story functionality
+
+### User Settings
+
+- Theme selection (light/dark/auto)
+- Font options including dyslexia-friendly fonts
+- Text size and line height adjustment
+- Audio and animation controls
+
+### Notification System
+
+- Customizable notification types
+- Achievement notifications
+- Error handling with user feedback
+
+## Quick Start
+
+1. **Download the template**
+
+   ```bash
+   git clone https://github.com/remyvim/ink-story-template
+   cd ink-story-template
+   ```
+
+2. **Write your story** in Ink (you can replace the demo in `src/main.ink` or work elsewhere)
+
+3. **Compile your story**
+    Using [Inky](https://github.com/inkle/inky):
+
+   ```bash
+   File → Export to Web...
+   ```
+
+   Or using inklecate command line
+
+   ```bash
+   inklecate -o build/story.json src/main.ink
+   ```
+
+4. **Test locally**
+
+   ```bash
+   cd build
+   python3 -m http.server 8000
+   ```
+
+   And visit <http://localhost:8000>
+
+5. **Deploy** to any static hosting service (Itch.io, GitHub Pages, Netlify, etc.)
+
+## Writing for the Template
+
+### Basic Formatting
+
+You can use a markdown-adjacent symbols for text formatting (the template will automatically process these symbols into HTML).
+
+```ink
+This is __bold text__ and this is _italic text_.
+
+You can use `inline code` and create [highlighted text](highlight) or [linked text](example.com).
+
+:: This creates a header
+
+> This creates a bullet point
+> Another bullet point
+
+>> This creates a blockquote
+```
+
+### Media and Effects
+
+Add media to your story directly in your `.ink` files with the following special tags:
+
+```ink
+# IMAGE: path/to/image.jpg
+# AUDIO: path/to/sound.mp3
+# AUDIOLOOP: path/to/music.mp3
+# BACKGROUND: path/to/background.jpg
+```
+
+### Special Pages
+
+Special pages are pages outside the main narrative flow such as about/credits/content warning page or character stats pages. These pages will auto-populate the navigation menu and have a "Return to Story" button that brings the player back where they left off.
+
+```ink
+=== character_sheet ===
+# SPECIAL_PAGE
+: Character Information
+
+Your character details go here...
+
+-> DONE
+```
+
+### Notifications
+
+You can also trigger notifications from your .ink files:
+
+```ink
+# ACHIEVEMENT: You found the secret!
+# NOTIFICATION: Something interesting happened.
+# WARNING: Be careful here.
+# ERROR: Something went wrong.
+```
+
+## Development Workflow (Optional)
 
 ### Prerequisites
 
+- Linux (might work with MacOS with some modifications - PRs welcome!)
+- Python 3 (for local server)
+- [Ink/Inky](https://www.inklestudios.com/ink/) for story compilation
 
-- **Linux** (MacOS likely works with minor adaptations - PRs welcome from Mac users!)
-- **Git** for downloading this template
-- **Python 3** (probably already installed)
-- **Task** for building ([quick install here](https://taskfile.dev/installation/))
+### Using Task (Optional)
 
-### Three Commands and You're Done
+Install [Task](https://taskfile.dev/) for convenient development commands:
 
-1. **Get the template:**
+```bash
+# Setup development environment
+task setup
 
-   ```bash
-   git clone https://github.com/RemyVim/ink-if-html-template
-   cd ink-if-html-template
-   ```
+# Start development (auto-compile + serve)
+task dev
 
-2. **Set everything up:**
+# Just compile
+task compile
 
-   ```bash
-   task setup
-   ```
+# Just serve
+task serve
+```
 
-   This will:
-   - Download and install inklecate compiler
-   - Install file watching tools
-   - Set up project structure
+### File Structure
 
-3. **Start the magic:**
-
-   ```bash
-   task dev
-   ```
-
-Now open <http://localhost:8000> and edit `src/main.ink`. Save the file, hit `Ctrl+R` in your browser, and see your changes!
-
-**Tip:** Keep your browser and editor side-by-side for quick save-and-refresh cycles.
-
-Press `Ctrl+C` when you're done writing for the day.
-
-### Available Commands
-
-| Command | Description |
-|---------|-------------|
-| `task dev` | Start development environment (watch + serve) |
-| `task compile` | Compile Ink story to JSON |
-| `task serve` | Start web server at <http://localhost:8000> |
-| `task watch` | Watch for changes and auto-compile |
-| `task build` | Build for production |
-| `task clean` | Clean build directory |
-| `task setup` | Install development tools |
-| `task help` | Show all available commands |
+```
+ink-story-template/
+├── build/              # Production files (this is folder to deploy)
+│   ├── assets/
+│   ├── css/
+│   ├── js/
+│   ├── fonts/
+│   ├── index.html
+│   └── story.json      # Your compiled Ink story
+├── src/                # Your Ink source files (optional)
+│   └── main.ink
+└── README.md
+```
 
 ## Customization
 
-### Styling
-- Edit `build/style.css` for colors, fonts, layout
-- Dark/light themes defined in CSS custom properties
+### Themes
 
-### Content
-- Replace story content in `src/main.ink`
-- Update `build/modals/` for credits/warnings
-- Modify `build/index.html` for title, metadata
+The template includes light and dark themes. You can customize colors/fonts/layout or anything else in `build/css/style.css`.
 
-### Features
-- Save system: Edit `main.js` save/load functions
-- Navigation: Modify `build/index.html` top nav
-- Modal content: Update `build/modals/` HTML files
+### Fonts
 
-## New to Ink?
+Three font options included:
 
-If you're new to Ink scripting language:
-- [Official Ink Tutorial](https://www.inklestudios.com/ink/web-tutorial/)
-- [Ink Language Guide](https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md)
-- [Download Inky Editor](https://github.com/inkle/inky/releases)
+- **Merriweather** (serif, default)
+- **Inter** (sans-serif)  
+- **OpenDyslexic** (accessibility)
 
+Add custom fonts by updating the CSS and font files.
 
-## Technical Details
+### Advanced Customization
 
-### Dependencies
+All JavaScript modules are modular. Key files:
 
-- **Ink**: Narrative scripting language by Inkle
-- **inkjs**: JavaScript runtime for Ink stories
-- **inklecate**: Ink compiler (auto-downloaded)
-- **Task**: Build automation tool
+- `js/story-manager.js` - Core story logic
+- `js/settings.js` - User preferences
+- `js/save-system.js` - Save/load functionality
 
-### Browser Compatibility
+## Browser Support
 
-- **Modern browsers** (Chrome 60+, Firefox 55+, Safari 11+, Edge 79+)
-- **Mobile support** with responsive touch-friendly interface
-- **Local storage** for save games (falls back gracefully if disabled)
-- **No server required** - works as static files
-
-## Deployment
-
-### Local Build
-
-```bash
-task build
-```
-
-Outputs production-ready files to `build/` directory.
-
-### Web Deployment
-
-The `build/` directory contains a complete static website that can be deployed anywhere.
-
-Simply upload the contents of `build/` to your web host.
-
-### Deploy Options
-- **GitHub Pages**: Push `build/` contents to `gh-pages` branch
-- **Netlify**: Drag and drop `build/` folder 
-- **itch.io**: Zip `build/` contents and upload as HTML game
-- **Any web host**: Upload `build/` contents via FTP
+- **Modern browsers** (Chrome 80+, Firefox 75+, Safari 13+, Edge 80+)
+- **Mobile browsers** (iOS Safari, Chrome Mobile)
+<!-- - **Accessibility tools** (screen readers, keyboard navigation) -->
 
 ## License
 
-This template is provided as-is under the MIT License. You are free to use, modify, and distribute it for personal or commercial use. See the [LICENSE](LICENSE) file for full details.
+MIT License - use for any purpose, commercial or personal.
+
+## Contributing
+
+Contributions welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch
+3. Test thoroughly
+4. Submit a pull request
+
+Just want to report a bug or request a feature? Open an issue!
+
+## Resources
+
+- [Ink Documentation](https://github.com/inkle/ink)
+- [Ink Tutorial](https://www.inklestudios.com/ink/web-tutorial/)
+- [Interactive Fiction Community](https://intfiction.org/)
+
+## FAQ
+
+**Q: Do I need to know HTML/CSS/JavaScript?**  
+A: No! Write in Ink, compile, and deploy. Customization is optional.
+
+**Q: Can I sell games made with this template?**  
+A: Yes! MIT license allows commercial use.
+
+**Q: Does this work offline?**  
+A: Yes, once loaded the template works entirely offline. Even the fonts are bundled to avoid querying Google fonts.
+
+**Q: Can I customize the appearance?**  
+A: Absolutely. You can edit the `build/css/style.css` file to your heart's content.
+
+**Q: What about mobile devices?**  
+A: The design is fully responsive and optimized for all screen sizes.
