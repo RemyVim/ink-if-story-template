@@ -90,6 +90,7 @@
   --color-blockquote-bg: #f9f9f9;
   --color-blockquote-border: #ccc;
   --color-blockquote-text: #666;
+  --color-separator-line: #666;
 
 /* === COLORS - DARK THEME === */
 body.dark {
@@ -110,6 +111,7 @@ body.dark {
   --color-blockquote-bg: #2d3748;
   --color-blockquote-border: #555;
   --color-blockquote-text: #bbb;
+  --color-separator-line: #bbb;
 }
 
   /* === FONTS === */
@@ -119,7 +121,7 @@ body.dark {
   --font-heading: "Merriweather", Georgia, "Times New Roman", Times, serif;
   --font-monospace: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
 
-  /* === CURRENT FONT (can be overridden by settings) === */
+  /* === CURRENT FONT (DO NOT EDIT - can be overridden by settings) === */
   --font-main: var(--font-serif);
 
   /* Use standard font weights for compatibility */
@@ -168,6 +170,8 @@ body.dark {
   --line-height-choice: 1.7em;
   --line-height-list: 1.6em;
   --line-height-tight: 1;
+
+  --navigation-text-transform: capitalize;
 }
 
 
@@ -191,8 +195,7 @@ body {
   }
 }
 
-h1,
-h2, h3 {
+h1,h2,h3,h4 {
   text-align: center;
   font-family: var(--font-heading);
   line-height: var(--line-height-heading);
@@ -200,15 +203,14 @@ h2, h3 {
   padding: 0;
 }
 
-h1 {
+h1,h2 {
   font-size: var(--text-size-title);
   font-weight: var(--font-weight-bold);
   margin-top: var(--spacing-massive);
   margin-bottom: var(--spacing-massive);
-  /* margin-bottom: var(--spacing-lg); */
 }
 
-h2 {
+h3 {
   text-align: left;
   font-size: var(--text-size-title-smaller);
   font-style: strong;
@@ -218,7 +220,7 @@ h2 {
   margin-bottom: var(--spacing-huge);
 }
 
-h3 {
+h4 {
   text-align: left;
   font-size: var(--text-size-subtitle);
   font-style: strong;
@@ -289,6 +291,7 @@ h3 {
   gap: var(--spacing-xl);
   font-size: var(--text-size-medium);
   align-items: center;
+  text-transform: var(--navigation-text-transform);
 }
 
 .nav-controls a {
@@ -380,11 +383,17 @@ h3 {
 .container {
   display: block;
   max-width: var(--content-max-width);
-  margin: 0 auto;
+  margin: 5px auto 80px;
   padding: var(--spacing-huge);
-  padding-top: 2em;
-  padding-bottom: var(--spacing-massive);
+  padding-top: var(--spacing-sm);
+  padding-bottom: var(--spacing-huge);
   background: var(--color-background);
+}
+
+@media screen and (max-width: 680px) {
+  .container {
+    margin-top: 0;
+  }
 }
 
 @media screen and (prefers-reduced-motion: no-preference) {
@@ -482,6 +491,14 @@ blockquote {
    SPECIAL ELEMENTS
    ============================================================================= */
 
+hr {
+  border-top: 1px solid var(--color-separator-line);
+  color: transparent;
+  width: 50%;
+  margin: 0 auto;
+  margin-top: var(--spacing-massive);
+  margin-bottom: var(--spacing-massive);
+}
 .end {
   text-align: center;
   font-weight: bold;

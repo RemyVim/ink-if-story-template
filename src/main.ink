@@ -3,7 +3,6 @@
 # theme: dark
 
 INCLUDE pages/credits.ink
-INCLUDE pages/about.ink
 INCLUDE pages/content-warnings.ink
 INCLUDE features/ink_tags.ink
 INCLUDE features/formatting.ink

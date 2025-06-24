@@ -1,8 +1,10 @@
 === credits ===
 # SPECIAL_PAGE
-: Template Credits
+: Credits
 
-__Ink Story Template__ - A responsive web framework for interactive fiction.
+This _Ink Story Template_ is developed and maintained by [Rémy Vim](www.tumblr.com/remyvim).
+
+You can find the source code on GitHub: [github.com/RemyVim/ink-if-story-template](github.com/RemyVim/ink-if-story-template).
 
 :: Built With
 > __[Ink](www.inklestudios.com/ink/)__ by Inkle Studios

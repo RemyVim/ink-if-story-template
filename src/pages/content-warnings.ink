@@ -2,10 +2,13 @@
 # SPECIAL_PAGE
 : Content Warnings
 
-This game contains:
-> An easy themes
-> A mild learning curve
-> A strong love for interactive fiction and Ink
+This demo contains:
+> Intense button clicking action
+> Graphic descriptions of text formatting
+> Compulsive save file creation
+> Strong language (like "Ink" and "JavaScript")
+> Mature themes including proper error handling
+> May cause sudden urges to write interactive fiction
 
 -> DONE
 

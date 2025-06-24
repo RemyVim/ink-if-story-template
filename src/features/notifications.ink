@@ -1,5 +1,7 @@
 === notifications_demo ===
 
+: Notifications
+
 This template also supports notifications.
 
 You can trigger a notification with these custom Ink tags:

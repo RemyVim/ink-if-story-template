@@ -16,14 +16,21 @@ Add `inline code` with backticks: %`inline code%`
 :: Headers Work With Colons
 Use colons at the start of lines for headers:
 
-: Header 1
-`: Header 1` creates the largest header
+> `: Header 2` creates the largest header
+> `:: Header 3` creates a medium header  
+> `::: Header 4` creates the smallest header
 
-:: Header 2
-`:: Header 2` creates a medium header  
+[---]
 
-::: Header 3
-`::: Header 3` creates the smallest header
+: Header 2
+:: Header 3
+::: Header 4
+
+[---]
+
+:: Separators
+
+You can mark a separator line (like just above) with `[---]`.
 
 :: Lists Are Easy
 Use `>` at the start of lines for bullet points:
