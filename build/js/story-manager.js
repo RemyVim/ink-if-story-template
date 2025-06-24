@@ -292,6 +292,11 @@ class StoryManager {
       this.savePoint = this.story.state.ToJson();
       this.continue(true);
       this.display?.scrollToTop?.();
+
+      // Show restart notification
+      window.notificationManager?.success?.(
+        "Story restarted from the beginning",
+      );
     } catch (error) {
       window.errorManager.error("Failed to restart story", error, "story");
     }
