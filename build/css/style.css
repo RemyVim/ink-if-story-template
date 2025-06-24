@@ -460,7 +460,7 @@ blockquote {
 
 .choice a,
 .choice span {
-  font-size: var(--text-size-large);
+  font-size: var(--text-size-base);
 }
 
 /* =============================================================================
