@@ -17,12 +17,12 @@ class PageManager {
 
   /**
    * Show a special page by evaluating its knot
-   * @param {string} pageName - Name of the page/knot to show
+   * @param {string} knotName - Name of the knot to show (internal identifier)
    */
-  show(pageName) {
-    if (!pageName || typeof pageName !== "string") {
+  show(knotName) {
+    if (!knotName || typeof knotName !== "string") {
       window.errorManager.warning(
-        "Invalid pageName passed to show",
+        "Invalid knotName passed to show",
         null,
         "pages",
       );
@@ -30,9 +30,9 @@ class PageManager {
     }
 
     // Check if this is actually a special page
-    if (!this.isSpecialPage(pageName)) {
+    if (!this.isSpecialPage(knotName)) {
       window.errorManager.warning(
-        `Page "${pageName}" is not marked as a special page`,
+        `Page "${knotName}" is not marked as a special page`,
         null,
         "pages",
       );
@@ -42,14 +42,14 @@ class PageManager {
     // Save current state before showing special page
     this.saveCurrentState();
 
-    // Mark that we're in a special page
-    this.storyManager.currentPage = pageName;
+    // Mark that we're in a special page (use knot name internally)
+    this.storyManager.currentPage = knotName;
 
     // Clear current content and generate new content
     if (this.storyManager.display) {
       this.storyManager.display.clear();
 
-      const content = this.generatePageContent(pageName);
+      const content = this.generatePageContent(knotName);
       if (content.length > 0) {
         this.storyManager.display.render(content);
       }
@@ -61,11 +61,42 @@ class PageManager {
 
   /**
    * Check if a page is marked as a special page
-   * @param {string} pageName - Name of the page to check
+   * @param {string} knotName - Name of the knot to check
    * @returns {boolean} True if it's a special page
    */
-  isSpecialPage(pageName) {
-    return !!(pageName && this.storyManager?.availablePages?.[pageName]);
+  isSpecialPage(knotName) {
+    const pageInfo = this.storyManager?.availablePages?.[knotName];
+    return pageInfo && pageInfo.isSpecialPage;
+  }
+
+  /**
+   * Get the display name for a special page
+   * @param {string} knotName - Name of the knot
+   * @returns {string} Display name from tag or formatted knot name
+   */
+  getPageDisplayName(knotName) {
+    const pageInfo = this.storyManager?.availablePages?.[knotName];
+    if (pageInfo && pageInfo.displayName) {
+      return pageInfo.displayName;
+    }
+
+    // Fallback to formatting the knot name
+    return this.formatKnotName(knotName);
+  }
+
+  /**
+   * Format knot names for display (fallback when no display name is specified)
+   * @param {string} knotName - Raw knot name
+   * @returns {string} Formatted display name
+   */
+  formatKnotName(knotName) {
+    return knotName
+      .replace(/([a-z])([A-Z])/g, "$1 $2") // camelCase to words
+      .replace(/_/g, " ") // snake_case to words
+      .toLowerCase()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   }
 
   /**
@@ -84,14 +115,14 @@ class PageManager {
 
   /**
    * Generate content for a special page
-   * @param {string} pageName - Name of the page to generate
+   * @param {string} knotName - Name of the knot to generate content for
    * @returns {Array} Array of content objects
    */
-  generatePageContent(pageName) {
+  generatePageContent(knotName) {
     try {
       // Create a temporary story instance to evaluate the special page
       const tempStory = new inkjs.Story(this.storyManager.story.ToJson());
-      tempStory.ChoosePathString(pageName);
+      tempStory.ChoosePathString(knotName);
 
       const content = [];
       let isFirstLine = true;
@@ -156,14 +187,17 @@ class PageManager {
       return false;
     }
 
-    // Check if tags only contain SPECIAL_PAGE
+    // Check if tags only contain SPECIAL_PAGE (with or without colon syntax)
     if (!Array.isArray(tags) || tags.length === 0) {
       return false;
     }
 
-    const hasSpecialPageTag = tags.some(
-      (tag) => tag.trim().toUpperCase() === "SPECIAL_PAGE",
-    );
+    const hasSpecialPageTag = tags.some((tag) => {
+      const trimmedTag = tag.trim().toUpperCase();
+      return (
+        trimmedTag === "SPECIAL_PAGE" || trimmedTag.startsWith("SPECIAL_PAGE:")
+      );
+    });
 
     // If it has the special page tag and only whitespace/empty content,
     // treat it as just a marker line
@@ -282,41 +316,77 @@ class PageManager {
   }
 
   /**
-   * Get the name of the current special page
-   * @returns {string|null} Name of current page or null
+   * Get the knot name of the current special page
+   * @returns {string|null} Knot name of current page or null
    */
-  getCurrentPageName() {
+  getCurrentPageKnotName() {
     return this.storyManager?.currentPage || null;
   }
 
   /**
-   * Check if a specific page exists in the story
-   * @param {string} pageName - Name of the page to check
-   * @returns {boolean} True if the page exists
+   * Get the display name of the current special page
+   * @returns {string|null} Display name of current page or null
    */
-  pageExists(pageName) {
-    return this.isSpecialPage(pageName);
+  getCurrentPageDisplayName() {
+    const knotName = this.getCurrentPageKnotName();
+    return knotName ? this.getPageDisplayName(knotName) : null;
   }
 
   /**
-   * Get all available special pages
-   * @returns {Object} Object mapping page names to availability
+   * Check if a specific page exists in the story
+   * @param {string} knotName - Name of the knot to check
+   * @returns {boolean} True if the page exists
+   */
+  pageExists(knotName) {
+    return this.isSpecialPage(knotName);
+  }
+
+  /**
+   * Get all available special pages with their information
+   * @returns {Object} Object mapping knot names to page info
    */
   getAvailablePages() {
     return { ...this.storyManager?.availablePages } || {};
   }
 
   /**
+   * Get a list of all special page display names
+   * @returns {Array} Array of display names
+   */
+  getAvailablePageDisplayNames() {
+    const pages = this.getAvailablePages();
+    return Object.keys(pages).map((knotName) => ({
+      knotName: knotName,
+      displayName: pages[knotName].displayName || this.formatKnotName(knotName),
+    }));
+  }
+
+  /**
+   * Find a knot name by its display name
+   * @param {string} displayName - Display name to search for
+   * @returns {string|null} Knot name or null if not found
+   */
+  findKnotByDisplayName(displayName) {
+    const pages = this.getAvailablePages();
+    for (const [knotName, pageInfo] of Object.entries(pages)) {
+      if (pageInfo.displayName === displayName) {
+        return knotName;
+      }
+    }
+    return null;
+  }
+
+  /**
    * Evaluate a page without changing the current display
-   * @param {string} pageName - Name of the page to evaluate
+   * @param {string} knotName - Name of the knot to evaluate
    * @returns {string} The text content of the page
    */
-  evaluatePageContent(pageName) {
-    if (!this.pageExists(pageName)) return "";
+  evaluatePageContent(knotName) {
+    if (!this.pageExists(knotName)) return "";
 
     try {
       const tempStory = new inkjs.Story(this.storyManager.story.ToJson());
-      tempStory.ChoosePathString(pageName);
+      tempStory.ChoosePathString(knotName);
 
       let fullText = "";
       let isFirstLine = true;
@@ -347,6 +417,23 @@ class PageManager {
   }
 
   /**
+   * Get detailed information about a specific page
+   * @param {string} knotName - Name of the knot
+   * @returns {Object|null} Page information or null if not found
+   */
+  getPageInfo(knotName) {
+    const pageInfo = this.storyManager?.availablePages?.[knotName];
+    if (!pageInfo) return null;
+
+    return {
+      knotName: knotName,
+      displayName: pageInfo.displayName || this.formatKnotName(knotName),
+      isSpecialPage: pageInfo.isSpecialPage,
+      content: this.evaluatePageContent(knotName),
+    };
+  }
+
+  /**
    * Reset the page manager state (useful for cleanup)
    */
   reset() {
@@ -363,13 +450,18 @@ class PageManager {
    */
   getStats() {
     const availablePages = this.getAvailablePages();
+    const currentKnotName = this.getCurrentPageKnotName();
+    const currentDisplayName = this.getCurrentPageDisplayName();
+
     return {
       hasStoryManager: !!this.storyManager,
       hasTagProcessor: !!this.tagProcessor,
-      currentPage: this.getCurrentPageName(),
+      currentPageKnotName: currentKnotName,
+      currentPageDisplayName: currentDisplayName,
       isViewingSpecialPage: this.isViewingSpecialPage(),
       availablePageCount: Object.keys(availablePages).length,
       hasSavedState: !!(this.savedDisplayState || this.savedStoryState),
+      pageDisplayNames: this.getAvailablePageDisplayNames(),
     };
   }
 
@@ -379,5 +471,46 @@ class PageManager {
    */
   isReady() {
     return !!(this.storyManager?.story && this.storyManager?.display);
+  }
+
+  /**
+   * Validate that all special pages are accessible
+   * @returns {Object} Validation results
+   */
+  validatePages() {
+    const results = {
+      valid: [],
+      invalid: [],
+      errors: [],
+    };
+
+    const pages = this.getAvailablePages();
+
+    for (const [knotName, pageInfo] of Object.entries(pages)) {
+      try {
+        const content = this.evaluatePageContent(knotName);
+        if (content.length > 0) {
+          results.valid.push({
+            knotName,
+            displayName: pageInfo.displayName,
+            contentLength: content.length,
+          });
+        } else {
+          results.invalid.push({
+            knotName,
+            displayName: pageInfo.displayName,
+            reason: "No content generated",
+          });
+        }
+      } catch (error) {
+        results.errors.push({
+          knotName,
+          displayName: pageInfo.displayName,
+          error: error.message,
+        });
+      }
+    }
+
+    return results;
   }
 }

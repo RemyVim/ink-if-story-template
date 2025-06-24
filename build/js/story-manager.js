@@ -55,7 +55,6 @@ class StoryManager {
     }
   }
 
-  // New method to detect special pages by scanning for SPECIAL_PAGE tag
   detectSpecialPages() {
     this.availablePages = {};
 
@@ -65,9 +64,15 @@ class StoryManager {
 
       for (let [knotName, knotContent] of namedContent) {
         try {
-          // Check if this knot is marked as a special page
-          if (this.isSpecialPage(knotName)) {
-            this.availablePages[knotName] = true;
+          // Check if this knot is marked as a special page and get its display name
+          const pageInfo = this.getSpecialPageInfo(knotName);
+          if (pageInfo) {
+            // Store both the display name and knot name
+            this.availablePages[knotName] = {
+              displayName: pageInfo.displayName,
+              knotName: knotName,
+              isSpecialPage: true,
+            };
           }
         } catch (error) {
           window.errorManager.warning(
@@ -80,7 +85,10 @@ class StoryManager {
 
       console.log(
         `Found ${Object.keys(this.availablePages).length} special pages:`,
-        Object.keys(this.availablePages),
+        Object.keys(this.availablePages).map(
+          (knotName) =>
+            `${this.availablePages[knotName].displayName} (${knotName})`,
+        ),
       );
     } catch (error) {
       window.errorManager.error(
@@ -91,8 +99,7 @@ class StoryManager {
     }
   }
 
-  // Check if a knot is marked as a special page
-  isSpecialPage(knotName) {
+  getSpecialPageInfo(knotName) {
     try {
       // Create a temporary story to test the knot
       const tempStory = new inkjs.Story(this.story.ToJson());
@@ -107,17 +114,46 @@ class StoryManager {
 
         // Look for SPECIAL_PAGE tag
         for (let tag of tags) {
-          if (tag.trim().toUpperCase() === "SPECIAL_PAGE") {
-            return true;
+          const trimmedTag = tag.trim();
+
+          // Check for SPECIAL_PAGE with colon syntax: "SPECIAL_PAGE: Display Name"
+          if (trimmedTag.toUpperCase().startsWith("SPECIAL_PAGE:")) {
+            const displayName = trimmedTag.substring(13).trim(); // Remove "SPECIAL_PAGE:" prefix
+            return {
+              displayName: displayName || this.formatKnotName(knotName), // Fallback to formatted knot name
+              isSpecialPage: true,
+            };
+          }
+          // Check for legacy simple SPECIAL_PAGE tag
+          else if (trimmedTag.toUpperCase() === "SPECIAL_PAGE") {
+            return {
+              displayName: this.formatKnotName(knotName), // Use formatted knot name as fallback
+              isSpecialPage: true,
+            };
           }
         }
       }
 
-      return false;
+      return null;
     } catch (error) {
       // If we can't navigate to it, it's not a valid knot
-      return false;
+      return null;
     }
+  }
+
+  // Check if a knot is marked as a special page
+  isSpecialPage(knotName) {
+    return this.getSpecialPageInfo(knotName) !== null;
+  }
+
+  formatKnotName(knotName) {
+    return knotName
+      .replace(/([a-z])([A-Z])/g, "$1 $2") // camelCase to words
+      .replace(/_/g, " ") // snake_case to words
+      .toLowerCase()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   }
 
   setupInitialState() {
