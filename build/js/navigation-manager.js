@@ -199,6 +199,67 @@ class NavigationManager {
    */
   setupButtons() {
     this.setupCoreButtons();
+    this.setupClickableTitle();
+  }
+  /**
+   * Setup clickable title functionality for restarting the game
+   */
+  setupClickableTitle() {
+    const titleElements = document.querySelectorAll(".nav-title");
+
+    titleElements.forEach((titleElement) => {
+      if (!titleElement) return;
+
+      try {
+        // Make it look clickable but subtle
+        titleElement.style.cursor = "pointer";
+        titleElement.style.userSelect = "none"; // Prevent text selection
+        titleElement.style.transition = "opacity 0.2s ease";
+
+        // Add subtle hover effect
+        titleElement.addEventListener("mouseenter", () => {
+          titleElement.style.opacity = "0.8";
+        });
+
+        titleElement.addEventListener("mouseleave", () => {
+          titleElement.style.opacity = "1";
+        });
+
+        // Add click handler for restart
+        titleElement.addEventListener("click", (e) => {
+          try {
+            e.preventDefault();
+
+            // Only show confirmation if the story has progressed
+            const shouldConfirm =
+              this.storyManager?.story?.state?.currentTurnIndex >= 0;
+
+            if (shouldConfirm) {
+              if (confirm("Restart the story from the beginning?")) {
+                this.storyManager.restart();
+              }
+            } else {
+              // If we're at the beginning, just restart without confirmation
+              this.storyManager.restart();
+            }
+          } catch (error) {
+            window.errorManager.error(
+              "Failed to restart from title click",
+              error,
+              "navigation",
+            );
+          }
+        });
+
+        console.log("Title click-to-restart functionality enabled");
+      } catch (error) {
+        window.errorManager.warning(
+          "Failed to setup clickable title",
+          error,
+          "navigation",
+        );
+      }
+    });
   }
 
   /**
