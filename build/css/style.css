@@ -70,8 +70,49 @@
    ============================================================================= */
 
 :root {
-  /* === FONTS === */
+  /* === COLORS - LIGHT THEME === */
+  --color-background: #ddd;
+  --color-text-primary: #222;
+  --color-text-secondary: #444;
+  --color-text-tertiary: #aaa;
+  --color-text-strong: black;
+  --color-accent-primary: #b97c2c;
+  --color-accent-dark: #4f3411;
+  --color-accent-warning: #cc8f1a;
+  --color-border-light: #eee;
+  --color-border-medium: #ccc;
+  --color-disabled: #ccc;
+  --color-hover-bg: rgba(185, 124, 44, 0.1);
+  --color-highlight: yellow;
+  --color-important: #e74c3c;
+  --color-quiet: #7f8c8d;
+  --color-code-bg: #222;
+  --color-blockquote-bg: #f9f9f9;
+  --color-blockquote-border: #ccc;
+  --color-blockquote-text: #666;
 
+/* === COLORS - DARK THEME === */
+body.dark {
+  --color-background: #222;
+  --color-text-primary: #ddd;
+  --color-text-secondary: #888;
+  --color-text-tertiary: #666;
+  --color-text-strong: white;
+  --color-accent-primary: #cc8f1a;
+  --color-accent-dark: #c4af87;
+  --color-accent-warning: #cc8f1a;
+  --color-border-light: #333;
+  --color-border-medium: #444;
+  --color-disabled: #444;
+  --color-hover-bg: rgba(204, 143, 26, 0.1);
+  /* --color-code-bg: #2d3748; */
+  --color-code-bg: #ddd;
+  --color-blockquote-bg: #2d3748;
+  --color-blockquote-border: #555;
+  --color-blockquote-text: #bbb;
+}
+
+  /* === FONTS === */
   --font-serif: "Merriweather", Georgia, "Times New Roman", Times, serif;
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-dyslexic: "OpenDyslexic", Arial, sans-serif;
@@ -94,29 +135,9 @@
   --text-size-xl: 16pt;
   --text-size-xxl: 18pt;
   --text-size-title: 30pt;
+  --text-size-title-smaller: 20pt;
   --text-size-subtitle: 14pt;
   --text-size-tiny: 11pt;
-
-  /* === COLORS - LIGHT THEME === */
-  --color-background: white;
-  --color-text-primary: #888;
-  --color-text-secondary: #bbb;
-  --color-text-tertiary: #666;
-  --color-text-strong: black;
-  --color-accent-primary: #b97c2c;
-  --color-accent-dark: #4f3411;
-  --color-accent-warning: #cc8f1a;
-  --color-border-light: #eee;
-  --color-border-medium: #ccc;
-  --color-disabled: #ccc;
-  --color-hover-bg: rgba(185, 124, 44, 0.1);
-  --color-highlight: yellow;
-  --color-important: #e74c3c;
-  --color-quiet: #7f8c8d;
-  --color-code-bg: #f8f9fa;
-  --color-blockquote-bg: #f9f9f9;
-  --color-blockquote-border: #ccc;
-  --color-blockquote-text: #666;
 
   /* === SPACING === */
   --spacing-xs: 3px;
@@ -125,11 +146,11 @@
   --spacing-lg: 10px;
   --spacing-xl: 12px;
   --spacing-xxl: 15px;
-  --spacing-huge: 20px;
+  --spacing-huge: 30px;
   --spacing-massive: 60px;
 
   /* === LAYOUT === */
-  --content-max-width: 600px;
+  --content-max-width: 700px;
   --nav-height-desktop: 60px;
   --nav-height-mobile: 80px;
   --border-radius: 3px;
@@ -142,31 +163,13 @@
   --transition-very-slow: 1s;
 
   /* === LINE HEIGHTS === */
+  --line-height-heading: 1.2em;
   --line-height-text: 1.7em;
   --line-height-choice: 1.7em;
   --line-height-list: 1.6em;
   --line-height-tight: 1;
 }
 
-/* === DARK THEME COLORS === */
-body.dark {
-  --color-background: black;
-  --color-text-primary: white;
-  --color-text-secondary: #666;
-  --color-text-tertiary: #666;
-  --color-text-strong: white;
-  --color-accent-primary: #cc8f1a;
-  --color-accent-dark: #c4af87;
-  --color-accent-warning: #cc8f1a;
-  --color-border-light: #333;
-  --color-border-medium: #444;
-  --color-disabled: #444;
-  --color-hover-bg: rgba(204, 143, 26, 0.1);
-  --color-code-bg: #2d3748;
-  --color-blockquote-bg: #2d3748;
-  --color-blockquote-border: #555;
-  --color-blockquote-text: #bbb;
-}
 
 /* =============================================================================
    BASE STYLES
@@ -189,26 +192,38 @@ body {
 }
 
 h1,
-h2 {
+h2, h3 {
   text-align: center;
   font-family: var(--font-heading);
+  line-height: var(--line-height-heading);
   margin: 0;
   padding: 0;
 }
 
 h1 {
   font-size: var(--text-size-title);
-  font-weight: var(--font-weight-bold)
-  margin-bottom: var(--spacing-lg);
+  font-weight: var(--font-weight-bold);
+  margin-top: var(--spacing-massive);
+  margin-bottom: var(--spacing-massive);
+  /* margin-bottom: var(--spacing-lg); */
 }
 
-h2,
-.H2 {
-  font-size: var(--text-size-subtitle);
-  font-style: italic;
-  font-family: sans-serif;
-  font-weight: lighter;
+h2 {
+  text-align: left;
+  font-size: var(--text-size-title-smaller);
+  font-style: strong;
+  font-weight: var(--font-weight-bold);
   color: var(--color-text-secondary);
+  margin-top: var(--spacing-huge);
+  margin-bottom: var(--spacing-huge);
+}
+
+h3 {
+  text-align: left;
+  font-size: var(--text-size-subtitle);
+  font-style: strong;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-tertiary);
 }
 
 /* Title elements that get populated by JavaScript */
@@ -509,7 +524,7 @@ code {
   border-radius: var(--border-radius);
   font-family: var(--font-monospace);
   font-size: 0.9em;
-  color: var(--color-text-primary);
+  color: var(--color-background);
 }
 
 .inline-highlight {

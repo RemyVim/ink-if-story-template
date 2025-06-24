@@ -48,7 +48,7 @@ class SavesModalManager {
           ${this.generateSaveSlotsHTML()}
         </div>
         <div class="import-export-info">
-          💡 <strong>Tip:</strong> Use "Export" to save a slot to a file. Use "Import Here" on empty slots to load save files. Press Ctrl+S to quickly open this dialog.
+          <strong>Tip:</strong> Use "Export" to save a slot to a file. Use "Import Here" on empty slots to load save files. Press Ctrl+S to quickly open this dialog.
         </div>
       </div>
     `;
@@ -111,7 +111,7 @@ class SavesModalManager {
   }
 
   createEmptySlotHTML(slotNumber, isAutosave) {
-    const slotName = isAutosave ? "🔄 Autosave" : `Slot ${slotNumber}`;
+    const slotName = isAutosave ? "Autosave" : `Slot ${slotNumber}`;
     const emptyText = isAutosave ? "No autosave available" : "Empty";
     const helpText = isAutosave
       ? "Game will autosave after choices when enabled in settings"
@@ -133,7 +133,7 @@ class SavesModalManager {
   }
 
   createFilledSlotHTML(slotNumber, saveData, isAutosave) {
-    const slotName = isAutosave ? "🔄 Autosave" : `Slot ${slotNumber}`;
+    const slotName = isAutosave ? "Autosave" : `Slot ${slotNumber}`;
     const timestamp = new Date(saveData.timestamp).toLocaleString();
 
     return `
@@ -176,7 +176,7 @@ class SavesModalManager {
 
       slot.addEventListener("mouseenter", () => {
         slot.style.background = isAutosave
-          ? "var(--color-accent-primary)"
+          ? "var(--color-background)"
           : "var(--color-hover-bg)";
         if (isAutosave) slot.style.color = "white";
       });
