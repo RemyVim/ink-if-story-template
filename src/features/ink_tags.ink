@@ -28,6 +28,7 @@ The template automatically handles:
 
 + [Add background image] -> change_background
 + [Remove background image] -> remove_background
++ [Ring a bell] -> play_sound
 + [Add image to next page] -> add_image
 + [Back to feature menu] -> feature_menu
 
@@ -38,6 +39,7 @@ Called `\# BACKGROUND: assets/background.jpg`
 
 + [Add background image] -> change_background
 + [Remove background image] -> remove_background
++ [Ring a bell] -> play_sound
 + [Add image to next page] -> add_image
 + [Back to feature menu] -> feature_menu
 
@@ -48,6 +50,18 @@ Called `\# BACKGROUND: none`
 
 + [Add background image] -> change_background
 + [Remove background image] -> remove_background
++ [Ring a bell] -> play_sound
++ [Add image to next page] -> add_image
++ [Back to feature menu] -> feature_menu
+
+= play_sound
+# AUDIO: assets/notification-bell.mp3
+: Ink Tags
+Called `\# AUDIO: assets/notification-bell.mp3`
+
++ [Add background image] -> change_background
++ [Remove background image] -> remove_background
++ [Ring a bell] -> play_sound
 + [Add image to next page] -> add_image
 + [Back to feature menu] -> feature_menu
 
@@ -58,4 +72,5 @@ Called `\# IMAGE: assets/background.jpg`
 
 + [Add background image] -> change_background
 + [Remove background image] -> remove_background
++ [Ring a bell] -> play_sound
 + [Back to feature menu] -> feature_menu

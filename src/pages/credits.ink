@@ -14,5 +14,6 @@ You can find the source code on GitHub: [github.com/RemyVim/ink-if-story-templat
 
 :: Image Credits
 > The seamless flower image used in this demo is by Anna Bazanova and can be purchased on [Vecteezy](www.vecteezy.com/vector-art/13507569-floral-seamless-retro-pattern-in-the-style-of-the-70s-hippie-aesthetics-flower-power-fashionable-vintage-60s-orange-yellow-brown-colors-fabric-wrapping-paper)
+> The notification bell sound is from Jam FX, available on [Uppbeat](uppbeat.io/sfx/notification-alert-positive-bell/163519/45910)
 
 -> DONE
