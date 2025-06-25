@@ -4,15 +4,16 @@
 Using this template is straightforward:
 
 :: The Process
-1. __Write__ your story in ink (like this demo)
-2. __Compile__ it to JSON using Inky or inklecate  
-3. __Replace__ the `story.json` file in the template
-4. __Customize__ the CSS if desired (optional)
-5. __Deploy__ anywhere that serves static files
+1. __Get the template__ from [GitHub](github.com/RemyVim/ink-if-story-template)
+2. __Write__ your story in Ink (like this demo)
+3. __Compile__ it to JSON using Inky or inklecate  
+4. __Replace__ the `story.json` file in the template
+5. __Customize__ the CSS if desired (optional)
+6. __Deploy__ anywhere that serves static files
 
-This template uses vanilla JavaScript - no npm, webpack, or any complex tooling needed.
+This template uses vanilla JavaScript - no npm, webpack, or any complex tooling needed. Just write, compile, and deploy.
 
-Just write, compile, and deploy.
+Happy writing!
 
 -> feature_menu
 

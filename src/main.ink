@@ -11,7 +11,6 @@ INCLUDE features/notifications.ink
 INCLUDE features/saves.ink
 INCLUDE features/settings.ink
 INCLUDE features/special_pages.ink
-INCLUDE conclusion.ink
 
 : Template Feature Demo
 
@@ -44,5 +43,4 @@ What would you like to explore in more detail?
 + [Ink Tags] -> tags_demo
 + [Notifications] -> notifications_demo  
 + [Getting Started] -> getting_started
-+ [I'm ready to start building] -> conclusion
 

@@ -88,6 +88,8 @@ Transform your Ink stories into polished, professional web experiences without t
 
 5. **Deploy** to any static hosting service (Itch.io, GitHub Pages, Netlify, etc.)
 
+    You only need to upload the `build` folder.
+
 ## Writing for the Template
 
 ### Basic Formatting
