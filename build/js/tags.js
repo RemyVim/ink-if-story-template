@@ -234,7 +234,7 @@ class TagProcessor {
         window.storyManager?.settings &&
         !window.storyManager.settings.getSetting("audioEnabled")
       ) {
-        return; // Skip audio if disabled
+        return;
       }
 
       if (!src || typeof src !== "string") {
@@ -251,6 +251,12 @@ class TagProcessor {
         this.audioLoop.pause();
         this.audioLoop.removeAttribute("src");
         this.audioLoop.load();
+        this.audioLoop = null; // Clear reference
+      }
+
+      // Handle stopping audio loop
+      if (src.toLowerCase() === "none" || src === "stop") {
+        return; // Just stop, don't start new audio
       }
 
       this.audioLoop = new Audio(src);
@@ -383,7 +389,12 @@ class TagProcessor {
         return;
       }
 
-      this.outerScrollContainer.style.backgroundImage = "url(" + src + ")";
+      // Handle removing background
+      if (src.toLowerCase() === "none" || src === "") {
+        this.outerScrollContainer.style.backgroundImage = "none";
+      } else {
+        this.outerScrollContainer.style.backgroundImage = "url(" + src + ")";
+      }
     } catch (error) {
       window.errorManager.error("Failed to set background", error, "tags");
     }

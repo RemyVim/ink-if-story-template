@@ -26,9 +26,15 @@ The template automatically handles:
 > Semantic HTML for accessibility
 > Clean, readable output
 
+-> tags_submenu
+
+= tags_submenu
+
 + [Add background image] -> change_background
 + [Remove background image] -> remove_background
 + [Ring a bell] -> play_sound
++ [Ring a bell in a loop] -> play_sound_loop
++ [Stop the ringing!] -> stop_sound_loop
 + [Add image to next page] -> add_image
 + [Back to feature menu] -> feature_menu
 
@@ -37,40 +43,39 @@ The template automatically handles:
 : Ink Tags
 Called `\# BACKGROUND: assets/background.jpg`
 
-+ [Add background image] -> change_background
-+ [Remove background image] -> remove_background
-+ [Ring a bell] -> play_sound
-+ [Add image to next page] -> add_image
-+ [Back to feature menu] -> feature_menu
+-> tags_submenu
 
 = remove_background
 # BACKGROUND: none
 : Ink Tags
 Called `\# BACKGROUND: none`
 
-+ [Add background image] -> change_background
-+ [Remove background image] -> remove_background
-+ [Ring a bell] -> play_sound
-+ [Add image to next page] -> add_image
-+ [Back to feature menu] -> feature_menu
+-> tags_submenu
 
 = play_sound
 # AUDIO: assets/notification-bell.mp3
 : Ink Tags
 Called `\# AUDIO: assets/notification-bell.mp3`
 
-+ [Add background image] -> change_background
-+ [Remove background image] -> remove_background
-+ [Ring a bell] -> play_sound
-+ [Add image to next page] -> add_image
-+ [Back to feature menu] -> feature_menu
+-> tags_submenu
+
+= play_sound_loop
+# AUDIOLOOP: assets/notification-bell.mp3
+: Ink Tags
+Called `\# AUDIOLOOP: assets/notification-bell.mp3`
+
+-> tags_submenu
+
+= stop_sound_loop
+# AUDIOLOOP: none
+: Ink Tags
+Called `\# AUDIOLOOP: none`
+
+-> tags_submenu
 
 = add_image
 # IMAGE: assets/background.jpg
 : Ink Tags
 Called `\# IMAGE: assets/background.jpg`
 
-+ [Add background image] -> change_background
-+ [Remove background image] -> remove_background
-+ [Ring a bell] -> play_sound
-+ [Back to feature menu] -> feature_menu
+-> tags_submenu
