@@ -1,6 +1,5 @@
 # author: Rémy Vim
 # title: Ink Story Template
-# theme: dark
 
 INCLUDE pages/credits.ink
 INCLUDE pages/content-warnings.ink
