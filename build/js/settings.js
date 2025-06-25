@@ -348,6 +348,9 @@ class SettingsManager {
       return element ? (isCheckbox ? element.checked : element.value) : null;
     };
 
+    // Store previous audio setting to detect changes
+    const prevAudioEnabled = this.settings.audioEnabled;
+
     this.settings.theme = getValue("theme") || this.settings.theme;
     this.settings.fontFamily =
       getValue("fontFamily") || this.settings.fontFamily;
@@ -361,11 +364,84 @@ class SettingsManager {
     this.settings.animations =
       getValue("animations", true) ?? this.settings.animations;
 
+    // Handle audio setting changes
+    this.handleAudioSettingChange(prevAudioEnabled, this.settings.audioEnabled);
+
     this.storeSettings();
     this.applySettings();
     this.hideSettings();
 
     this.modal.showNotification("Settings saved successfully!");
+  }
+
+  /**
+   * Handle changes to the audio setting
+   * @param {boolean} wasEnabled - Previous audio enabled state
+   * @param {boolean} isEnabled - New audio enabled state
+   */
+  handleAudioSettingChange(wasEnabled, isEnabled) {
+    try {
+      // Get the tag processor from story manager
+      const tagProcessor = window.storyManager?.contentProcessor?.tagProcessor;
+
+      if (!tagProcessor) {
+        return; // No tag processor available
+      }
+
+      if (wasEnabled && !isEnabled) {
+        // Audio was disabled - stop all audio immediately
+        tagProcessor.stopAllAudio();
+      } else if (!wasEnabled && isEnabled) {
+        // Audio was enabled - resume audioloop if there was one
+        tagProcessor.resumeAudioLoop();
+      }
+    } catch (error) {
+      window.errorManager.warning(
+        "Failed to handle audio setting change",
+        error,
+        "settings",
+      );
+    }
+  }
+
+  /**
+   * Setup real-time preview with audio handling
+   */
+  setupRealtimePreview() {
+    if (!this.modal?.modalElement) return;
+
+    const elements = {
+      theme: this.modal.modalElement.querySelector('select[name="theme"]'),
+      fontFamily: this.modal.modalElement.querySelector(
+        'select[name="fontFamily"]',
+      ),
+      textSize: this.modal.modalElement.querySelector(
+        'select[name="textSize"]',
+      ),
+      lineHeight: this.modal.modalElement.querySelector(
+        'select[name="lineHeight"]',
+      ),
+      audioEnabled: this.modal.modalElement.querySelector(
+        'input[name="audioEnabled"]',
+      ),
+    };
+
+    Object.entries(elements).forEach(([setting, element]) => {
+      if (element) {
+        element.addEventListener("change", () => {
+          const prevValue = this.settings[setting];
+
+          if (setting === "audioEnabled") {
+            const newValue = element.checked;
+            this.settings[setting] = newValue;
+            this.handleAudioSettingChange(prevValue, newValue);
+          } else {
+            this.settings[setting] = element.value;
+            this.applyIndividualSetting(setting);
+          }
+        });
+      }
+    });
   }
 
   resetSettings() {

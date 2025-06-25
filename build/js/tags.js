@@ -6,6 +6,7 @@ class TagProcessor {
       outerScrollContainer || document.querySelector(".outerContainer");
     this.audio = null;
     this.audioLoop = null;
+    this.lastAudioLoopSrc = null;
   }
 
   // Helper for parsing out tags of the form:
@@ -70,12 +71,6 @@ class TagProcessor {
               break;
             case "IMAGE":
               specialActions.push(() => this.showImage(value));
-              break;
-            case "LINK":
-              specialActions.push(() => this.navigateToLink(value));
-              break;
-            case "LINKOPEN":
-              specialActions.push(() => this.openLink(value));
               break;
             case "BACKGROUND":
               specialActions.push(() => this.setBackground(value));
@@ -229,14 +224,6 @@ class TagProcessor {
 
   playAudioLoop(src) {
     try {
-      // Check if audio is enabled in settings
-      if (
-        window.storyManager?.settings &&
-        !window.storyManager.settings.getSetting("audioEnabled")
-      ) {
-        return;
-      }
-
       if (!src || typeof src !== "string") {
         window.errorManager.warning(
           "Invalid audio loop source provided",
@@ -246,17 +233,35 @@ class TagProcessor {
         return;
       }
 
+      // Handle stopping audio loop (always process this, even if audio disabled)
+      if (src.toLowerCase() === "none" || src === "stop") {
+        this.lastAudioLoopSrc = null;
+        if (this.audioLoop) {
+          this.audioLoop.pause();
+          this.audioLoop.removeAttribute("src");
+          this.audioLoop.load();
+          this.audioLoop = null;
+        }
+        return;
+      }
+
+      // Store the source for potential resuming
+      this.lastAudioLoopSrc = src;
+
+      // Check if audio is enabled in settings
+      if (
+        window.storyManager?.settings &&
+        !window.storyManager.settings.getSetting("audioEnabled")
+      ) {
+        return; // Audio disabled, but we've stored the source
+      }
+
       // Stop existing audio loop
       if (this.audioLoop) {
         this.audioLoop.pause();
         this.audioLoop.removeAttribute("src");
         this.audioLoop.load();
-        this.audioLoop = null; // Clear reference
-      }
-
-      // Handle stopping audio loop
-      if (src.toLowerCase() === "none" || src === "stop") {
-        return; // Just stop, don't start new audio
+        this.audioLoop = null;
       }
 
       this.audioLoop = new Audio(src);
@@ -271,6 +276,52 @@ class TagProcessor {
     } catch (error) {
       window.errorManager.error("Failed to play audio loop", error, "tags");
     }
+  }
+
+  /**
+   * Stop all currently playing audio
+   */
+  stopAllAudio() {
+    try {
+      if (this.audio) {
+        this.audio.pause();
+        this.audio.removeAttribute("src");
+        this.audio.load();
+        this.audio = null;
+      }
+
+      if (this.audioLoop) {
+        this.audioLoop.pause();
+        this.audioLoop.removeAttribute("src");
+        this.audioLoop.load();
+        this.audioLoop = null;
+      }
+    } catch (error) {
+      window.errorManager.warning("Failed to stop audio", error, "tags");
+    }
+  }
+
+  /**
+   * Resume audioloop if there was one playing
+   */
+  resumeAudioLoop() {
+    try {
+      if (
+        this.lastAudioLoopSrc &&
+        window.storyManager?.settings?.getSetting("audioEnabled")
+      ) {
+        this.playAudioLoop(this.lastAudioLoopSrc);
+      }
+    } catch (error) {
+      window.errorManager.warning("Failed to resume audio loop", error, "tags");
+    }
+  }
+
+  /**
+   * Check if audio is currently enabled in settings
+   */
+  isAudioEnabled() {
+    return window.storyManager?.settings?.getSetting("audioEnabled") ?? true;
   }
 
   showImage(src) {
@@ -312,60 +363,6 @@ class TagProcessor {
   showNotification(message, type = "info", duration = 4000) {
     if (window.notificationManager) {
       window.notificationManager.show(message, { type, duration });
-    }
-  }
-
-  navigateToLink(url) {
-    try {
-      if (!url || typeof url !== "string") {
-        window.errorManager.warning(
-          "Invalid URL provided for navigation",
-          null,
-          "tags",
-        );
-        return;
-      }
-
-      // Basic URL validation
-      try {
-        new URL(url, window.location.origin);
-        window.location.href = url;
-      } catch (urlError) {
-        window.errorManager.warning(
-          `Invalid URL format: ${url}`,
-          urlError,
-          "tags",
-        );
-      }
-    } catch (error) {
-      window.errorManager.error("Failed to navigate to link", error, "tags");
-    }
-  }
-
-  openLink(url) {
-    try {
-      if (!url || typeof url !== "string") {
-        window.errorManager.warning(
-          "Invalid URL provided for opening link",
-          null,
-          "tags",
-        );
-        return;
-      }
-
-      // Basic URL validation
-      try {
-        new URL(url, window.location.origin);
-        window.open(url);
-      } catch (urlError) {
-        window.errorManager.warning(
-          `Invalid URL format for opening: ${url}`,
-          urlError,
-          "tags",
-        );
-      }
-    } catch (error) {
-      window.errorManager.error("Failed to open link", error, "tags");
     }
   }
 
