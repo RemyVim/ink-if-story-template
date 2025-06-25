@@ -92,6 +92,8 @@
   --color-blockquote-text: #666;
   --color-separator-line: #666;
 
+  --container-bg-opacity: 98%;
+
 /* === COLORS - DARK THEME === */
 body.dark {
   --color-background: #222;
@@ -387,7 +389,22 @@ h4 {
   padding: var(--spacing-huge);
   padding-top: var(--spacing-sm);
   padding-bottom: var(--spacing-huge);
+  background: transparent;
+  position: relative;
+  z-index: 1;
+}
+
+.container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: var(--color-background);
+  opacity: var(--container-bg-opacity);
+  z-index: -1;
+  pointer-events: none;
 }
 
 @media screen and (max-width: 680px) {
