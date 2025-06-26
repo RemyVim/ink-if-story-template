@@ -2,7 +2,11 @@
 
 A web template for [Ink](https://www.inklestudios.com/ink/) interactive stories. I built this because existing Ink templates weren't as polished as what's available for Twine.
 
+---
+
 **[→ Try the live demo on itch.io](https://remy-vim.itch.io/ink-template)**
+
+---
 
 You don't even have to touch a line of HTML, CSS, or JavaScript to use it (unless you want to)!
 
@@ -124,3 +128,10 @@ Bug reports and feature requests also welcome! Open an issue.
 - [Ink Documentation](https://github.com/inkle/ink)
 - [Ink Web Tutorial](https://www.inklestudios.com/ink/web-tutorial/)
 - [Interactive Fiction Community](https://intfiction.org/)
+
+## Screenshots
+
+![Demo screenshot light and dark modes large screen](/screenshots/ink-template-dark-light-themes.png)
+![Demo screenshot light saves menu](/screenshots/ink-template-save-menu.png)
+![Demo screenshot settings menu dark mode](/screenshots/ink-template-settings-menu.png)
+![Demo screenshot light and dark modes mobile screen](/screenshots/ink-template-dark-light-themes-mobile.png)
