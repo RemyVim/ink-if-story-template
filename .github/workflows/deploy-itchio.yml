@@ -1,0 +1,36 @@
+# .github/workflows/deploy-itchio.yml
+name: Deploy to itch.io
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Install Task
+      run: |
+        sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+        
+    - name: Install requirements
+      run: |
+        task setup
+        
+    - name: Build story
+      run: |
+        task build
+        
+    - name: Deploy to itch.io
+      uses: josephbmanley/butler-publish-itchio-action@master
+      env:
+        BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
+        CHANNEL: html
+        ITCH_GAME: ${{ secrets.ITCH_GAME }}
+        ITCH_USER: ${{ secrets.ITCH_USER }}
+        PACKAGE: build
