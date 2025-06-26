@@ -1,6 +1,10 @@
 # Ink Story Template
 
-Transform your [Ink](https://www.inklestudios.com/ink/) interactive stories into polished web experiences. Write in Ink, compile, and deploy. You don't even have to touch a line of HTML, CSS, or JavaScript (unless you want to)!
+A web template for [Ink](https://www.inklestudios.com/ink/) interactive stories. I built this because existing Ink templates weren't as polished as what's available for Twine.
+
+**[→ Try the live demo on itch.io](https://remy-vim.itch.io/ink-template)**
+
+You don't even have to touch a line of HTML, CSS, or JavaScript to use it (unless you want to)!
 
 ## Features
 
@@ -15,6 +19,7 @@ Transform your [Ink](https://www.inklestudios.com/ink/) interactive stories into
 ## Quick Start
 
 1. **Get the template**
+
    ```bash
    git clone https://github.com/RemyVim/ink-if-story-template.git
    cd ink-if-story-template
@@ -23,6 +28,7 @@ Transform your [Ink](https://www.inklestudios.com/ink/) interactive stories into
 2. **Compile your Ink story** to JSON and replace `build/story.json`
 
 3. **Test locally**
+
    ```bash
    cd build && python3 -m http.server 8000
    ```
@@ -34,6 +40,7 @@ See [doc/quickstart.md](doc/quickstart.md) for more info.
 ## Writing for the Template
 
 ### Text Formatting
+
 ```ink
 This is __bold__ and _italic_ text.
 Use `code` and [highlighted text](highlight).
@@ -47,6 +54,7 @@ Link to [external sites](example.com).
 See [doc/text-formatting.md](doc/text-formatting.md) for more info.
 
 ### Media & Effects
+
 ```ink
 # IMAGE: path/to/image.jpg
 # AUDIO: sound.mp3
@@ -58,7 +66,9 @@ See [doc/text-formatting.md](doc/text-formatting.md) for more info.
 See [doc/special-tags.md](doc/special-tags.md) for more info.
 
 ### Special Pages
+
 Create reference pages outside your main story:
+
 ```ink
 === character_sheet ===
 # SPECIAL_PAGE: Character Info
@@ -90,6 +100,7 @@ src/                  # Your Ink source (optional)
 ## Development (Optional)
 
 Install [Task](https://taskfile.dev/) for convenience commands:
+
 ```bash
 task setup    # Install dependencies
 task dev      # Auto-compile on change in src files + serve
