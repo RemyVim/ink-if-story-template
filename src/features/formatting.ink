@@ -1,5 +1,5 @@
 === formatting_demo ===
-: Text Formatting Made Simple
+: Text Formatting
 
 This template uses a markdown-adjacent system. Here's what you can do __without__ touching a single HTML tag:
 

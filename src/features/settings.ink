@@ -1,5 +1,5 @@
 === settings_demo ===
-: Adjust Settings
+: Settings Menu
 
 In the `settings` menu above, you will find:
 

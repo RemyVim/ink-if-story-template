@@ -1,5 +1,4 @@
 === notifications_demo ===
-
 : Notifications
 
 This template also supports notifications.
