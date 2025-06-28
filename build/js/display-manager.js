@@ -131,7 +131,11 @@ class DisplayManager {
         content.classes &&
         content.classes.includes("user-input-placeholder")
       ) {
-        this.convertToUserInput(element, content.classes);
+        this.convertToUserInput(
+          element,
+          content.classes,
+          content.placeholderText,
+        );
       } else if (element && this.shouldAnimateContent()) {
         this.fadeInElement(element);
       }
@@ -143,24 +147,28 @@ class DisplayManager {
     }
   }
 
-  convertToUserInput(element, classes) {
+  convertToUserInput(
+    element,
+    classes,
+    placeholderText = "Type your answer here...",
+  ) {
     if (!element) return;
-
-    // Extract variable name from classes
     const varClass = classes.find((cls) => cls.startsWith("user-input-var-"));
     if (!varClass) return;
-
     const variableName = varClass.replace("user-input-var-", "");
 
-    // Store the original text before replacing
-    const originalText = element.innerHTML;
+    // Check for [] to use empty placeholder
+    if (placeholderText === "[]") {
+      placeholderText = "";
+    } else if (placeholderText && placeholderText.includes("{")) {
+      placeholderText = placeholderText.replace(/\{[^}]+\}/g, "___");
+    }
 
-    // Replace paragraph content with input field
     element.innerHTML = `
     <div class="user-input-inline-container">
       <div class="user-input-prompt">
         <input type="text" class="user-input-inline-field" 
-               placeholder="Type your answer here..." 
+               placeholder="${placeholderText}" 
                maxlength="100" autocomplete="off">
         <button class="user-input-submit-btn">Submit</button>
       </div>
@@ -189,18 +197,8 @@ class DisplayManager {
         // Set the Ink variable
         window.storyManager.story.variablesState.$(variableName, userInput);
 
-        // First show the user's response
+        // Replace input with user's response
         element.innerHTML = `<span class="user-input-response">${userInput}</span>`;
-
-        // Then add the original text with the variable substituted
-        if (originalText && originalText !== "") {
-          const processedText = MarkdownProcessor.process(
-            window.storyManager.story.Continue(),
-          );
-          const followupElement = document.createElement("p");
-          followupElement.innerHTML = processedText;
-          element.parentNode.insertBefore(followupElement, element.nextSibling);
-        }
 
         // Continue the story
         window.storyManager.continueWithoutClearing();

@@ -44,12 +44,12 @@ The template includes special tags for advanced functionality:
 You can ask players for input that will then be stored in a variable of your choice. For this, use the special tag:
 
 `\# USER_INPUT: your_variable_name`
-Followed on a new line by `[]` to create an anchor to avoid Ink consuming the next line.
+Followed on a new line by the placeholder text you want to display in the text box before user input. If you don't want placeholder text, have a line with only `[]`.
 
 Write anything you want here:
 
 # USER_INPUT: input
-[]
+Please input your text here.
 
 You wrote: "{input}".
 

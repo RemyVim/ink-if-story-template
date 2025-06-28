@@ -250,12 +250,15 @@ class StoryManager {
 
         // If this line has USER_INPUT, process it and stop
         if (hasUserInput) {
+          // Pass the text as placeholder
           const processedContent = this.contentProcessor?.process?.(text, tags);
           if (processedContent) {
+            // Add the placeholder text to the content object
+            processedContent.placeholderText = text.trim();
             content.push(processedContent);
           }
           stoppedForUserInput = true;
-          break; // Stop here
+          break;
         }
 
         // Skip empty paragraphs (but only after checking for USER_INPUT)
