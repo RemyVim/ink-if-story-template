@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 - This changelog to track project changes
-- User input fields to populate story variables with placeholder text support
+- User input field tags to populate story variables with placeholder text
 
 ### Fixed
 
