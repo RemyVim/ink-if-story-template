@@ -13,30 +13,54 @@ Add these tags at the top of your main `.ink` file:
 
 The `title` and `author` both appear in the navigation bar.
 
+## User Interaction Tags
+
+```ink
+# USER_INPUT: your_variable
+Your placeholder text.
+```
+
+Displays a user input form with the specified placeholder text and fills the Ink variable named `your_variable` with text the user inputs.
+
+Note: If you want the placeholder to be blank you must call this tag with a `[]` line afterwards:
+
+```ink
+# USER_INPUT: your_variable
+[]
+```
+
 ## Media Tags
 
 ### Images
+
 ```ink
 # IMAGE: assets/forest.jpg
 ```
+
 Displays an image at the top of the story page.
 
 ### Audio
+
 ```ink
 # AUDIO: assets/sword-clang.mp3
 ```
+
 Plays a sound effect once.
 
 ### Background Music
+
 ```ink
 # AUDIOLOOP: assets/tavern-music.mp3
 ```
+
 Loops background music. Use `# AUDIOLOOP: none` to stop.
 
 ### Background Images
+
 ```ink
 # BACKGROUND: assets/castle-backdrop.jpg
 ```
+
 Sets a background image. Use `# BACKGROUND: none` to remove.
 
 **File Organization:** Put media files in the `build/assets/` folder.
@@ -92,12 +116,14 @@ Music by Composer Name
 ## Styling and Effects
 
 ### Custom CSS Classes
+
 ```ink
 # CLASS: dramatic
 This text will have the "dramatic" CSS class applied.
 ```
 
 Add styling in `build/css/style.css`:
+
 ```css
 .dramatic {
   color: red;
@@ -107,22 +133,26 @@ Add styling in `build/css/style.css`:
 ```
 
 ### Screen Control
+
 ```ink
 # CLEAR
 # RESTART
 ```
+
 - `CLEAR`: Clears the screen
 - `RESTART`: Restarts the entire story
 
 ## Tag Usage Tips
 
 **Placement:** Tags affect the paragraph they're attached to:
+
 ```ink
 # IMAGE: forest.jpg
 You enter a dark forest.
 ```
 
 **Multiple tags:** Combine effects:
+
 ```ink
 # AUDIO: thunder.mp3
 # CLASS: scary

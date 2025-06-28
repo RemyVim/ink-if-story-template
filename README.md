@@ -14,6 +14,7 @@ You don't even have to touch a line of HTML, CSS, or JavaScript to use it (unles
 
 - **Save System**: 5 slots + autosave, export/import saves, keyboard shortcuts
 - **Rich Formatting**: Markdown-style text, custom styles, automatic links
+- **User Input**: Populate an Ink story variable with user input
 - **Media Support**: Images, audio, background music via simple Ink tags
 - **Special Pages**: Character sheets, credits, maps outside story flow
 - **Responsive Design**: Beautiful on all devices with light/dark themes
