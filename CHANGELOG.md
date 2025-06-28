@@ -8,7 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
-- Fix CSS to avoid inheritance/override problems for custom themes modifying the style
+- Clicking on the title to restart does not prompt for confirmation and no longer breaks out of web players like itch.io
+- CSS is now more friendly to custom theme overrides
 
 ## [1.1.0] - 2025-06-28
 

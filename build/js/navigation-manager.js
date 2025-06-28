@@ -229,19 +229,7 @@ class NavigationManager {
         titleElement.addEventListener("click", (e) => {
           try {
             e.preventDefault();
-
-            // Only show confirmation if the story has progressed
-            const shouldConfirm =
-              this.storyManager?.story?.state?.currentTurnIndex >= 0;
-
-            if (shouldConfirm) {
-              if (confirm("Restart the story from the beginning?")) {
-                this.storyManager.restart();
-              }
-            } else {
-              // If we're at the beginning, just restart without confirmation
-              this.storyManager.restart();
-            }
+            this.storyManager.restart();
           } catch (error) {
             window.errorManager.error(
               "Failed to restart from title click",
