@@ -3,9 +3,13 @@ VAR input = ""
 
 : Ink Tags
 
-The template includes special tags for enhanced functionality:
+The template includes special tags for advanced functionality:
 
-:: Visual Enhancement
+:: User Input
+
+> `\# USER_INPUT: your_variable_name` - Creates a user input field and stores result in a story variable
+
+:: Visual Customization
 
 > `\# CLASS: classname` - Add custom CSS classes
 > `\# BACKGROUND: image.jpg` - Set background images
@@ -22,12 +26,6 @@ The template includes special tags for enhanced functionality:
 > `\# CLEAR` - Clear the screen
 > `\# RESTART` - Restart the story
 
-:: Professional Polish
-The template automatically handles:
-> Proper whitespace management
-> Semantic HTML for accessibility
-> Clean, readable output
-
 -> tags_submenu
 
 = tags_submenu
@@ -42,6 +40,7 @@ The template automatically handles:
 + [Back to feature menu] -> feature_menu
 
 = user_input
+: Ink Tags
 You can ask players for input that will then be stored in a variable of your choice. For this, use the special tag:
 
 `\# USER_INPUT: your_variable_name`

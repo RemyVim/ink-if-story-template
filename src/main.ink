@@ -39,7 +39,7 @@ What would you like to explore in more detail?
 + [Settings] -> settings_demo  
 + [Text Formatting] -> formatting_demo
 + [Special Pages] -> special_pages_demo
-+ [Ink Tags] -> tags_demo
++ [Ink Tags (Media & User Input)] -> tags_demo
 + [Notifications] -> notifications_demo  
 + [Getting Started] -> getting_started
 
