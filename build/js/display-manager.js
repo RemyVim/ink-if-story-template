@@ -80,6 +80,10 @@ class DisplayManager {
             );
           }
         }
+
+        if (element && this.shouldAnimateContent()) {
+          this.fadeInElement(element);
+        }
       } catch (error) {
         window.errorManager.error(
           `Failed to render choice at index ${index}`,
@@ -117,13 +121,43 @@ class DisplayManager {
 
     try {
       const processedText = MarkdownProcessor.process(content.text);
-      return this.domHelpers.createParagraph(
+      const element = this.domHelpers.createParagraph(
         processedText,
         content.classes || [],
       );
+
+      if (element && this.shouldAnimateContent()) {
+        this.fadeInElement(element);
+      }
+
+      return element;
     } catch (error) {
       window.errorManager.error("Failed to create element", error, "display");
       return null;
+    }
+  }
+
+  shouldAnimateContent() {
+    try {
+      const settings = window.storyManager?.settings;
+      if (!settings?.getSetting) {
+        return true;
+      }
+      const result = settings.getSetting("animations") === true;
+      return result;
+    } catch (error) {
+      console.log("Error checking animations, defaulting to true");
+      return true;
+    }
+  }
+  fadeInElement(element) {
+    if (!element) return;
+    try {
+      element.style.opacity = "0";
+      element.offsetHeight; // Force reflow
+      element.style.opacity = "1";
+    } catch (error) {
+      element.style.opacity = "1";
     }
   }
 

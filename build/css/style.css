@@ -164,7 +164,7 @@ body.dark {
   --transition-fast: 0.1s;
   --transition-medium: 0.2s;
   --transition-slow: 0.6s;
-  --transition-very-slow: 1s;
+  --transition-very-slow: 2s;
 
   /* === LINE HEIGHTS === */
   --line-height-heading: 1.2em;
@@ -538,13 +538,19 @@ img {
   display: none;
 }
 
-.container > * {
-  opacity: 1;
-}
-
 @media screen and (prefers-reduced-motion: no-preference) {
   .container > * {
     transition: opacity var(--transition-very-slow);
+  }
+}
+
+body .container > * {
+  transition: opacity var(--transition-very-slow);
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+  body .container > * {
+    transition: none;
   }
 }
 
