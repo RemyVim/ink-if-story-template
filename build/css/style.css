@@ -369,23 +369,23 @@ h4 {
   -webkit-overflow-scrolling: touch;
   overflow: scroll;
   overflow-x: hidden;
-  height: 100%;
+  height: calc(100% - var(--nav-height-desktop));
   width: 100%;
-  top: 0;
+  top: var(--nav-height-desktop);
   left: 0;
-  margin-top: var(--nav-height-desktop);
 }
 
 @media screen and (max-width: 680px) {
   .outerContainer {
-    margin-top: var(--nav-height-mobile);
+    height: calc(100% - var(--nav-height-mobile));
+    top: var(--nav-height-mobile);
   }
 }
 
 .container {
   display: block;
   max-width: var(--content-max-width);
-  margin: 5px auto 80px;
+  margin: 5px auto 120px;
   padding: var(--spacing-huge);
   padding-top: var(--spacing-sm);
   padding-bottom: var(--spacing-huge);
