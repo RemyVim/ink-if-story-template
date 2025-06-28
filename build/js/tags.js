@@ -91,6 +91,11 @@ class TagProcessor {
             case "ERROR":
               specialActions.push(() => this.showNotification(value, "error"));
               break;
+            case "USER_INPUT":
+            case "INPUT":
+              customClasses.push("user-input-placeholder");
+              customClasses.push(`user-input-var-${value}`);
+              break;
             case "CLASS":
               if (value) customClasses.push(value);
               break;
@@ -395,6 +400,10 @@ class TagProcessor {
     } catch (error) {
       window.errorManager.error("Failed to set background", error, "tags");
     }
+  }
+
+  requestUserInput(variableName) {
+    return { action: "USER_INPUT", variableName: variableName };
   }
 
   /**

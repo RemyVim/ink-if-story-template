@@ -126,7 +126,13 @@ class DisplayManager {
         content.classes || [],
       );
 
-      if (element && this.shouldAnimateContent()) {
+      // Check if this is a user input placeholder
+      if (
+        content.classes &&
+        content.classes.includes("user-input-placeholder")
+      ) {
+        this.convertToUserInput(element, content.classes);
+      } else if (element && this.shouldAnimateContent()) {
         this.fadeInElement(element);
       }
 
@@ -135,6 +141,89 @@ class DisplayManager {
       window.errorManager.error("Failed to create element", error, "display");
       return null;
     }
+  }
+
+  convertToUserInput(element, classes) {
+    if (!element) return;
+
+    // Extract variable name from classes
+    const varClass = classes.find((cls) => cls.startsWith("user-input-var-"));
+    if (!varClass) return;
+
+    const variableName = varClass.replace("user-input-var-", "");
+
+    // Store the original text before replacing
+    const originalText = element.innerHTML;
+
+    // Replace paragraph content with input field
+    element.innerHTML = `
+    <div class="user-input-inline-container">
+      <div class="user-input-prompt">
+        <input type="text" class="user-input-inline-field" 
+               placeholder="Type your answer here..." 
+               maxlength="100" autocomplete="off">
+        <button class="user-input-submit-btn">Submit</button>
+      </div>
+      <div class="user-input-help">Press Enter or click Submit to continue</div>
+    </div>
+  `;
+
+    const inputField = element.querySelector(".user-input-inline-field");
+    const submitBtn = element.querySelector(".user-input-submit-btn");
+
+    // Focus the input
+    setTimeout(() => inputField.focus(), 100);
+
+    // Handle submission
+    const submitInput = () => {
+      const userInput = inputField.value.trim();
+
+      if (!userInput) {
+        inputField.style.borderColor = "var(--color-important)";
+        inputField.placeholder = "Please enter a value...";
+        inputField.focus();
+        return;
+      }
+
+      try {
+        // Set the Ink variable
+        window.storyManager.story.variablesState.$(variableName, userInput);
+
+        // First show the user's response
+        element.innerHTML = `<span class="user-input-response">${userInput}</span>`;
+
+        // Then add the original text with the variable substituted
+        if (originalText && originalText !== "") {
+          const processedText = MarkdownProcessor.process(
+            window.storyManager.story.Continue(),
+          );
+          const followupElement = document.createElement("p");
+          followupElement.innerHTML = processedText;
+          element.parentNode.insertBefore(followupElement, element.nextSibling);
+        }
+
+        // Continue the story
+        window.storyManager.continueWithoutClearing();
+      } catch (error) {
+        window.errorManager.error(
+          "Failed to set user input variable",
+          error,
+          "display",
+        );
+        inputField.style.borderColor = "var(--color-important)";
+        inputField.placeholder = "Error - please try again...";
+      }
+    };
+
+    // Event listeners
+    submitBtn.addEventListener("click", submitInput);
+    inputField.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") submitInput();
+    });
+
+    inputField.addEventListener("input", () => {
+      inputField.style.borderColor = "";
+    });
   }
 
   shouldAnimateContent() {

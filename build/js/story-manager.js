@@ -187,7 +187,8 @@ class StoryManager {
       }
 
       // Generate story content
-      const storyContent = this.generateContent();
+      const { content: storyContent, stoppedForUserInput } =
+        this.generateContent();
 
       // Render content if any was generated
       if (storyContent.length > 0) {
@@ -204,32 +205,76 @@ class StoryManager {
     }
   }
 
+  continueWithoutClearing() {
+    try {
+      // Don't continue if viewing a special page
+      if (this.currentPage) return;
+
+      // Generate story content without clearing display
+      const { content: storyContent } = this.generateContent(); // Destructure here
+
+      // Render content if any was generated
+      if (storyContent.length > 0) {
+        this.display?.render?.(storyContent);
+      }
+
+      // Generate and render choices
+      this.createChoices();
+
+      // Update save point after generating new content
+      this.savePoint = this.story.state.ToJson();
+    } catch (error) {
+      window.errorManager.error(
+        "Failed to continue story without clearing",
+        error,
+        "story",
+      );
+    }
+  }
+
   generateContent() {
     const content = [];
+    let stoppedForUserInput = false;
 
     try {
       while (this.story.canContinue) {
         const text = this.story.Continue();
         const tags = this.story.currentTags || [];
 
-        // Skip empty paragraphs
+        // Check for USER_INPUT tag FIRST, before skipping empty lines
+        const hasUserInput = tags.some(
+          (tag) =>
+            tag.trim().toUpperCase().startsWith("USER_INPUT:") ||
+            tag.trim().toUpperCase().startsWith("INPUT:"),
+        );
+
+        // If this line has USER_INPUT, process it and stop
+        if (hasUserInput) {
+          const processedContent = this.contentProcessor?.process?.(text, tags);
+          if (processedContent) {
+            content.push(processedContent);
+          }
+          stoppedForUserInput = true;
+          break; // Stop here
+        }
+
+        // Skip empty paragraphs (but only after checking for USER_INPUT)
         if (text.trim().length === 0) continue;
 
-        // Process content with tags
+        // Process normal content
         const processedContent = this.contentProcessor?.process?.(text, tags);
+        if (processedContent) {
+          content.push(processedContent);
+        }
 
-        // Handle special actions
+        // Handle other special actions
         if (processedContent?.hasSpecialAction) {
           const shouldContinue = this.handleSpecialAction(
             processedContent.action,
           );
           if (!shouldContinue) {
-            break; // Stop processing if restart was triggered
+            break;
           }
-        }
-
-        if (processedContent) {
-          content.push(processedContent);
         }
       }
     } catch (error) {
@@ -238,27 +283,28 @@ class StoryManager {
         error,
         "story",
       );
-      // Return what we have so far
     }
 
-    return content;
+    return { content, stoppedForUserInput };
   }
 
-  handleSpecialAction(action) {
+  handleSpecialAction(actionResult) {
     try {
-      switch (action) {
-        case "CLEAR":
-          this.display?.clear?.();
-          this.display?.hideHeader?.();
-          return true; // Continue processing
-
-        case "RESTART":
-          this.restart();
-          return false; // Stop processing
-
-        default:
-          return true; // Continue processing
+      if (typeof actionResult === "string") {
+        // Handle existing string actions (CLEAR, RESTART)
+        switch (actionResult) {
+          case "CLEAR":
+            this.display?.clear?.();
+            this.display?.hideHeader?.();
+            return true;
+          case "RESTART":
+            this.restart();
+            return false;
+          default:
+            return true;
+        }
       }
+      return true;
     } catch (error) {
       window.errorManager.error(
         "Failed to handle special action",
@@ -266,6 +312,99 @@ class StoryManager {
         "story",
       );
       return true;
+    }
+  }
+
+  requestUserInput(variableName) {
+    if (!variableName || typeof variableName !== "string") {
+      window.errorManager.error(
+        "Invalid variable name for user input",
+        null,
+        "story",
+      );
+      return;
+    }
+
+    // Create inline input element
+    const inputContainer = document.createElement("div");
+    inputContainer.className = "user-input-inline-container";
+    inputContainer.innerHTML = `
+    <div class="user-input-prompt">
+      <input type="text" class="user-input-inline-field" 
+             placeholder="Type your answer here..." 
+             maxlength="100" autocomplete="off">
+      <button class="user-input-submit-btn">Submit</button>
+    </div>
+    <div class="user-input-help">Press Enter or click Submit to continue</div>
+  `;
+
+    // Add to story container
+    if (this.display?.container) {
+      this.display.container.appendChild(inputContainer);
+
+      const inputField = inputContainer.querySelector(
+        ".user-input-inline-field",
+      );
+      const submitBtn = inputContainer.querySelector(".user-input-submit-btn");
+
+      // Focus the input
+      inputField.focus();
+
+      // Handle submission
+      const submitInput = () => {
+        const userInput = inputField.value.trim();
+
+        if (!userInput) {
+          // Show validation error
+          inputField.style.borderColor = "var(--color-important)";
+          inputField.placeholder = "Please enter a value...";
+          inputField.focus();
+          return;
+        }
+
+        try {
+          // Set the Ink variable
+          this.story.variablesState.$(variableName, userInput);
+
+          // Remove input container
+          inputContainer.remove();
+
+          // Add user's input as story text
+          const responseElement = document.createElement("p");
+          responseElement.className = "user-input-response";
+          responseElement.textContent = userInput;
+          this.display.container.appendChild(responseElement);
+
+          // Continue the story
+          this.continue();
+
+          // Show success notification (optional)
+          window.notificationManager?.success(
+            `Set ${variableName} to: ${userInput}`,
+          );
+        } catch (error) {
+          window.errorManager.error(
+            "Failed to set user input variable",
+            error,
+            "story",
+          );
+          inputField.style.borderColor = "var(--color-important)";
+          inputField.placeholder = "Error - please try again...";
+        }
+      };
+
+      // Event listeners
+      submitBtn.addEventListener("click", submitInput);
+      inputField.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          submitInput();
+        }
+      });
+
+      // Reset border color on input
+      inputField.addEventListener("input", () => {
+        inputField.style.borderColor = "";
+      });
     }
   }
 

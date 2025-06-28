@@ -1,4 +1,6 @@
 === tags_demo ===
+VAR input = ""
+
 : Ink Tags
 
 The template includes special tags for enhanced functionality:
@@ -30,6 +32,7 @@ The template automatically handles:
 
 = tags_submenu
 
++ [Ask for user input] -> user_input
 + [Add background image] -> change_background
 + [Remove background image] -> remove_background
 + [Ring a bell] -> play_sound
@@ -37,6 +40,21 @@ The template automatically handles:
 + [Stop the ringing!] -> stop_sound_loop
 + [Add image to next page] -> add_image
 + [Back to feature menu] -> feature_menu
+
+= user_input
+You can ask players for input that will then be stored in a variable of your choice. For this, use the special tag:
+
+`\# USER_INPUT: your_variable_name`
+Followed on a new line by `[]` to create an anchor to avoid Ink consuming the next line.
+
+Write anything you want here:
+
+# USER_INPUT: input
+[]
+
+You wrote: "{input}".
+
+-> tags_submenu
 
 = change_background
 # BACKGROUND: assets/background.jpg

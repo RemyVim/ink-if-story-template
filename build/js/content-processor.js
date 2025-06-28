@@ -95,7 +95,12 @@ class ContentProcessor {
 
       try {
         const result = actionFn();
-        return result === "RESTART" || result === "CLEAR";
+        // Handle both string actions and object actions
+        return (
+          result === "RESTART" ||
+          result === "CLEAR" ||
+          (typeof result === "object" && result.action === "USER_INPUT")
+        );
       } catch (error) {
         window.errorManager.error(
           "Error executing special action function",
