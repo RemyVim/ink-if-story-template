@@ -52,7 +52,9 @@ class NavigationManager {
     this.menuButton = document.createElement("a");
     this.menuButton.id = "pages-menu-btn";
     this.menuButton.href = "#";
-    this.menuButton.textContent = "Menu";
+    this.menuButton.title = "Show menu";
+    this.menuButton.innerHTML =
+      '<span class="material-icons-outlined nav-icon">menu</span>';
 
     // Create slide panel
     this.slidePanel = document.createElement("div");
@@ -86,7 +88,8 @@ class NavigationManager {
     // Add close button at bottom
     const closeButton = document.createElement("button");
     closeButton.className = "panel-close-bottom";
-    closeButton.innerHTML = "▲";
+    closeButton.innerHTML =
+      '<span class="material-icons-outlined">expand_less</span>';
     closeButton.title = "Close menu";
     this.slidePanel.appendChild(closeButton);
 
