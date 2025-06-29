@@ -4,13 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [unreleased]
+## [1.2.0] - 2025-06-29
 
 ### Added
 
-- Special pages in the navigation menu slide-down panel now appear alphabetically but can be ordered manually with an Ink tag
-- Navigation menu now has a slide-down panel for special pages
 - Navigation top bar now uses material icons
+- Navigation menu now has a slide-down panel for special pages
+- Special pages in the navigation menu slide-down panel now appear alphabetically but can be ordered manually with an Ink tag
 
 ### Fixed
 
