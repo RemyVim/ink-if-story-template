@@ -8,6 +8,7 @@ class SaveSystem {
 
     // Initialize the modal UI
     this.modal = new SavesModalManager(this);
+    console.log("SaveSystem modal created:", this.modal);
     this.setupEventListeners();
   }
 
@@ -129,29 +130,68 @@ class SaveSystem {
    * @param {boolean} isAutosave - Whether this is the autosave slot
    */
   deleteSlot(slotNumber, isAutosave = false) {
+    console.log("Modal check:", this.modal, this.modal?.confirmModal);
     try {
       const slotName = isAutosave ? "autosave" : `Slot ${slotNumber}`;
       const message = isAutosave
         ? "Are you sure you want to clear the autosave?"
         : `Are you sure you want to delete the save in Slot ${slotNumber}?`;
 
-      if (confirm(message)) {
-        if (!this.isStorageAvailable()) {
-          throw new Error("localStorage not available");
-        }
+      if (this.modal && this.modal.confirmModal) {
+        this.modal.confirmModal.showConfirmation(
+          message,
+          () => {
+            // On confirm
+            try {
+              if (!this.isStorageAvailable()) {
+                throw new Error("localStorage not available");
+              }
 
-        const saveKey = this.savePrefix + slotNumber;
-        localStorage.removeItem(saveKey);
+              const saveKey = this.savePrefix + slotNumber;
+              localStorage.removeItem(saveKey);
 
-        const confirmMessage = isAutosave
-          ? "Autosave cleared."
-          : `Slot ${slotNumber} deleted.`;
-        this.showNotification(confirmMessage);
+              const confirmMessage = isAutosave
+                ? "Autosave cleared."
+                : `Slot ${slotNumber} deleted.`;
+              this.showNotification(confirmMessage);
 
-        this.modal?.populateSaveSlots?.();
+              this.modal?.populateSaveSlots?.();
+            } catch (error) {
+              window.errorManager.error(
+                "Failed to delete save slot",
+                error,
+                "save-system",
+              );
+            }
+          },
+          null, // No cancel callback needed
+          {
+            title: "Delete Save",
+            confirmText: "Delete",
+            cancelText: "Cancel",
+          },
+        );
         return true;
+      } else {
+        // Fallback to browser confirm if modal not available
+        if (confirm(message)) {
+          if (!this.isStorageAvailable()) {
+            throw new Error("localStorage not available");
+          }
+
+          const saveKey = this.savePrefix + slotNumber;
+          localStorage.removeItem(saveKey);
+
+          const confirmMessage = isAutosave
+            ? "Autosave cleared."
+            : `Slot ${slotNumber} deleted.`;
+          this.showNotification(confirmMessage);
+
+          this.modal?.populateSaveSlots?.();
+          return true;
+        }
+        return false;
       }
-      return false;
     } catch (error) {
       window.errorManager.error(
         "Failed to delete save slot",

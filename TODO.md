@@ -1,2 +1,0 @@
-- Bug when you open a special page + another special page and return to story
-- Prompt when loading save needs to be in page not call browser to prompt

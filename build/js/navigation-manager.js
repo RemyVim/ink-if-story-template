@@ -272,7 +272,29 @@ class NavigationManager {
         titleElement.addEventListener("click", (e) => {
           try {
             e.preventDefault();
-            this.storyManager.restart();
+
+            // Create a temporary confirmation modal
+            const confirmModal = new BaseModal({
+              title: "Restart Story",
+              className: "confirm-modal",
+              maxWidth: "400px",
+              showFooter: true,
+            });
+
+            confirmModal.showConfirmation(
+              "Are you sure you want to restart the story from the beginning? Any unsaved progress will be lost.",
+              () => {
+                // On confirm
+                this.storyManager.restart();
+              },
+              null, // No cancel callback needed
+              {
+                title: "Restart Story",
+                confirmText: "Restart",
+                cancelText: "Cancel",
+                confirmVariant: "primary", // Blue button instead of red
+              },
+            );
           } catch (error) {
             window.errorManager.error(
               "Failed to restart from title click",
@@ -307,7 +329,28 @@ class NavigationManager {
   setupCoreButtons() {
     // Restart button
     this.setupButton("rewind", () => {
-      this.storyManager.restart();
+      // Create a temporary confirmation modal
+      const confirmModal = new BaseModal({
+        title: "Restart Story",
+        className: "confirm-modal",
+        maxWidth: "400px",
+        showFooter: true,
+      });
+
+      confirmModal.showConfirmation(
+        "Are you sure you want to restart the story from the beginning? Any unsaved progress will be lost.",
+        () => {
+          // On confirm
+          this.storyManager.restart();
+        },
+        null, // No cancel callback needed
+        {
+          title: "Restart Story",
+          confirmText: "Restart",
+          cancelText: "Cancel",
+          confirmVariant: "primary",
+        },
+      );
     });
 
     // Note: Saves and settings buttons are handled by their respective managers

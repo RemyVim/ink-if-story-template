@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 
 - "Return to Story" button now works after navigating through several special pages in a row
+- Prompts for delete save and restart story are now internal to the template and no longer solicit the browser prompt
 
 ## [1.1.1] - 2025-06-28
 

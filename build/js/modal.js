@@ -312,4 +312,81 @@ class BaseModal {
       window.errorManager.warning("Failed to destroy modal", error, "modal");
     }
   }
+  /**
+   * Show a confirmation dialog
+   * @param {string} message - The confirmation message
+   * @param {Function} onConfirm - Callback when user confirms
+   * @param {Function} onCancel - Optional callback when user cancels
+   * @param {Object} options - Optional customization options
+   */
+  showConfirmation(message, onConfirm, onCancel, options = {}) {
+    const defaults = {
+      title: "Confirm",
+      confirmText: "Yes",
+      cancelText: "Cancel",
+      confirmVariant: "danger",
+    };
+
+    const settings = { ...defaults, ...options };
+
+    // Temporarily store original config
+    const originalConfig = { ...this.config };
+
+    // Update config for confirmation dialog
+    this.config.title = settings.title;
+    this.config.closeOnBackdrop = false;
+    this.config.closeOnEscape = true;
+
+    this.show((modal) => {
+      // Set content
+      modal.setContent(
+        `<p style="margin: 0; color: var(--color-text-primary);">${message}</p>`,
+      );
+
+      // Set footer with buttons
+      const footer = modal.getFooter();
+      if (footer) {
+        footer.innerHTML = "";
+        footer.style.display = "flex";
+        footer.style.justifyContent = "flex-end";
+        footer.style.gap = "0.5rem";
+
+        const cancelBtn = modal.createButton(settings.cancelText, {
+          variant: "secondary",
+          onClick: () => {
+            modal.hide();
+            if (onCancel) onCancel();
+            // Restore original config
+            Object.assign(this.config, originalConfig);
+          },
+        });
+
+        const confirmBtn = modal.createButton(settings.confirmText, {
+          variant: settings.confirmVariant,
+          onClick: () => {
+            modal.hide();
+            if (onConfirm) onConfirm();
+            // Restore original config
+            Object.assign(this.config, originalConfig);
+          },
+        });
+
+        footer.appendChild(cancelBtn);
+        footer.appendChild(confirmBtn);
+      }
+    });
+
+    // Override escape handler for this dialog
+    if (this.escapeHandler) {
+      document.removeEventListener("keydown", this.escapeHandler);
+    }
+    this.escapeHandler = (e) => {
+      if (e.key === "Escape" && this.isVisible) {
+        this.hide();
+        if (onCancel) onCancel();
+        Object.assign(this.config, originalConfig);
+      }
+    };
+    document.addEventListener("keydown", this.escapeHandler);
+  }
 }

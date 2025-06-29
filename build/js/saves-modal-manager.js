@@ -4,6 +4,7 @@ class SavesModalManager {
     this.gameSaveSystem = gameSaveSystem;
     this.maxSaveSlots = 5;
     this.autosaveSlot = 0;
+    this.confirmModal = null;
 
     if (!this.gameSaveSystem) {
       window.errorManager.critical(
@@ -19,6 +20,7 @@ class SavesModalManager {
 
   init() {
     this.createModal();
+    this.createConfirmModal();
   }
 
   createModal() {
@@ -27,6 +29,14 @@ class SavesModalManager {
       className: "saves-modal",
       maxWidth: "600px",
       onShow: () => this.populateSaveSlots(),
+    });
+  }
+  createConfirmModal() {
+    this.confirmModal = new BaseModal({
+      title: "Confirm",
+      className: "confirm-modal",
+      maxWidth: "400px",
+      showFooter: true,
     });
   }
 
