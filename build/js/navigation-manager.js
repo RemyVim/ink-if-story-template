@@ -1,8 +1,11 @@
 // navigation-manager.js
+// navigation-manager.js
 class NavigationManager {
   constructor(storyManager) {
     this.storyManager = storyManager;
-    this.dynamicButtons = new Map(); // Track dynamically created buttons
+    this.dynamicButtons = new Map();
+    this.dropdown = null;
+    this.dropdownButton = null;
 
     if (!this.storyManager) {
       window.errorManager.critical(
@@ -30,17 +33,136 @@ class NavigationManager {
       return;
     }
 
-    // Remove existing dynamic buttons
+    // Remove existing dynamic buttons and panel
     this.clearDynamicButtons();
 
-    // Create buttons for each special page
-    this.createSpecialPageButtons(availablePages);
+    const pageCount = Object.keys(availablePages).length;
+
+    this.createSlidePanel(availablePages);
+  }
+
+  /**
+   * Create a slide-down panel for special pages
+   */
+  createSlidePanel(availablePages) {
+    const navControls = document.querySelector(".nav-controls");
+    if (!navControls) return;
+
+    // Create menu button
+    this.menuButton = document.createElement("a");
+    this.menuButton.id = "pages-menu-btn";
+    this.menuButton.href = "#";
+    this.menuButton.textContent = "Menu";
+
+    // Create slide panel
+    this.slidePanel = document.createElement("div");
+    this.slidePanel.className = "slide-panel";
+
+    // Create panel content
+    const panelContent = document.createElement("div");
+    panelContent.className = "panel-content";
+
+    // Add pages to panel
+    Object.keys(availablePages).forEach((knotName) => {
+      const pageInfo = availablePages[knotName];
+      if (pageInfo && pageInfo.isSpecialPage) {
+        const link = document.createElement("a");
+        link.href = "#";
+        link.className = "panel-link";
+        link.textContent = pageInfo.displayName;
+
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+          this.hidePanel();
+          this.storyManager.pages.show(knotName);
+        });
+
+        panelContent.appendChild(link);
+      }
+    });
+
+    this.slidePanel.appendChild(panelContent);
+
+    // Add close button at bottom
+    const closeButton = document.createElement("button");
+    closeButton.className = "panel-close-bottom";
+    closeButton.innerHTML = "▲";
+    closeButton.title = "Close menu";
+    this.slidePanel.appendChild(closeButton);
+
+    // Add panel to body
+    document.body.appendChild(this.slidePanel);
+
+    // Insert menu button before settings
+    const settingsBtn = document.getElementById("settings-btn");
+    navControls.insertBefore(this.menuButton, settingsBtn);
+
+    // Event listeners
+    this.menuButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.togglePanel();
+    });
+
+    closeButton.addEventListener("click", () => {
+      this.hidePanel();
+    });
+
+    // Close panel when clicking outside
+    document.addEventListener("click", (e) => {
+      if (
+        this.slidePanel &&
+        this.slidePanel.classList.contains("show") &&
+        !this.slidePanel.contains(e.target) &&
+        e.target !== this.menuButton
+      ) {
+        this.hidePanel();
+      }
+    });
+
+    // Track the menu button
+    this.dynamicButtons.set("pages-menu", this.menuButton);
+  }
+
+  togglePanel() {
+    if (this.slidePanel) {
+      if (this.slidePanel.classList.contains("show")) {
+        this.hidePanel();
+      } else {
+        this.showPanel();
+      }
+    }
+  }
+
+  showPanel() {
+    if (this.slidePanel) {
+      this.slidePanel.classList.add("show");
+      this.menuButton?.classList.add("active");
+    }
+  }
+
+  hidePanel() {
+    if (this.slidePanel) {
+      this.slidePanel.classList.remove("show");
+      this.menuButton?.classList.remove("active");
+    }
   }
 
   /**
    * Clear all dynamically created buttons
    */
   clearDynamicButtons() {
+    // Remove slide panel if exists
+    if (this.slidePanel && this.slidePanel.parentNode) {
+      this.slidePanel.parentNode.removeChild(this.slidePanel);
+    }
+    if (this.menuButton && this.menuButton.parentNode) {
+      this.menuButton.parentNode.removeChild(this.menuButton);
+    }
+    this.slidePanel = null;
+    this.menuButton = null;
+
+    // Remove individual buttons
     for (let [buttonId, button] of this.dynamicButtons) {
       if (button && button.parentNode) {
         button.parentNode.removeChild(button);
@@ -50,7 +172,7 @@ class NavigationManager {
   }
 
   /**
-   * Create navigation buttons for special pages
+   * Create navigation buttons for special pages (when few pages)
    * @param {Object} availablePages - Object mapping knot names to page info
    */
   createSpecialPageButtons(availablePages) {
@@ -64,7 +186,6 @@ class NavigationManager {
       return;
     }
 
-    // Get the settings button to insert before it
     const settingsBtn = document.getElementById("settings-btn");
     const insertBefore = settingsBtn || null;
 
@@ -91,7 +212,6 @@ class NavigationManager {
   createSpecialPageButton(knotName, pageInfo, container, insertBefore) {
     const buttonId = `special-page-${knotName}`;
 
-    // Don't create duplicate buttons
     if (this.dynamicButtons.has(buttonId)) {
       return;
     }
@@ -100,13 +220,12 @@ class NavigationManager {
     button.id = buttonId;
     button.href = "#";
     button.title = `View ${pageInfo.displayName}`;
-    button.textContent = pageInfo.displayName; // Use the display name from the tag
+    button.textContent = pageInfo.displayName;
 
-    // Add click handler - use knot name for internal navigation
     button.addEventListener("click", (e) => {
       try {
         e.preventDefault();
-        this.storyManager.pages.show(knotName); // Use knot name for navigation
+        this.storyManager.pages.show(knotName);
       } catch (error) {
         window.errorManager.error(
           "Failed to show special page",
@@ -116,14 +235,96 @@ class NavigationManager {
       }
     });
 
-    // Insert the button
     if (insertBefore) {
       container.insertBefore(button, insertBefore);
     } else {
       container.appendChild(button);
     }
 
-    // Track the button
+    this.dynamicButtons.set(buttonId, button);
+  }
+
+  /**
+   * Create a single special page button
+   * @param {string} knotName - Knot name (used as internal identifier)
+   * @param {Object} pageInfo - Page information including display name
+   * @param {Element} container - Container to add the button to
+   * @param {Element} insertBefore - Element to insert before
+   */
+  createSpecialPageButton(knotName, pageInfo, container, insertBefore) {
+    const buttonId = `special-page-${knotName}`;
+
+    if (this.dynamicButtons.has(buttonId)) {
+      return;
+    }
+
+    const button = document.createElement("a");
+    button.id = buttonId;
+    button.href = "#";
+    button.title = `View ${pageInfo.displayName}`;
+    button.textContent = pageInfo.displayName;
+
+    button.addEventListener("click", (e) => {
+      try {
+        e.preventDefault();
+        this.storyManager.pages.show(knotName);
+      } catch (error) {
+        window.errorManager.error(
+          "Failed to show special page",
+          error,
+          "navigation",
+        );
+      }
+    });
+
+    if (insertBefore) {
+      container.insertBefore(button, insertBefore);
+    } else {
+      container.appendChild(button);
+    }
+
+    this.dynamicButtons.set(buttonId, button);
+  }
+
+  /**
+   * Create a single special page button
+   * @param {string} knotName - Knot name (used as internal identifier)
+   * @param {Object} pageInfo - Page information including display name
+   * @param {Element} container - Container to add the button to
+   * @param {Element} insertBefore - Element to insert before
+   */
+  createSpecialPageButton(knotName, pageInfo, container, insertBefore) {
+    const buttonId = `special-page-${knotName}`;
+
+    if (this.dynamicButtons.has(buttonId)) {
+      return;
+    }
+
+    const button = document.createElement("a");
+    button.id = buttonId;
+    button.href = "#";
+    button.title = `View ${pageInfo.displayName}`;
+    button.textContent = pageInfo.displayName;
+
+    button.addEventListener("click", (e) => {
+      try {
+        e.preventDefault();
+        this.storyManager.pages.show(knotName);
+      } catch (error) {
+        window.errorManager.error(
+          "Failed to show special page",
+          error,
+          "navigation",
+        );
+      }
+    });
+
+    if (insertBefore) {
+      container.insertBefore(button, insertBefore);
+    } else {
+      container.appendChild(button);
+    }
+
     this.dynamicButtons.set(buttonId, button);
   }
 

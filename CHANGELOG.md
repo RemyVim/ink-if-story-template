@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [unreleased]
 
+### Added
+
+- Navigation menu now has a slide-down panel for special pages
+
 ### Fixed
 
 - "Return to Story" button now works after navigating through several special pages in a row
