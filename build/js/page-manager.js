@@ -39,8 +39,11 @@ class PageManager {
       return;
     }
 
-    // Save current state before showing special page
-    this.saveCurrentState();
+    // Only save state if we're not already viewing a special page
+    // This prevents overwriting the main story state when navigating between special pages
+    if (!this.isViewingSpecialPage()) {
+      this.saveCurrentState();
+    }
 
     // Mark that we're in a special page (use knot name internally)
     this.storyManager.currentPage = knotName;
