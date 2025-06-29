@@ -1,5 +1,4 @@
 // navigation-manager.js
-// navigation-manager.js
 class NavigationManager {
   constructor(storyManager) {
     this.storyManager = storyManager;
@@ -22,8 +21,9 @@ class NavigationManager {
   /**
    * Update navigation button visibility based on available special pages
    * @param {Object} availablePages - Object mapping knot names to page info
+   * @param {Array} pageMenuOrder - Optional array defining page order and sections
    */
-  updateVisibility(availablePages) {
+  updateVisibility(availablePages, pageMenuOrder = null) {
     if (!availablePages || typeof availablePages !== "object") {
       window.errorManager.warning(
         "Invalid availablePages object passed to updateVisibility",
@@ -38,13 +38,13 @@ class NavigationManager {
 
     const pageCount = Object.keys(availablePages).length;
 
-    this.createSlidePanel(availablePages);
+    this.createSlidePanel(availablePages, pageMenuOrder);
   }
 
   /**
    * Create a slide-down panel for special pages
    */
-  createSlidePanel(availablePages) {
+  createSlidePanel(availablePages, pageMenuOrder) {
     const navControls = document.querySelector(".nav-controls");
     if (!navControls) return;
 
@@ -64,24 +64,12 @@ class NavigationManager {
     const panelContent = document.createElement("div");
     panelContent.className = "panel-content";
 
-    // Add pages to panel
-    Object.keys(availablePages).forEach((knotName) => {
-      const pageInfo = availablePages[knotName];
-      if (pageInfo && pageInfo.isSpecialPage) {
-        const link = document.createElement("a");
-        link.href = "#";
-        link.className = "panel-link";
-        link.textContent = pageInfo.displayName;
-
-        link.addEventListener("click", (e) => {
-          e.preventDefault();
-          this.hidePanel();
-          this.storyManager.pages.show(knotName);
-        });
-
-        panelContent.appendChild(link);
-      }
-    });
+    // Add pages to panel based on order or default
+    if (pageMenuOrder && pageMenuOrder.length > 0) {
+      this.addOrderedPagesToPanel(panelContent, availablePages, pageMenuOrder);
+    } else {
+      this.addDefaultPagesToPanel(panelContent, availablePages);
+    }
 
     this.slidePanel.appendChild(panelContent);
 
@@ -125,6 +113,88 @@ class NavigationManager {
 
     // Track the menu button
     this.dynamicButtons.set("pages-menu", this.menuButton);
+  }
+
+  /**
+   * Add ordered pages to panel based on PAGE_MENU tag
+   */
+  addOrderedPagesToPanel(panelContent, availablePages, pageMenuOrder) {
+    let currentSection = -1;
+    const addedPages = new Set();
+
+    pageMenuOrder.forEach((item) => {
+      const pageInfo = availablePages[item.knotName];
+      if (!pageInfo || !pageInfo.isSpecialPage) return;
+
+      // Add section separator if section changed
+      if (item.section !== currentSection && currentSection !== -1) {
+        const separator = document.createElement("hr");
+        separator.className = "panel-separator";
+        panelContent.appendChild(separator);
+      }
+      currentSection = item.section;
+
+      // Add the page link
+      const link = this.createPageLink(item.knotName, pageInfo);
+      panelContent.appendChild(link);
+      addedPages.add(item.knotName);
+    });
+
+    // Add any pages not in the menu order at the end
+    const unorderedPages = Object.keys(availablePages).filter(
+      (knotName) =>
+        !addedPages.has(knotName) && availablePages[knotName].isSpecialPage,
+    );
+
+    if (unorderedPages.length > 0 && addedPages.size > 0) {
+      const separator = document.createElement("hr");
+      separator.className = "panel-separator";
+      panelContent.appendChild(separator);
+    }
+
+    unorderedPages.forEach((knotName) => {
+      const pageInfo = availablePages[knotName];
+      const link = this.createPageLink(knotName, pageInfo);
+      panelContent.appendChild(link);
+    });
+  }
+
+  /**
+   * Add pages to panel in default order (alphabetical)
+   */
+  addDefaultPagesToPanel(panelContent, availablePages) {
+    // Sort pages alphabetically by display name
+    const sortedPages = Object.keys(availablePages)
+      .filter((knotName) => availablePages[knotName]?.isSpecialPage)
+      .sort((a, b) => {
+        const nameA = availablePages[a].displayName.toLowerCase();
+        const nameB = availablePages[b].displayName.toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+
+    sortedPages.forEach((knotName) => {
+      const pageInfo = availablePages[knotName];
+      const link = this.createPageLink(knotName, pageInfo);
+      panelContent.appendChild(link);
+    });
+  }
+
+  /**
+   * Create a page link element
+   */
+  createPageLink(knotName, pageInfo) {
+    const link = document.createElement("a");
+    link.href = "#";
+    link.className = "panel-link";
+    link.textContent = pageInfo.displayName;
+
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      this.hidePanel();
+      this.storyManager.pages.show(knotName);
+    });
+
+    return link;
   }
 
   togglePanel() {
@@ -175,237 +245,6 @@ class NavigationManager {
   }
 
   /**
-   * Create navigation buttons for special pages (when few pages)
-   * @param {Object} availablePages - Object mapping knot names to page info
-   */
-  createSpecialPageButtons(availablePages) {
-    const navControls = document.querySelector(".nav-controls");
-    if (!navControls) {
-      window.errorManager.warning(
-        "Navigation controls container not found",
-        null,
-        "navigation",
-      );
-      return;
-    }
-
-    const settingsBtn = document.getElementById("settings-btn");
-    const insertBefore = settingsBtn || null;
-
-    Object.keys(availablePages).forEach((knotName) => {
-      const pageInfo = availablePages[knotName];
-      if (pageInfo && pageInfo.isSpecialPage) {
-        this.createSpecialPageButton(
-          knotName,
-          pageInfo,
-          navControls,
-          insertBefore,
-        );
-      }
-    });
-  }
-
-  /**
-   * Create a single special page button
-   * @param {string} knotName - Knot name (used as internal identifier)
-   * @param {Object} pageInfo - Page information including display name
-   * @param {Element} container - Container to add the button to
-   * @param {Element} insertBefore - Element to insert before
-   */
-  createSpecialPageButton(knotName, pageInfo, container, insertBefore) {
-    const buttonId = `special-page-${knotName}`;
-
-    if (this.dynamicButtons.has(buttonId)) {
-      return;
-    }
-
-    const button = document.createElement("a");
-    button.id = buttonId;
-    button.href = "#";
-    button.title = `View ${pageInfo.displayName}`;
-    button.textContent = pageInfo.displayName;
-
-    button.addEventListener("click", (e) => {
-      try {
-        e.preventDefault();
-        this.storyManager.pages.show(knotName);
-      } catch (error) {
-        window.errorManager.error(
-          "Failed to show special page",
-          error,
-          "navigation",
-        );
-      }
-    });
-
-    if (insertBefore) {
-      container.insertBefore(button, insertBefore);
-    } else {
-      container.appendChild(button);
-    }
-
-    this.dynamicButtons.set(buttonId, button);
-  }
-
-  /**
-   * Create a single special page button
-   * @param {string} knotName - Knot name (used as internal identifier)
-   * @param {Object} pageInfo - Page information including display name
-   * @param {Element} container - Container to add the button to
-   * @param {Element} insertBefore - Element to insert before
-   */
-  createSpecialPageButton(knotName, pageInfo, container, insertBefore) {
-    const buttonId = `special-page-${knotName}`;
-
-    if (this.dynamicButtons.has(buttonId)) {
-      return;
-    }
-
-    const button = document.createElement("a");
-    button.id = buttonId;
-    button.href = "#";
-    button.title = `View ${pageInfo.displayName}`;
-    button.textContent = pageInfo.displayName;
-
-    button.addEventListener("click", (e) => {
-      try {
-        e.preventDefault();
-        this.storyManager.pages.show(knotName);
-      } catch (error) {
-        window.errorManager.error(
-          "Failed to show special page",
-          error,
-          "navigation",
-        );
-      }
-    });
-
-    if (insertBefore) {
-      container.insertBefore(button, insertBefore);
-    } else {
-      container.appendChild(button);
-    }
-
-    this.dynamicButtons.set(buttonId, button);
-  }
-
-  /**
-   * Create a single special page button
-   * @param {string} knotName - Knot name (used as internal identifier)
-   * @param {Object} pageInfo - Page information including display name
-   * @param {Element} container - Container to add the button to
-   * @param {Element} insertBefore - Element to insert before
-   */
-  createSpecialPageButton(knotName, pageInfo, container, insertBefore) {
-    const buttonId = `special-page-${knotName}`;
-
-    if (this.dynamicButtons.has(buttonId)) {
-      return;
-    }
-
-    const button = document.createElement("a");
-    button.id = buttonId;
-    button.href = "#";
-    button.title = `View ${pageInfo.displayName}`;
-    button.textContent = pageInfo.displayName;
-
-    button.addEventListener("click", (e) => {
-      try {
-        e.preventDefault();
-        this.storyManager.pages.show(knotName);
-      } catch (error) {
-        window.errorManager.error(
-          "Failed to show special page",
-          error,
-          "navigation",
-        );
-      }
-    });
-
-    if (insertBefore) {
-      container.insertBefore(button, insertBefore);
-    } else {
-      container.appendChild(button);
-    }
-
-    this.dynamicButtons.set(buttonId, button);
-  }
-
-  /**
-   * Format page name for display - now uses the stored display name
-   * @param {string} knotName - Raw knot name (used as key)
-   * @returns {string} Display name from the tag or formatted knot name
-   */
-  formatPageName(knotName) {
-    const pageInfo = this.storyManager.availablePages[knotName];
-    if (pageInfo && pageInfo.displayName) {
-      return pageInfo.displayName;
-    }
-
-    // Fallback to old formatting logic for backward compatibility
-    return this.formatKnotName(knotName);
-  }
-
-  /**
-   * Format knot names to readable display names (fallback method)
-   * @param {string} knotName - Raw knot name
-   * @returns {string} Formatted display name
-   */
-  formatKnotName(knotName) {
-    // Convert camelCase and snake_case to readable format
-    return knotName
-      .replace(/([a-z])([A-Z])/g, "$1 $2") // camelCase to words
-      .replace(/_/g, " ") // snake_case to words
-      .toLowerCase()
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
-  }
-
-  /**
-   * Get display name for a special page
-   * @param {string} knotName - Knot name to get display name for
-   * @returns {string} Display name or formatted knot name
-   */
-  getPageDisplayName(knotName) {
-    const pageInfo = this.storyManager?.availablePages?.[knotName];
-    if (pageInfo && pageInfo.displayName) {
-      return pageInfo.displayName;
-    }
-    return this.formatKnotName(knotName);
-  }
-
-  /**
-   * Find button element for a specific page
-   * @param {string} knotName - Knot name to find button for
-   * @returns {Element|null} Button element or null if not found
-   */
-  findPageButton(knotName) {
-    const buttonId = `special-page-${knotName}`;
-    return this.dynamicButtons.get(buttonId) || null;
-  }
-
-  /**
-   * Update the display name of an existing button
-   * @param {string} knotName - Knot name of the button to update
-   * @param {string} newDisplayName - New display name
-   */
-  updateButtonDisplayName(knotName, newDisplayName) {
-    const button = this.findPageButton(knotName);
-    if (button && newDisplayName) {
-      button.textContent = newDisplayName;
-      button.title = `View ${newDisplayName}`;
-    }
-  }
-
-  /**
-   * Setup all navigation button event listeners
-   */
-  setupButtons() {
-    this.setupCoreButtons();
-    this.setupClickableTitle();
-  }
-  /**
    * Setup clickable title functionality for restarting the game
    */
   setupClickableTitle() {
@@ -452,6 +291,14 @@ class NavigationManager {
         );
       }
     });
+  }
+
+  /**
+   * Setup all navigation button event listeners
+   */
+  setupButtons() {
+    this.setupCoreButtons();
+    this.setupClickableTitle();
   }
 
   /**

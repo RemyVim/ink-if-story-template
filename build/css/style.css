@@ -438,18 +438,22 @@ h4 {
   }
 }
 
-/* /1* Navigation Icon Styles *1/ */
-/* .nav-controls .nav-icon { */
-/*   font-size: 20px; */
-/*   vertical-align: middle; */
-/*   margin-right: 6px; */
-/* } */
+  .panel-close-bottom:hover {
+    background: var(--color-hover-bg);
+    color: var(--color-text-strong);
+  }
 
-/* @media screen and (max-width: 680px) { */
-/*   .nav-controls .nav-icon { */
-/*     font-size: 18px; */
-/*     margin-right: 4px; */
-/*   } */
+  .panel-separator {
+    border: none;
+    border-top: 1px solid var(--color-border-medium);
+    margin: 0.75rem 2rem;
+    opacity: 0.5;
+  }
+
+  /* Active menu button styling */
+  #pages-menu-btn.active {
+    background-color: var(--color-hover-bg);
+  }
 
   /* =============================================================================
    LAYOUT CONTAINERS

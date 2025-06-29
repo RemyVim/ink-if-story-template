@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- Special pages in the navigation menu slide-down panel now appear alphabetically but can be ordered manually with an Ink tag
 - Navigation menu now has a slide-down panel for special pages
 - Navigation top bar now uses material icons
 

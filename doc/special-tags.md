@@ -91,14 +91,24 @@ Create reference pages outside your main story:
 
 : Your Character
 
-**Name:** Alice
-**Level:** 5
-**Health:** 100/100
+__Name:__ Alice
+__Level:__ 5
+__Health:__ 100/100
+
+-> DONE
+
+=== inventory ===
+# SPECIAL_PAGE
+
+: Your Inventory
+
+> 5 apples
+> 1 chainsaw
 
 -> DONE
 
 === credits ===
-# SPECIAL_PAGE: Credits
+# SPECIAL_PAGE
 
 : About This Game
 
@@ -108,10 +118,20 @@ Music by Composer Name
 -> DONE
 ```
 
-- Pages automatically appear in the navigation bar.
+- Use `# SPECIAL_PAGE` to mark page as reference. (The display name will be automatically derived from the knot name.)
 - Use `# SPECIAL_PAGE: Custom Name` to set the display name.
 - Always end with `-> DONE`.
 - An auto-generated button allows players to return where they left off in the story.
+
+Special pages automatically appear in the navigation menu in alphabetical order (by page name, not by knot name). You can override the order in the menu via another special tag:
+
+```ink
+# PAGE_MENU: character_sheet, inventory, relationships,, credits, content_warnings
+```
+
+- Use the knot name in the `PAGE_MENU` list.
+- `,,` indicates a section separator in the menu.
+- Any special pages that are not in the `PAGE_MENU` list are added to their own section below, ordered alphabetically.
 
 ## Styling and Effects
 

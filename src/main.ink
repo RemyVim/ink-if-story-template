@@ -1,8 +1,10 @@
 # author: Rémy Vim
 # title: Ink Story Template
+# PAGE_MENU: character_sheet, inventory, relationships ,,credits,content_warnings
 
 INCLUDE pages/credits.ink
 INCLUDE pages/content-warnings.ink
+INCLUDE pages/dummy-pages.ink
 INCLUDE features/ink_tags.ink
 INCLUDE features/formatting.ink
 INCLUDE features/getting_started.ink

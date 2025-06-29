@@ -6,9 +6,10 @@ class StoryManager {
       this.savePoint = "";
       this.currentPage = null;
       this.availablePages = {};
+      this.pageMenuOrder = null;
 
       this.initializeSubsystems();
-      this.detectSpecialPages(); // Changed from detectFeatures
+      this.detectSpecialPages();
       this.setupInitialState();
     } catch (error) {
       window.errorManager.critical(
@@ -158,11 +159,15 @@ class StoryManager {
 
   setupInitialState() {
     try {
-      // Process global tags for theme and metadata
+      // Process global tags for theme, metadata, and menu order
       this.settings?.processGlobalTags?.(this.story.globalTags);
+      this.processMenuOrderTag(this.story.globalTags);
 
       // Update navigation based on available special pages
-      this.navigation?.updateVisibility?.(this.availablePages);
+      this.navigation?.updateVisibility?.(
+        this.availablePages,
+        this.pageMenuOrder,
+      );
 
       // Set initial save point and start
       this.savePoint = this.story.state.ToJson();
@@ -174,6 +179,56 @@ class StoryManager {
         "story",
       );
     }
+  }
+
+  processMenuOrderTag(globalTags) {
+    if (!Array.isArray(globalTags)) return;
+
+    for (const tag of globalTags) {
+      if (typeof tag !== "string") continue;
+
+      const colonIndex = tag.indexOf(":");
+      if (colonIndex === -1) continue;
+
+      const property = tag.substring(0, colonIndex).trim().toUpperCase();
+      const value = tag.substring(colonIndex + 1).trim();
+
+      if (property === "PAGE_MENU") {
+        this.pageMenuOrder = this.parseMenuOrder(value);
+        console.log("Page menu order found:", this.pageMenuOrder);
+        break;
+      }
+    }
+  }
+
+  parseMenuOrder(menuString) {
+    // Parse format: "page1, page2,, page3, page4"
+    // Double commas (,,) separate sections, single commas separate items within sections
+    const sections = menuString.split(",,").map((s) => s.trim());
+    const menuOrder = [];
+
+    sections.forEach((section, sectionIndex) => {
+      const pages = section
+        .split(",")
+        .map((p) => p.trim())
+        .filter((p) => p);
+
+      pages.forEach((pageName) => {
+        // Check if this page exists in availablePages
+        if (this.availablePages[pageName]) {
+          menuOrder.push({
+            knotName: pageName,
+            section: sectionIndex,
+          });
+        } else {
+          console.warn(
+            `Page '${pageName}' in PAGE_MENU not found in special pages`,
+          );
+        }
+      });
+    });
+
+    return menuOrder.length > 0 ? menuOrder : null;
   }
 
   continue(isFirstTime = false) {
