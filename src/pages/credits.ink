@@ -12,8 +12,15 @@ You can find the source code on GitHub: [github.com/RemyVim/ink-if-story-templat
 > Vanilla JavaScript (no frameworks)
 > Modern CSS with responsive design
 
-:: Image Credits
+:: Images
 > The seamless flower image used in this demo is by Anna Bazanova and can be purchased on [Vecteezy](www.vecteezy.com/vector-art/13507569-floral-seamless-retro-pattern-in-the-style-of-the-70s-hippie-aesthetics-flower-power-fashionable-vintage-60s-orange-yellow-brown-colors-fabric-wrapping-paper)
 > The notification bell sound is from Jam FX, available on [Uppbeat](uppbeat.io/sfx/notification-alert-positive-bell/163519/45910)
+
+:: Fonts
+> [Merriweather](fonts.google.com/specimen/Merriweather) is by Sorkin Type
+> [Inter](fonts.google.com/specimen/Inter) is by Rasmus Andersson
+> [OpenDyslexic](opendyslexic.org) is by Abbie Gonzalez
+> [Material Icons](fonts.google.com/icons) by Google
+
 
 -> DONE
