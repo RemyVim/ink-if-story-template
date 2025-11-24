@@ -70,7 +70,20 @@ class TagProcessor {
               specialActions.push(() => this.playAudioLoop(value));
               break;
             case "IMAGE":
-              specialActions.push(() => this.showImage(value));
+              const imageSrc = value.trim();
+
+              // Store image info globally for display-manager to access
+              if (!window._pendingImages) window._pendingImages = [];
+              const imageId = `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+              window._pendingImages.push({
+                id: imageId,
+                src: imageSrc,
+              });
+
+              // Mark this paragraph as having an image
+              customClasses.push("has-image");
+              customClasses.push(`image-${imageId}`);
               break;
             case "BACKGROUND":
               specialActions.push(() => this.setBackground(value));
@@ -327,42 +340,6 @@ class TagProcessor {
    */
   isAudioEnabled() {
     return window.storyManager?.settings?.getSetting("audioEnabled") ?? true;
-  }
-
-  showImage(src) {
-    try {
-      if (!this.storyContainer) {
-        window.errorManager.error(
-          "Story container not available for image display",
-          null,
-          "tags",
-        );
-        return;
-      }
-
-      if (!src || typeof src !== "string") {
-        window.errorManager.warning(
-          "Invalid image source provided",
-          null,
-          "tags",
-        );
-        return;
-      }
-
-      const imageElement = document.createElement("img");
-      imageElement.src = src;
-      imageElement.onerror = () => {
-        window.errorManager.warning(
-          `Failed to load image: ${src}`,
-          null,
-          "tags",
-        );
-      };
-
-      this.storyContainer.appendChild(imageElement);
-    } catch (error) {
-      window.errorManager.error("Failed to show image", error, "tags");
-    }
   }
 
   showNotification(message, type = "info", duration = 4000) {

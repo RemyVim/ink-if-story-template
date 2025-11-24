@@ -16,7 +16,7 @@ The template includes special tags for advanced functionality:
 
 :: Images
 
-> `\# IMAGE: image.jpg` - Adds an image to the top of the page
+> `\# IMAGE: image.jpg` - Adds an inline image
 
 :: Audio Support  
 > `\# AUDIO: sound.mp3` - Play sound effects
@@ -36,7 +36,9 @@ The template includes special tags for advanced functionality:
 + [Ring a bell] -> play_sound
 + [Ring a bell in a loop] -> play_sound_loop
 + [Stop the ringing!] -> stop_sound_loop
-+ [Add image to next page] -> add_image
++ [Add inline image to next page] -> add_image_inline
++ [Add image to top of next page] -> add_image_top
++ [Add image to bottom of next page] -> add_image_bottom
 + [Back to feature menu] -> feature_menu
 
 = user_input
@@ -90,9 +92,47 @@ Called `\# AUDIOLOOP: none`
 
 -> tags_submenu
 
-= add_image
-# IMAGE: assets/background.jpg
+= add_image_inline
 : Ink Tags
-Called `\# IMAGE: assets/background.jpg`
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc tincidunt scelerisque odio, non luctus turpis volutpat in. Vestibulum dapibus dapibus quam, ac posuere mauris bibendum quis. 
+
+# IMAGE: assets/background.jpg
+
+Called `\# IMAGE: assets/background.jpg` right before this line.
+
+Sed lorem ligula, elementum blandit tempus id, faucibus ac odio. Etiam at molestie dui, non lobortis nulla. Proin auctor enim a nibh rhoncus, eu lacinia nibh commodo.
+
+Cras pretium metus nec nulla varius rhoncus. Duis maximus lorem eget mauris fringilla porttitor. Quisque quam nibh, molestie ac nulla et, porttitor feugiat mi. Praesent viverra feugiat elementum. Quisque id scelerisque est.
+
+-> tags_submenu
+
+= add_image_top
+# IMAGE: assets/background.jpg
+
+Called `\# IMAGE: assets/background.jpg` right before this line.
+
+: Ink Tags
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc tincidunt scelerisque odio, non luctus turpis volutpat in. Vestibulum dapibus dapibus quam, ac posuere mauris bibendum quis. 
+
+Sed lorem ligula, elementum blandit tempus id, faucibus ac odio. Etiam at molestie dui, non lobortis nulla. Proin auctor enim a nibh rhoncus, eu lacinia nibh commodo.
+
+Cras pretium metus nec nulla varius rhoncus. Duis maximus lorem eget mauris fringilla porttitor. Quisque quam nibh, molestie ac nulla et, porttitor feugiat mi. Praesent viverra feugiat elementum. Quisque id scelerisque est.
+
+-> tags_submenu
+
+= add_image_bottom
+: Ink Tags
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc tincidunt scelerisque odio, non luctus turpis volutpat in. Vestibulum dapibus dapibus quam, ac posuere mauris bibendum quis. 
+
+Sed lorem ligula, elementum blandit tempus id, faucibus ac odio. Etiam at molestie dui, non lobortis nulla. Proin auctor enim a nibh rhoncus, eu lacinia nibh commodo.
+
+Cras pretium metus nec nulla varius rhoncus. Duis maximus lorem eget mauris fringilla porttitor. Quisque quam nibh, molestie ac nulla et, porttitor feugiat mi. Praesent viverra feugiat elementum. Quisque id scelerisque est.
+
+Called `\# IMAGE: assets/background.jpg` right after this line.
+
+# IMAGE: assets/background.jpg
 
 -> tags_submenu

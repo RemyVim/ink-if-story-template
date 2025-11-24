@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 
 - Special pages now correctly display the current state of story variables
+- Images added with the IMAGE tag now display inline and no longer at the top of the page
 
 ## [1.2.1] - 2025-07-23
 

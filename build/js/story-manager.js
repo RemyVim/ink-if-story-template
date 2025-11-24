@@ -316,11 +316,19 @@ class StoryManager {
           break;
         }
 
+        // If this line has IMAGE, process it
+        const hasImage = tags.some((tag) =>
+          tag.trim().toUpperCase().startsWith("IMAGE:"),
+        );
+
         // Skip empty paragraphs (but only after checking for USER_INPUT)
-        if (text.trim().length === 0) continue;
+        if (text.trim().length === 0 && !hasImage) continue;
 
         // Process normal content
-        const processedContent = this.contentProcessor?.process?.(text, tags);
+        const processedContent = this.contentProcessor?.process?.(
+          text || " ", // Use a space if text is empty but has IMAGE tag
+          tags,
+        );
         if (processedContent) {
           content.push(processedContent);
         }

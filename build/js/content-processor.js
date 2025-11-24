@@ -11,9 +11,21 @@ class ContentProcessor {
    * @returns {Object|null} Processed content object or null if empty
    */
   process(text, tags = []) {
+    // Check for IMAGE tag before validating text
+    const hasImage =
+      Array.isArray(tags) &&
+      tags.some(
+        (tag) =>
+          typeof tag === "string" &&
+          tag.trim().toUpperCase().startsWith("IMAGE:"),
+      );
+
     // Validate inputs
     if (!text || typeof text !== "string" || !text.trim()) {
-      return null; // Return null for empty content
+      if (!hasImage) {
+        return null; // Return null for empty content without IMAGE
+      }
+      text = "\u00A0"; // Use non-breaking space for IMAGE-only lines
     }
 
     if (!Array.isArray(tags)) {

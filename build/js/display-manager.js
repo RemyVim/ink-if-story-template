@@ -126,16 +126,19 @@ class DisplayManager {
         content.classes || [],
       );
 
-      // Check if this is a user input placeholder
       if (
         content.classes &&
         content.classes.includes("user-input-placeholder")
       ) {
+        // This is a user input placeholder
         this.convertToUserInput(
           element,
           content.classes,
           content.placeholderText,
         );
+      } else if (content.classes && content.classes.includes("has-image")) {
+        // This is an image placeholder
+        this.handleImageForParagraph(element, content.classes);
       } else if (element && this.shouldAnimateContent()) {
         this.fadeInElement(element);
       }
@@ -222,6 +225,45 @@ class DisplayManager {
     inputField.addEventListener("input", () => {
       inputField.style.borderColor = "";
     });
+  }
+
+  handleImageForParagraph(element, classes) {
+    if (!element || !window._pendingImages) return;
+
+    // Find the image ID from classes
+    const imageClass = classes.find((cls) => cls.startsWith("image-img_"));
+    if (!imageClass) return;
+
+    const imageId = imageClass.replace("image-", "");
+    const imageData = window._pendingImages.find((img) => img.id === imageId);
+
+    if (!imageData) return;
+
+    // Remove from pending list
+    window._pendingImages = window._pendingImages.filter(
+      (img) => img.id !== imageId,
+    );
+
+    // Create the image element
+    const imageElement = document.createElement("img");
+    imageElement.src = imageData.src;
+    imageElement.className = "story-image";
+    imageElement.onerror = () => {
+      window.errorManager.warning(
+        `Failed to load image: ${imageData.src}`,
+        null,
+        "display",
+      );
+    };
+
+    // Always insert BEFORE this paragraph (inline positioning)
+    // This makes the image appear where the IMAGE tag is in Ink
+    element.parentNode.insertBefore(imageElement, element);
+
+    // Apply fade-in animation if enabled
+    if (this.shouldAnimateContent()) {
+      this.fadeInElement(imageElement);
+    }
   }
 
   shouldAnimateContent() {
