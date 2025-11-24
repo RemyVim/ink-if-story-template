@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.2.2] - 2025-11-24
+
+### Fixed
+
+- Special pages now correctly display the current state of story variables
+
 ## [1.2.1] - 2025-07-23
 
 ### Fixed

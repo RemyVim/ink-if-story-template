@@ -125,6 +125,11 @@ class PageManager {
     try {
       // Create a temporary story instance to evaluate the special page
       const tempStory = new inkjs.Story(this.storyManager.story.ToJson());
+
+      // Get the current variable state from the main story
+      const currentState = this.storyManager.story.state.ToJson();
+      tempStory.state.LoadJson(currentState);
+
       tempStory.ChoosePathString(knotName);
 
       const content = [];
