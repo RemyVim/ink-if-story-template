@@ -5,6 +5,7 @@ Get your Ink story online in minutes. This guide covers everything from compilat
 ## Step 1: Get the Template
 
 Download or clone the template:
+
 ```bash
 git clone https://github.com/remyvim/ink-if-story-template.git
 cd ink-if-story-template
@@ -24,11 +25,13 @@ Add these tags at the top of your main `.ink` file:
 ### Compile to JSON
 
 **Using Inky (Recommended)**
+
 1. Open your story in Inky
 2. Go to `File → Export to Web...`
 3. Save as `story.json`
 
 **Using Command Line**
+
 ```bash
 inklecate -o story.json -j your-story.ink
 ```
@@ -49,6 +52,7 @@ python3 -m http.server 8000
 Visit `http://localhost:8000` in your browser.
 
 **Alternative servers:**
+
 - Node.js: `npx serve .`
 - PHP: `php -S localhost:8000`
 - Any static file server
@@ -83,29 +87,34 @@ This watches your `src/` folder and automatically recompiles when you save chang
 ## Troubleshooting
 
 **Story won't load?**
+
 - Check browser console (F12) for errors
 - Verify `story.json` is valid JSON
 - Ensure all file paths are correct
 
 **Formatting not working?**
+
 - Make sure you're using the correct syntax (see [text-formatting.md](text-formatting.md))
 - Check that special characters aren't being escaped by Ink
 
 **Can't hear audio?**
+
 - Verify audio files are in `build/assets/` folder
 - Check if audio is enabled in the story settings
 - Ensure browser allows audio playback
 
 **Special pages not appearing?**
+
 - Confirm you're using `# SPECIAL_PAGE` or `# SPECIAL_PAGE: Name` tags
 - Check that the knot is accessible from your story structure
 
-**Need help?** Open an issue on the GitHub repository or check the community resources in the main [README.md](../README.md).
+---
 
-## Next Steps
+Need help with something else? Check out the rest of the docs:
 
-- [Text Formatting Guide](text-formatting.md) - Style your story text
-- [Special Tags Reference](special-tags.md) - Add media and effects
-- Customize the CSS in `build/css/style.css`
-- Add your own assets to `build/assets/`
+- Quick start: [doc/quickstart.md](quickstart.md)
+- Text formatting: [doc/text-formatting.md](text-formatting.md)
+- Special tags: [doc/special-tags.md](special-tags.md)
+- Ink functions: [doc/functions.md](functions.md)
 
+**Still need help?** Check the community resources in the main [README.md](../README.md) or open an issue on the GitHub repository.

@@ -144,20 +144,18 @@
 
 ### String functions
 
-- [ ] Basic string functions: `capitalize`, `uppercase`, `lowercase`, `trim`, `length`, `contains`
-- [ ] More string functions: `starts_with`, `ends_with`, `replace`, `replace_all`
-- [ ] Language functions: `plural`, `plural_count`, `a_or_an`, `ordinal`
-- [ ] List formatting: `list_and`, `list_or`
+- [x] Basic string functions: `CAPITALIZE`, `UPPERCASE`, `LOWERCASE`, `TRIM`, `LENGTH`, `CONTAINS`
+- [x] More string functions: `STARTS_WITH`, `ENDS_WITH`, `REPLACE`, `REPLACE_ALL`
+- [ ] Language functions: `PLURAL`, `PLURAL_COUNT`, `A_OR_AN`, `ORDINAL`
+- [ ] List formatting: `LIST_AND`, `LIST_OR`
 - [ ] Auto pronoun system (+ change pronouns mid-story)
 
 ### Math functions
 
-- [ ] Basic math functions: `clamp`, `round`, `floor`, `ceil`, `min`, `max`, `abs`, `percent`
-- [ ] Fairmath functions: `fairadd`, `fairsub` (ChoiceScript-style)
-- [ ] Dice functions: `roll`, `roll_dice`, `roll_range`, `chance`, `flip`
-- [ ] Utility functions: `timestamp`, `time_since`, `pick`
-- [ ] Advanced dice: advantage/disadvantage, exploding
-- [ ] Stat check system: `check`, `opposed`
+- [x] Basic math functions: `CLAMP`, `ROUND`, `ABS`, `PERCENT`
+- [x] Fairmath functions: `FAIRADD`, `FAIRSUB` (ChoiceScript-style)
+- [ ] Time functions: `TIMESTAMP`, `TIME_SINCE`
+- [ ] Stat check functions: `CHECK`, `OPPOSED`
 
 ## Development Tools
 
@@ -198,11 +196,17 @@
 - [x] Quick start guide
 - [x] Text formatting guide
 - [x] Special tags reference
-- [ ] Utility functions reference
+- [x] Utility functions reference
 - [ ] Keyboard shortcuts reference
 - [ ] Debug inspector usage guide
 - [ ] Interactive text examples
 - [ ] Stats sharing setup guide
+
+---
+
+## Fixes Needed
+
+- [ ] Saving on a special page breaks save
 
 ---
 

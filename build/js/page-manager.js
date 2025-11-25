@@ -124,7 +124,7 @@ class PageManager {
   generatePageContent(knotName) {
     try {
       // Create a temporary story instance to evaluate the special page
-      const tempStory = new inkjs.Story(this.storyManager.story.ToJson());
+      const tempStory = this.storyManager.createTempStory();
 
       // Get the current variable state from the main story
       const currentState = this.storyManager.story.state.ToJson();
@@ -393,7 +393,7 @@ class PageManager {
     if (!this.pageExists(knotName)) return "";
 
     try {
-      const tempStory = new inkjs.Story(this.storyManager.story.ToJson());
+      const tempStory = this.storyManager.createTempStory();
       tempStory.ChoosePathString(knotName);
 
       let fullText = "";

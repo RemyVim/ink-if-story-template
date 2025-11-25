@@ -286,7 +286,7 @@ class SaveSystem {
           }
 
           // Test if the game state can be loaded
-          const testStory = new inkjs.Story(this.storyManager.story.ToJson());
+          const testStory = this.storyManager.createTempStory();
           testStory.state.LoadJson(importData.gameState);
 
           // If we get here, the save is valid - store it

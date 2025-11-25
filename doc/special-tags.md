@@ -200,4 +200,13 @@ Lightning flashes overhead!
 | `# CLEAR` | Clear screen | `# CLEAR` |
 | `# RESTART` | Restart story | `# RESTART` |
 
-Need help with text formatting? Check out [doc/text-formatting.md](text-formatting.md).
+---
+
+Need help with something else? Check out the rest of the docs:
+
+- Quick start: [doc/quickstart.md](quickstart.md)
+- Text formatting: [doc/text-formatting.md](text-formatting.md)
+- Special tags: [doc/special-tags.md](special-tags.md)
+- Ink functions: [doc/functions.md](functions.md)
+
+**Still need help?** Check the community resources in the main [README.md](../README.md) or open an issue on the GitHub repository.

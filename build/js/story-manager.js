@@ -3,6 +3,7 @@ class StoryManager {
   constructor(storyContent) {
     try {
       this.story = new inkjs.Story(storyContent);
+      InkFunctions.bindAll(this.story);
       this.savePoint = "";
       this.currentPage = null;
       this.availablePages = {};
@@ -56,6 +57,16 @@ class StoryManager {
     }
   }
 
+  /**
+   * Create a temporary story instance with external functions bound
+   * @returns {Story} A new story instance with functions bound
+   */
+  createTempStory() {
+    const tempStory = new inkjs.Story(this.story.ToJson());
+    InkFunctions.bindAll(tempStory);
+    return tempStory;
+  }
+
   detectSpecialPages() {
     this.availablePages = {};
 
@@ -103,7 +114,7 @@ class StoryManager {
   getSpecialPageInfo(knotName) {
     try {
       // Create a temporary story to test the knot
-      const tempStory = new inkjs.Story(this.story.ToJson());
+      const tempStory = this.createTempStory();
 
       // Try to navigate to the knot
       tempStory.ChoosePathString(knotName);
@@ -565,7 +576,7 @@ class StoryManager {
       }
 
       // Test the state first
-      const testStory = new inkjs.Story(this.story.ToJson());
+      const testStory = this.createTempStory();
       testStory.state.LoadJson(state.gameState);
 
       // Apply to real story

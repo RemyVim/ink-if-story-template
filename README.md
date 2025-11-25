@@ -21,7 +21,7 @@ You don't even have to touch a line of HTML, CSS, or JavaScript to use it (unles
 - **Accessibility**: Dyslexia-friendly fonts, font sizing options in settings
 - **Settings**: Theme, font, text size, audio controls
 
-See [TODO.md](TODO.md) for the full list of completed and missing features.
+See [TODO.md](TODO.md) for the full list of completed and planned features.
 
 ## Quick Start
 
@@ -126,7 +126,7 @@ Contributions welcome! Fork, create feature branch, test, and submit PR.
 
 Bug reports and feature requests also welcome! Open an issue.
 
-## Resources
+## Community Resources
 
 - [Ink Documentation](https://github.com/inkle/ink)
 - [Ink Web Tutorial](https://www.inklestudios.com/ink/web-tutorial/)

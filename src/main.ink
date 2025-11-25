@@ -8,11 +8,30 @@ INCLUDE pages/content-warnings.ink
 INCLUDE pages/dummy-pages.ink
 INCLUDE features/ink_tags.ink
 INCLUDE features/formatting.ink
+INCLUDE features/functions.ink
 INCLUDE features/getting_started.ink
 INCLUDE features/notifications.ink
 INCLUDE features/saves.ink
 INCLUDE features/settings.ink
 INCLUDE features/special_pages.ink
+
+// Include functions provided by the template
+EXTERNAL UPPERCASE(string)
+EXTERNAL LOWERCASE(string)
+EXTERNAL CAPITALIZE(string)
+EXTERNAL TRIM(string)
+EXTERNAL LENGTH(string)
+EXTERNAL CONTAINS(string, search)
+EXTERNAL STARTS_WITH(string, search)
+EXTERNAL ENDS_WITH(string, search)
+EXTERNAL REPLACE(string, search, replacement)
+EXTERNAL REPLACE_ALL(string, search, replacement)
+EXTERNAL ROUND(value)
+EXTERNAL CLAMP(value, min, max)
+EXTERNAL ABS(value)
+EXTERNAL PERCENT(value, total)
+EXTERNAL FAIRADD(stat, percent)
+EXTERNAL FAIRSUB(stat, percent)
 
 : Template Feature Demo
 
@@ -44,5 +63,6 @@ What would you like to explore in more detail?
 + [Special Pages] -> special_pages_demo
 + [Ink Tags (Media & User Input)] -> tags_demo
 + [Notifications] -> notifications_demo  
++ [Functions] -> functions  
 + [Getting Started] -> getting_started
 
