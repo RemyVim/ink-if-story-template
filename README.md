@@ -21,6 +21,8 @@ You don't even have to touch a line of HTML, CSS, or JavaScript to use it (unles
 - **Accessibility**: Dyslexia-friendly fonts, font sizing options in settings
 - **Settings**: Theme, font, text size, audio controls
 
+See [TODO.md](TODO.md) for the full list of completed and missing features.
+
 ## Quick Start
 
 1. **Get the template**
