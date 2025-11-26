@@ -20,6 +20,7 @@ You don't even have to touch a line of HTML, CSS, or JavaScript to use it (unles
 - **Responsive Design**: Beautiful on all devices with light/dark themes
 - **Accessibility**: Dyslexia-friendly fonts, font sizing options in settings
 - **Settings**: Theme, font, text size, audio controls
+- **Functions**: String manipulation, math, fairmath, and real-time date/time
 
 See [TODO.md](TODO.md) for the full list of completed and planned features.
 
@@ -84,6 +85,27 @@ Your character details here...
 ```
 
 See [doc/special-tags.md](doc/special-tags.md) for more info.
+
+### Functions
+
+Extend Ink built-in functions with string manipulation, math, and time functions:
+
+```ink
+// Declare once at the top of your story
+EXTERNAL CAPITALIZE(str)
+EXTERNAL CLAMP(x, min, max)
+EXTERNAL NOW()
+EXTERNAL FORMAT_DATE(timestamp, locale)
+
+// Use anywhere
+Hello, {CAPITALIZE(player_name)}!
+Health: {CLAMP(health, 0, 100)}
+Today is {FORMAT_DATE(NOW(), "en-US")}.
+```
+
+Includes string functions (`TRIM`, `REPLACE`, `CONTAINS`...), math (`ROUND`, `ABS`, `PERCENT`), fairmath for balanced stats (`FAIRADD`, `FAIRSUB`), and time functions (`NOW`, `TIME_SINCE`, `FORMAT_DATE`...).
+
+See [doc/functions.md](doc/functions.md) for more info.
 
 ## File Structure
 

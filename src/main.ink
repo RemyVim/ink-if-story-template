@@ -32,8 +32,18 @@ EXTERNAL ABS(value)
 EXTERNAL PERCENT(value, total)
 EXTERNAL FAIRADD(stat, percent)
 EXTERNAL FAIRSUB(stat, percent)
+EXTERNAL NOW()
+EXTERNAL SECONDS_SINCE(start)
+EXTERNAL MINUTES_SINCE(start)
+EXTERNAL TIME_SINCE(start)
+EXTERNAL FORMAT_DATE(timestamp, locale)
+EXTERNAL FORMAT_TIME(timestamp, locale)
+EXTERNAL FORMAT_DATETIME(timestamp, locale)
+EXTERNAL OFFSET_DATE(timestamp, years, months, days, hours, minutes)
 
 : Template Feature Demo
+
+~ session_start = NOW()
 
 Welcome, storyteller!
 

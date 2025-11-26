@@ -14,6 +14,8 @@ Ink offers a few built-in functions. This template extends that and adds a few m
   -> math_functions
 + [See fairmath functions]
   -> fairmath_functions
++ [See time functions]
+  -> time_functions
 + [Return to feature menu] 
   -> feature_menu
 
@@ -196,3 +198,99 @@ Reputation stat is currently {reputation}.
   -> fairmath_example
 + [Return to functions menu] 
   -> functions
+
+= time_functions
+: Time Functions
+
+These functions give your Ink story real-world time awareness. Perfect for session tracking, real-time games, or narratives where you really want to make it feel like everything is happening in real time.
+
+Add these external declarations to your main .ink file:
+
+`EXTERNAL NOW()`
+`EXTERNAL SECONDS_SINCE(start)`
+`EXTERNAL MINUTES_SINCE(start)`
+`EXTERNAL TIME_SINCE(start)`
+`EXTERNAL FORMAT_DATE(timestamp, locale)`
+`EXTERNAL FORMAT_TIME(timestamp, locale)`
+`EXTERNAL FORMAT_DATETIME(timestamp, locale)`
+`EXTERNAL OFFSET_DATE(timestamp, years, months, days, hours, minutes)`
+
+:: Getting the Current Time
+
+`VAR session_start = 0`
+`~ session_start = NOW()`
+
+(I called this at demo start!)
+
+The current timestamp is {session_start}. That's a Unix timestamp (seconds since January 1, 1970).
+
+:: Formatting Dates and Times
+
+
+`Today is \{FORMAT_DATE(NOW(), "en-US")\}.`
+Today is {FORMAT_DATE(NOW(), "en-US")}.
+
+`The time is \{FORMAT_TIME(NOW(), "en-US")\}.`
+The time is {FORMAT_TIME(NOW(), "en-US")}.
+
+`Full: \{FORMAT_DATETIME(NOW(), "en-US")\}`
+Full: {FORMAT_DATETIME(NOW(), "en-US")}
+
+:: Using Different Locales
+
+The locale parameter determines how to display the date and time. You can find a list of locales at [simplelocalize.io](simplelocalize.io/data/locales/).
+
+`French: \{FORMAT_DATETIME(NOW(), "fr-FR")\}`
+French: {FORMAT_DATETIME(NOW(), "fr-FR")}
+
+`Russian: \{FORMAT_DATETIME(NOW(), "ru-RU")\}`
+Russian: {FORMAT_DATETIME(NOW(), "ru-RU")}
+
+`Japanese: \{FORMAT_DATETIME(NOW(), "ja-JP")\}`
+Japanese: {FORMAT_DATETIME(NOW(), "ja-JP")}
+
+`Egyptian: \{FORMAT_DATETIME(NOW(), "ar-EG")\}`
+Egyptian: {FORMAT_DATETIME(NOW(), "ar-EG")}
+
+`Hindi: \{FORMAT_DATETIME(NOW(), "hi-IN")\}`
+Hindi: {FORMAT_DATETIME(NOW(), "hi-IN")}
+
+If you enter an invalid locale it defaults to `en-US` and throws a warning in the browser's console:
+
+`Invalid locale: \{FORMAT_DATETIME(NOW(), "tada")\}`
+Invalid locale: {FORMAT_DATETIME(NOW(), "tada")}
+
+:: Date Math with OFFSET_DATE
+
+Use `OFFSET_DATE` to create timestamps in the past or future. Parameters are: timestamp, years, months, days, hours, minutes.
+
+`VAR five_years_ago = 0`
+`~ five_years_ago = OFFSET_DATE(NOW(), -5, 0, 0, 0, 0)`
+`The incident happened on \{FORMAT_DATE(five_years_ago, "en-US")\}.`
+
+VAR five_years_ago = 0
+~ five_years_ago = OFFSET_DATE(NOW(), -5, 0, 0, 0, 0)
+The incident happened on {FORMAT_DATE(five_years_ago, "en-US")}.
+
+`VAR next_week = 0`
+`~ next_week = OFFSET_DATE(NOW(), 0, 0, 7, 0, 0)`
+`See you on \{FORMAT_DATE(next_week, "en-US")\}!`
+
+VAR next_week = 0
+~ next_week = OFFSET_DATE(NOW(), 0, 0, 7, 0, 0)
+See you on {FORMAT_DATE(next_week, "en-US")}!
+
+:: Tracking Elapsed Time
+
+`You've been exploring this demo for \{TIME_SINCE(session_start)\}.`
+You've been exploring this demo for {TIME_SINCE(session_start)}.
+
+For gameplay checks, use the numeric timestamp versions:
+
+`\{SECONDS_SINCE(session_start)\} seconds have passed.`
+{SECONDS_SINCE(session_start)} seconds have passed.
+
+`\{MINUTES_SINCE(session_start)\} minutes have passed.`
+{MINUTES_SINCE(session_start)} minutes have passed.
+
+-> menu_functions

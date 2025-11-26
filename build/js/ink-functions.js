@@ -11,6 +11,7 @@ class InkFunctions {
     this.bindStringFunctions(story);
     this.bindMathFunctions(story);
     this.bindFairMathFunctions(story);
+    this.bindTimeFunctions(story);
   }
 
   /**
@@ -83,5 +84,109 @@ class InkFunctions {
       const result = stat - stat * (percent / 100);
       return Math.round(Math.min(100, Math.max(0, result)));
     });
+  }
+
+  /**
+   * Time and date functions
+   */
+  static bindTimeFunctions(story) {
+    // NOW() - Returns current Unix timestamp in seconds
+    story.BindExternalFunction("NOW", () => Math.floor(Date.now() / 1000));
+
+    // SECONDS_SINCE(start) - Raw seconds elapsed since timestamp
+    story.BindExternalFunction(
+      "SECONDS_SINCE",
+      (start) => Math.floor(Date.now() / 1000) - start,
+    );
+
+    // MINUTES_SINCE(start) - Minutes elapsed (useful for gameplay checks)
+    story.BindExternalFunction("MINUTES_SINCE", (start) =>
+      Math.floor((Date.now() / 1000 - start) / 60),
+    );
+
+    // TIME_SINCE(start) - Human-readable elapsed time
+    story.BindExternalFunction("TIME_SINCE", (start) => {
+      const seconds = Math.floor(Date.now() / 1000) - start;
+
+      if (seconds < 60) {
+        return seconds === 1 ? "1 second" : `${seconds} seconds`;
+      }
+
+      const minutes = Math.floor(seconds / 60);
+      if (minutes < 60) {
+        return minutes === 1 ? "1 minute" : `${minutes} minutes`;
+      }
+
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) {
+        return hours === 1 ? "1 hour" : `${hours} hours`;
+      }
+
+      const days = Math.floor(hours / 24);
+      return days === 1 ? "1 day" : `${days} days`;
+    });
+
+    // FORMAT_DATE(timestamp, locale) - Returns "November 26, 2025"
+    story.BindExternalFunction("FORMAT_DATE", (timestamp, locale) => {
+      const date = new Date(timestamp * 1000);
+      const options = {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      };
+      try {
+        return date.toLocaleDateString(locale || "en-US", options);
+      } catch (e) {
+        console.warn(`Invalid locale "${locale}", falling back to en-US`);
+        return date.toLocaleDateString("en-US", options);
+      }
+    });
+
+    // FORMAT_TIME(timestamp, locale) - Returns "3:45 PM"
+    story.BindExternalFunction("FORMAT_TIME", (timestamp, locale) => {
+      const date = new Date(timestamp * 1000);
+      const options = {
+        hour: "numeric",
+        minute: "2-digit",
+      };
+      try {
+        return date.toLocaleTimeString(locale || "en-US", options);
+      } catch (e) {
+        console.warn(`Invalid locale "${locale}", falling back to en-US`);
+        return date.toLocaleTimeString("en-US", options);
+      }
+    });
+
+    // FORMAT_DATETIME(timestamp, locale) - Returns "November 26, 2025 at 3:45 PM"
+    story.BindExternalFunction("FORMAT_DATETIME", (timestamp, locale) => {
+      const date = new Date(timestamp * 1000);
+      const options = {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      };
+      try {
+        return date.toLocaleString(locale || "en-US", options);
+      } catch (e) {
+        console.warn(`Invalid locale "${locale}", falling back to en-US`);
+        return date.toLocaleString("en-US", options);
+      }
+    });
+
+    // OFFSET_DATE(timestamp, years, months, days, hours, minutes)
+    story.BindExternalFunction(
+      "OFFSET_DATE",
+      (timestamp, years, months, days, hours, minutes) => {
+        const date = new Date(timestamp * 1000);
+        date.setFullYear(date.getFullYear() + years);
+        date.setMonth(date.getMonth() + months);
+        date.setDate(date.getDate() + days);
+        date.setHours(date.getHours() + hours);
+        date.setMinutes(date.getMinutes() + minutes);
+        return Math.floor(date.getTime() / 1000);
+      },
+    );
   }
 }

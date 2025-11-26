@@ -1,6 +1,20 @@
 # Functions Guide
 
-Use functions in your Ink story to manipulate strings, perform math, and create balanced stat systems. This guide covers both Ink's built-in functions and the extras this template adds.
+Use functions in your Ink story to manipulate strings, perform math, create balanced stat systems and keep track of time! This guide covers both Ink's built-in functions and the extras this template adds.
+
+## Table of Contents
+
+- [Quick Reference](#quick-reference)
+  - [Ink Built-in Functions](#ink-built-in-functions)
+  - [Template Functions](#template-functions)
+- [Setup](#setup)
+- [Examples](#examples)
+- [Using Fairmath](#using-fairmath)
+- [Using Time Functions](#using-time-functions)
+  - [Locale Support](#locale-support)
+  - [OFFSET_DATE Parameters](#offset_date-parameters)
+- [Tips](#tips)
+- [Troubleshooting](#troubleshooting)
 
 ## Quick Reference
 
@@ -63,6 +77,19 @@ These require declaring `EXTERNAL` functions in your Ink file (see setup below).
 | `FAIRADD(stat, percent)` | Add with diminishing returns | `FAIRADD(80, 20)` → 84 |
 | `FAIRSUB(stat, percent)` | Subtract with diminishing returns | `FAIRSUB(20, 20)` → 16 |
 
+#### Time Functions
+
+| Function | Description | Example |
+|----------|-------------|---------|
+| `NOW()` | Current Unix timestamp (seconds) | `NOW()` → 1732645200 |
+| `SECONDS_SINCE(start)` | Seconds elapsed since timestamp | `SECONDS_SINCE(start)` → 45 |
+| `MINUTES_SINCE(start)` | Minutes elapsed since timestamp | `MINUTES_SINCE(start)` → 5 |
+| `TIME_SINCE(start)` | Human-readable elapsed time | `TIME_SINCE(start)` → "5 minutes" |
+| `FORMAT_DATE(ts, locale)` | Format timestamp as date | `FORMAT_DATE(ts, "en-US")` → "November 26, 2025" |
+| `FORMAT_TIME(ts, locale)` | Format timestamp as time | `FORMAT_TIME(ts, "en-US")` → "3:45 PM" |
+| `FORMAT_DATETIME(ts, locale)` | Format timestamp as date and time | `FORMAT_DATETIME(ts, "en-US")` → "November 26, 2025, 3:45 PM" |
+| `OFFSET_DATE(ts, y, mo, d, h, mi)` | Add/subtract from timestamp | `OFFSET_DATE(ts, -5, 0, 0, 0, 0)` → 5 years ago |
+
 ## Setup
 
 To use template functions, add `EXTERNAL` declarations at the top of your main `.ink` file. These declarations only need to be added once per story to be used anywhere in the story. Only include the functions you actually use:
@@ -89,6 +116,16 @@ EXTERNAL PERCENT(value, total)
 // Fairmath functions
 EXTERNAL FAIRADD(stat, percent)
 EXTERNAL FAIRSUB(stat, percent)
+
+// Time functions
+EXTERNAL NOW()
+EXTERNAL SECONDS_SINCE(start)
+EXTERNAL MINUTES_SINCE(start)
+EXTERNAL TIME_SINCE(start)
+EXTERNAL FORMAT_DATE(timestamp, locale)
+EXTERNAL FORMAT_TIME(timestamp, locale)
+EXTERNAL FORMAT_DATETIME(timestamp, locale)
+EXTERNAL OFFSET_DATE(timestamp, years, months, days, hours, minutes)
 ```
 
 ## Examples
@@ -160,7 +197,7 @@ You rolled a {dice_roll}!
 {dice_roll == 1: Critical miss!}
 ```
 
-## Fairmath Explained
+## Using Fairmath
 
 Fairmath (popularized by ChoiceScript) creates balanced stat progression. Instead of flat changes, stats become harder to move the closer they get to extremes.
 
@@ -203,6 +240,117 @@ The innkeeper eyes you cautiously.
   -> END
 ```
 
+### Session Tracking
+
+```ink
+EXTERNAL NOW()
+EXTERNAL TIME_SINCE(start)
+
+VAR session_start = 0
+~ session_start = NOW()
+
+// Later in your story...
+You've been playing for {TIME_SINCE(session_start)}.
+```
+
+Output: `You've been playing for 12 minutes.`
+
+### Real-Time Narrative
+
+```ink
+EXTERNAL NOW()
+EXTERNAL FORMAT_DATE(timestamp, locale)
+EXTERNAL FORMAT_TIME(timestamp, locale)
+
+VAR LOCALE = "en-US"
+
+{FORMAT_DATE(NOW(), LOCALE)} - Dear diary...
+
+The clock on the wall reads {FORMAT_TIME(NOW(), LOCALE)}.
+```
+
+### Flashbacks with Date Math
+
+Use `OFFSET_DATE` to calculate dates relative to now. Parameters are: timestamp, years, months, days, hours, minutes.
+
+```ink
+EXTERNAL NOW()
+EXTERNAL FORMAT_DATE(timestamp, locale)
+EXTERNAL OFFSET_DATE(timestamp, years, months, days, hours, minutes)
+
+VAR LOCALE = "en-US"
+VAR flashback_date = 0
+~ flashback_date = OFFSET_DATE(NOW(), -5, 0, 0, 0, 0)
+
+The incident happened on {FORMAT_DATE(flashback_date, LOCALE)}.
+```
+
+Output: `The incident happened on November 26, 2020.`
+
+### Time-Based Gameplay
+
+```ink
+EXTERNAL NOW()
+EXTERNAL MINUTES_SINCE(start)
+
+VAR quest_started = 0
+~ quest_started = NOW()
+
+// Later, check if player took too long
+{MINUTES_SINCE(quest_started) > 30:
+    The merchant has closed up shop for the day.
+- else:
+    The merchant waves you over.
+}
+```
+
+## Using Time Functions
+
+Time functions give your Ink story real-world time awareness. Ink has no native concept of real time, so these bridge that gap.
+
+**Note:** Timestamps are stored in seconds (Unix timestamp format), not milliseconds.
+
+### Locale Support
+
+The `FORMAT_*` functions require a locale parameter. You can find a list of locales at [simplelocalize.io](https://simplelocalize.io/data/locales/).
+
+| Locale | Date Output | Time Output |
+|--------|-------------|-------------|
+| `"en-US"` | November 26, 2025 | 3:45 PM |
+| `"en-GB"` | 26 November 2025 | 15:45 |
+| `"fr-FR"` | 26 novembre 2025 | 15:45 |
+| `"de-DE"` | 26. November 2025 | 15:45 |
+| `"ja-JP"` | 2025年11月26日 | 15:45 |
+
+**Tip:** Define a `LOCALE` variable once and reuse it throughout your story:
+
+```ink
+VAR LOCALE = "en-US"
+
+Today is {FORMAT_DATE(NOW(), LOCALE)}.
+The time is {FORMAT_TIME(NOW(), LOCALE)}.
+```
+
+### OFFSET_DATE Parameters
+
+`OFFSET_DATE(timestamp, years, months, days, hours, minutes)`
+
+Use negative numbers to go back in time:
+
+```ink
+// 5 years ago
+~ past = OFFSET_DATE(NOW(), -5, 0, 0, 0, 0)
+
+// 2 years, 3 months, 15 days ago
+~ past = OFFSET_DATE(NOW(), -2, -3, -15, 0, 0)
+
+// 1 week from now
+~ future = OFFSET_DATE(NOW(), 0, 0, 7, 0, 0)
+
+// 6 hours from now
+~ later = OFFSET_DATE(NOW(), 0, 0, 0, 6, 0)
+```
+
 ## Tips
 
 - You can't use logic inside string literals. Use `~ variable = FUNCTION(x)` instead of `VAR variable = "{FUNCTION(x)}"`
@@ -220,6 +368,11 @@ The innkeeper eyes you cautiously.
 
 - `REPLACE` only replaces the first occurrence, use `REPLACE_ALL` for all
 - `PERCENT` returns an integer (rounded), not a decimal
+
+**Date showing wrong format?**
+
+- Make sure you're passing a valid locale string (e.g., "en-US", "fr-FR")
+- Invalid locales will fall back to "en-US" (check browser console for warnings)
 
 ---
 

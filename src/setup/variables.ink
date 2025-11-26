@@ -1,3 +1,5 @@
+VAR session_start = 0
+
 VAR character_level = 1
 VAR hero_name = "Unnamed Hero"
 VAR friend_relationship = 50
