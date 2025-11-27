@@ -31,18 +31,25 @@ class SaveSystem {
    */
   saveToSlot(slotNumber) {
     try {
-      // Validate input
       if (typeof slotNumber !== "number" || slotNumber < 0) {
         throw new Error(`Invalid slot number: ${slotNumber}`);
       }
 
-      // Check localStorage availability
       if (!this.isStorageAvailable()) {
         throw new Error("localStorage not available");
       }
 
-      // Get game state
-      const gameState = this.storyManager.story.state.ToJson();
+      // Check if we're on a special page - if so, save the underlying story state
+      const isOnSpecialPage = this.storyManager.pages?.isViewingSpecialPage?.();
+
+      // Get game state - use saved state if on special page, otherwise current state
+      const gameState = isOnSpecialPage
+        ? this.storyManager.pages.savedStoryState
+        : this.storyManager.story.state.ToJson();
+
+      const displayState = isOnSpecialPage
+        ? this.storyManager.pages.savedDisplayState
+        : this.storyManager.display.getState();
 
       const saveData = {
         gameState: gameState,
@@ -51,18 +58,14 @@ class SaveSystem {
         timestamp: Date.now(),
         version: "1.0",
         isAutosave: slotNumber === this.autosaveSlot,
-        currentPage: this.storyManager.currentPage,
-        displayState: this.storyManager.display.getState(),
+        currentPage: null, // Never save as being on a special page
+        displayState: displayState,
       };
-
       // Try to save
       this.writeSaveData(slotNumber, saveData);
-
       const slotName =
         slotNumber === this.autosaveSlot ? "Autosave" : `Slot ${slotNumber}`;
-
       if (slotNumber != 0) this.showNotification(`Game saved to ${slotName}!`);
-
       // Refresh modal if open
       this.modal?.populateSaveSlots?.();
       return true;

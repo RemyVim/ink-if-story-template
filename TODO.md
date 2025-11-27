@@ -460,7 +460,3 @@ Tool (local, offline) for authors to analyse playthrough stats shared by readers
 - [x] Utility functions reference
 
 ---
-
-## Fixes Needed
-
-- [ ] Saving on a special page breaks save

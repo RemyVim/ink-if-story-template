@@ -14,6 +14,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Time functions: `NOW`, `SECONDS_SINCE`, `MINUTES_SINCE`, `TIME_SINCE`, `FORMAT_DATE`, `FORMAT_TIME`, `FORMAT_DATETIME`, `OFFSET_DATE`
 - Functions documentation page (`doc/functions.md`)
 
+### Fixed
+
+- Saves made while viewing a special page now correctly restore to the main story
+
 ## [1.2.2] - 2025-11-24
 
 ### Fixed
