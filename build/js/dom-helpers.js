@@ -119,7 +119,13 @@ class DOMHelpers {
   }
 
   // Create a choice element
-  createChoice(choiceText, customClasses = [], isClickable = true) {
+  createChoice(
+    choiceText,
+    customClasses = [],
+    isClickable = true,
+    keyHint = null,
+    showHint = true,
+  ) {
     if (!choiceText || typeof choiceText !== "string") {
       window.errorManager.warning(
         "Invalid choiceText passed to createChoice",
@@ -149,11 +155,17 @@ class DOMHelpers {
         }
       }
 
+      // Build the display text with optional hint
+      const hintPrefix =
+        keyHint && showHint
+          ? `<span class="choice-key-hint">${keyHint}.</span> `
+          : "";
+
       // Set choice content based on clickability
       if (isClickable) {
-        choiceParagraphElement.innerHTML = `<a href='#'>${choiceText}</a>`;
+        choiceParagraphElement.innerHTML = `<a href='#'>${hintPrefix}${choiceText}</a>`;
       } else {
-        choiceParagraphElement.innerHTML = `<span class='unclickable'>${choiceText}</span>`;
+        choiceParagraphElement.innerHTML = `<span class='unclickable'>${hintPrefix}${choiceText}</span>`;
       }
 
       this.storyContainer.appendChild(choiceParagraphElement);

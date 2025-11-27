@@ -5,6 +5,10 @@ VAR input = ""
 
 The template includes special tags for advanced functionality:
 
+:: Template configurations
+
+> `\# CHOICE_NUMBERING: off` : Turns off choice numbering
+
 :: User Input
 
 > `\# USER_INPUT: your_variable_name` - Creates a user input field and stores result in a story variable

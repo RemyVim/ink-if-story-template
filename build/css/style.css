@@ -611,6 +611,21 @@ h4 {
     font-size: var(--text-size-base);
   }
 
+  .choice-key-hint {
+    color: var(--color-text-secondary);
+  }
+
+  .choice:hover .choice-key-hint,
+  .choice:focus-within .choice-key-hint {
+    color: inherit;
+  }
+
+  @media (hover: none) and (pointer: coarse) {
+    .choice-key-hint {
+      display: none;
+    }
+  }
+
   /* =============================================================================
    SPECIAL ELEMENTS
    ============================================================================= */

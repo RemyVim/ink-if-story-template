@@ -35,6 +35,7 @@ class ChoiceManager {
           onClick: () => this.selectChoice(index),
           originalIndex: index,
           tags: choice.tags || [],
+          keyHint: this.getKeyHint(index),
         };
       } catch (error) {
         window.errorManager.error(
@@ -181,6 +182,20 @@ class ChoiceManager {
         "choice-manager",
       );
       return { customClasses: [], isClickable: true };
+    }
+  }
+
+  /**
+   * Get the keyboard hint character for a choice at a given index
+   * @param {number} index - The zero-based index of the choice
+   * @returns {string} The keyboard hint character (1-9 for indices 0-8, a-z for indices 9-34)
+   */
+  getKeyHint(index) {
+    if (index < 9) {
+      return String(index + 1); // 1-9
+    } else {
+      // a-z for indices 9-34
+      return String.fromCharCode(97 + (index - 9)); // 'a' = 97
     }
   }
 

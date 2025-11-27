@@ -80,8 +80,8 @@ Features are organized by feature domain.
 
 ### Choices
 
-- [ ] Keyboard choice selection (1-9 keys)
-- [ ] Number hints next to choices (toggleable)
+- [x] Keyboard choice selection (1-9 keys)
+- [x] Number hints next to choices (configurable on/off via tag)
 - [ ] Tone icons next to choices (toggleable, tag-based)
 - [ ] Skill check tagging on choices (toggleable, tag-based)
 - [ ] Confirmation dialogs for major choices (custom messages)
@@ -330,6 +330,7 @@ ChoiceScript-style stat displays.
 
 ### Keyboard Navigation
 
+- [ ] Keyboard scrolling
 - [ ] Visible focus indicators (`:focus-visible`)
 - [ ] Logical tab order audit
 - [ ] Keyboard shortcuts reference panel

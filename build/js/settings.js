@@ -9,6 +9,7 @@ class SettingsManager {
       audioEnabled: true,
       autoSave: true,
       animations: true,
+      choiceNumbering: true,
     };
 
     this.init();
@@ -79,6 +80,11 @@ class SettingsManager {
           if (bylineElement) {
             bylineElement.textContent = `by ${value}`;
           }
+          break;
+
+        case "choice_numbering":
+          // Default is on
+          this.settings.choiceNumbering = value.toLowerCase() !== "off";
           break;
       }
     }

@@ -110,14 +110,12 @@ document.addEventListener("keydown", (event) => {
           event.preventDefault();
           window.storyManager.saves?.showSaveDialog?.();
           break;
-
         case "r":
           event.preventDefault();
           if (confirm("Restart the story from the beginning?")) {
             window.storyManager.restart();
           }
           break;
-
         case ",":
           event.preventDefault();
           window.storyManager.settings?.showSettings?.();
@@ -130,22 +128,57 @@ document.addEventListener("keydown", (event) => {
         "navigation",
       );
     }
+    return; // Exit after handling Ctrl/Cmd shortcuts
   }
 
-  // Escape key - return from special pages
-  if (
-    event.key === "Escape" &&
-    window.storyManager.pages?.isViewingSpecialPage?.()
-  ) {
-    try {
-      window.storyManager.pages.returnToStory();
-    } catch (error) {
-      window.errorManager.error(
-        "Failed to return from special page",
-        error,
-        "navigation",
-      );
+  // Escape key - return from special pages or close modals
+  if (event.key === "Escape") {
+    if (window.storyManager.pages?.isViewingSpecialPage?.()) {
+      try {
+        window.storyManager.pages.returnToStory();
+      } catch (error) {
+        window.errorManager.error(
+          "Failed to return from special page",
+          error,
+          "navigation",
+        );
+      }
     }
+    return;
+  }
+
+  // Don't process choice shortcuts if a modal is open
+  const settingsModalOpen = window.storyManager?.settings?.modal?.isVisible;
+  const savesModalOpen = window.storyManager?.saves?.modal?.modal?.isVisible;
+  const slidePanel = window.storyManager?.navigation?.slidePanel;
+  const menuPanelOpen = slidePanel
+    ? slidePanel.classList.contains("show")
+    : false;
+
+  if (settingsModalOpen || savesModalOpen || menuPanelOpen) {
+    return;
+  }
+
+  // Choice selection shortcuts (1-9, a-z)
+  const choices = window.storyManager.story?.currentChoices;
+  if (!choices || choices.length === 0) return;
+
+  const key = event.key.toLowerCase();
+  let choiceIndex = null;
+
+  // Check for 1-9
+  if (key >= "1" && key <= "9") {
+    choiceIndex = parseInt(key) - 1;
+  }
+  // Check for a-z (for choices 10+)
+  else if (key >= "a" && key <= "z") {
+    choiceIndex = 9 + (key.charCodeAt(0) - 97);
+  }
+
+  // Validate and select
+  if (choiceIndex !== null && choiceIndex < choices.length) {
+    event.preventDefault();
+    window.storyManager.selectChoice(choiceIndex);
   }
 });
 

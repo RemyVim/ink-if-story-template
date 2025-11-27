@@ -51,7 +51,7 @@ class DisplayManager {
    * Render an array of choice objects
    * @param {Array} choices - Array of choice objects with text, classes, onClick
    */
-  renderChoices(choices) {
+  renderChoices(choices, showNumbers = true) {
     if (!Array.isArray(choices)) {
       window.errorManager.warning(
         "Invalid choices passed to renderChoices - expected array",
@@ -67,6 +67,8 @@ class DisplayManager {
           choice.text || "",
           choice.classes || [],
           choice.isClickable !== false,
+          choice.keyHint,
+          showNumbers,
         );
 
         if (choice.isClickable !== false && choice.onClick) {

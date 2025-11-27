@@ -490,7 +490,8 @@ class StoryManager {
       if (this.story.currentChoices?.length > 0) {
         const choices = this.choices?.generate?.(this.story.currentChoices);
         if (choices) {
-          this.display?.renderChoices?.(choices);
+          const showNumbers = this.settings?.settings?.choiceNumbering ?? true;
+          this.display?.renderChoices?.(choices, showNumbers);
         }
       }
     } catch (error) {

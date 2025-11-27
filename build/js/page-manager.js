@@ -230,7 +230,7 @@ class PageManager {
         this.returnToStory();
       });
 
-      this.storyManager.display.renderChoices([returnChoice]);
+      this.storyManager.display.renderChoices([returnChoice], false);
     } catch (error) {
       window.errorManager.error("Failed to add return button", error, "pages");
     }
