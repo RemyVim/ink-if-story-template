@@ -13,6 +13,14 @@ Add these tags at the top of your main `.ink` file:
 
 The `title` and `author` both appear in the navigation bar.
 
+## Configuration
+
+Configure default display settings for your story using these tags at the top of your main `.ink` file:
+
+| Tag | Values | Description |
+|-----|--------|-------------|
+| `# CHOICE_NUMBERS:` | `auto` (default), `on`, `off` | Choice keyboard hints: `auto` shows on keyboard devices only, `on` always shows, `off` hides |
+
 ## User Interaction Tags
 
 ```ink
@@ -189,6 +197,7 @@ Lightning flashes overhead!
 |-----|---------|---------|
 | `# title:` | Story title | `# title: My Adventure` |
 | `# author:` | Story author | `# author: Jane Doe` |
+| `# CHOICE_NUMBERS:` | Choice hints | `# CHOICE_NUMBERS: auto` |
 | `# IMAGE:` | Show image | `# IMAGE: assets/map.jpg` |
 | `# AUDIO:` | Play sound | `# AUDIO: assets/bell.mp3` |
 | `# AUDIOLOOP:` | Loop music | `# AUDIOLOOP: assets/song.mp3` |

@@ -9,7 +9,7 @@ class SettingsManager {
       audioEnabled: true,
       autoSave: true,
       animations: true,
-      choiceNumbering: true,
+      choiceNumbering: "auto",
     };
 
     this.init();
@@ -83,8 +83,23 @@ class SettingsManager {
           break;
 
         case "choice_numbers":
-          // Default is on
-          this.settings.choiceNumbering = value.toLowerCase() !== "off";
+          // 'on' = always show, 'off' = never show, 'auto' = keyboard only (default)
+          const mode = value.toLowerCase();
+          if (mode === "off") {
+            this.settings.choiceNumbering = "off";
+          } else if (mode === "on") {
+            this.settings.choiceNumbering = "on";
+          } else {
+            this.settings.choiceNumbering = "auto";
+          }
+          document.body?.classList.remove(
+            "choice-numbers-on",
+            "choice-numbers-off",
+            "choice-numbers-auto",
+          );
+          document.body?.classList.add(
+            `choice-numbers-${this.settings.choiceNumbering}`,
+          );
           break;
       }
     }

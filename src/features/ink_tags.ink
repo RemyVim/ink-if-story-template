@@ -7,7 +7,10 @@ The template includes special tags for advanced functionality:
 
 :: Template configurations
 
-> `\# CHOICE_NUMBERS: off` : Turns off choice numbering
+Configure choice numbering:
+> `\# CHOICE_NUMBERS: auto` - Show on keyboard devices only (default)
+> `\# CHOICE_NUMBERS: on` - Always show on all platforms
+> `\# CHOICE_NUMBERS: off` - Never show
 
 :: User Input
 

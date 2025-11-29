@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Keyboard shortcuts for choice selection (1-9, A-Z) and page scrolling (arrows, Page Up/Down, Home/End)
 - Keyboard shortcut help reference panel (`ctrl-h` or available through settings)
 - Keyboard shortcuts documentation page (`doc/keyboard-shortcuts.md`)
+- `# CHOICE_NUMBERS:` tag to configure choice numbering display (`auto`, `on`, `off`)
 
 ### Fixed
 

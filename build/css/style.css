@@ -620,10 +620,22 @@ h4 {
     color: inherit;
   }
 
+  .choice-numbers-off .choice-key-hint {
+    display: none;
+  }
+
+  .choice-numbers-auto .choice-key-hint {
+    display: inline;
+  }
+
   @media (hover: none) and (pointer: coarse) {
-    .choice-key-hint {
+    .choice-numbers-auto .choice-key-hint {
       display: none;
     }
+  }
+
+  .choice-numbers-on .choice-key-hint {
+    display: inline;
   }
 
   /* =============================================================================
