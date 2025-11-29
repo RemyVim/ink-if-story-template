@@ -45,13 +45,13 @@ tasks:
           done
         else
           echo "❌ inotify-tools not found."
-          echo "Run 'task setup' to install prerequisites."
+          echo "Run 'task setup:watch' to install it."
         fi
     interactive: true
 
   dev:
     desc: Start development environment (watch + serve)
-    deps: [watch, serve]  # Ensure initial compile
+    deps: [watch, serve]
 
   clean:
     desc: Clean build directory
@@ -64,15 +64,15 @@ tasks:
         echo "Done"
 
   setup:
-    desc: Setup development environment
+    desc: Install inklecate compiler
     silent: true
     cmds:
       - |
-        echo "---- Setting up Ink development environment..."
-        
-        # Check if inklecate exists
-        if [ ! -f "./bin/inklecate" ]; then
-          echo "❌ inklecate not found in ./bin/ - Installing inklecate"
+        echo "---- Setting up inklecate compiler..."
+        if [ -f "./bin/inklecate" ]; then
+          echo "✅ inklecate already installed"
+        else
+          echo "📦 Installing inklecate..."
           mkdir -p bin
           cd bin
           wget -q https://github.com/inkle/ink/releases/latest/download/inklecate_linux.zip
@@ -80,25 +80,28 @@ tasks:
           rm -rf inklecate_linux.zip
           cd ..
         fi
-        
-        # Make inklecate executable
         chmod +x ./bin/inklecate
-        
-        # Check for inotify-tools (Linux)
-        if command -v apt-get >/dev/null 2>&1; then
-          if ! command -v inotifywait >/dev/null 2>&1; then
-            echo "- Installing inotify-tools for file watching..."
-            sudo apt-get update && sudo apt-get install -y inotify-tools
-          fi
-        elif command -v dnf >/dev/null 2>&1; then
-          if ! command -v inotifywait >/dev/null 2>&1; then
-            echo "- Installing inotify-tools for file watching..."
-            sudo dnf update && sudo dnf install -y inotify-tools
-          fi
-        fi
+        echo "Done. Run 'task setup:watch' if you need file watching (requires sudo)."
 
-        echo "Setup complete."
-        echo "Run 'task dev' to start development"
+  setup:watch:
+    desc: Install inotify-tools for file watching (requires sudo)
+    silent: true
+    cmds:
+      - |
+        echo "---- Installing inotify-tools..."
+        if command -v inotifywait >/dev/null 2>&1; then
+          echo "✅ inotify-tools already installed"
+          exit 0
+        fi
+        if command -v apt-get >/dev/null 2>&1; then
+          sudo apt-get update && sudo apt-get install -y inotify-tools
+        elif command -v dnf >/dev/null 2>&1; then
+          sudo dnf install -y inotify-tools
+        else
+          echo "❌ Unknown package manager. Install inotify-tools manually."
+          exit 1
+        fi
+        echo "✅ inotify-tools installed"
 
   build:
     desc: Build story for production
