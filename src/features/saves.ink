@@ -14,7 +14,7 @@ From there, players have 5 slots where they can:
 You'll also notice the special autosave slot. This automatically saves progress every time a choice is selected. (This behavior can be disabled by the players in the settings menu.)
 
 Tip: Handy keyboard shortcuts:
-> `ctrl+s` opens the save menu
+> `ctrl`+`s` opens the save menu (`cmd`+`s` on Mac)
 > `esc` closes the save menu
-> `ctrl+r` restarts the game
+> `ctrl`+`r` restarts the game (`cmd`+`r` on Mac)
 -> feature_menu

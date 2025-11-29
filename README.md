@@ -71,7 +71,7 @@ See [doc/text-formatting.md](doc/text-formatting.md) for more info.
 # ACHIEVEMENT: You found a secret!
 ```
 
-See [doc/special-tags.md](doc/special-tags.md) for more info.
+See [doc/images.md](doc/images.md), [doc/audio.md](doc/audio.md) or [doc/notifications.md](doc/notifications.md) for more info.
 
 ### Special Pages
 
@@ -84,7 +84,7 @@ Your character details here...
 -> DONE
 ```
 
-See [doc/special-tags.md](doc/special-tags.md) for more info.
+See [doc/special-pages.md](doc/special-pages.md) for more info.
 
 ### Functions
 

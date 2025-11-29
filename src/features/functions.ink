@@ -226,15 +226,17 @@ The current timestamp is {session_start}. That's a Unix timestamp (seconds since
 
 :: Formatting Dates and Times
 
+`VAR locale = "en-US"`
+VAR locale = "en-US"
 
-`Today is \{FORMAT_DATE(NOW(), "en-US")\}.`
-Today is {FORMAT_DATE(NOW(), "en-US")}.
+`Today is \{FORMAT_DATE(NOW(), locale)\}.`
+Today is {FORMAT_DATE(NOW(), locale)}.
 
-`The time is \{FORMAT_TIME(NOW(), "en-US")\}.`
-The time is {FORMAT_TIME(NOW(), "en-US")}.
+`The time is \{FORMAT_TIME(NOW(), locale)\}.`
+The time is {FORMAT_TIME(NOW(), locale)}.
 
-`Full: \{FORMAT_DATETIME(NOW(), "en-US")\}`
-Full: {FORMAT_DATETIME(NOW(), "en-US")}
+`Full: \{FORMAT_DATETIME(NOW(), locale)\}`
+Full: {FORMAT_DATETIME(NOW(), locale)}
 
 :: Using Different Locales
 

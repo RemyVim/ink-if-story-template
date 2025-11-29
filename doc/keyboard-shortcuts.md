@@ -29,8 +29,15 @@ Need help with something else? Check out the rest of the docs:
 
 - Quick start: [doc/quickstart.md](quickstart.md)
 - Text formatting: [doc/text-formatting.md](text-formatting.md)
-- Special tags: [doc/special-tags.md](special-tags.md)
+- Choices: [doc/choices.md](choices.md)
+- Images: [doc/images.md](images.md)
+- Audio: [doc/audio.md](audio.md)
+- User Input: [doc/user-input.md](user-input.md)
+- Notifications: [doc/notifications.md](notifications.md)
+- Special pages: [doc/special-pages.md](special-pages.md)
 - Ink functions: [doc/functions.md](functions.md)
+- Styling: [doc/styling.md](styling.md)
+- Special tags: [doc/special-tags.md](special-tags.md)
 - Keyboard shortcuts: [doc/keyboard-shortcuts.md](keyboard-shortcuts.md)
 
 **Still need help?** Check the community resources in the main [README.md](../README.md) or open an issue on the GitHub repository.

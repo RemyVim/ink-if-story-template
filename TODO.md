@@ -458,8 +458,17 @@ Tool (local, offline) for authors to analyse playthrough stats shared by readers
 - [x] Changelog
 - [x] TODO features list (this one!)
 - [x] Quick start guide
+- [x] Story & template configuration guide
 - [x] Text formatting guide
-- [x] Special tags reference
+- [x] Choices configuration guide
+- [x] Images guide
+- [x] Audio guide
+- [x] User Input guide
+- [x] Notifications guide
+- [x] Special pages guide
 - [x] Utility functions reference
+- [x] Styling guide
+- [x] Special tags reference
+- [x] Keyboard shortcuts reference
 
 ---

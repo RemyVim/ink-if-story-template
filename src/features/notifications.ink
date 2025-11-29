@@ -17,6 +17,9 @@ A notification is automatically displayed when the player interacts with the sav
 + [Trigger an achievement notification]
   # ACHIEVEMENT: You did it!
   -> notifications_demo
++ [Trigger a warning notification]
+  # WARNING: Uh oh this is not normal.
+  -> notifications_demo
 + [Trigger an error notification]
   # ERROR: What just happened?
   -> notifications_demo

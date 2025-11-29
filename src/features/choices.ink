@@ -26,7 +26,11 @@ Then tag your choices like this:
 
 Note that following Ink's syntax, tags are only recognized if placed before or inside the brackets \[\].
 
-You can add multiple tags to a single choice, but only the first two icons will display on the left. The rest of the icons display after the choice text.
+You can add multiple tags to a single choice, but only the first icon will display on the left. The rest of the icons display after the choice text.
+
+To make all tone icons appear after the choice text, add this tag to the beginning of your story:
+
+> `\# TONE_TRAILING`
 
 A mysterious stranger conveniently materializes for this demo. Your move.
 
