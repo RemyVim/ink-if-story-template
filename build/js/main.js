@@ -1,6 +1,6 @@
 // main.js
-
 // Main entry point - load story and initialize the application
+
 fetch("story.json")
   .then((response) => response.json())
   .then((storyContent) => {
@@ -38,7 +38,10 @@ fetch("story.json")
     showFallbackUI(error);
   });
 
-// Show fallback UI when story fails to load
+/**
+ * Show fallback UI when story fails to load
+ * @param {Error} error - The error that occurred
+ */
 function showFallbackUI(error) {
   const storyContainer = document.getElementById("story");
   if (!storyContainer) return;
@@ -80,7 +83,9 @@ function showFallbackUI(error) {
   `;
 }
 
-// Help users find the console
+/**
+ * Help users find the browser console
+ */
 function showConsoleHelp() {
   alert(`To check the console for error details:
 
@@ -91,96 +96,6 @@ function showConsoleHelp() {
 
 Look for red error messages that show what went wrong.`);
 }
-
-// Keyboard shortcuts for power users
-document.addEventListener("keydown", (event) => {
-  // Only handle shortcuts if story manager is initialized
-  if (!window.storyManager) return;
-
-  // Don't interfere with normal typing in inputs
-  if (event.target.tagName === "INPUT" || event.target.tagName === "TEXTAREA") {
-    return;
-  }
-
-  // Ctrl/Cmd + shortcuts
-  if (event.ctrlKey || event.metaKey) {
-    try {
-      switch (event.key) {
-        case "s":
-          event.preventDefault();
-          window.storyManager.saves?.showSaveDialog?.();
-          break;
-        case "r":
-          event.preventDefault();
-          if (confirm("Restart the story from the beginning?")) {
-            window.storyManager.restart();
-          }
-          break;
-        case ",":
-          event.preventDefault();
-          window.storyManager.settings?.showSettings?.();
-          break;
-      }
-    } catch (error) {
-      window.errorManager.error(
-        "Keyboard shortcut failed",
-        error,
-        "navigation",
-      );
-    }
-    return; // Exit after handling Ctrl/Cmd shortcuts
-  }
-
-  // Escape key - return from special pages or close modals
-  if (event.key === "Escape") {
-    if (window.storyManager.pages?.isViewingSpecialPage?.()) {
-      try {
-        window.storyManager.pages.returnToStory();
-      } catch (error) {
-        window.errorManager.error(
-          "Failed to return from special page",
-          error,
-          "navigation",
-        );
-      }
-    }
-    return;
-  }
-
-  // Don't process choice shortcuts if a modal is open
-  const settingsModalOpen = window.storyManager?.settings?.modal?.isVisible;
-  const savesModalOpen = window.storyManager?.saves?.modal?.modal?.isVisible;
-  const slidePanel = window.storyManager?.navigation?.slidePanel;
-  const menuPanelOpen = slidePanel
-    ? slidePanel.classList.contains("show")
-    : false;
-
-  if (settingsModalOpen || savesModalOpen || menuPanelOpen) {
-    return;
-  }
-
-  // Choice selection shortcuts (1-9, a-z)
-  const choices = window.storyManager.story?.currentChoices;
-  if (!choices || choices.length === 0) return;
-
-  const key = event.key.toLowerCase();
-  let choiceIndex = null;
-
-  // Check for 1-9
-  if (key >= "1" && key <= "9") {
-    choiceIndex = parseInt(key) - 1;
-  }
-  // Check for a-z (for choices 10+)
-  else if (key >= "a" && key <= "z") {
-    choiceIndex = 9 + (key.charCodeAt(0) - 97);
-  }
-
-  // Validate and select
-  if (choiceIndex !== null && choiceIndex < choices.length) {
-    event.preventDefault();
-    window.storyManager.selectChoice(choiceIndex);
-  }
-});
 
 // Make showConsoleHelp available globally for the fallback UI
 window.showConsoleHelp = showConsoleHelp;

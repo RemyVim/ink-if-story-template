@@ -7,7 +7,7 @@ The template includes special tags for advanced functionality:
 
 :: Template configurations
 
-> `\# CHOICE_NUMBERING: off` : Turns off choice numbering
+> `\# CHOICE_NUMBERS: off` : Turns off choice numbering
 
 :: User Input
 

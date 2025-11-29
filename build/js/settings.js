@@ -82,7 +82,7 @@ class SettingsManager {
           }
           break;
 
-        case "choice_numbering":
+        case "choice_numbers":
           // Default is on
           this.settings.choiceNumbering = value.toLowerCase() !== "off";
           break;
