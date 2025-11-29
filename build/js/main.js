@@ -5,6 +5,13 @@ fetch("story.json")
   .then((response) => response.json())
   .then((storyContent) => {
     try {
+      // Check for tags to enable settings conditionally
+      const storyHasAudio = /"\^(AUDIO|AUDIOLOOP)\s*:/i.test(
+        JSON.stringify(storyContent),
+      );
+      console.log("Story has Audio:", storyHasAudio);
+      window.storyHasAudio = storyHasAudio;
+
       // Initialize the story manager which handles everything
       window.storyManager = new StoryManager(storyContent);
 

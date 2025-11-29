@@ -212,12 +212,18 @@ class SettingsManager {
       <div class="settings-section">
         <h3>Experience</h3>
         
+        ${
+          window.storyHasAudio !== false
+            ? `
         <div class="setting-item">
           <label class="setting-checkbox-label">
             <input type="checkbox" name="audioEnabled" class="setting-checkbox">
             <span>Enable Audio</span>
           </label>
         </div>
+        `
+            : ""
+        }
 
         <div class="setting-item">
           <label class="setting-checkbox-label">

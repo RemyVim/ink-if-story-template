@@ -18,6 +18,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Keyboard shortcuts documentation page (`doc/keyboard-shortcuts.md`)
 - `# CHOICE_NUMBERS:` tag to configure choice numbering display (`auto`, `on`, `off`)
 
+### Changed
+
+- Audio setting in settings menu now only appears if the story contains `# AUDIO` or `# AUDIOLOOP` tags
+
 ### Fixed
 
 - Saves made while viewing a special page now correctly restore to the main story
