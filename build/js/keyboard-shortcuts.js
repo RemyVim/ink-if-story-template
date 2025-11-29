@@ -15,6 +15,9 @@ class KeyboardShortcuts {
     // Only handle shortcuts if story manager is initialized
     if (!window.storyManager || !this.enabled) return;
 
+    // Ignore Alt key combinations (used by browser/OS)
+    if (event.altKey) return;
+
     if (this.isTypingInInput(event)) return;
 
     if (event.ctrlKey || event.metaKey) {
