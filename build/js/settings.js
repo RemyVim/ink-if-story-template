@@ -10,7 +10,11 @@ class SettingsManager {
       autoSave: true,
       animations: true,
       choiceNumbering: "auto",
+      toneIndicators: true, // User preference (when feature is available)
     };
+    this.toneIndicatorsAvailable = false;
+    this.toneIndicatorsTrailing = false;
+    this.toneMap = {}; // Will be populated from global tags
 
     this.init();
   }
@@ -55,14 +59,21 @@ class SettingsManager {
     for (const tag of globalTags) {
       if (typeof tag !== "string") continue;
 
+      // Check for tags without colons first
+      const upperTag = tag.trim().toUpperCase();
+      if (upperTag === "TONE_TRAILING") {
+        this.toneIndicatorsTrailing = true;
+        continue;
+      }
+
       const colonIndex = tag.indexOf(":");
       if (colonIndex === -1) continue;
 
-      const property = tag.substring(0, colonIndex).trim().toLowerCase();
+      const property = tag.substring(0, colonIndex).trim().toUpperCase();
       const value = tag.substring(colonIndex + 1).trim();
 
       switch (property) {
-        case "theme":
+        case "THEME":
           // Only apply global theme if user hasn't set a preference
           const storedSettings = this.getStoredSettings();
           if (!storedSettings?.theme) {
@@ -70,24 +81,24 @@ class SettingsManager {
           }
           break;
 
-        case "title":
+        case "TITLE":
           const titleElements = document.querySelectorAll(".title");
           titleElements.forEach((el) => (el.textContent = value));
           break;
 
-        case "author":
+        case "AUTHOR":
           const bylineElement = document.querySelector(".byline");
           if (bylineElement) {
             bylineElement.textContent = `by ${value}`;
           }
           break;
 
-        case "choice_numbers":
+        case "CHOICE_NUMBERS":
           // 'on' = always show, 'off' = never show, 'auto' = keyboard only (default)
-          const mode = value.toLowerCase();
-          if (mode === "off") {
+          const numMode = value.toLowerCase();
+          if (numMode === "off") {
             this.settings.choiceNumbering = "off";
-          } else if (mode === "on") {
+          } else if (numMode === "on") {
             this.settings.choiceNumbering = "on";
           } else {
             this.settings.choiceNumbering = "auto";
@@ -100,6 +111,25 @@ class SettingsManager {
           document.body?.classList.add(
             `choice-numbers-${this.settings.choiceNumbering}`,
           );
+          break;
+
+        case "TONE_INDICATORS":
+          const toneMode = value.toLowerCase();
+          this.toneIndicatorsAvailable = true;
+          this.settings.toneIndicators = toneMode !== "off";
+          break;
+
+        case "TONE_TRAILING":
+          this.toneIndicatorsTrailing = true;
+          break;
+
+        case "TONE": // TONE: label icon
+          const spaceIndex = value.indexOf(" ");
+          if (spaceIndex !== -1) {
+            const label = value.substring(0, spaceIndex).trim().toLowerCase();
+            const icon = value.substring(spaceIndex + 1).trim();
+            this.toneMap[label] = icon;
+          }
           break;
       }
     }
@@ -225,6 +255,19 @@ class SettingsManager {
             : ""
         }
 
+        ${
+          this.toneIndicatorsAvailable
+            ? `
+          <div class="setting-item">
+            <label class="setting-label">
+              <input type="checkbox" name="toneIndicators" class="setting-checkbox">
+              Show tone indicators on choices
+            </label>
+          </div>
+        `
+            : ""
+        }
+
         <div class="setting-item">
           <label class="setting-checkbox-label">
             <input type="checkbox" name="autoSave" class="setting-checkbox">
@@ -331,12 +374,19 @@ ${
       lineHeight: this.modal.modalElement.querySelector(
         'select[name="lineHeight"]',
       ),
+      toneIndicators: this.modal.modalElement.querySelector(
+        'input[name="toneIndicators"]',
+      ),
     };
 
     Object.entries(elements).forEach(([setting, element]) => {
       if (element) {
         element.addEventListener("change", () => {
-          this.settings[setting] = element.value;
+          if (element.type === "checkbox") {
+            this.settings[setting] = element.checked;
+          } else {
+            this.settings[setting] = element.value;
+          }
           this.applyIndividualSetting(setting);
         });
       }
@@ -357,6 +407,9 @@ ${
       case "lineHeight":
         this.applyLineHeight();
         break;
+      case "toneIndicators":
+        this.refreshChoices();
+        break;
     }
   }
 
@@ -372,6 +425,7 @@ ${
       { name: "audioEnabled", checked: this.settings.audioEnabled },
       { name: "autoSave", checked: this.settings.autoSave },
       { name: "animations", checked: this.settings.animations },
+      { name: "toneIndicators", checked: this.settings.toneIndicators },
     ];
 
     elements.forEach(({ name, value, checked }) => {
@@ -410,6 +464,8 @@ ${
       getValue("autoSave", true) ?? this.settings.autoSave;
     this.settings.animations =
       getValue("animations", true) ?? this.settings.animations;
+    this.settings.toneIndicators =
+      getValue("toneIndicators", true) ?? this.settings.toneIndicators;
 
     // Handle audio setting changes
     this.handleAudioSettingChange(prevAudioEnabled, this.settings.audioEnabled);
@@ -468,29 +524,24 @@ ${
       lineHeight: this.modal.modalElement.querySelector(
         'select[name="lineHeight"]',
       ),
-      audioEnabled: this.modal.modalElement.querySelector(
-        'input[name="audioEnabled"]',
+      toneIndicators: this.modal.modalElement.querySelector(
+        'input[name="toneIndicators"]',
       ),
     };
 
     Object.entries(elements).forEach(([setting, element]) => {
       if (element) {
         element.addEventListener("change", () => {
-          const prevValue = this.settings[setting];
-
-          if (setting === "audioEnabled") {
-            const newValue = element.checked;
-            this.settings[setting] = newValue;
-            this.handleAudioSettingChange(prevValue, newValue);
+          if (element.type === "checkbox") {
+            this.settings[setting] = element.checked;
           } else {
             this.settings[setting] = element.value;
-            this.applyIndividualSetting(setting);
           }
+          this.applyIndividualSetting(setting);
         });
       }
     });
   }
-
   resetSettings() {
     // Reset to defaults
     this.settings = {
@@ -501,6 +552,7 @@ ${
       audioEnabled: true,
       autoSave: true,
       animations: true,
+      toneIndicators: true,
     };
 
     this.populateSettings();
@@ -583,6 +635,17 @@ ${
     }
   }
 
+  refreshChoices() {
+    if (
+      window.storyManager?.display?.domHelpers &&
+      window.storyManager?.story?.currentChoices?.length > 0
+    ) {
+      // Re-render existing choices
+      window.storyManager.display.domHelpers.removeAll(".choice");
+      window.storyManager.createChoices();
+    }
+  }
+
   loadSettings() {
     try {
       const stored = localStorage.getItem("ink-template-settings");
@@ -630,5 +693,26 @@ ${
       currentTheme: this.settings.theme,
       settingsCount: Object.keys(this.settings).length,
     };
+  }
+
+  /**
+   * Get tone indicators for a set of choice tags
+   * @param {Array} tags - Choice tags
+   * @returns {Array} Array of icon strings (max 3)
+   */
+  getToneIndicators(tags) {
+    if (!this.toneIndicatorsAvailable || !this.settings.toneIndicators) {
+      return [];
+    }
+
+    const indicators = [];
+    for (const tag of tags) {
+      if (typeof tag !== "string") continue;
+      const normalizedTag = tag.trim().toLowerCase();
+      if (this.toneMap[normalizedTag]) {
+        indicators.push(this.toneMap[normalizedTag]);
+      }
+    }
+    return indicators;
   }
 }

@@ -28,6 +28,10 @@ class ChoiceManager {
             isClickable: true,
           };
 
+        const toneIndicators =
+          this.storyManager?.settings?.getToneIndicators?.(choice.tags || []) ||
+          [];
+
         return {
           text: choice.text || "",
           classes: customClasses,
@@ -36,6 +40,7 @@ class ChoiceManager {
           originalIndex: index,
           tags: choice.tags || [],
           keyHint: this.getKeyHint(index),
+          toneIndicators,
         };
       } catch (error) {
         window.errorManager.error(
@@ -44,7 +49,6 @@ class ChoiceManager {
           "choice-manager",
         );
 
-        // Return safe fallback choice
         return {
           text: choice.text || "Invalid choice",
           classes: ["error-choice"],
@@ -52,11 +56,11 @@ class ChoiceManager {
           onClick: () => {},
           originalIndex: index,
           tags: [],
+          toneIndicators: [],
         };
       }
     });
   }
-
   /**
    * Handle choice selection
    * @param {number} choiceIndex - Index of the selected choice

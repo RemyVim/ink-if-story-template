@@ -69,8 +69,8 @@ class DisplayManager {
           choice.isClickable !== false,
           choice.keyHint,
           showNumbers,
+          choice.toneIndicators || [],
         );
-
         if (choice.isClickable !== false && choice.onClick) {
           if (typeof choice.onClick === "function") {
             this.domHelpers.addChoiceClickHandler(element, choice.onClick);

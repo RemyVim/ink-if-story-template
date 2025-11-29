@@ -613,6 +613,7 @@ h4 {
 
   .choice-key-hint {
     color: var(--color-text-secondary);
+    margin-right: 0.3em;
   }
 
   .choice:hover .choice-key-hint,
@@ -638,6 +639,52 @@ h4 {
     display: inline;
   }
 
+  /* =============================================================================
+     TONE INDICATORS
+     ============================================================================= */
+
+/* Give choices some left padding for the hanging icon */
+.choice a,
+.choice .unclickable {
+  position: relative;
+  padding-left: 1.5em;
+}
+
+.tone-indicator-leading {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translateY(-0.3em);
+}
+
+.tone-indicator-trailing {
+  margin-left: 0.3em;
+  opacity: 0.85;
+}
+
+.tone-icon {
+  font-size: 0.95em;
+  line-height: 1;
+  vertical-align: baseline;
+}
+
+.tone-icon.material-icons {
+  font-size: 1.1em;
+  vertical-align: middle;
+}
+
+.tone-indicator-trailing .tone-icon {
+  font-size: 0.85em;
+}
+
+.tone-indicator-trailing .tone-icon.material-icons {
+  font-size: 0.95em;
+}
+
+/* Spacing between multiple trailing icons */
+.tone-indicator-trailing .tone-icon + .tone-icon {
+  margin-left: 0.15em;
+}
   /* =============================================================================
    SPECIAL ELEMENTS
    ============================================================================= */

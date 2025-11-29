@@ -82,7 +82,7 @@ Features are organized by feature domain.
 
 - [x] Keyboard choice selection (1-9 keys)
 - [x] Number hints next to choices (configurable on/off via tag)
-- [ ] Tone icons next to choices (toggleable, tag-based)
+- [x] Tone icons next to choices (toggleable, tag-based)
 - [ ] Skill check tagging on choices (toggleable, tag-based)
 - [ ] Confirmation dialogs for major choices (custom messages)
 - [ ] Timed choices (auto-select after X seconds)

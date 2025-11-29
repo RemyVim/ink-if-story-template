@@ -2,10 +2,19 @@
 # title: Ink Story Template
 # PAGE_MENU: sheet, inventory_page, relationships ,,credits,content_warnings
 
+# TONE_INDICATORS: on
+# TONE: flirty local_fire_department
+# TONE: favorite favorite
+# TONE: shy favorite  
+# TONE: bold star
+# TONE: sarcasm 😏
+# TONE: danger warning
+
 INCLUDE setup/variables.ink
 INCLUDE pages/credits.ink
 INCLUDE pages/content-warnings.ink
 INCLUDE pages/dummy-pages.ink
+INCLUDE features/choices.ink
 INCLUDE features/ink_tags.ink
 INCLUDE features/formatting.ink
 INCLUDE features/functions.ink
@@ -70,6 +79,7 @@ What would you like to explore in more detail?
 + [Save & Load] -> saves_demo  
 + [Settings] -> settings_demo  
 + [Text Formatting] -> formatting_demo
++ [Choice Customization] -> choices_demo
 + [Special Pages] -> special_pages_demo
 + [Ink Tags (Media & User Input)] -> tags_demo
 + [Notifications] -> notifications_demo  

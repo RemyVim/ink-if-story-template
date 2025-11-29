@@ -125,6 +125,7 @@ class DOMHelpers {
     isClickable = true,
     keyHint = null,
     showHint = true,
+    toneIndicators = [],
   ) {
     if (!choiceText || typeof choiceText !== "string") {
       window.errorManager.warning(
@@ -155,17 +156,51 @@ class DOMHelpers {
         }
       }
 
-      // Build the display text with optional hint
+      // Build tone indicator HTML
+      let leadingToneHTML = "";
+      let trailingToneHTML = "";
+
+      if (toneIndicators.length > 0) {
+        const buildIconSpan = (icon) => {
+          const isMaterialIcon = /^[a-z_]+$/.test(icon);
+          if (isMaterialIcon) {
+            return `<span class="material-icons tone-icon">${icon}</span>`;
+          } else {
+            return `<span class="tone-icon">${icon}</span>`;
+          }
+        };
+
+        const allTrailing =
+          window.storyManager?.settings?.toneIndicatorsTrailing;
+
+        if (allTrailing) {
+          // All icons trail after text
+          const trailingSpans = toneIndicators.map(buildIconSpan).join("");
+          trailingToneHTML = `<span class="tone-indicator-trailing">${trailingSpans}</span>`;
+        } else {
+          // First icon leads, rest trail
+          leadingToneHTML = `<span class="tone-indicator-leading">${buildIconSpan(toneIndicators[0])}</span>`;
+
+          if (toneIndicators.length > 1) {
+            const trailingSpans = toneIndicators
+              .slice(1)
+              .map(buildIconSpan)
+              .join("");
+            trailingToneHTML = `<span class="tone-indicator-trailing">${trailingSpans}</span>`;
+          }
+        }
+      }
+
+      // Build the choice content
       const hintPrefix =
         keyHint && showHint
           ? `<span class="choice-key-hint">${keyHint}.</span> `
           : "";
 
-      // Set choice content based on clickability
       if (isClickable) {
-        choiceParagraphElement.innerHTML = `<a href='#'>${hintPrefix}${choiceText}</a>`;
+        choiceParagraphElement.innerHTML = `<a href='#'>${leadingToneHTML}${hintPrefix}${choiceText}${trailingToneHTML}</a>`;
       } else {
-        choiceParagraphElement.innerHTML = `<span class='unclickable'>${hintPrefix}${choiceText}</span>`;
+        choiceParagraphElement.innerHTML = `<span class='unclickable'>${leadingToneHTML}${hintPrefix}${choiceText}${trailingToneHTML}</span>`;
       }
 
       this.storyContainer.appendChild(choiceParagraphElement);

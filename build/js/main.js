@@ -9,7 +9,6 @@ fetch("story.json")
       const storyHasAudio = /"\^(AUDIO|AUDIOLOOP)\s*:/i.test(
         JSON.stringify(storyContent),
       );
-      console.log("Story has Audio:", storyHasAudio);
       window.storyHasAudio = storyHasAudio;
 
       // Initialize the story manager which handles everything

@@ -94,14 +94,6 @@ class StoryManager {
           );
         }
       }
-
-      console.log(
-        `Found ${Object.keys(this.availablePages).length} special pages:`,
-        Object.keys(this.availablePages).map(
-          (knotName) =>
-            `${this.availablePages[knotName].displayName} (${knotName})`,
-        ),
-      );
     } catch (error) {
       window.errorManager.error(
         "Failed to detect special pages",
