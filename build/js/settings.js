@@ -218,6 +218,16 @@ class SettingsManager {
           </label>
         </div>
       </div>
+${
+  window.keyboardHelpModal?.isAvailable()
+    ? `
+  <div class="settings-section">
+    <h3>Help</h3>
+    <button type="button" class="keyboard-help-btn">Keyboard Shortcuts</button>
+  </div>
+`
+    : ""
+}
     `;
   }
 
@@ -269,6 +279,16 @@ class SettingsManager {
 
       // Setup real-time preview
       this.setupRealtimePreview();
+
+      // Keyboard help button
+      const helpBtn =
+        this.modal.modalElement.querySelector(".keyboard-help-btn");
+      if (helpBtn) {
+        helpBtn.addEventListener("click", () => {
+          this.hideSettings();
+          window.keyboardHelpModal?.show?.();
+        });
+      }
     });
   }
 

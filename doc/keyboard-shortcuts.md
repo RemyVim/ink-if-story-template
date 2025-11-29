@@ -14,6 +14,7 @@ Navigate and interact with your story using keyboard shortcuts. These work autom
 | `Ctrl+S` | Open save menu |
 | `Ctrl+R` | Restart story |
 | `Ctrl+,` | Open settings |
+| `Ctrl+h` | Open keyboard shortcut reference panel |
 | `Esc` | Close menu / Return to story |
 
 ## Notes

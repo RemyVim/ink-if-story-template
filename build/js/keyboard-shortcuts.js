@@ -69,6 +69,10 @@ class KeyboardShortcuts {
           event.preventDefault();
           window.storyManager.settings?.showSettings?.();
           break;
+        case "h":
+          event.preventDefault();
+          window.keyboardHelpModal?.show?.();
+          break;
       }
     } catch (error) {
       window.errorManager.error(

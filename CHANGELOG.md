@@ -13,6 +13,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fairmath functions: `FAIRADD`, `FAIRSUB`
 - Time functions: `NOW`, `SECONDS_SINCE`, `MINUTES_SINCE`, `TIME_SINCE`, `FORMAT_DATE`, `FORMAT_TIME`, `FORMAT_DATETIME`, `OFFSET_DATE`
 - Functions documentation page (`doc/functions.md`)
+- Keyboard shortcuts for choice selection (1-9, A-Z) and page scrolling (arrows, Page Up/Down, Home/End)
+- Keyboard shortcut help reference panel (`ctrl-h` or available through settings)
+- Keyboard shortcuts documentation page (`doc/keyboard-shortcuts.md`)
 
 ### Fixed
 

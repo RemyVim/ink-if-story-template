@@ -333,7 +333,7 @@ ChoiceScript-style stat displays.
 - [x] Keyboard scrolling
 - [ ] Visible focus indicators (`:focus-visible`)
 - [ ] Logical tab order audit
-- [ ] Keyboard shortcuts reference panel
+- [x] Keyboard shortcuts reference panel
 
 ---
 
