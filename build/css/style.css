@@ -804,16 +804,65 @@ h4 {
     margin: 1em auto;
   }
 
-  .story-image-inline {
+  .story-image.image-center {
+    display: block;
     margin: 1em auto;
+    float: none;
   }
 
-  .story-image-top {
-    margin: 0 auto 1.5em;
+  .story-image.image-left {
+    float: left;
+    margin: 0.5em 1.5em 1em 0;
   }
 
-  .story-image-bottom {
-    margin: 1.5em auto 0;
+  .story-image.image-right {
+    float: right;
+    margin: 0.5em 0 1em 1.5em;
+  }
+
+  /* Clear floats after paragraphs that follow floated images */
+  #story p::after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+
+  /* Figure and caption styles */
+  .story-figure {
+    max-width: 100%;
+    margin: 1em auto;
+    padding: 0;
+  }
+
+  .story-figure.figure-center {
+    display: block;
+    margin: 1em auto;
+    float: none;
+  }
+
+  .story-figure.figure-left {
+    float: left;
+    margin: 0.5em 1.5em 1em 0;
+  }
+
+  .story-figure.figure-right {
+    float: right;
+    margin: 0.5em 0 1em 1.5em;
+  }
+
+  .story-figure .story-image {
+    display: block;
+    margin: 0;
+    float: none;
+  }
+
+  .story-caption {
+    font-size: 0.9em;
+    color: var(--color-text-secondary);
+    text-align: center;
+    font-style: italic;
+    padding: 0.5em 0.5em 0;
+    line-height: 1.4;
   }
 
   /* =============================================================================

@@ -43,9 +43,28 @@ Note: If you want the placeholder to be blank you must call this tag with a `[]`
 
 ```ink
 # IMAGE: assets/forest.jpg
+# IMAGE: assets/portrait.png left 40%
+# IMAGE: assets/map.png "Map of the kingdom"
+# IMAGE: assets/diagram.png center caption "Figure 1: System overview"
 ```
 
-Displays an image at the top of the story page.
+Displays an inline image where the tag is placed.
+
+Optional parameters are:
+
+| Option | Values | Description |
+|--------|--------|-------------|
+| alignment | `left`, `right`, `center` | Image position. Left/right wraps text around the image. Defaults to `center`. |
+| width | `%`, `px`, `em`, `rem`, `vw` | Image width. Defaults to natural size (max 100% of text area). |
+| `"alt text"` | Any text in quotes | Describes the image for screen readers (accessibility). |
+| `caption` | Keyword | Displays the alt text as a visible caption below the image. |
+
+**Examples:**
+
+- `# IMAGE: map.jpg` — Centered, natural size
+- `# IMAGE: portrait.png left 40%` — Floated left at 40% width
+- `# IMAGE: hero.png "A hero on a cliff"` — With alt text for screen readers
+- `# IMAGE: diagram.png caption "System diagram"` — With visible caption
 
 ### Audio
 
@@ -172,11 +191,11 @@ Add styling in `build/css/style.css`:
 
 ## Tag Usage Tips
 
-**Placement:** Tags affect the paragraph they're attached to:
+**Placement:** Tags can affect the paragraph they're attached to:
 
 ```ink
-# IMAGE: forest.jpg
-You enter a dark forest.
+# USER_INPUT: your_variable
+Your placeholder text.
 ```
 
 **Multiple tags:** Combine effects:
@@ -198,7 +217,7 @@ Lightning flashes overhead!
 | `# title:` | Story title | `# title: My Adventure` |
 | `# author:` | Story author | `# author: Jane Doe` |
 | `# CHOICE_NUMBERS:` | Choice hints | `# CHOICE_NUMBERS: auto` |
-| `# IMAGE:` | Show image | `# IMAGE: assets/map.jpg` |
+| `# IMAGE:` | Show image | `# IMAGE: assets/map.jpg right 50% caption "A map"` |
 | `# AUDIO:` | Play sound | `# AUDIO: assets/bell.mp3` |
 | `# AUDIOLOOP:` | Loop music | `# AUDIOLOOP: assets/song.mp3` |
 | `# BACKGROUND:` | Set backdrop | `# BACKGROUND: assets/sky.jpg` |

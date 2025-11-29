@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Keyboard shortcut help reference panel (`ctrl-h` or available through settings)
 - Keyboard shortcuts documentation page (`doc/keyboard-shortcuts.md`)
 - `# CHOICE_NUMBERS:` tag to configure choice numbering display (`auto`, `on`, `off`)
+- Image alignment, width, alt text, and caption options for `# IMAGE:` tag
 
 ### Changed
 

@@ -229,6 +229,12 @@ class DisplayManager {
     });
   }
 
+  /**
+   * Create and insert an image element for a paragraph with a pending image.
+   * Supports optional alignment, width, alt text, and visible captions.
+   * @param {HTMLElement} element - The paragraph element to insert the image before
+   * @param {string[]} classes - CSS classes containing the image ID (pattern: "image-img_*")
+   */
   handleImageForParagraph(element, classes) {
     if (!element || !window._pendingImages) return;
 
@@ -241,15 +247,28 @@ class DisplayManager {
 
     if (!imageData) return;
 
-    // Remove from pending list
     window._pendingImages = window._pendingImages.filter(
       (img) => img.id !== imageId,
     );
 
-    // Create the image element
     const imageElement = document.createElement("img");
     imageElement.src = imageData.src;
     imageElement.className = "story-image";
+
+    if (imageData.altText) {
+      imageElement.alt = imageData.altText;
+    } else {
+      imageElement.alt = ""; // Empty alt for decorative images
+    }
+
+    if (imageData.alignment) {
+      imageElement.classList.add(`image-${imageData.alignment}`);
+    }
+
+    if (imageData.width) {
+      imageElement.style.width = imageData.width;
+    }
+
     imageElement.onerror = () => {
       window.errorManager.warning(
         `Failed to load image: ${imageData.src}`,
@@ -258,13 +277,39 @@ class DisplayManager {
       );
     };
 
+    let elementToInsert;
+
+    if (imageData.showCaption && imageData.altText) {
+      const figure = document.createElement("figure");
+      figure.className = "story-figure";
+
+      if (imageData.alignment) {
+        figure.classList.add(`figure-${imageData.alignment}`);
+        imageElement.classList.remove(`image-${imageData.alignment}`);
+      }
+
+      if (imageData.width) {
+        figure.style.width = imageData.width;
+        imageElement.style.width = "100%";
+      }
+
+      const figcaption = document.createElement("figcaption");
+      figcaption.className = "story-caption";
+      figcaption.textContent = imageData.altText;
+
+      figure.appendChild(imageElement);
+      figure.appendChild(figcaption);
+      elementToInsert = figure;
+    } else {
+      elementToInsert = imageElement;
+    }
+
     // Always insert BEFORE this paragraph (inline positioning)
-    // This makes the image appear where the IMAGE tag is in Ink
-    element.parentNode.insertBefore(imageElement, element);
+    element.parentNode.insertBefore(elementToInsert, element);
 
     // Apply fade-in animation if enabled
     if (this.shouldAnimateContent()) {
-      this.fadeInElement(imageElement);
+      this.fadeInElement(elementToInsert);
     }
   }
 

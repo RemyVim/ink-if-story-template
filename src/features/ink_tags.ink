@@ -23,11 +23,20 @@ Configure choice numbering:
 
 :: Images
 
-> `\# IMAGE: image.jpg` - Adds an inline image
+> `\# IMAGE: image.jpg` — Inline image (centered, natural size)
+> `\# IMAGE: image.jpg left` — Float left, text wraps around
+> `\# IMAGE: image.jpg right 50px` — Float right at 50px width
+> `\# IMAGE: image.jpg "Description"` — Alt text for screen readers
+> `\# IMAGE: image.jpg caption "Description"` — Shows alt text as visible caption
+
+Alignment defaults to centered.
+Width defaults to the image's natural size, capped at 100% of the text area.
+Alt text improves accessibility for screen reader users.
 
 :: Audio Support  
 > `\# AUDIO: sound.mp3` - Play sound effects
 > `\# AUDIOLOOP: music.mp3` - Loop background music
+
 
 :: System Commands
 > `\# CLEAR` - Clear the screen
@@ -38,14 +47,12 @@ Configure choice numbering:
 = tags_submenu
 
 + [Ask for user input] -> user_input
++ [View inline image display] -> add_image_inline
 + [Add background image] -> change_background
 + [Remove background image] -> remove_background
 + [Ring a bell] -> play_sound
 + [Ring a bell in a loop] -> play_sound_loop
 + [Stop the ringing!] -> stop_sound_loop
-+ [Add inline image to next page] -> add_image_inline
-+ [Add image to top of next page] -> add_image_top
-+ [Add image to bottom of next page] -> add_image_bottom
 + [Back to feature menu] -> feature_menu
 
 = user_input
@@ -104,42 +111,31 @@ Called `\# AUDIOLOOP: none`
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc tincidunt scelerisque odio, non luctus turpis volutpat in. Vestibulum dapibus dapibus quam, ac posuere mauris bibendum quis. 
 
-# IMAGE: assets/background.jpg
+Calling `\# IMAGE: assets/background.jpg`
 
-Called `\# IMAGE: assets/background.jpg` right before this line.
+# IMAGE: assets/background.jpg
 
 Sed lorem ligula, elementum blandit tempus id, faucibus ac odio. Etiam at molestie dui, non lobortis nulla. Proin auctor enim a nibh rhoncus, eu lacinia nibh commodo.
 
+Calling `\# IMAGE: assets/background.jpg 50%%
+
+# IMAGE: assets/background.jpg 50%
+
+Calling `\# IMAGE: assets/background.jpg left 15%%
+
+# IMAGE: assets/background.jpg left 15%
 Cras pretium metus nec nulla varius rhoncus. Duis maximus lorem eget mauris fringilla porttitor. Quisque quam nibh, molestie ac nulla et, porttitor feugiat mi. Praesent viverra feugiat elementum. Quisque id scelerisque est.
 
--> tags_submenu
+Calling `\# IMAGE: assets/background.jpg right 250px caption "Flowers!"`
 
-= add_image_top
-# IMAGE: assets/background.jpg
+# IMAGE: assets/background.jpg right 250px caption "Flowers!"
 
-Called `\# IMAGE: assets/background.jpg` right before this line.
+In hac habitasse platea dictumst. Aliquam erat volutpat. Praesent nec nisi vel mauris feugiat tincidunt et eget dui. Suspendisse at mauris a nulla porta malesuada. Aliquam vitae eros lacinia, gravida tellus in, porttitor libero. Cras molestie diam et facilisis aliquam. Aliquam a porttitor lectus. Maecenas nulla dui, posuere vel ligula sit amet, condimentum ornare lorem. Nunc lacinia nunc sit amet nisl pretium molestie. 
 
-: Ink Tags
+Calling `\# IMAGE: assets/background.jpg center 50vw "Flowers!"`
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc tincidunt scelerisque odio, non luctus turpis volutpat in. Vestibulum dapibus dapibus quam, ac posuere mauris bibendum quis. 
+Note: Caption should not show because we didn't put the caption keyword in the tag. "Flowers!" will be used as alt text only (for screen readers).
 
-Sed lorem ligula, elementum blandit tempus id, faucibus ac odio. Etiam at molestie dui, non lobortis nulla. Proin auctor enim a nibh rhoncus, eu lacinia nibh commodo.
-
-Cras pretium metus nec nulla varius rhoncus. Duis maximus lorem eget mauris fringilla porttitor. Quisque quam nibh, molestie ac nulla et, porttitor feugiat mi. Praesent viverra feugiat elementum. Quisque id scelerisque est.
-
--> tags_submenu
-
-= add_image_bottom
-: Ink Tags
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc tincidunt scelerisque odio, non luctus turpis volutpat in. Vestibulum dapibus dapibus quam, ac posuere mauris bibendum quis. 
-
-Sed lorem ligula, elementum blandit tempus id, faucibus ac odio. Etiam at molestie dui, non lobortis nulla. Proin auctor enim a nibh rhoncus, eu lacinia nibh commodo.
-
-Cras pretium metus nec nulla varius rhoncus. Duis maximus lorem eget mauris fringilla porttitor. Quisque quam nibh, molestie ac nulla et, porttitor feugiat mi. Praesent viverra feugiat elementum. Quisque id scelerisque est.
-
-Called `\# IMAGE: assets/background.jpg` right after this line.
-
-# IMAGE: assets/background.jpg
+# IMAGE: assets/background.jpg center 50vw "Flowers!"
 
 -> tags_submenu

@@ -70,18 +70,16 @@ class TagProcessor {
               specialActions.push(() => this.playAudioLoop(value));
               break;
             case "IMAGE":
-              const imageSrc = value.trim();
+              const imageData = this.parseImageTag(value);
 
-              // Store image info globally for display-manager to access
               if (!window._pendingImages) window._pendingImages = [];
               const imageId = `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
               window._pendingImages.push({
                 id: imageId,
-                src: imageSrc,
+                ...imageData,
               });
 
-              // Mark this paragraph as having an image
               customClasses.push("has-image");
               customClasses.push(`image-${imageId}`);
               break;
@@ -137,6 +135,45 @@ class TagProcessor {
       window.errorManager.error("Failed to process line tags", error, "tags");
       return { customClasses: [], specialActions: [] };
     }
+  }
+
+  /**
+   * Parse IMAGE tag value into image data object.
+   * @param {string} value - The tag value (e.g., "hero.png left 40% caption "Alt text"")
+   * @returns {{src: string, alignment: string|null, width: string|null, altText: string|null, showCaption: boolean}}
+   */
+  parseImageTag(value) {
+    const imageValue = value.trim();
+
+    // Extract quoted alt text first
+    let altText = null;
+    let remainingValue = imageValue;
+    const altTextMatch = imageValue.match(/"([^"]*)"/);
+    if (altTextMatch) {
+      altText = altTextMatch[1];
+      remainingValue = imageValue.replace(/"([^"]*)"/, "").trim();
+    }
+
+    // Parse remaining parts
+    const parts = remainingValue.split(/\s+/).filter((p) => p);
+    const src = parts[0];
+
+    let alignment = null;
+    let width = null;
+    let showCaption = false;
+
+    for (let j = 1; j < parts.length; j++) {
+      const part = parts[j].toLowerCase();
+      if (["left", "right", "center"].includes(part)) {
+        alignment = part;
+      } else if (part === "caption") {
+        showCaption = true;
+      } else if (part.match(/^\d+(%|px|em|rem|vw)$/)) {
+        width = part;
+      }
+    }
+
+    return { src, alignment, width, altText, showCaption };
   }
 
   processChoiceTags(choiceTags) {

@@ -151,9 +151,11 @@ Twine-style interactive text elements.
 
 - [x] Image display (`# IMAGE: path`)
 - [x] Background images (`# BACKGROUND: path`)
-- [ ] Image alignment (`# IMAGE: path left/right/center`)
-- [ ] Text wrapping around images
-- [ ] Image captions
+- [x] Image alignment (`# IMAGE: path left/right/center`)
+- [x] Image width (`# IMAGE: path width%`)
+- [x] Text wrapping around images
+- [x] Image alt text
+- [x] Image captions
 - [ ] Clickable/zoomable images
 - [ ] Image galleries
 
