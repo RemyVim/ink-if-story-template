@@ -260,9 +260,9 @@ class DOMHelpers {
 
   // Clear story content but preserve certain elements
   clearStoryContent() {
-    // Clear paragraphs and images safely
     this.removeAll("p");
     this.removeAll("img");
+    this.removeAll("figure");
   }
 
   // Scroll container to top
