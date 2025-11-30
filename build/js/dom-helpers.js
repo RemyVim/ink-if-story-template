@@ -159,34 +159,36 @@ class DOMHelpers {
       // Build tone indicator HTML
       let leadingToneHTML = "";
       let trailingToneHTML = "";
+      let srOnlyLabels = ""; // Single sr-only element with all labels
 
       if (toneIndicators.length > 0) {
-        const buildIconSpan = (icon) => {
+        // Build the sr-only text (all labels grouped)
+        const labelList = toneIndicators.map((ind) => ind.label).join(", ");
+        srOnlyLabels = `<span class="sr-only"> (${labelList})</span>`;
+
+        const buildIconSpan = (indicator) => {
+          const { icon } = indicator;
           const isMaterialIcon = /^[a-z_]+$/.test(icon);
-          if (isMaterialIcon) {
-            return `<span class="material-icons tone-icon">${icon}</span>`;
-          } else {
-            return `<span class="tone-icon">${icon}</span>`;
-          }
+          return isMaterialIcon
+            ? `<span class="material-icons tone-icon" aria-hidden="true">${icon}</span>`
+            : `<span class="tone-icon" aria-hidden="true">${icon}</span>`;
         };
 
         const allTrailing =
           window.storyManager?.settings?.toneIndicatorsTrailing;
 
         if (allTrailing) {
-          // All icons trail after text
           const trailingSpans = toneIndicators.map(buildIconSpan).join("");
-          trailingToneHTML = `<span class="tone-indicator-trailing">${trailingSpans}</span>`;
+          trailingToneHTML = `<span class="tone-indicator-trailing" aria-hidden="true">${trailingSpans}</span>`;
         } else {
-          // First icon leads, rest trail
-          leadingToneHTML = `<span class="tone-indicator-leading">${buildIconSpan(toneIndicators[0])}</span>`;
+          leadingToneHTML = `<span class="tone-indicator-leading" aria-hidden="true">${buildIconSpan(toneIndicators[0])}</span>`;
 
           if (toneIndicators.length > 1) {
             const trailingSpans = toneIndicators
               .slice(1)
               .map(buildIconSpan)
               .join("");
-            trailingToneHTML = `<span class="tone-indicator-trailing">${trailingSpans}</span>`;
+            trailingToneHTML = `<span class="tone-indicator-trailing" aria-hidden="true">${trailingSpans}</span>`;
           }
         }
       }
@@ -198,9 +200,9 @@ class DOMHelpers {
           : "";
 
       if (isClickable) {
-        choiceParagraphElement.innerHTML = `<a href='#'>${leadingToneHTML}${hintPrefix}${choiceText}${trailingToneHTML}</a>`;
+        choiceParagraphElement.innerHTML = `<a href='#' aria-roledescription="choice">${leadingToneHTML}${hintPrefix}${choiceText}${trailingToneHTML}${srOnlyLabels}</a>`;
       } else {
-        choiceParagraphElement.innerHTML = `<span class='unclickable'>${leadingToneHTML}${hintPrefix}${choiceText}${trailingToneHTML}</span>`;
+        choiceParagraphElement.innerHTML = `<span class='unclickable' aria-roledescription="unavailable choice">${leadingToneHTML}${hintPrefix}${choiceText}${trailingToneHTML}${srOnlyLabels}</span>`;
       }
 
       this.storyContainer.appendChild(choiceParagraphElement);

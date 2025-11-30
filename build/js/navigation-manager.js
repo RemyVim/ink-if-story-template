@@ -49,16 +49,18 @@ class NavigationManager {
     if (!navControls) return;
 
     // Create menu button
-    this.menuButton = document.createElement("a");
+    this.menuButton = document.createElement("button");
+    this.menuButton.type = "button";
     this.menuButton.id = "pages-menu-btn";
-    this.menuButton.href = "#";
-    this.menuButton.title = "Show menu";
+    this.menuButton.setAttribute("aria-label", "Menu");
     this.menuButton.innerHTML =
-      '<span class="material-icons-outlined nav-icon">menu</span>';
+      '<span class="material-icons-outlined nav-icon" aria-hidden="true">menu</span>';
 
     // Create slide panel
-    this.slidePanel = document.createElement("div");
+    this.slidePanel = document.createElement("nav");
     this.slidePanel.className = "slide-panel";
+    this.slidePanel.setAttribute("aria-label", "Pages");
+    this.slidePanel.setAttribute("aria-hidden", "true");
 
     // Create panel content
     const panelContent = document.createElement("div");
@@ -75,10 +77,12 @@ class NavigationManager {
 
     // Add close button at bottom
     const closeButton = document.createElement("button");
+    closeButton.type = "button";
     closeButton.className = "panel-close-bottom";
+    closeButton.setAttribute("aria-label", "Close menu");
     closeButton.innerHTML =
-      '<span class="material-icons-outlined">expand_less</span>';
-    closeButton.title = "Close menu";
+      '<span class="material-icons-outlined" aria-hidden="true">expand_less</span>';
+    this.menuButton.setAttribute("aria-expanded", "false");
     this.slidePanel.appendChild(closeButton);
 
     // Add panel to body
@@ -90,7 +94,6 @@ class NavigationManager {
 
     // Event listeners
     this.menuButton.addEventListener("click", (e) => {
-      e.preventDefault();
       e.stopPropagation();
       this.togglePanel();
     });
@@ -210,17 +213,29 @@ class NavigationManager {
   showPanel() {
     if (this.slidePanel) {
       this.slidePanel.classList.add("show");
+      this.slidePanel.setAttribute("aria-hidden", "false");
       this.menuButton?.classList.add("active");
+      this.menuButton?.setAttribute("aria-expanded", "true");
+
+      // Focus the first link in the panel
+      const firstLink = this.slidePanel.querySelector(".panel-link");
+      if (firstLink) {
+        firstLink.focus();
+      }
     }
   }
 
   hidePanel() {
     if (this.slidePanel) {
       this.slidePanel.classList.remove("show");
+      this.slidePanel.setAttribute("aria-hidden", "true");
       this.menuButton?.classList.remove("active");
+      this.menuButton?.setAttribute("aria-expanded", "false");
+
+      // Return focus to the menu button
+      this.menuButton?.focus();
     }
   }
-
   /**
    * Clear all dynamically created buttons
    */
@@ -248,73 +263,29 @@ class NavigationManager {
    * Setup clickable title functionality for restarting the game
    */
   setupClickableTitle() {
-    const titleElements = document.querySelectorAll(".nav-title");
+    this.setupButton("title-restart", () => {
+      const confirmModal = new BaseModal({
+        title: "Restart Story",
+        className: "confirm-modal",
+        maxWidth: "400px",
+        showFooter: true,
+      });
 
-    titleElements.forEach((titleElement) => {
-      if (!titleElement) return;
-
-      try {
-        // Make it look clickable but subtle
-        titleElement.style.cursor = "pointer";
-        titleElement.style.userSelect = "none"; // Prevent text selection
-        titleElement.style.transition = "opacity 0.2s ease";
-
-        // Add subtle hover effect
-        titleElement.addEventListener("mouseenter", () => {
-          titleElement.style.opacity = "0.8";
-        });
-
-        titleElement.addEventListener("mouseleave", () => {
-          titleElement.style.opacity = "1";
-        });
-
-        // Add click handler for restart
-        titleElement.addEventListener("click", (e) => {
-          try {
-            e.preventDefault();
-
-            // Create a temporary confirmation modal
-            const confirmModal = new BaseModal({
-              title: "Restart Story",
-              className: "confirm-modal",
-              maxWidth: "400px",
-              showFooter: true,
-            });
-
-            confirmModal.showConfirmation(
-              "Are you sure you want to restart the story from the beginning? Any unsaved progress will be lost.",
-              () => {
-                // On confirm
-                this.storyManager.restart();
-              },
-              null, // No cancel callback needed
-              {
-                title: "Restart Story",
-                confirmText: "Restart",
-                cancelText: "Cancel",
-                confirmVariant: "primary", // Blue button instead of red
-              },
-            );
-          } catch (error) {
-            window.errorManager.error(
-              "Failed to restart from title click",
-              error,
-              "navigation",
-            );
-          }
-        });
-
-        console.log("Title click-to-restart functionality enabled");
-      } catch (error) {
-        window.errorManager.warning(
-          "Failed to setup clickable title",
-          error,
-          "navigation",
-        );
-      }
+      confirmModal.showConfirmation(
+        "Are you sure you want to restart the story from the beginning? Any unsaved progress will be lost.",
+        () => {
+          this.storyManager.restart();
+        },
+        null,
+        {
+          title: "Restart Story",
+          confirmText: "Restart",
+          cancelText: "Cancel",
+          confirmVariant: "primary",
+        },
+      );
     });
   }
-
   /**
    * Setup all navigation button event listeners
    */

@@ -8,28 +8,64 @@
   </head>
 
   <body>
+    <a href="#main-content" class="skip-link">Skip to story content</a>
     <!-- Top navigation bar -->
-    <div class="top-nav">
+    <nav class="top-nav" aria-label="Story navigation">
       <div class="nav-title-section">
-        <h1 class="nav-title title"></h1>
-        <span class="nav-byline byline"></span>
+        <div class="nav-title-wrapper">
+          <h1 class="nav-title title">Title</h1>
+          <button
+            type="button"
+            id="title-restart"
+            class="nav-title-btn"
+            aria-hidden="true"
+            tabindex="-1"
+          ></button>
+        </div>
+        <span class="nav-byline byline">Author</span>
       </div>
       <div class="nav-controls">
-        <a id="rewind" title="Restart story from beginning">
-          <span class="material-icons-outlined nav-icon">replay</span>
-        </a>
-        <a id="saves-btn" title="Save and load game">
-          <span class="material-icons-outlined nav-icon">bookmark</span>
-        </a>
-        <a id="settings-btn" title="Settings">
-          <span class="material-icons-outlined nav-icon">settings</span>
-        </a>
+        <button
+          id="rewind"
+          type="button"
+          aria-label="Restart story"
+          aria-keyshortcuts="Control+r"
+        >
+          <span class="material-icons-outlined nav-icon" aria-hidden="true"
+            >replay</span
+          >
+        </button>
+        <button
+          id="saves-btn"
+          type="button"
+          aria-label="Saves"
+          aria-keyshortcuts="Control+s"
+        >
+          <span class="material-icons-outlined nav-icon" aria-hidden="true"
+            >bookmark</span
+          >
+        </button>
+        <button
+          id="settings-btn"
+          type="button"
+          aria-label="Settings"
+          aria-keyshortcuts="Control+,"
+        >
+          <span class="material-icons-outlined nav-icon" aria-hidden="true"
+            >settings</span
+          >
+        </button>
       </div>
-    </div>
-    <div class="outerContainer">
+    </nav>
+    <main class="outerContainer" id="main-content">
       <!-- Story container -->
-      <div id="story" class="container"></div>
-    </div>
+      <div
+        id="story"
+        role="region"
+        aria-label="Story content"
+        class="container"
+      ></div>
+    </main>
 
     <!-- Scripts - Load in dependency order -->
 

@@ -18,6 +18,8 @@ Then define the tag and icon pairs you want to use in your choices. You can use 
 > `\# TONE: shy 💜`
 > `\# TONE: danger warning`
 
+Accessibility note: Tone indicator labels are read aloud by screen readers. Choose descriptive names like "warning", "flirty", "serious" rather than abstract icon names like "star_border".
+
 Then tag your choices like this:
 
 `+ [Lean in closer \# flirty]`

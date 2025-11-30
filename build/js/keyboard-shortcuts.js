@@ -30,9 +30,6 @@ class KeyboardShortcuts {
       return;
     }
 
-    // Skip if modal or panel is open
-    if (this.isModalOpen()) return;
-
     if (this.handleScrolling(event)) return;
 
     this.handleChoiceSelection(event);
@@ -44,15 +41,11 @@ class KeyboardShortcuts {
     );
   }
 
-  isModalOpen() {
-    const settingsModalOpen = window.storyManager?.settings?.modal?.isVisible;
-    const savesModalOpen = window.storyManager?.saves?.modal?.modal?.isVisible;
-    const slidePanel = window.storyManager?.navigation?.slidePanel;
-    const menuPanelOpen = slidePanel
-      ? slidePanel.classList.contains("show")
-      : false;
+  isInStoryArea() {
+    const active = document.activeElement;
+    const outerContainer = document.querySelector(".outerContainer");
 
-    return settingsModalOpen || savesModalOpen || menuPanelOpen;
+    return active === document.body || outerContainer?.contains(active);
   }
 
   handleModifierShortcuts(event) {
@@ -64,9 +57,18 @@ class KeyboardShortcuts {
           break;
         case "r":
           event.preventDefault();
-          if (confirm("Restart the story from the beginning?")) {
-            window.storyManager.restart();
-          }
+          const confirmModal = new BaseModal({
+            title: "Restart Story",
+            className: "confirm-modal",
+            maxWidth: "400px",
+            showFooter: true,
+          });
+          confirmModal.showConfirmation(
+            "Are you sure you want to restart the story from the beginning? Any unsaved progress will be lost.",
+            () => window.storyManager.restart(),
+            null,
+            { title: "Restart Story" },
+          );
           break;
         case ",":
           event.preventDefault();
@@ -101,6 +103,7 @@ class KeyboardShortcuts {
   }
 
   handleScrolling(event) {
+    if (!this.isInStoryArea()) return false;
     const scrollContainer = document.querySelector(".outerContainer");
     if (!scrollContainer) return false;
 
@@ -141,6 +144,8 @@ class KeyboardShortcuts {
   }
 
   handleChoiceSelection(event) {
+    if (!this.isInStoryArea()) return;
+
     const choices = window.storyManager.story?.currentChoices;
     if (!choices || choices.length === 0) return;
 

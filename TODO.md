@@ -318,23 +318,24 @@ ChoiceScript-style stat displays.
 
 ### Screen Reader Support
 
-- [ ] ARIA landmarks (`role="navigation"`, `role="main"`)
-- [ ] ARIA live regions for dynamic content (`aria-live="polite"`)
-- [ ] Semantic choice markup (`role="listbox"`, `role="option"`)
-- [ ] Modal accessibility (`role="dialog"`, `aria-modal="true"`)
-- [ ] Focus trapping in modals
-- [ ] Return focus on modal close
-- [ ] Icon accessibility (`aria-hidden="true"` + `.sr-only` labels)
-- [ ] Skip link ("Skip to story content")
-- [ ] ARIA announcer for errors and notifications
+- [x] ARIA landmarks (`role="navigation"`, `role="main"`)
+- [x] Skip link ("Skip to story content")
+- [x] ARIA announcer for errors and notifications
+- [x] ARIA live regions for dynamic content like notifications (`aria-live="polite"`)
+- [x] Modal accessibility (`role="dialog"`, `aria-modal="true"`)
+- [x] Focus trapping in modals
+- [x] Return focus on modal close
+- [x] Semantic choice markup (`role="choice"`)
+- [x] Choice tone indicator accessibility
+- [x] Icon accessibility (`aria-hidden="true"` + `.sr-only` labels)
 - [ ] Loading state announcements (`aria-busy`)
 - [ ] Reading progress announcements
 
 ### Keyboard Navigation
 
 - [x] Keyboard scrolling
-- [ ] Visible focus indicators (`:focus-visible`)
-- [ ] Logical tab order audit
+- [x] Visible focus indicators (`:focus-visible`)
+- [x] Logical tab order audit
 - [x] Keyboard shortcuts reference panel
 
 ---

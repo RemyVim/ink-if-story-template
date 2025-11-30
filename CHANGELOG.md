@@ -18,7 +18,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Keyboard shortcuts documentation page (`doc/keyboard-shortcuts.md`)
 - `# CHOICE_NUMBERS:` tag to configure choice numbering display (`auto`, `on`, `off`)
 - Image alignment, width, alt text, and caption options for `# IMAGE:` tag
-- Tone indicators on choices: Authors can define custom tone markers (`# TONE: flirty 🔥`) and tag choices (`+ [Lean in closer # flirty]`) to show visual cues. Players can toggle indicators off in Settings.
+- Tone indicators on choices: define markers with `# TONE: tagname icon` and tag choices with `# tagname`. Players can toggle in Settings.
+- Screen reader support: ARIA landmarks, skip link, modal focus management, live regions for notifications, and accessible choice markup
 
 ### Changed
 

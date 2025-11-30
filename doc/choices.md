@@ -37,6 +37,8 @@ The format is `# TONE: label icon` where:
 - **label** is the tag name you'll use on choices
 - **icon** is an emoji or a [Material Icon](https://fonts.google.com/icons) name (like `favorite`, `warning`, `star`)
 
+**Accessibility note:** Tone indicator labels are read aloud by screen readers. Choose descriptive names like "warning", "flirty", "serious" rather than abstract icon names like "star_border".
+
 ### Tagging Choices
 
 ```ink

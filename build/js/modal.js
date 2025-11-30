@@ -19,6 +19,7 @@ class BaseModal {
     this.isVisible = false;
     this.onShow = options.onShow || null;
     this.onHide = options.onHide || null;
+    this.previouslyFocusedElement = null;
 
     this.init();
   }
@@ -32,6 +33,7 @@ class BaseModal {
     // Create modal backdrop
     const modalBackdrop = document.createElement("div");
     modalBackdrop.className = `${this.config.className}-backdrop`;
+    modalBackdrop.setAttribute("role", "presentation");
     modalBackdrop.style.cssText = `
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0, 0, 0, 0.5); z-index: 1000; display: none;
@@ -52,6 +54,13 @@ class BaseModal {
       overflow-y: auto; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
       transition: transform 0.3s ease; z-index: 1001;
     `;
+    modalContent.setAttribute("role", "dialog");
+    modalContent.setAttribute("aria-modal", "true");
+    modalContent.setAttribute(
+      "aria-labelledby",
+      `${this.config.className}-title`,
+    );
+    modalContent.setAttribute("tabindex", "-1");
 
     modalContent.innerHTML = this.getModalHTML();
     modalBackdrop.appendChild(modalContent);
@@ -72,11 +81,11 @@ class BaseModal {
   getModalHTML() {
     return `
       <div class="modal-header">
-        <h2 style="margin: 0 0 1.5rem 0; color: var(--color-text-strong); font-size: 1.5rem;">${this.config.title}</h2>
+        <h2 id="${this.config.className}-title" style="margin: 0 0 1.5rem 0; color: var(--color-text-strong); font-size: 1.5rem;">${this.config.title}</h2>
         ${
           this.config.showCloseButton
             ? `
-          <button class="modal-close" style="
+          <button class="modal-close" aria-label="Close" style="
             position: absolute; top: 1rem; right: 1rem; background: none; border: none;
             font-size: 1.5rem; color: var(--color-text-secondary); cursor: pointer;
             padding: 0.5rem; border-radius: var(--border-radius);
@@ -104,6 +113,30 @@ class BaseModal {
 
   setupEventListeners() {
     if (!this.modalElement) return;
+    // Focus trap
+    this.focusTrapHandler = (e) => {
+      if (e.key !== "Tab" || !this.isVisible) return;
+
+      const content = this.modalElement.querySelector(
+        `.${this.config.className}-content`,
+      );
+      const focusable = content?.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      );
+      if (!focusable?.length) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", this.focusTrapHandler);
 
     // Close button
     const closeBtn = this.modalElement.querySelector(".modal-close");
@@ -141,6 +174,8 @@ class BaseModal {
       return;
     }
 
+    this.previouslyFocusedElement = document.activeElement;
+
     // Populate content if callback provided
     if (contentCallback && typeof contentCallback === "function") {
       try {
@@ -167,6 +202,15 @@ class BaseModal {
         if (content) {
           content.style.transform = "translate(-50%, -50%) scale(1)";
         }
+        // Focus first focusable element or the modal itself
+        const focusable = content?.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        );
+        if (focusable?.length) {
+          focusable[0].focus();
+        } else {
+          content?.focus();
+        }
       }
     });
 
@@ -191,6 +235,7 @@ class BaseModal {
     const content = this.modalElement.querySelector(
       `.${this.config.className}-content`,
     );
+
     if (content) {
       content.style.transform = "translate(-50%, -50%) scale(0.9)";
     }
@@ -199,6 +244,7 @@ class BaseModal {
       if (this.modalElement) {
         this.modalElement.style.display = "none";
         this.isVisible = false;
+        this.previouslyFocusedElement?.focus();
       }
     }, 300);
 
@@ -300,6 +346,10 @@ class BaseModal {
       if (this.escapeHandler) {
         document.removeEventListener("keydown", this.escapeHandler);
         this.escapeHandler = null;
+      }
+      if (this.focusTrapHandler) {
+        document.removeEventListener("keydown", this.focusTrapHandler);
+        this.focusTrapHandler = null;
       }
 
       if (this.modalElement && this.modalElement.parentNode) {

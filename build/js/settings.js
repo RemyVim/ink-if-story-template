@@ -202,8 +202,8 @@ class SettingsManager {
         <h3>Appearance</h3>
         
         <div class="setting-item">
-          <label class="setting-label">Theme</label>
-          <select name="theme" class="setting-select">
+          <label for="theme" class="setting-label">Theme</label>
+          <select id="theme" name="theme" class="setting-select">
             <option value="auto">Auto (System)</option>
             <option value="light">Light</option>
             <option value="dark">Dark</option>
@@ -211,8 +211,8 @@ class SettingsManager {
         </div>
 
         <div class="setting-item">
-          <label class="setting-label">Font Family</label>
-          <select name="fontFamily" class="setting-select">
+          <label for="font" class="setting-label">Font Family</label>
+          <select id="font" name="fontFamily" class="setting-select">
             <option value="serif">Merriweather (Serif)</option>
             <option value="sans">Inter (Sans-serif)</option>
             <option value="dyslexic">OpenDyslexic (Accessibility)</option>
@@ -220,8 +220,8 @@ class SettingsManager {
         </div>
 
         <div class="setting-item">
-          <label class="setting-label">Text Size</label>
-          <select name="textSize" class="setting-select">
+          <label for="text-size" class="setting-label">Text Size</label>
+          <select id="text-size" name="text-size" class="setting-select">
             <option value="small">Small</option>
             <option value="medium">Medium</option>
             <option value="large">Large</option>
@@ -230,8 +230,8 @@ class SettingsManager {
         </div>
 
         <div class="setting-item">
-          <label class="setting-label">Line Height</label>
-          <select name="lineHeight" class="setting-select">
+          <label for="line-height" class="setting-label">Line Height</label>
+          <select id="line-height" name="line-height" class="setting-select">
             <option value="tight">Tight (1.4)</option>
             <option value="normal">Normal (1.7)</option>
             <option value="loose">Loose (2.0)</option>
@@ -710,7 +710,10 @@ ${
       if (typeof tag !== "string") continue;
       const normalizedTag = tag.trim().toLowerCase();
       if (this.toneMap[normalizedTag]) {
-        indicators.push(this.toneMap[normalizedTag]);
+        indicators.push({
+          label: normalizedTag,
+          icon: this.toneMap[normalizedTag],
+        });
       }
     }
     return indicators;

@@ -24,6 +24,8 @@ class NotificationManager {
     this.container = document.createElement("div");
     this.container.className = "notification-container";
     this.container.setAttribute("data-position", this.config.position);
+    this.container.setAttribute("aria-live", "polite");
+    this.container.setAttribute("role", "status");
 
     // Position the container
     this.setContainerPosition();
@@ -127,6 +129,11 @@ class NotificationManager {
     const notification = document.createElement("div");
     notification.className = `notification-item notification-${config.type}`;
 
+    // Error and critical notifications should interrupt immediately
+    if (config.type === "error" || config.type === "critical") {
+      notification.setAttribute("role", "alert");
+    }
+
     // Create content
     const content = document.createElement("div");
     content.className = "notification-content";
@@ -134,6 +141,8 @@ class NotificationManager {
     const iconSpan = document.createElement("span");
     iconSpan.className = "notification-icon";
     iconSpan.textContent = config.icon;
+    iconSpan.setAttribute("aria-hidden", "true");
+
     content.appendChild(iconSpan);
 
     const messageSpan = document.createElement("span");
@@ -145,8 +154,10 @@ class NotificationManager {
     // Add close button if closable
     if (config.closable) {
       const closeBtn = document.createElement("button");
+      closeBtn.type = "button";
       closeBtn.className = "notification-close";
       closeBtn.innerHTML = "×";
+      closeBtn.setAttribute("aria-label", "Dismiss notification");
       closeBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         this.remove({ element: notification, config });

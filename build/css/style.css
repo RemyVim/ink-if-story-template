@@ -267,6 +267,11 @@ body.dark {
    BASE STYLES
    ============================================================================= */
 
+:focus-visible {
+  outline: 2px solid var(--color-accent-primary);
+  outline-offset: 2px;
+}
+
 body {
   font-family: var(--font-main);
   font-weight: lighter;
@@ -329,7 +334,6 @@ h4 {
 /* =============================================================================
    TOP NAVIGATION
    ============================================================================= */
-
 .top-nav {
   position: fixed;
   top: 0;
@@ -368,6 +372,19 @@ h4 {
   font-family: "Quattrocento", Georgia, "Times New Roman", Times, serif;
   /* Modern browsers with CSS variables */
   font-family: var(--font-heading);
+  cursor: pointer;
+}
+
+.nav-title-wrapper {
+  position: relative;
+}
+
+.nav-title-btn {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
 }
 
 .nav-byline {
@@ -386,23 +403,41 @@ h4 {
   text-transform: var(--navigation-text-transform);
 }
 
-.nav-controls a {
+.nav-controls button {
+  background: none;
+  border: none;
+  cursor: pointer;
   font-weight: 700;
   color: var(--color-accent-primary);
   font-family: sans-serif;
-  text-decoration: none;
   padding: 4px var(--spacing-md);
   border-radius: var(--border-radius);
   transition: background-color var(--transition-medium);
 }
 
-.nav-controls a:hover {
+.nav-controls button:hover {
   background-color: var(--color-hover-bg);
 }
 
 .nav-controls [disabled] {
   color: var(--color-disabled);
   cursor: not-allowed;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  background: var(--color-background);
+  color: var(--color-accent-primary);
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.skip-link:focus {
+  left: 0;
 }
 
 /* === MOBILE NAVIGATION === */
@@ -432,7 +467,7 @@ h4 {
     gap: var(--spacing-md);
   }
 
-  .nav-controls a {
+  .nav-controls button {
     font-size: var(--text-size-small);
     padding: var(--spacing-xs) var(--spacing-sm);
   }
@@ -643,48 +678,61 @@ h4 {
      TONE INDICATORS
      ============================================================================= */
 
-/* Give choices some left padding for the hanging icon */
-.choice a,
-.choice .unclickable {
-  position: relative;
-  padding-left: 1.5em;
-}
+  .choice a,
+  .choice .unclickable {
+    position: relative;
+    padding-left: 1.5em;
+  }
 
-.tone-indicator-leading {
-  position: absolute;
-  left: 0;
-  top: 0;
-  transform: translateY(-0.3em);
-}
+  .tone-indicator-leading {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: translateY(-0.3em);
+  }
 
-.tone-indicator-trailing {
-  margin-left: 0.3em;
-  opacity: 0.85;
-}
+  .tone-indicator-trailing {
+    margin-left: 0.3em;
+    opacity: 0.85;
+  }
 
-.tone-icon {
-  font-size: 0.95em;
-  line-height: 1;
-  vertical-align: baseline;
-}
+  .tone-icon {
+    font-size: 0.95em;
+    line-height: 1;
+    vertical-align: baseline;
+  }
 
-.tone-icon.material-icons {
-  font-size: 1.1em;
-  vertical-align: middle;
-}
+  .tone-icon.material-icons {
+    font-size: 1.1em;
+    vertical-align: middle;
+  }
 
-.tone-indicator-trailing .tone-icon {
-  font-size: 0.85em;
-}
+  .tone-indicator-trailing .tone-icon {
+    font-size: 0.85em;
+  }
 
-.tone-indicator-trailing .tone-icon.material-icons {
-  font-size: 0.95em;
-}
+  .tone-indicator-trailing .tone-icon.material-icons {
+    font-size: 0.95em;
+  }
 
-/* Spacing between multiple trailing icons */
-.tone-indicator-trailing .tone-icon + .tone-icon {
-  margin-left: 0.15em;
-}
+  /* Spacing between multiple trailing icons */
+  .tone-indicator-trailing .tone-icon + .tone-icon {
+    margin-left: 0.15em;
+  }
+
+  /* Screen reader only - visually hidden but accessible */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
   /* =============================================================================
    SPECIAL ELEMENTS
    ============================================================================= */
