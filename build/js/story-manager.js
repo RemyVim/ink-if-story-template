@@ -245,16 +245,26 @@ class StoryManager {
       }
 
       // Generate story content
-      const { content: storyContent, stoppedForUserInput } =
-        this.generateContent();
+      const {
+        content: storyContent,
+        stoppedForUserInput,
+        stateBeforeUserInput,
+      } = this.generateContent();
 
       // Render content if any was generated
       if (storyContent.length > 0) {
         this.display?.render?.(storyContent);
       }
 
-      // Generate and render choices
-      this.createChoices();
+      // Store state for user input restoration
+      if (stoppedForUserInput && stateBeforeUserInput) {
+        this.stateBeforeUserInput = stateBeforeUserInput;
+      }
+
+      // Only generate choices if we didn't stop for user input
+      if (!stoppedForUserInput) {
+        this.createChoices();
+      }
 
       // Update save point after generating new content
       this.savePoint = this.story.state.ToJson();
@@ -294,51 +304,34 @@ class StoryManager {
     const content = [];
     let stoppedForUserInput = false;
 
+    // Save state once at start — used to replay after user input
+    const stateAtStart = this.story.state.ToJson();
+
     try {
       while (this.story.canContinue) {
         const text = this.story.Continue();
         const tags = this.story.currentTags || [];
 
-        // Check for USER_INPUT tag FIRST, before skipping empty lines
-        const hasUserInput = tags.some(
-          (tag) =>
-            tag.trim().toUpperCase().startsWith("USER_INPUT:") ||
-            tag.trim().toUpperCase().startsWith("INPUT:"),
-        );
-
-        // If this line has USER_INPUT, process it and stop
-        if (hasUserInput) {
-          // Pass the text as placeholder
-          const processedContent = this.contentProcessor?.process?.(text, tags);
-          if (processedContent) {
-            // Add the placeholder text to the content object
-            processedContent.placeholderText = text.trim();
-            content.push(processedContent);
-          }
-          stoppedForUserInput = true;
-          break;
-        }
-
-        // If this line has IMAGE, process it
-        const hasImage = tags.some((tag) =>
-          tag.trim().toUpperCase().startsWith("IMAGE:"),
-        );
-
-        // If this line has STATBAR, process it
-        const hasStatBar = tags.some((tag) =>
-          tag.trim().toUpperCase().startsWith("STATBAR:"),
-        );
-
-        // Skip empty paragraphs (but only after checking for USER_INPUT)
-        if (text.trim().length === 0 && !hasImage && !hasStatBar) continue;
+        // Skip empty paragraphs
+        if (text.trim().length === 0 && tags.length === 0) continue;
 
         // Process normal content
-        const processedContent = this.contentProcessor?.process?.(
-          text || " ", // Use a space if text is empty but has IMAGE tag
-          tags,
-        );
+        const processedContent = this.contentProcessor?.process?.(text, tags);
         if (processedContent) {
-          content.push(processedContent);
+          // Handle both single items and arrays
+          if (Array.isArray(processedContent)) {
+            content.push(...processedContent);
+            if (processedContent.some((item) => item.type === "user-input")) {
+              stoppedForUserInput = true;
+              break;
+            }
+          } else {
+            content.push(processedContent);
+            if (processedContent.type === "user-input") {
+              stoppedForUserInput = true;
+              break;
+            }
+          }
         }
 
         // Handle other special actions
@@ -359,7 +352,11 @@ class StoryManager {
       );
     }
 
-    return { content, stoppedForUserInput };
+    return {
+      content,
+      stoppedForUserInput,
+      stateBeforeUserInput: stoppedForUserInput ? stateAtStart : null,
+    };
   }
 
   handleSpecialAction(actionResult) {
@@ -386,99 +383,6 @@ class StoryManager {
         "story",
       );
       return true;
-    }
-  }
-
-  requestUserInput(variableName) {
-    if (!variableName || typeof variableName !== "string") {
-      window.errorManager.error(
-        "Invalid variable name for user input",
-        null,
-        "story",
-      );
-      return;
-    }
-
-    // Create inline input element
-    const inputContainer = document.createElement("div");
-    inputContainer.className = "user-input-inline-container";
-    inputContainer.innerHTML = `
-    <div class="user-input-prompt">
-      <input type="text" class="user-input-inline-field" 
-             placeholder="Type your answer here..." 
-             maxlength="100" autocomplete="off">
-      <button class="user-input-submit-btn">Submit</button>
-    </div>
-    <div class="user-input-help">Press Enter or click Submit to continue</div>
-  `;
-
-    // Add to story container
-    if (this.display?.container) {
-      this.display.container.appendChild(inputContainer);
-
-      const inputField = inputContainer.querySelector(
-        ".user-input-inline-field",
-      );
-      const submitBtn = inputContainer.querySelector(".user-input-submit-btn");
-
-      // Focus the input
-      inputField.focus();
-
-      // Handle submission
-      const submitInput = () => {
-        const userInput = inputField.value.trim();
-
-        if (!userInput) {
-          // Show validation error
-          inputField.style.borderColor = "var(--color-important)";
-          inputField.placeholder = "Please enter a value...";
-          inputField.focus();
-          return;
-        }
-
-        try {
-          // Set the Ink variable
-          this.story.variablesState.$(variableName, userInput);
-
-          // Remove input container
-          inputContainer.remove();
-
-          // Add user's input as story text
-          const responseElement = document.createElement("p");
-          responseElement.className = "user-input-response";
-          responseElement.textContent = userInput;
-          this.display.container.appendChild(responseElement);
-
-          // Continue the story
-          this.continue();
-
-          // Show success notification (optional)
-          window.notificationManager?.success(
-            `Set ${variableName} to: ${userInput}`,
-          );
-        } catch (error) {
-          window.errorManager.error(
-            "Failed to set user input variable",
-            error,
-            "story",
-          );
-          inputField.style.borderColor = "var(--color-important)";
-          inputField.placeholder = "Error - please try again...";
-        }
-      };
-
-      // Event listeners
-      submitBtn.addEventListener("click", submitInput);
-      inputField.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") {
-          submitInput();
-        }
-      });
-
-      // Reset border color on input
-      inputField.addEventListener("input", () => {
-        inputField.style.borderColor = "";
-      });
     }
   }
 
@@ -584,14 +488,28 @@ class StoryManager {
 
       this.pages?.reset?.();
 
+      // Restore stateBeforeUserInput if it was saved
+      this.stateBeforeUserInput = state.stateBeforeUserInput || null;
+
+      let hasUserInput = false;
+
       if (state.displayState) {
         this.display?.restoreState?.(state.displayState);
+
+        // Check if the restored state has a pending user-input
+        hasUserInput = state.displayState.history?.some(
+          (item) => item.type === "user-input",
+        );
       } else {
         this.display?.clear?.();
         this.regenerateCurrentDisplay();
       }
 
-      this.createChoices();
+      // Only create choices if there's no pending user input
+      if (!hasUserInput) {
+        this.createChoices();
+      }
+
       this.display?.scrollToTop?.();
     } catch (error) {
       window.errorManager.error("Failed to load state", error, "save-system");

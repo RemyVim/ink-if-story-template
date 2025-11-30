@@ -266,6 +266,7 @@ class DOMHelpers {
     this.removeAll("img");
     this.removeAll("figure");
     this.removeAll(".stat-bar-container");
+    this.removeAll(".user-input-inline-container");
   }
 
   // Scroll container to top

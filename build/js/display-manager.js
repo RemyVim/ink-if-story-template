@@ -33,9 +33,28 @@ class DisplayManager {
 
     content.forEach((item, index) => {
       try {
-        const element = this.createElement(item);
+        let element;
+
+        switch (item.type) {
+          case "statbar":
+            element = this.createStatBar(item);
+            break;
+          case "image":
+            element = this.createImage(item);
+            break;
+          case "user-input":
+            element = this.createUserInput(item);
+            break;
+          case "paragraph":
+          default:
+            element = this.createElement(item);
+            break;
+        }
         if (element) {
           this.trackInHistory(item);
+          if (this.shouldAnimateContent()) {
+            this.fadeInElement(element);
+          }
         }
       } catch (error) {
         window.errorManager.error(
@@ -128,22 +147,7 @@ class DisplayManager {
         content.classes || [],
       );
 
-      if (
-        content.classes &&
-        content.classes.includes("user-input-placeholder")
-      ) {
-        // This is a user input placeholder
-        this.convertToUserInput(
-          element,
-          content.classes,
-          content.placeholderText,
-        );
-      } else if (content.classes && content.classes.includes("has-image")) {
-        // This is an image placeholder
-        this.handleImageForParagraph(element, content.classes);
-      } else if (content.classes && content.classes.includes("has-statbar")) {
-        this.handleStatBarForParagraph(element, content.classes);
-      } else if (element && this.shouldAnimateContent()) {
+      if (element && this.shouldAnimateContent()) {
         this.fadeInElement(element);
       }
 
@@ -154,37 +158,155 @@ class DisplayManager {
     }
   }
 
-  convertToUserInput(
-    element,
-    classes,
-    placeholderText = "Type your answer here...",
-  ) {
-    if (!element) return;
-    const varClass = classes.find((cls) => cls.startsWith("user-input-var-"));
-    if (!varClass) return;
-    const variableName = varClass.replace("user-input-var-", "");
-
-    // Check for [] to use empty placeholder
-    if (placeholderText === "[]") {
-      placeholderText = "";
-    } else if (placeholderText && placeholderText.includes("{")) {
-      placeholderText = placeholderText.replace(/\{[^}]+\}/g, "___");
+  createStatBar(item) {
+    // Get the current variable value from the story
+    let currentValue = 0;
+    try {
+      const storyValue =
+        window.storyManager?.story?.variablesState?.[item.variableName];
+      if (typeof storyValue === "number") {
+        currentValue = storyValue;
+      } else if (typeof storyValue === "string") {
+        currentValue = parseFloat(storyValue) || 0;
+      }
+    } catch (error) {
+      window.errorManager?.warning(
+        `Failed to get variable "${item.variableName}" for stat bar`,
+        error,
+        "display",
+      );
     }
 
-    element.innerHTML = `
-    <div class="user-input-inline-container">
-      <div class="user-input-prompt">
-        <input type="text" class="user-input-inline-field" 
-               placeholder="${placeholderText}" 
-               maxlength="100" autocomplete="off">
-        <button class="user-input-submit-btn">Submit</button>
+    // Calculate fill percentage
+    const range = item.max - item.min;
+    const fillPercent =
+      range !== 0 ? ((currentValue - item.min) / range) * 100 : 0;
+
+    // Build the stat bar element
+    const container = document.createElement("div");
+    container.className = "stat-bar-container";
+
+    if (item.isOpposed) {
+      container.classList.add("stat-bar-opposed");
+
+      container.innerHTML = `
+      <div class="stat-bar-labels">
+        <span class="stat-bar-label stat-bar-label-left">${item.leftLabel || item.variableName}</span>
+        <span class="stat-bar-label stat-bar-label-right">${item.rightLabel || ""}</span>
       </div>
-      <div class="user-input-help">Press Enter or click Submit to continue</div>
+      <div class="stat-bar-track" role="progressbar"
+           aria-valuenow="${currentValue}"
+           aria-valuemin="${item.min}"
+           aria-valuemax="${item.max}"
+           aria-label="${item.leftLabel || item.variableName} versus ${item.rightLabel || ""}">
+        <div class="stat-bar-fill" style="width: ${fillPercent}%"></div>
+      </div>
+    `;
+    } else {
+      const displayName =
+        item.leftLabel ||
+        item.variableName.charAt(0).toUpperCase() + item.variableName.slice(1);
+
+      container.innerHTML = `
+      <div class="stat-bar-header">
+        <span class="stat-bar-label">${displayName}</span>
+        <span class="stat-bar-value">${Math.round(currentValue)}</span>
+      </div>
+      <div class="stat-bar-track" role="progressbar"
+           aria-valuenow="${currentValue}"
+           aria-valuemin="${item.min}"
+           aria-valuemax="${item.max}"
+           aria-label="${displayName}: ${Math.round(currentValue)} out of ${item.max}">
+        <div class="stat-bar-fill" style="width: ${fillPercent}%"></div>
+      </div>
+    `;
+    }
+
+    // Append to container
+    this.container.appendChild(container);
+
+    return container;
+  }
+
+  createImage(item) {
+    const imageElement = document.createElement("img");
+    imageElement.src = item.src;
+    imageElement.className = "story-image";
+
+    if (item.altText) {
+      imageElement.alt = item.altText;
+    } else {
+      imageElement.alt = "";
+    }
+
+    if (item.alignment) {
+      imageElement.classList.add(`image-${item.alignment}`);
+    }
+
+    if (item.width) {
+      imageElement.style.width = item.width;
+    }
+
+    imageElement.onerror = () => {
+      window.errorManager.warning(
+        `Failed to load image: ${item.src}`,
+        null,
+        "display",
+      );
+    };
+
+    let elementToInsert;
+
+    if (item.showCaption && item.altText) {
+      const figure = document.createElement("figure");
+      figure.className = "story-figure";
+
+      if (item.alignment) {
+        figure.classList.add(`figure-${item.alignment}`);
+        imageElement.classList.remove(`image-${item.alignment}`);
+      }
+
+      if (item.width) {
+        figure.style.width = item.width;
+        imageElement.style.width = "100%";
+      }
+
+      const figcaption = document.createElement("figcaption");
+      figcaption.className = "story-caption";
+      figcaption.textContent = item.altText;
+
+      figure.appendChild(imageElement);
+      figure.appendChild(figcaption);
+      elementToInsert = figure;
+    } else {
+      elementToInsert = imageElement;
+    }
+
+    this.container.appendChild(elementToInsert);
+
+    return elementToInsert;
+  }
+
+  createUserInput(item) {
+    const container = document.createElement("div");
+    container.className = "user-input-inline-container";
+
+    const placeholder = item.placeholder || "Type your answer here...";
+
+    container.innerHTML = `
+    <div class="user-input-prompt">
+      <input type="text" class="user-input-inline-field" 
+             placeholder="${placeholder}" 
+             maxlength="100" autocomplete="off">
+      <button class="user-input-submit-btn">Submit</button>
     </div>
+    <div class="user-input-help">Press Enter or click Submit to continue</div>
   `;
 
-    const inputField = element.querySelector(".user-input-inline-field");
-    const submitBtn = element.querySelector(".user-input-submit-btn");
+    this.container.appendChild(container);
+
+    const inputField = container.querySelector(".user-input-inline-field");
+    const submitBtn = container.querySelector(".user-input-submit-btn");
 
     // Focus the input
     setTimeout(() => inputField.focus(), 100);
@@ -202,13 +324,31 @@ class DisplayManager {
 
       try {
         // Set the Ink variable
-        window.storyManager.story.variablesState.$(variableName, userInput);
+        window.storyManager.story.variablesState.$(
+          item.variableName,
+          userInput,
+        );
 
-        // Replace input with user's response
-        element.innerHTML = `<span class="user-input-response">${userInput}</span>`;
+        // Restore state to before this content batch and re-set variable
+        if (window.storyManager.stateBeforeUserInput) {
+          window.storyManager.story.state.LoadJson(
+            window.storyManager.stateBeforeUserInput,
+          );
+          window.storyManager.story.variablesState.$(
+            item.variableName,
+            userInput,
+          );
+          window.storyManager.stateBeforeUserInput = null;
+        }
 
-        // Continue the story
-        window.storyManager.continueWithoutClearing();
+        // Set flag so content-processor knows to skip input on re-process
+        window.storyManager.reprocessingAfterUserInput = true;
+
+        // Continue the story (clears and re-renders with variable now set)
+        window.storyManager.continue();
+
+        // Clear the flag after continue completes
+        window.storyManager.reprocessingAfterUserInput = false;
       } catch (error) {
         window.errorManager.error(
           "Failed to set user input variable",
@@ -229,183 +369,8 @@ class DisplayManager {
     inputField.addEventListener("input", () => {
       inputField.style.borderColor = "";
     });
-  }
 
-  /**
-   * Create and insert an image element for a paragraph with a pending image.
-   * Supports optional alignment, width, alt text, and visible captions.
-   * @param {HTMLElement} element - The paragraph element to insert the image before
-   * @param {string[]} classes - CSS classes containing the image ID (pattern: "image-img_*")
-   */
-  handleImageForParagraph(element, classes) {
-    if (!element || !window._pendingImages) return;
-
-    // Find the image ID from classes
-    const imageClass = classes.find((cls) => cls.startsWith("image-img_"));
-    if (!imageClass) return;
-
-    const imageId = imageClass.replace("image-", "");
-    const imageData = window._pendingImages.find((img) => img.id === imageId);
-
-    if (!imageData) return;
-
-    window._pendingImages = window._pendingImages.filter(
-      (img) => img.id !== imageId,
-    );
-
-    const imageElement = document.createElement("img");
-    imageElement.src = imageData.src;
-    imageElement.className = "story-image";
-
-    if (imageData.altText) {
-      imageElement.alt = imageData.altText;
-    } else {
-      imageElement.alt = ""; // Empty alt for decorative images
-    }
-
-    if (imageData.alignment) {
-      imageElement.classList.add(`image-${imageData.alignment}`);
-    }
-
-    if (imageData.width) {
-      imageElement.style.width = imageData.width;
-    }
-
-    imageElement.onerror = () => {
-      window.errorManager.warning(
-        `Failed to load image: ${imageData.src}`,
-        null,
-        "display",
-      );
-    };
-
-    let elementToInsert;
-
-    if (imageData.showCaption && imageData.altText) {
-      const figure = document.createElement("figure");
-      figure.className = "story-figure";
-
-      if (imageData.alignment) {
-        figure.classList.add(`figure-${imageData.alignment}`);
-        imageElement.classList.remove(`image-${imageData.alignment}`);
-      }
-
-      if (imageData.width) {
-        figure.style.width = imageData.width;
-        imageElement.style.width = "100%";
-      }
-
-      const figcaption = document.createElement("figcaption");
-      figcaption.className = "story-caption";
-      figcaption.textContent = imageData.altText;
-
-      figure.appendChild(imageElement);
-      figure.appendChild(figcaption);
-      elementToInsert = figure;
-    } else {
-      elementToInsert = imageElement;
-    }
-
-    // Always insert BEFORE this paragraph (inline positioning)
-    element.parentNode.insertBefore(elementToInsert, element);
-
-    // Apply fade-in animation if enabled
-    if (this.shouldAnimateContent()) {
-      this.fadeInElement(elementToInsert);
-    }
-  }
-
-  handleStatBarForParagraph(element, classes) {
-    if (!element || !window._pendingStatBars) return;
-
-    // Find the stat bar ID from classes
-    const statBarClass = classes.find((cls) => cls.startsWith("statbar-stat_"));
-    if (!statBarClass) return;
-
-    const statBarId = statBarClass.replace("statbar-", "");
-    const statBarData = window._pendingStatBars.find(
-      (stat) => stat.id === statBarId,
-    );
-
-    if (!statBarData) return;
-
-    // Remove from pending array
-    window._pendingStatBars = window._pendingStatBars.filter(
-      (stat) => stat.id !== statBarId,
-    );
-
-    // Get the current variable value from the story
-    let currentValue = 0;
-    try {
-      const storyValue =
-        window.storyManager?.story?.variablesState?.[statBarData.variableName];
-      if (typeof storyValue === "number") {
-        currentValue = storyValue;
-      } else if (typeof storyValue === "string") {
-        currentValue = parseFloat(storyValue) || 0;
-      }
-    } catch (error) {
-      window.errorManager?.warning(
-        `Failed to get variable "${statBarData.variableName}" for stat bar`,
-        error,
-        "display",
-      );
-    }
-
-    // Calculate fill percentage
-    const range = statBarData.max - statBarData.min;
-    const fillPercent =
-      range !== 0 ? ((currentValue - statBarData.min) / range) * 100 : 0;
-
-    // Build the stat bar element
-    const container = document.createElement("div");
-    container.className = "stat-bar-container";
-
-    if (statBarData.isOpposed) {
-      container.classList.add("stat-bar-opposed");
-
-      container.innerHTML = `
-      <div class="stat-bar-labels">
-        <span class="stat-bar-label stat-bar-label-left">${statBarData.leftLabel || statBarData.variableName}</span>
-        <span class="stat-bar-label stat-bar-label-right">${statBarData.rightLabel || ""}</span>
-      </div>
-      <div class="stat-bar-track" role="progressbar"
-           aria-valuenow="${currentValue}"
-           aria-valuemin="${statBarData.min}"
-           aria-valuemax="${statBarData.max}"
-           aria-label="${statBarData.leftLabel || statBarData.variableName} versus ${statBarData.rightLabel || ""}">
-        <div class="stat-bar-fill" style="width: ${fillPercent}%"></div>
-      </div>
-    `;
-    } else {
-      // Single stat - capitalize variable name if no label provided
-      const displayName =
-        statBarData.leftLabel ||
-        statBarData.variableName.charAt(0).toUpperCase() +
-          statBarData.variableName.slice(1);
-
-      container.innerHTML = `
-      <div class="stat-bar-header">
-        <span class="stat-bar-label">${displayName}</span>
-        <span class="stat-bar-value">${Math.round(currentValue)}</span>
-      </div>
-      <div class="stat-bar-track" role="progressbar"
-           aria-valuenow="${currentValue}"
-           aria-valuemin="${statBarData.min}"
-           aria-valuemax="${statBarData.max}"
-           aria-label="${displayName}: ${Math.round(currentValue)} out of ${statBarData.max}">
-        <div class="stat-bar-fill" style="width: ${fillPercent}%"></div>
-      </div>
-    `;
-    }
-
-    // Insert before this paragraph
-    element.parentNode.insertBefore(container, element);
-
-    // Apply fade-in animation if enabled
-    if (this.shouldAnimateContent()) {
-      this.fadeInElement(container);
-    }
+    return container;
   }
 
   shouldAnimateContent() {
@@ -528,25 +493,16 @@ class DisplayManager {
       return;
     }
 
-    this.history = Array.isArray(state.history) ? state.history : [];
     this.clearContent();
 
-    // Rebuild from history
-    this.history.forEach((item, index) => {
-      try {
-        const content = {
-          text: item.text || "",
-          classes: Array.isArray(item.classes) ? item.classes : [],
-        };
-        this.createElement(content);
-      } catch (error) {
-        window.errorManager.error(
-          `Failed to restore history item at index ${index}`,
-          error,
-          "display",
-        );
-      }
-    });
+    // Don't set history directly - render will rebuild it
+    const savedHistory = Array.isArray(state.history) ? state.history : [];
+    this.history = [];
+
+    // Re-render all saved items (this will rebuild history too)
+    if (savedHistory.length > 0) {
+      this.render(savedHistory);
+    }
   }
 
   /**
@@ -564,9 +520,7 @@ class DisplayManager {
     }
 
     this.history.push({
-      type: "paragraph",
-      text: item.text || "",
-      classes: Array.isArray(item.classes) ? item.classes : [],
+      ...item,
       timestamp: Date.now(),
     });
   }

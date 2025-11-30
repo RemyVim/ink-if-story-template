@@ -60,6 +60,7 @@ class SaveSystem {
         isAutosave: slotNumber === this.autosaveSlot,
         currentPage: null, // Never save as being on a special page
         displayState: displayState,
+        stateBeforeUserInput: this.storyManager.stateBeforeUserInput || null,
       };
       // Try to save
       this.writeSaveData(slotNumber, saveData);

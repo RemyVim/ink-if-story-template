@@ -69,36 +69,8 @@ class TagProcessor {
             case "AUDIOLOOP":
               specialActions.push(() => this.playAudioLoop(value));
               break;
-            case "IMAGE":
-              const imageData = this.parseImageTag(value);
-
-              if (!window._pendingImages) window._pendingImages = [];
-              const imageId = `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
-              window._pendingImages.push({
-                id: imageId,
-                ...imageData,
-              });
-
-              customClasses.push("has-image");
-              customClasses.push(`image-${imageId}`);
-              break;
             case "BACKGROUND":
               specialActions.push(() => this.setBackground(value));
-              break;
-            case "STATBAR":
-              const statBarData = this.parseStatBarTag(value);
-
-              if (!window._pendingStatBars) window._pendingStatBars = [];
-              const statBarId = `stat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
-              window._pendingStatBars.push({
-                id: statBarId,
-                ...statBarData,
-              });
-
-              customClasses.push("has-statbar");
-              customClasses.push(`statbar-${statBarId}`);
               break;
             case "NOTIFICATION":
               specialActions.push(() => this.showNotification(value, "info"));
@@ -115,11 +87,6 @@ class TagProcessor {
               break;
             case "ERROR":
               specialActions.push(() => this.showNotification(value, "error"));
-              break;
-            case "USER_INPUT":
-            case "INPUT":
-              customClasses.push("user-input-placeholder");
-              customClasses.push(`user-input-var-${value}`);
               break;
             case "CLASS":
               if (value) customClasses.push(value);
@@ -149,105 +116,6 @@ class TagProcessor {
       window.errorManager.error("Failed to process line tags", error, "tags");
       return { customClasses: [], specialActions: [] };
     }
-  }
-
-  /**
-   * Parse IMAGE tag value into image data object.
-   * @param {string} value - The tag value (e.g., "hero.png left 40% caption "Alt text"")
-   * @returns {{src: string, alignment: string|null, width: string|null, altText: string|null, showCaption: boolean}}
-   */
-  parseImageTag(value) {
-    const imageValue = value.trim();
-
-    // Extract quoted alt text first
-    let altText = null;
-    let remainingValue = imageValue;
-    const altTextMatch = imageValue.match(/"([^"]*)"/);
-    if (altTextMatch) {
-      altText = altTextMatch[1];
-      remainingValue = imageValue.replace(/"([^"]*)"/, "").trim();
-    }
-
-    // Parse remaining parts
-    const parts = remainingValue.split(/\s+/).filter((p) => p);
-    const src = parts[0];
-
-    let alignment = null;
-    let width = null;
-    let showCaption = false;
-
-    for (let j = 1; j < parts.length; j++) {
-      const part = parts[j].toLowerCase();
-      if (["left", "right", "center"].includes(part)) {
-        alignment = part;
-      } else if (part === "caption") {
-        showCaption = true;
-      } else if (part.match(/^\d+(%|px|em|rem|vw)$/)) {
-        width = part;
-      }
-    }
-
-    return { src, alignment, width, altText, showCaption };
-  }
-
-  parseStatBarTag(value) {
-    const statValue = value.trim();
-
-    // Extract all quoted strings first
-    const quotedStrings = [];
-    const quoteRegex = /"([^"]*)"/g;
-    let match;
-
-    while ((match = quoteRegex.exec(statValue)) !== null) {
-      quotedStrings.push(match[1]);
-    }
-
-    // Remove quoted strings from remaining value
-    const remainingValue = statValue.replace(/"[^"]*"/g, "").trim();
-
-    // Parse remaining parts (variable name and optional min/max)
-    const parts = remainingValue.split(/\s+/).filter((p) => p);
-
-    // First part is always the variable name
-    const variableName = parts[0];
-
-    // Check for min/max values (two consecutive numbers)
-    let min = 0;
-    let max = 100;
-
-    if (parts.length >= 3) {
-      const possibleMin = parseFloat(parts[1]);
-      const possibleMax = parseFloat(parts[2]);
-
-      if (!isNaN(possibleMin) && !isNaN(possibleMax)) {
-        min = possibleMin;
-        max = possibleMax;
-      }
-    }
-
-    // Determine labels based on quoted strings count
-    let leftLabel = null;
-    let rightLabel = null;
-    let isOpposed = false;
-
-    if (quotedStrings.length === 1) {
-      // Single label = display name for single stat
-      leftLabel = quotedStrings[0];
-    } else if (quotedStrings.length >= 2) {
-      // Two labels = opposed stat
-      leftLabel = quotedStrings[0];
-      rightLabel = quotedStrings[1];
-      isOpposed = true;
-    }
-
-    return {
-      variableName,
-      min,
-      max,
-      leftLabel,
-      rightLabel,
-      isOpposed,
-    };
   }
 
   processChoiceTags(choiceTags) {
@@ -488,10 +356,6 @@ class TagProcessor {
     } catch (error) {
       window.errorManager.error("Failed to set background", error, "tags");
     }
-  }
-
-  requestUserInput(variableName) {
-    return { action: "USER_INPUT", variableName: variableName };
   }
 
   /**

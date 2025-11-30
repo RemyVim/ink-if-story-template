@@ -14,7 +14,7 @@ Configure choice numbering:
 
 :: User Input
 
-> `\# USER_INPUT: your_variable_name` - Creates a user input field and stores result in a story variable
+> `\# USER_INPUT: your_variable_name "Placeholder text"` - Creates a user input field and stores result in a story variable
 
 :: Visual Customization
 
@@ -59,13 +59,15 @@ Alt text improves accessibility for screen reader users.
 : Ink Tags
 You can ask players for input that will then be stored in a variable of your choice. For this, use the special tag:
 
-`\# USER_INPUT: your_variable_name`
-Followed on a new line by the placeholder text you want to display in the text box before user input. If you don't want placeholder text, have a line with only `[]`.
+`\# USER_INPUT: your_variable_name "Placeholder text"`
+
+Placeholder text is optional.
 
 Write anything you want here:
 
-# USER_INPUT: input
-Please input your text here.
+`\# USER_INPUT: input "Please input your text here."`
+
+# USER_INPUT: input "Please input your text here."
 
 You wrote: "{input}".
 
