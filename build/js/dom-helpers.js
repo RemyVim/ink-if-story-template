@@ -265,6 +265,7 @@ class DOMHelpers {
     this.removeAll("p");
     this.removeAll("img");
     this.removeAll("figure");
+    this.removeAll(".stat-bar-container");
   }
 
   // Scroll container to top

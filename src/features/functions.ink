@@ -108,14 +108,14 @@ Math functions:
 
 :: Math Function Examples
 
-`VAR health = 150`
+`VAR current_health = 150`
 `VAR max_health = 100`
 
-VAR health = 150
+VAR current_health = 150
 VAR max_health = 100
 
-`Clamped health: \{CLAMP(health, 0, max_health)\} (was \{health\})`
-Clamped health: {CLAMP(health, 0, max_health)} (was {health})
+`Clamped health: \{CLAMP(current_health, 0, max_health)\} (was \{current_health\})`
+Clamped health: {CLAMP(current_health, 0, max_health)} (was {current_health})
 
 `Rounded: \{ROUND(7.6)\}`
 Rounded: {ROUND(7.6)}

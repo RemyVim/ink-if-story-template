@@ -141,6 +141,8 @@ class DisplayManager {
       } else if (content.classes && content.classes.includes("has-image")) {
         // This is an image placeholder
         this.handleImageForParagraph(element, content.classes);
+      } else if (content.classes && content.classes.includes("has-statbar")) {
+        this.handleStatBarForParagraph(element, content.classes);
       } else if (element && this.shouldAnimateContent()) {
         this.fadeInElement(element);
       }
@@ -310,6 +312,99 @@ class DisplayManager {
     // Apply fade-in animation if enabled
     if (this.shouldAnimateContent()) {
       this.fadeInElement(elementToInsert);
+    }
+  }
+
+  handleStatBarForParagraph(element, classes) {
+    if (!element || !window._pendingStatBars) return;
+
+    // Find the stat bar ID from classes
+    const statBarClass = classes.find((cls) => cls.startsWith("statbar-stat_"));
+    if (!statBarClass) return;
+
+    const statBarId = statBarClass.replace("statbar-", "");
+    const statBarData = window._pendingStatBars.find(
+      (stat) => stat.id === statBarId,
+    );
+
+    if (!statBarData) return;
+
+    // Remove from pending array
+    window._pendingStatBars = window._pendingStatBars.filter(
+      (stat) => stat.id !== statBarId,
+    );
+
+    // Get the current variable value from the story
+    let currentValue = 0;
+    try {
+      const storyValue =
+        window.storyManager?.story?.variablesState?.[statBarData.variableName];
+      if (typeof storyValue === "number") {
+        currentValue = storyValue;
+      } else if (typeof storyValue === "string") {
+        currentValue = parseFloat(storyValue) || 0;
+      }
+    } catch (error) {
+      window.errorManager?.warning(
+        `Failed to get variable "${statBarData.variableName}" for stat bar`,
+        error,
+        "display",
+      );
+    }
+
+    // Calculate fill percentage
+    const range = statBarData.max - statBarData.min;
+    const fillPercent =
+      range !== 0 ? ((currentValue - statBarData.min) / range) * 100 : 0;
+
+    // Build the stat bar element
+    const container = document.createElement("div");
+    container.className = "stat-bar-container";
+
+    if (statBarData.isOpposed) {
+      container.classList.add("stat-bar-opposed");
+
+      container.innerHTML = `
+      <div class="stat-bar-labels">
+        <span class="stat-bar-label stat-bar-label-left">${statBarData.leftLabel || statBarData.variableName}</span>
+        <span class="stat-bar-label stat-bar-label-right">${statBarData.rightLabel || ""}</span>
+      </div>
+      <div class="stat-bar-track" role="progressbar"
+           aria-valuenow="${currentValue}"
+           aria-valuemin="${statBarData.min}"
+           aria-valuemax="${statBarData.max}"
+           aria-label="${statBarData.leftLabel || statBarData.variableName} versus ${statBarData.rightLabel || ""}">
+        <div class="stat-bar-fill" style="width: ${fillPercent}%"></div>
+      </div>
+    `;
+    } else {
+      // Single stat - capitalize variable name if no label provided
+      const displayName =
+        statBarData.leftLabel ||
+        statBarData.variableName.charAt(0).toUpperCase() +
+          statBarData.variableName.slice(1);
+
+      container.innerHTML = `
+      <div class="stat-bar-header">
+        <span class="stat-bar-label">${displayName}</span>
+        <span class="stat-bar-value">${Math.round(currentValue)}</span>
+      </div>
+      <div class="stat-bar-track" role="progressbar"
+           aria-valuenow="${currentValue}"
+           aria-valuemin="${statBarData.min}"
+           aria-valuemax="${statBarData.max}"
+           aria-label="${displayName}: ${Math.round(currentValue)} out of ${statBarData.max}">
+        <div class="stat-bar-fill" style="width: ${fillPercent}%"></div>
+      </div>
+    `;
+    }
+
+    // Insert before this paragraph
+    element.parentNode.insertBefore(container, element);
+
+    // Apply fade-in animation if enabled
+    if (this.shouldAnimateContent()) {
+      this.fadeInElement(container);
     }
   }
 

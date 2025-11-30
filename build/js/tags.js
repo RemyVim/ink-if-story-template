@@ -86,6 +86,20 @@ class TagProcessor {
             case "BACKGROUND":
               specialActions.push(() => this.setBackground(value));
               break;
+            case "STATBAR":
+              const statBarData = this.parseStatBarTag(value);
+
+              if (!window._pendingStatBars) window._pendingStatBars = [];
+              const statBarId = `stat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+              window._pendingStatBars.push({
+                id: statBarId,
+                ...statBarData,
+              });
+
+              customClasses.push("has-statbar");
+              customClasses.push(`statbar-${statBarId}`);
+              break;
             case "NOTIFICATION":
               specialActions.push(() => this.showNotification(value, "info"));
               break;
@@ -174,6 +188,66 @@ class TagProcessor {
     }
 
     return { src, alignment, width, altText, showCaption };
+  }
+
+  parseStatBarTag(value) {
+    const statValue = value.trim();
+
+    // Extract all quoted strings first
+    const quotedStrings = [];
+    const quoteRegex = /"([^"]*)"/g;
+    let match;
+
+    while ((match = quoteRegex.exec(statValue)) !== null) {
+      quotedStrings.push(match[1]);
+    }
+
+    // Remove quoted strings from remaining value
+    const remainingValue = statValue.replace(/"[^"]*"/g, "").trim();
+
+    // Parse remaining parts (variable name and optional min/max)
+    const parts = remainingValue.split(/\s+/).filter((p) => p);
+
+    // First part is always the variable name
+    const variableName = parts[0];
+
+    // Check for min/max values (two consecutive numbers)
+    let min = 0;
+    let max = 100;
+
+    if (parts.length >= 3) {
+      const possibleMin = parseFloat(parts[1]);
+      const possibleMax = parseFloat(parts[2]);
+
+      if (!isNaN(possibleMin) && !isNaN(possibleMax)) {
+        min = possibleMin;
+        max = possibleMax;
+      }
+    }
+
+    // Determine labels based on quoted strings count
+    let leftLabel = null;
+    let rightLabel = null;
+    let isOpposed = false;
+
+    if (quotedStrings.length === 1) {
+      // Single label = display name for single stat
+      leftLabel = quotedStrings[0];
+    } else if (quotedStrings.length >= 2) {
+      // Two labels = opposed stat
+      leftLabel = quotedStrings[0];
+      rightLabel = quotedStrings[1];
+      isOpposed = true;
+    }
+
+    return {
+      variableName,
+      min,
+      max,
+      leftLabel,
+      rightLabel,
+      isOpposed,
+    };
   }
 
   processChoiceTags(choiceTags) {

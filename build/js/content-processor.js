@@ -20,9 +20,18 @@ class ContentProcessor {
           tag.trim().toUpperCase().startsWith("IMAGE:"),
       );
 
+    // Check for STATBAR tag before validating text
+    const hasStatBar =
+      Array.isArray(tags) &&
+      tags.some(
+        (tag) =>
+          typeof tag === "string" &&
+          tag.trim().toUpperCase().startsWith("STATBAR:"),
+      );
+
     // Validate inputs
     if (!text || typeof text !== "string" || !text.trim()) {
-      if (!hasImage) {
+      if (!hasImage && !hasStatBar) {
         return null; // Return null for empty content without IMAGE
       }
       text = "\u00A0"; // Use non-breaking space for IMAGE-only lines

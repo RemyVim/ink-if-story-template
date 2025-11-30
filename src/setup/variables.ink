@@ -7,3 +7,7 @@ LIST inventory = torch, lantern, sword, shield, (potion)
 LIST skills = combat, magic, stealth, diplomacy
 
 VAR reputation = 50
+
+VAR health = 75
+VAR mana = 30
+VAR bravery = 50

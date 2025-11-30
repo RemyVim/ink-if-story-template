@@ -23,6 +23,7 @@ INCLUDE features/notifications.ink
 INCLUDE features/saves.ink
 INCLUDE features/settings.ink
 INCLUDE features/special_pages.ink
+INCLUDE features/statbars.ink
 
 // Include functions provided by the template
 EXTERNAL UPPERCASE(string)
@@ -84,5 +85,6 @@ What would you like to explore in more detail?
 + [Ink Tags (Media & User Input)] -> tags_demo
 + [Notifications] -> notifications_demo  
 + [Functions] -> functions  
++ [Stat Bars] -> statbars_demo
 + [Getting Started] -> getting_started
 

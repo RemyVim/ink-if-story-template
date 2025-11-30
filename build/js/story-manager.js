@@ -324,8 +324,13 @@ class StoryManager {
           tag.trim().toUpperCase().startsWith("IMAGE:"),
         );
 
+        // If this line has STATBAR, process it
+        const hasStatBar = tags.some((tag) =>
+          tag.trim().toUpperCase().startsWith("STATBAR:"),
+        );
+
         // Skip empty paragraphs (but only after checking for USER_INPUT)
-        if (text.trim().length === 0 && !hasImage) continue;
+        if (text.trim().length === 0 && !hasImage && !hasStatBar) continue;
 
         // Process normal content
         const processedContent = this.contentProcessor?.process?.(
