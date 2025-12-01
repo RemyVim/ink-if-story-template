@@ -24,6 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 
 - Audio setting in settings menu now only appears if the story contains `# AUDIO` or `# AUDIOLOOP` tags
+- Optimized font loading for faster page loads (LCP improved from 16s to 0.6s)
 
 ### Fixed
 

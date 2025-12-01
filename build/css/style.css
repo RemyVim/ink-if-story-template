@@ -2,41 +2,70 @@
    FONTS
    ============================================================================= */
 
+/* Merriweather Font */
 @font-face {
-  font-family: "Merriweather";
-  src: url("../fonts/Merriweather-VariableFont_opsz,wdth,wght.ttf")
-    format("truetype-variations");
-  font-weight: 300 900;
-  font-style: normal;
   font-display: swap;
+  font-family: 'Merriweather';
+  font-style: normal;
+  font-weight: 300;
+  src: url('../fonts/merriweather-v33-latin-300.woff2') format('woff2');
 }
 
 @font-face {
-  font-family: "Merriweather";
-  src: url("../fonts/Merriweather-Italic-VariableFont_opsz,wdth,wght.ttf")
-    format("truetype-variations");
-  font-weight: 300 900;
-  font-style: italic;
   font-display: swap;
+  font-family: 'Merriweather';
+  font-style: italic;
+  font-weight: 300;
+  src: url('../fonts/merriweather-v33-latin-300italic.woff2') format('woff2');
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'Merriweather';
+  font-style: normal;
+  font-weight: 700;
+  src: url('../fonts/merriweather-v33-latin-700.woff2') format('woff2');
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'Merriweather';
+  font-style: italic;
+  font-weight: 700;
+  src: url('../fonts/merriweather-v33-latin-700italic.woff2') format('woff2');
 }
 
 /* Inter Font */
 @font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 100 900;
   font-display: swap;
-  src: url("../fonts/Inter-VariableFont_slnt,wght.ttf")
-    format("truetype-variations");
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  src: url('../fonts/inter-v20-latin-regular.woff2') format('woff2');
 }
 
 @font-face {
-  font-family: "Inter";
-  src: url("../fonts/Inter-Italic-VariableFont_opsz,wght.ttf")
-    format("truetype-variations");
-  font-weight: 300 900;
-  font-style: italic;
   font-display: swap;
+  font-family: 'Inter';
+  font-style: italic;
+  font-weight: 400;
+  src: url('../fonts/inter-v20-latin-italic.woff2') format('woff2');
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  src: url('../fonts/inter-v20-latin-700.woff2') format('woff2');
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'Inter';
+  font-style: italic;
+  font-weight: 700;
+  src: url('../fonts/inter-v20-latin-700italic.woff2') format('woff2');
 }
 
 /* OpenDyslexic Font */
@@ -70,52 +99,27 @@
   font-display: swap;
 }
 
+/* Material Icons Font */
+/* Material Icons - for tone indicators */
 @font-face {
-  font-family: "Material Icons";
+  font-display: swap;
+  font-family: 'Material Icons';
   font-style: normal;
   font-weight: 400;
-  src: url("../fonts/MaterialIcons-Regular.ttf") format("truetype");
-  font-display: block;
+  src: url('../fonts/material-icons-v145-latin-regular.woff2') format('woff2');
 }
 
+/* Material Icons Outlined - for navigation */
 @font-face {
-  font-family: "Material Icons Outlined";
+  font-display: swap;
+  font-family: 'Material Icons Outlined';
   font-style: normal;
   font-weight: 400;
-  src: url("../fonts/MaterialIconsOutlined-Regular.otf") format("opentype");
-  font-display: block;
+  src: url('../fonts/material-icons-outlined-v110-latin-regular.woff2') format('woff2');
 }
 
-@font-face {
-  font-family: "Material Icons Round";
-  font-style: normal;
-  font-weight: 400;
-  src: url("../fonts/MaterialIconsRound-Regular.otf") format("opentype");
-  font-display: block;
-}
-
-@font-face {
-  font-family: "Material Icons Sharp";
-  font-style: normal;
-  font-weight: 400;
-  src: url("../fonts/MaterialIconsSharp-Regular.otf") format("opentype");
-  font-display: block;
-}
-
-@font-face {
-  font-family: "Material Icons Two Tone";
-  font-style: normal;
-  font-weight: 400;
-  src: url("../fonts/MaterialIconsTwoTone-Regular.otf") format("opentype");
-  font-display: block;
-}
-
-/* Material Icons Base Class */
 .material-icons,
-.material-icons-outlined,
-.material-icons-round,
-.material-icons-sharp,
-.material-icons-two-tone {
+.material-icons-outlined {
   font-weight: normal;
   font-style: normal;
   font-size: 24px;
@@ -135,17 +139,9 @@
 .material-icons {
   font-family: "Material Icons";
 }
+
 .material-icons-outlined {
   font-family: "Material Icons Outlined";
-}
-.material-icons-round {
-  font-family: "Material Icons Round";
-}
-.material-icons-sharp {
-  font-family: "Material Icons Sharp";
-}
-.material-icons-two-tone {
-  font-family: "Material Icons Two Tone";
 }
 
 /* =============================================================================
