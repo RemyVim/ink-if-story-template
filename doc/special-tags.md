@@ -18,6 +18,7 @@ Add media, effects, and special functionality to your Ink story using simple tag
 | `# NOTIFICATION:` | Info message | [doc/notifications.md](notifications.md) |
 | `# RESTART` | Restart story | [doc/styling.md](styling.md) |
 | `# SPECIAL_PAGE:` | Reference page | [doc/special-pages.md](special-pages.md) |
+| `# STATBAR:` | Progress bar | [doc/stat-bars.md](stat-bars.md) |
 | `# TITLE:` | Story title | [doc/quickstart.md](quickstart.md) |
 | `# TONE:` | Define tone icon | [doc/choices.md](choices.md) |
 | `# TONE_INDICATORS:` | Enable tone icons | [doc/choices.md](choices.md) |
@@ -57,6 +58,7 @@ Need help with something else? Check out the rest of the docs:
 - Notifications: [doc/notifications.md](notifications.md)
 - Special pages: [doc/special-pages.md](special-pages.md)
 - Ink functions: [doc/functions.md](functions.md)
+- Stat bars: [doc/stat-bars.md](stat-bars.md)
 - Styling: [doc/styling.md](styling.md)
 - Special tags: [doc/special-tags.md](special-tags.md)
 - Keyboard shortcuts: [doc/keyboard-shortcuts.md](keyboard-shortcuts.md)

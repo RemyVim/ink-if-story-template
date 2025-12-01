@@ -146,29 +146,29 @@ class PageManager {
         }
         isFirstLine = false;
 
-        // Skip empty paragraphs
-        if (!text?.trim()) continue;
+        // Check if there are any tags that should be processed
+        const hasAnyTag = tags.some(
+          (tag) => typeof tag === "string" && tag.trim(),
+        );
 
-        // Process any tags in the page content
-        let customClasses = ["special-page"];
+        // Skip empty paragraphs unless they have tags
+        if (!text?.trim() && !hasAnyTag) continue;
 
-        if (this.tagProcessor?.processLineTags) {
-          try {
-            const { customClasses: tagClasses } =
-              this.tagProcessor.processLineTags(tags);
-            customClasses = customClasses.concat(tagClasses || []);
-          } catch (error) {
-            window.errorManager.warning(
-              "Failed to process tags for special page content",
-              error,
-              "pages",
-            );
+        // Process content through ContentProcessor (handles STATBAR, IMAGE, etc.)
+        const contentProcessor = new ContentProcessor();
+        const processed = contentProcessor.process(text, tags);
+
+        // Handle array results (multiple items like statbars + text)
+        const items = Array.isArray(processed) ? processed : [processed];
+
+        items.forEach((item) => {
+          if (item) {
+            // Add special-page class to paragraphs
+            if (item.type === "paragraph" || !item.type) {
+              item.classes = ["special-page", ...(item.classes || [])];
+            }
+            content.push(item);
           }
-        }
-
-        content.push({
-          text,
-          classes: customClasses,
         });
       }
 

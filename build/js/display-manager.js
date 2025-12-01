@@ -180,20 +180,39 @@ class DisplayManager {
     // Calculate fill percentage
     const range = item.max - item.min;
     const fillPercent =
-      range !== 0 ? ((currentValue - item.min) / range) * 100 : 0;
+      range !== 0
+        ? Math.max(0, Math.min(100, ((currentValue - item.min) / range) * 100))
+        : 0;
 
     // Build the stat bar element
     const container = document.createElement("div");
     container.className = "stat-bar-container";
 
+    const displayValue = item.clamp
+      ? Math.round(Math.max(item.min, Math.min(item.max, currentValue)))
+      : Math.round(currentValue);
+
+    const displayLeft = item.clamp
+      ? Math.round(
+          Math.max(0, Math.min(item.max - item.min, currentValue - item.min)),
+        )
+      : Math.round(currentValue - item.min);
+
+    const displayRight = item.clamp
+      ? Math.round(
+          Math.max(0, Math.min(item.max - item.min, item.max - currentValue)),
+        )
+      : Math.round(item.max - currentValue);
+
     if (item.isOpposed) {
       container.classList.add("stat-bar-opposed");
 
       container.innerHTML = `
-      <div class="stat-bar-labels">
-        <span class="stat-bar-label stat-bar-label-left">${item.leftLabel || item.variableName}</span>
-        <span class="stat-bar-label stat-bar-label-right">${item.rightLabel || ""}</span>
-      </div>
+    <div class="stat-bar-labels" aria-hidden="true">
+      <span class="stat-bar-label stat-bar-label-left">${item.leftLabel || item.variableName}</span>
+      <span class="stat-bar-value"><span class="stat-bar-current">${displayLeft}</span>/<span class="stat-bar-current">${displayRight}</span></span>
+      <span class="stat-bar-label stat-bar-label-right">${item.rightLabel || ""}</span>
+    </div>
       <div class="stat-bar-track" role="progressbar"
            aria-valuenow="${currentValue}"
            aria-valuemin="${item.min}"
@@ -208,15 +227,15 @@ class DisplayManager {
         item.variableName.charAt(0).toUpperCase() + item.variableName.slice(1);
 
       container.innerHTML = `
-      <div class="stat-bar-header">
+      <div class="stat-bar-header" aria-hidden="true">
         <span class="stat-bar-label">${displayName}</span>
-        <span class="stat-bar-value">${Math.round(currentValue)}</span>
+        <span class="stat-bar-value"><span class="stat-bar-current">${displayValue}</span>/${item.max}</span>
       </div>
       <div class="stat-bar-track" role="progressbar"
-           aria-valuenow="${currentValue}"
+           aria-valuenow="${displayValue}"
            aria-valuemin="${item.min}"
            aria-valuemax="${item.max}"
-           aria-label="${displayName}: ${Math.round(currentValue)} out of ${item.max}">
+           aria-label="${displayName}: ${displayValue} out of ${item.max}">
         <div class="stat-bar-fill" style="width: ${fillPercent}%"></div>
       </div>
     `;

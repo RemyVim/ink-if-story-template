@@ -136,6 +136,7 @@ Need help with something else? Check out the rest of the docs:
 - Notifications: [doc/notifications.md](notifications.md)
 - Special pages: [doc/special-pages.md](special-pages.md)
 - Ink functions: [doc/functions.md](functions.md)
+- Stat bars: [doc/stat-bars.md](stat-bars.md)
 - Styling: [doc/styling.md](styling.md)
 - Special tags: [doc/special-tags.md](special-tags.md)
 - Keyboard shortcuts: [doc/keyboard-shortcuts.md](keyboard-shortcuts.md)

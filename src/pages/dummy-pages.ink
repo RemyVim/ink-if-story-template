@@ -40,6 +40,8 @@ __Friendship with your Companion:__ {friend_relationship} points
   😔 Strained - Your relationship needs work.
 }
 
+# STATBAR: friend_relationship "Friend Relationship" clamp
+
 -> DONE
 
 === inventory_page ===

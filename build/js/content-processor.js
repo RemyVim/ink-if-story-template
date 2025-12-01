@@ -51,26 +51,44 @@ class ContentProcessor {
       ];
     }
 
-    // Check for STATBAR tag before validating text
-    const statBarTag =
-      Array.isArray(tags) &&
-      tags.find(
-        (tag) =>
-          typeof tag === "string" &&
-          tag.trim().toUpperCase().startsWith("STATBAR:"),
-      );
+    // Check for STATBAR tags (could be multiple)
+    const statBarTags = Array.isArray(tags)
+      ? tags.filter(
+          (tag) =>
+            typeof tag === "string" &&
+            tag.trim().toUpperCase().startsWith("STATBAR:"),
+        )
+      : [];
 
-    if (statBarTag) {
-      const statBarValue = statBarTag
-        .substring(statBarTag.indexOf(":") + 1)
-        .trim();
-      const statBarData = this.parseStatBarTag(statBarValue);
-      return {
-        type: "statbar",
-        ...statBarData,
-      };
+    if (statBarTags.length > 0) {
+      const statBars = statBarTags.map((tag) => {
+        const statBarValue = tag.substring(tag.indexOf(":") + 1).trim();
+        const statBarData = this.parseStatBarTag(statBarValue);
+        return {
+          type: "statbar",
+          ...statBarData,
+        };
+      });
+
+      // If there's also text, include it as a paragraph
+      if (text && typeof text === "string" && text.trim()) {
+        return [
+          ...statBars,
+          {
+            type: "paragraph",
+            text,
+            classes:
+              this.tagProcessor?.processLineTags?.(tags)?.customClasses || [],
+            tags,
+            hasSpecialAction: false,
+            action: null,
+          },
+        ];
+      }
+
+      // Return single statbar or array of statbars
+      return statBars.length === 1 ? statBars[0] : statBars;
     }
-
     // Check for USER_INPUT tag and return typed content
     let userInputTag = null;
     if (Array.isArray(tags)) {
@@ -256,6 +274,8 @@ class ContentProcessor {
     // Parse remaining parts (variable name and optional min/max)
     const parts = remainingValue.split(/\s+/).filter((p) => p);
 
+    const shouldClamp = parts.some((p) => p.toLowerCase() === "clamp");
+
     // First part is always the variable name
     const variableName = parts[0];
 
@@ -295,6 +315,7 @@ class ContentProcessor {
       leftLabel,
       rightLabel,
       isOpposed,
+      clamp: shouldClamp,
     };
   }
 
