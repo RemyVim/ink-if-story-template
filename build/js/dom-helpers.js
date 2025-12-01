@@ -200,9 +200,9 @@ class DOMHelpers {
           : "";
 
       if (isClickable) {
-        choiceParagraphElement.innerHTML = `<a href='#' aria-roledescription="choice">${leadingToneHTML}${hintPrefix}${choiceText}${trailingToneHTML}${srOnlyLabels}</a>`;
+        choiceParagraphElement.innerHTML = `<a href="#" role="button" aria-roledescription="choice">${leadingToneHTML}${hintPrefix}${choiceText}${trailingToneHTML}${srOnlyLabels}</a>`;
       } else {
-        choiceParagraphElement.innerHTML = `<span class='unclickable' aria-roledescription="unavailable choice">${leadingToneHTML}${hintPrefix}${choiceText}${trailingToneHTML}${srOnlyLabels}</span>`;
+        choiceParagraphElement.innerHTML = `<span class="unclickable" aria-roledescription="unavailable choice">${leadingToneHTML}${hintPrefix}${choiceText}${trailingToneHTML}${srOnlyLabels}</span>`;
       }
 
       this.storyContainer.appendChild(choiceParagraphElement);

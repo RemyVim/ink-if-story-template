@@ -56,13 +56,15 @@ class MarkdownProcessor {
       const externalAttr = isExternal
         ? ' target="_blank" rel="noopener noreferrer"'
         : "";
-      return `<a href="${href}"${externalAttr}>${text}</a>`;
+      const srText = isExternal // For screen readers, invisible
+        ? '<span class="sr-only"> (opens in new tab)</span>'
+        : "";
+      return `<a href="${href}"${externalAttr}>${text}${srText}</a>`;
     } else {
       // Treat as class name for inline styling
       return `<span class="inline-${target}">${text}</span>`;
     }
   }
-
   /**
    * Check if a string looks like a URL
    */
