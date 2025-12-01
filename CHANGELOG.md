@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Image alignment, width, alt text, and caption options for `# IMAGE:` tag
 - Tone indicators on choices: define markers with `# TONE: tagname icon` and tag choices with `# tagname`. Players can toggle in Settings.
 - Screen reader support: ARIA landmarks, skip link, modal focus management, live regions for notifications, and accessible choice markup
+- Loading screen and dark mode flash prevention for smoother initial page load
 
 ### Changed
 

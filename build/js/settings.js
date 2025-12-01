@@ -137,13 +137,16 @@ class SettingsManager {
 
   applyTheme() {
     const body = document.body;
+    const html = document.documentElement;
     if (!body) return;
 
-    // Remove existing theme classes
+    // Remove existing theme classes from both html and body
     body.classList.remove("dark");
+    html.classList.remove("dark");
 
     if (this.settings.theme === "dark") {
       body.classList.add("dark");
+      html.classList.add("dark");
     } else if (this.settings.theme === "auto") {
       // Use system preference
       const prefersDark = window.matchMedia(
@@ -151,6 +154,7 @@ class SettingsManager {
       ).matches;
       if (prefersDark) {
         body.classList.add("dark");
+        html.classList.add("dark");
       }
     }
 

@@ -4,16 +4,37 @@
     <meta charset="utf-8" />
     <title class="title"></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Prevent dark mode flash - must be before CSS -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem("ink-template-settings");
+          var settings = stored ? JSON.parse(stored) : null;
+          var theme = settings && settings.theme ? settings.theme : "auto";
+          var isDark =
+            theme === "dark" ||
+            (theme === "auto" &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches);
+          if (isDark) document.documentElement.classList.add("dark");
+        } catch (e) {}
+      })();
+    </script>
     <link rel="stylesheet" href="css/style.css" />
   </head>
 
   <body>
+    <!-- Loading screen - hidden after story initializes -->
+    <div id="loading-screen" class="loading-screen" aria-live="polite">
+      <div class="loading-content">
+        <div class="loading-spinner" aria-label="Loading story"></div>
+      </div>
+    </div>
     <a href="#main-content" class="skip-link">Skip to story content</a>
     <!-- Top navigation bar -->
     <nav class="top-nav" aria-label="Story navigation">
       <div class="nav-title-section">
         <div class="nav-title-wrapper">
-          <h1 class="nav-title title">Title</h1>
+          <h1 class="nav-title title"></h1>
           <button
             type="button"
             id="title-restart"
@@ -22,7 +43,7 @@
             tabindex="-1"
           ></button>
         </div>
-        <span class="nav-byline byline">Author</span>
+        <span class="nav-byline byline"></span>
       </div>
       <div class="nav-controls">
         <button
@@ -57,7 +78,7 @@
         </button>
       </div>
     </nav>
-    <main class="outerContainer" id="main-content">
+    <main class="outerContainer" id="main-content" aria-busy="true">
       <!-- Story container -->
       <div
         id="story"

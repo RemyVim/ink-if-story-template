@@ -14,6 +14,18 @@ fetch("story.json")
       // Initialize the story manager which handles everything
       window.storyManager = new StoryManager(storyContent);
 
+      // Hide loading screen
+      const loadingScreen = document.getElementById("loading-screen");
+      if (loadingScreen) {
+        loadingScreen.classList.add("hidden");
+        setTimeout(() => loadingScreen.remove(), 300);
+      }
+      // Signal content is ready to screen readers
+      const mainContent = document.getElementById("main-content");
+      if (mainContent) {
+        mainContent.removeAttribute("aria-busy");
+      }
+
       // Optional: expose for debugging in development
       if (
         window.location.hostname === "localhost" ||
