@@ -328,7 +328,7 @@ ChoiceScript-style stat displays.
 - [x] Semantic choice markup (`role="choice"`)
 - [x] Choice tone indicator accessibility
 - [x] Icon accessibility (`aria-hidden="true"` + `.sr-only` labels)
-- [ ] Loading state announcements (`aria-busy`)
+- [x] Loading state announcements (`aria-busy`)
 - [ ] Reading progress announcements
 
 ### Keyboard Navigation
@@ -429,9 +429,9 @@ Tool (local, offline) for authors to analyse playthrough stats shared by readers
 
 ### Validation
 
+- [x] Tag linting (catch malformed/unknown tags)
 - [ ] Asset validation (check if files exist)
 - [ ] Console warnings for missing assets
-- [ ] Tag linting (catch malformed/unknown tags)
 
 ### Automated Testing
 

@@ -2,7 +2,7 @@
 class PageManager {
   constructor(storyManager) {
     this.storyManager = storyManager;
-    this.tagProcessor = new TagProcessor();
+    this.tagProcessor = window.tagProcessor;
     this.savedDisplayState = null;
     this.savedStoryState = null;
 
@@ -194,22 +194,7 @@ class PageManager {
     if (text && text.trim().length > 0) {
       return false;
     }
-
-    // Check if tags only contain SPECIAL_PAGE (with or without colon syntax)
-    if (!Array.isArray(tags) || tags.length === 0) {
-      return false;
-    }
-
-    const hasSpecialPageTag = tags.some((tag) => {
-      const trimmedTag = tag.trim().toUpperCase();
-      return (
-        trimmedTag === "SPECIAL_PAGE" || trimmedTag.startsWith("SPECIAL_PAGE:")
-      );
-    });
-
-    // If it has the special page tag and only whitespace/empty content,
-    // treat it as just a marker line
-    return hasSpecialPageTag && (!text || text.trim().length === 0);
+    return TagRegistry.hasSpecialPageTag(tags);
   }
 
   /**

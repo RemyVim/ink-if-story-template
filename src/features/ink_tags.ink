@@ -61,13 +61,13 @@ You can ask players for input that will then be stored in a variable of your cho
 
 `\# USER_INPUT: your_variable_name "Placeholder text"`
 
-Placeholder text is optional.
+Placeholder text is optional. If you want to shorten it you can use `\# INPUT` instead!
 
 Write anything you want here:
 
 `\# USER_INPUT: input "Please input your text here."`
 
-# USER_INPUT: input "Please input your text here."
+# INPUT: input "Please input your text here."
 
 You wrote: "{input}".
 

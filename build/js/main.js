@@ -5,11 +5,7 @@ fetch("story.json")
   .then((response) => response.json())
   .then((storyContent) => {
     try {
-      // Check for tags to enable settings conditionally
-      const storyHasAudio = /"\^(AUDIO|AUDIOLOOP)\s*:/i.test(
-        JSON.stringify(storyContent),
-      );
-      window.storyHasAudio = storyHasAudio;
+      window.StoryFeatures.scan(storyContent);
 
       // Initialize the story manager which handles everything
       window.storyManager = new StoryManager(storyContent);
@@ -20,6 +16,7 @@ fetch("story.json")
         loadingScreen.classList.add("hidden");
         setTimeout(() => loadingScreen.remove(), 300);
       }
+
       // Signal content is ready to screen readers
       const mainContent = document.getElementById("main-content");
       if (mainContent) {

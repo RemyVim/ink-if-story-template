@@ -1,4 +1,4 @@
-// tags.js
+// tag-processor.js
 class TagProcessor {
   constructor(storyContainer, outerScrollContainer) {
     this.storyContainer = storyContainer || document.querySelector("#story");
@@ -7,35 +7,85 @@ class TagProcessor {
     this.audio = null;
     this.audioLoop = null;
     this.lastAudioLoopSrc = null;
-  }
 
-  // Helper for parsing out tags of the form:
-  //  # PROPERTY: value
-  // e.g. IMAGE: source path
-  static splitPropertyTag(tag) {
-    try {
-      if (!tag || typeof tag !== "string") {
-        return null;
-      }
+    const { TAGS } = window.TagRegistry || {};
 
-      const propertySplitIdx = tag.indexOf(":");
-      if (propertySplitIdx !== -1) {
-        const property = tag.substr(0, propertySplitIdx).trim();
-        const val = tag.substr(propertySplitIdx + 1).trim();
-        return {
-          property: property,
-          val: val,
-        };
-      }
-      return null;
-    } catch (error) {
-      window.errorManager.warning(
-        "Failed to split property tag",
-        error,
-        "tags",
-      );
-      return null;
-    }
+    // Handler map keyed by tag definition objects
+    this.tagHandlers = new Map([
+      [
+        TAGS.AUDIO,
+        (value, ctx) => {
+          ctx.specialActions?.push(() => this.playAudio(value));
+        },
+      ],
+      [
+        TAGS.AUDIOLOOP,
+        (value, ctx) => {
+          ctx.specialActions?.push(() => this.playAudioLoop(value));
+        },
+      ],
+      [
+        TAGS.BACKGROUND,
+        (value, ctx) => {
+          ctx.specialActions?.push(() => this.setBackground(value));
+        },
+      ],
+      [
+        TAGS.NOTIFICATION,
+        (value, ctx) => {
+          ctx.specialActions?.push(() => this.showNotification(value, "info"));
+        },
+      ],
+      [
+        TAGS.ACHIEVEMENT,
+        (value, ctx) => {
+          ctx.specialActions?.push(() =>
+            this.showNotification(value, "success", 6000),
+          );
+        },
+      ],
+      [
+        TAGS.WARNING,
+        (value, ctx) => {
+          ctx.specialActions?.push(() =>
+            this.showNotification(value, "warning"),
+          );
+        },
+      ],
+      [
+        TAGS.ERROR,
+        (value, ctx) => {
+          ctx.specialActions?.push(() => this.showNotification(value, "error"));
+        },
+      ],
+      [
+        TAGS.CLASS,
+        (value, ctx) => {
+          if (value) ctx.customClasses.push(value);
+        },
+      ],
+    ]);
+
+    this.simpleTagHandlers = new Map([
+      [
+        TAGS.CLEAR,
+        (ctx) => {
+          ctx.specialActions?.push(() => "CLEAR");
+        },
+      ],
+      [
+        TAGS.RESTART,
+        (ctx) => {
+          ctx.specialActions?.push(() => "RESTART");
+        },
+      ],
+      [
+        TAGS.UNCLICKABLE,
+        (ctx) => {
+          ctx.isClickable = false;
+        },
+      ],
+    ]);
   }
 
   processLineTags(tags) {
@@ -49,69 +99,9 @@ class TagProcessor {
         return { customClasses: [], specialActions: [] };
       }
 
-      const customClasses = [];
-      const specialActions = [];
-
-      for (let i = 0; i < tags.length; i++) {
-        const tag = tags[i];
-        if (typeof tag !== "string") continue;
-
-        const splitTag = TagProcessor.splitPropertyTag(tag);
-
-        if (splitTag) {
-          const property = splitTag.property.toUpperCase();
-          const value = splitTag.val;
-
-          switch (property) {
-            case "AUDIO":
-              specialActions.push(() => this.playAudio(value));
-              break;
-            case "AUDIOLOOP":
-              specialActions.push(() => this.playAudioLoop(value));
-              break;
-            case "BACKGROUND":
-              specialActions.push(() => this.setBackground(value));
-              break;
-            case "NOTIFICATION":
-              specialActions.push(() => this.showNotification(value, "info"));
-              break;
-            case "ACHIEVEMENT":
-              specialActions.push(() =>
-                this.showNotification(value, "success", 6000),
-              );
-              break;
-            case "WARNING":
-              specialActions.push(() =>
-                this.showNotification(value, "warning"),
-              );
-              break;
-            case "ERROR":
-              specialActions.push(() => this.showNotification(value, "error"));
-              break;
-            case "CLASS":
-              if (value) customClasses.push(value);
-              break;
-          }
-        } else {
-          // Handle simple tags without colons
-          const simpleTag = tag.trim().toUpperCase();
-
-          // Check for special system tags
-          if (simpleTag === "CLEAR" || simpleTag === "RESTART") {
-            specialActions.push(() => simpleTag);
-          } else if (simpleTag === "SPECIAL_PAGE") {
-            // SPECIAL_PAGE tag is just a marker - don't add any classes or actions
-            // It's used by the story manager to identify special pages
-            // but doesn't affect rendering
-            continue;
-          } else {
-            // Add as class
-            customClasses.push(simpleTag.toLowerCase());
-          }
-        }
-      }
-
-      return { customClasses, specialActions };
+      const ctx = { customClasses: [], specialActions: [] };
+      this._processTags(tags, ctx, "line", false);
+      return ctx;
     } catch (error) {
       window.errorManager.error("Failed to process line tags", error, "tags");
       return { customClasses: [], specialActions: [] };
@@ -129,36 +119,9 @@ class TagProcessor {
         return { customClasses: [], isClickable: true };
       }
 
-      const customClasses = [];
-      let isClickable = true;
-
-      for (let i = 0; i < choiceTags.length; i++) {
-        const choiceTag = choiceTags[i];
-        if (typeof choiceTag !== "string") continue;
-
-        const splitTag = TagProcessor.splitPropertyTag(choiceTag);
-
-        if (splitTag) {
-          const property = splitTag.property.toUpperCase();
-
-          if (property === "CLASS" && splitTag.val) {
-            customClasses.push(splitTag.val);
-          }
-        } else {
-          const simpleTag = choiceTag.trim().toUpperCase();
-
-          if (simpleTag === "UNCLICKABLE") {
-            isClickable = false;
-          } else if (simpleTag === "SPECIAL_PAGE") {
-            // SPECIAL_PAGE tag doesn't affect choice behavior
-            continue;
-          } else {
-            customClasses.push(simpleTag.toLowerCase());
-          }
-        }
-      }
-
-      return { customClasses, isClickable };
+      const ctx = { customClasses: [], isClickable: true };
+      this._processTags(choiceTags, ctx, "choice", true);
+      return ctx;
     } catch (error) {
       window.errorManager.error("Failed to process choice tags", error, "tags");
       return { customClasses: [], isClickable: true };
@@ -166,17 +129,61 @@ class TagProcessor {
   }
 
   /**
-   * Check if a tag array contains the SPECIAL_PAGE marker
-   * @param {Array} tags - Array of tags to check
-   * @returns {boolean} True if SPECIAL_PAGE tag is present
+   * Internal tag processing logic shared by line and choice processing
+   * @param {Array} tags - Tags to process
+   * @param {Object} ctx - Context object to populate
+   * @param {string} context - 'line' or 'choice' for warnings
+   * @param {boolean} allowTones - Whether to allow tone indicators
    */
-  static hasSpecialPageTag(tags) {
-    if (!Array.isArray(tags)) return false;
+  _processTags(tags, ctx, context, allowTones) {
+    for (const tag of tags) {
+      const { tagDef, tagValue, invalid, error } = TagRegistry.parseTag(tag);
 
-    return tags.some((tag) => {
-      if (typeof tag !== "string") return false;
-      return tag.trim().toUpperCase() === "SPECIAL_PAGE";
-    });
+      // Skip invalid tags (already warned in parseTag)
+      if (invalid) {
+        if (error) console.warn(`[Tag Registry] ${error}`);
+        continue;
+      }
+
+      // Check property tag handlers
+      const handler = this.tagHandlers.get(tagDef);
+      if (handler) {
+        handler(tagValue, ctx);
+        continue;
+      }
+
+      // Check simple tag handlers
+      const simpleHandler = this.simpleTagHandlers.get(tagDef);
+      if (simpleHandler) {
+        simpleHandler(ctx);
+        continue;
+      }
+
+      // Known marker tag (handled elsewhere) - skip silently
+      if (tagDef !== null) {
+        continue;
+      }
+
+      // Unknown tag handling
+      if (!tag || typeof tag !== "string") continue;
+
+      const isPropertyTag = tag.includes(":");
+      const tagName = isPropertyTag ? tag.split(":")[0].trim() : tag.trim();
+      if (!tagName) continue;
+
+      // Tone indicators (choices only, simple tags only)
+      if (
+        allowTones &&
+        !isPropertyTag &&
+        TagRegistry.isRegisteredToneTag(tagName)
+      ) {
+        ctx.customClasses.push(tagName.toLowerCase());
+        continue;
+      }
+
+      // Warn and skip
+      this.warnUnknownTag(tagName, context, tag);
+    }
   }
 
   // Media and interaction methods
@@ -314,13 +321,6 @@ class TagProcessor {
     }
   }
 
-  /**
-   * Check if audio is currently enabled in settings
-   */
-  isAudioEnabled() {
-    return window.storyManager?.settings?.getSetting("audioEnabled") ?? true;
-  }
-
   showNotification(message, type = "info", duration = 4000) {
     if (window.notificationManager) {
       window.notificationManager.show(message, { type, duration });
@@ -356,6 +356,87 @@ class TagProcessor {
     } catch (error) {
       window.errorManager.error("Failed to set background", error, "tags");
     }
+  }
+
+  /**
+   * Warn about unknown tags with helpful suggestions
+   * @param {string} tagName - The unknown tag
+   * @param {string} context - 'line' or 'choice'
+   */
+  warnUnknownTag(tagName, context, fullTag = "") {
+    // Only warn once per tag name to avoid console spam
+    this.warnedTags = this.warnedTags || new Set();
+    if (this.warnedTags.has(tagName.toUpperCase())) return;
+    this.warnedTags.add(tagName.toUpperCase());
+
+    const similar = this.getSimilarTags(tagName);
+
+    let suggestion = "";
+    if (similar.length > 0) {
+      // We have similar tags - suggest those
+      suggestion = ` Did you mean: ${similar.join(", ")}?`;
+    } else {
+      // No similar tags - give usage hint
+      if (context === "line") {
+        suggestion = " Use # CLASS: for custom CSS classes.";
+      } else if (context === "choice") {
+        suggestion =
+          " For tone indicators, define with # TONE: tagname icon first.";
+      }
+    }
+
+    console.warn(
+      `[Tag Processor] Unknown tag "${tagName}" on ${context}: "# ${fullTag}".${suggestion}`,
+    );
+  }
+
+  /**
+   * Find similar known tags for typo suggestions
+   * @param {string} tagName - The unknown tag
+   * @returns {string[]} Up to 3 similar tag names
+   */
+  getSimilarTags(tagName) {
+    const { TAGS } = window.TagRegistry || {};
+    if (!TAGS) return [];
+
+    const input = tagName.toUpperCase();
+    const knownTags = Object.keys(TAGS);
+
+    return knownTags
+      .filter((known) => {
+        // Prefix match (3+ chars)
+        if (input.length >= 3 && known.startsWith(input.slice(0, 3)))
+          return true;
+        if (known.length >= 3 && input.startsWith(known.slice(0, 3)))
+          return true;
+        // Simple edit distance check (off by 1-2 chars)
+        return this.levenshteinDistance(input, known) <= 2;
+      })
+      .slice(0, 3);
+  }
+
+  /**
+   * Calculate Levenshtein distance between two strings
+   */
+  levenshteinDistance(a, b) {
+    if (a.length === 0) return b.length;
+    if (b.length === 0) return a.length;
+
+    const matrix = [];
+    for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+    for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+
+    for (let i = 1; i <= b.length; i++) {
+      for (let j = 1; j <= a.length; j++) {
+        const cost = a[j - 1] === b[i - 1] ? 0 : 1;
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j - 1] + cost,
+        );
+      }
+    }
+    return matrix[b.length][a.length];
   }
 
   /**
@@ -407,3 +488,5 @@ class TagProcessor {
     }
   }
 }
+
+window.tagProcessor = new TagProcessor();

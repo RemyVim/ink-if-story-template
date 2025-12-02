@@ -9,6 +9,9 @@ class StoryManager {
       this.availablePages = {};
       this.pageMenuOrder = null;
 
+      // Get tag constants from registry
+      const { TAGS } = window.TagRegistry || {};
+
       this.initializeSubsystems();
       this.detectSpecialPages();
       this.setupInitialState();
@@ -104,40 +107,31 @@ class StoryManager {
   }
 
   getSpecialPageInfo(knotName) {
-    try {
-      // Create a temporary story to test the knot
-      const tempStory = this.createTempStory();
+    const { TAGS, getTagDef } = window.TagRegistry || {};
+    if (!TAGS || !getTagDef) return null;
 
-      // Try to navigate to the knot
+    try {
+      const tempStory = this.createTempStory();
       tempStory.ChoosePathString(knotName);
 
-      // Check the first line for SPECIAL_PAGE tag
       if (tempStory.canContinue) {
         tempStory.Continue();
+
         const tags = tempStory.currentTags || [];
 
-        // Look for SPECIAL_PAGE tag
-        for (let tag of tags) {
-          const trimmedTag = tag.trim();
+        for (const tag of tags) {
+          if (typeof tag !== "string") continue;
 
-          // Check for SPECIAL_PAGE with colon syntax: "SPECIAL_PAGE: Display Name"
-          if (trimmedTag.toUpperCase().startsWith("SPECIAL_PAGE:")) {
-            const displayName = trimmedTag.substring(13).trim(); // Remove "SPECIAL_PAGE:" prefix
+          const { tagDef, tagValue } = TagRegistry.parseTag(tag);
+
+          if (tagDef === TAGS.SPECIAL_PAGE) {
             return {
-              displayName: displayName || this.formatKnotName(knotName), // Fallback to formatted knot name
-              isSpecialPage: true,
-            };
-          }
-          // Check for legacy simple SPECIAL_PAGE tag
-          else if (trimmedTag.toUpperCase() === "SPECIAL_PAGE") {
-            return {
-              displayName: this.formatKnotName(knotName), // Use formatted knot name as fallback
+              displayName: tagValue?.trim() || this.formatKnotName(knotName),
               isSpecialPage: true,
             };
           }
         }
       }
-
       return null;
     } catch (error) {
       // If we can't navigate to it, it's not a valid knot
@@ -196,9 +190,8 @@ class StoryManager {
       const property = tag.substring(0, colonIndex).trim().toUpperCase();
       const value = tag.substring(colonIndex + 1).trim();
 
-      if (property === "PAGE_MENU") {
+      if (getTagDef(property) === TAGS.PAGE_MENU) {
         this.pageMenuOrder = this.parseMenuOrder(value);
-        console.log("Page menu order found:", this.pageMenuOrder);
         break;
       }
     }

@@ -8,7 +8,6 @@ class SaveSystem {
 
     // Initialize the modal UI
     this.modal = new SavesModalManager(this);
-    console.log("SaveSystem modal created:", this.modal);
     this.setupEventListeners();
   }
 

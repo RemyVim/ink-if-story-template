@@ -4,6 +4,7 @@ class SettingsManager {
     this.settings = this.getDefaults();
 
     this.toneIndicatorsAvailable = false;
+    this.authorToneIndicators = true;
     this.toneIndicatorsTrailing = false;
     this.toneMap = {}; // Will be populated from global tags
     this.authorChoiceNumbering = "auto";
@@ -28,7 +29,7 @@ class SettingsManager {
       audioEnabled: true,
       autoSave: true,
       animations: true,
-      toneIndicators: true,
+      toneIndicators: this.authorToneIndicators || false,
       choiceNumbering: this.authorChoiceNumbering || "auto",
       keyboardShortcuts: true,
     };
@@ -58,52 +59,45 @@ class SettingsManager {
   }
 
   /**
-   * Process global tags from the story for initial theme setup
+   * Process global tags from the story for initial author setup
    * @param {Array} globalTags - Array of global tags from the story
    */
   processGlobalTags(globalTags) {
     if (!Array.isArray(globalTags)) return;
 
+    const { TAGS, getTagDef } = window.TagRegistry || {};
+    if (!TAGS || !getTagDef) return;
+
     for (const tag of globalTags) {
       if (typeof tag !== "string") continue;
 
-      // Check for tags without colons first
-      const upperTag = tag.trim().toUpperCase();
-      if (upperTag === "TONE_TRAILING") {
-        this.toneIndicatorsTrailing = true;
-        continue;
-      }
+      const { tagDef, tagValue, invalid } = TagRegistry.parseTag(tag);
+      if (invalid) continue;
 
-      const colonIndex = tag.indexOf(":");
-      if (colonIndex === -1) continue;
-
-      const property = tag.substring(0, colonIndex).trim().toUpperCase();
-      const value = tag.substring(colonIndex + 1).trim();
-
-      switch (property) {
-        case "THEME":
+      switch (tagDef) {
+        case TAGS.THEME:
           // Only apply global theme if user hasn't set a preference
           const storedSettings = this.getStoredSettings();
           if (!storedSettings?.theme) {
-            this.settings.theme = value === "dark" ? "dark" : "light";
+            this.settings.theme = tagValue === "dark" ? "dark" : "light";
           }
           break;
 
-        case "TITLE":
+        case TAGS.TITLE:
           const titleElements = document.querySelectorAll(".title");
-          titleElements.forEach((el) => (el.textContent = value));
+          titleElements.forEach((el) => (el.textContent = tagValue));
           break;
 
-        case "AUTHOR":
+        case TAGS.AUTHOR:
           const bylineElement = document.querySelector(".byline");
           if (bylineElement) {
-            bylineElement.textContent = `by ${value}`;
+            bylineElement.textContent = `by ${tagValue}`;
           }
           break;
 
-        case "CHOICE_NUMBERS": {
+        case TAGS.CHOICE_NUMBERS: {
           // 'on' = always show, 'off' = never show, 'auto' = keyboard only (default)
-          const numMode = value.toLowerCase();
+          const numMode = tagValue.toLowerCase();
           if (numMode === "off") {
             this.authorChoiceNumbering = "off";
           } else if (numMode === "on") {
@@ -122,21 +116,25 @@ class SettingsManager {
           break;
         }
 
-        case "TONE_INDICATORS":
-          const toneMode = value.toLowerCase();
+        case TAGS.TONE_INDICATORS:
+          const toneMode = tagValue.toLowerCase();
           this.toneIndicatorsAvailable = true;
+          this.authorToneIndicators = toneMode !== "off" || false;
           this.settings.toneIndicators = toneMode !== "off";
           break;
 
-        case "TONE_TRAILING":
+        case TAGS.TONE_TRAILING:
           this.toneIndicatorsTrailing = true;
           break;
 
-        case "TONE": // TONE: label icon
-          const spaceIndex = value.indexOf(" ");
+        case TAGS.TONE: // TONE: label icon
+          const spaceIndex = tagValue.indexOf(" ");
           if (spaceIndex !== -1) {
-            const label = value.substring(0, spaceIndex).trim().toLowerCase();
-            const icon = value.substring(spaceIndex + 1).trim();
+            const label = tagValue
+              .substring(0, spaceIndex)
+              .trim()
+              .toLowerCase();
+            const icon = tagValue.substring(spaceIndex + 1).trim();
             this.toneMap[label] = icon;
           }
           break;
@@ -210,8 +208,7 @@ class SettingsManager {
   }
 
   getSettingsHTML() {
-    const audioAvailable =
-      window.storyManager?.contentProcessor?.tagProcessor?.hasAudio?.();
+    const audioAvailable = window.StoryFeatures?.hasAudio;
 
     return `
     <div class="settings-tabs" role="tablist" aria-label="Settings categories">
@@ -290,19 +287,6 @@ class SettingsManager {
         </select>
       </div>
 
-      ${
-        this.toneIndicatorsAvailable
-          ? `
-      <div class="setting-item">
-        <label class="setting-checkbox-label">
-          <input type="checkbox" name="toneIndicators" class="setting-checkbox">
-          <span>Show tone indicators on choices</span>
-        </label>
-      </div>
-      `
-          : ""
-      }
-
       <div class="setting-item">
         <label class="setting-checkbox-label">
           <input type="checkbox" name="autoSave" class="setting-checkbox">
@@ -319,6 +303,19 @@ class SettingsManager {
           <span>Enable Animations</span>
         </label>
       </div>
+
+      ${
+        this.toneIndicatorsAvailable
+          ? `
+      <div class="setting-item">
+        <label class="setting-checkbox-label">
+          <input type="checkbox" name="toneIndicators" class="setting-checkbox">
+          <span>Show tone indicators on choices</span>
+        </label>
+      </div>
+      `
+          : ""
+      }
 
       <div class="setting-item">
         <label class="setting-label" for="setting-choicenumbering">Choice Number Hints</label>

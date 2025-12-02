@@ -1,10 +1,10 @@
-# author: Rémy Vim
-# title: Ink Story Template
+# AUTHOR: Rémy Vim
+# TITLE: Ink Story Template
 # PAGE_MENU: sheet, inventory_page, relationships ,,credits,content_warnings
+# THEME: light
 
 # TONE_INDICATORS: on
 # TONE: flirty local_fire_department
-# TONE: favorite favorite
 # TONE: shy favorite  
 # TONE: bold star
 # TONE: sarcasm 😏

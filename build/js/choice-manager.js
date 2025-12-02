@@ -2,7 +2,7 @@
 class ChoiceManager {
   constructor(storyManager) {
     this.storyManager = storyManager;
-    this.tagProcessor = new TagProcessor();
+    this.tagProcessor = window.tagProcessor;
   }
 
   /**

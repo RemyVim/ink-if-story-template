@@ -1,7 +1,7 @@
 // content-processor.js
 class ContentProcessor {
   constructor() {
-    this.tagProcessor = new TagProcessor();
+    this.tagProcessor = window.tagProcessor;
   }
 
   /**
@@ -10,140 +10,124 @@ class ContentProcessor {
    * @param {Array} tags - Array of tags from the story
    * @returns {Object|null} Processed content object or null if empty
    */
-  process(text, tags = []) {
-    let imageTag = null;
-    if (Array.isArray(tags)) {
-      imageTag = tags.find(
-        (tag) =>
-          typeof tag === "string" &&
-          tag.trim().toUpperCase().startsWith("IMAGE:"),
-      );
-    }
+  process(text, tags) {
+    const { TAGS, getTagDef } = window.TagRegistry || {};
 
-    if (imageTag && typeof imageTag === "string") {
-      const imageValue = imageTag.substring(imageTag.indexOf(":") + 1).trim();
-      const imageData = this.parseImageTag(imageValue);
+    // Check tags for content-type tags (IMAGE, STATBAR, USER_INPUT)
+    if (TAGS && getTagDef && Array.isArray(tags)) {
+      for (const tag of tags) {
+        if (typeof tag !== "string") continue;
 
-      // Only return pure image type if there's no text
-      if (!text || typeof text !== "string" || !text.trim()) {
-        return {
-          type: "image",
-          ...imageData,
-        };
-      }
+        const { tagDef, tagValue, invalid } = TagRegistry.parseTag(tag);
+        if (invalid) continue;
 
-      // If there's both text AND image, return both as an array
-      // Image comes first, then the paragraph
-      return [
-        {
-          type: "image",
-          ...imageData,
-        },
-        {
-          type: "paragraph",
-          text,
-          classes:
-            this.tagProcessor?.processLineTags?.(tags)?.customClasses || [],
-          tags,
-          hasSpecialAction: false,
-          action: null,
-        },
-      ];
-    }
+        if (tagDef === TAGS.IMAGE) {
+          const imageData = this.parseImageTag(tagValue);
 
-    // Check for STATBAR tags (could be multiple)
-    const statBarTags = Array.isArray(tags)
-      ? tags.filter(
-          (tag) =>
-            typeof tag === "string" &&
-            tag.trim().toUpperCase().startsWith("STATBAR:"),
-        )
-      : [];
+          // Only return pure image type if there's no text
+          if (!text || typeof text !== "string" || !text.trim()) {
+            return {
+              type: "image",
+              ...imageData,
+            };
+          }
 
-    if (statBarTags.length > 0) {
-      const statBars = statBarTags.map((tag) => {
-        const statBarValue = tag.substring(tag.indexOf(":") + 1).trim();
-        const statBarData = this.parseStatBarTag(statBarValue);
-        return {
-          type: "statbar",
-          ...statBarData,
-        };
-      });
+          // If there's both text AND image, return both as an array
+          // Image comes first, then the paragraph
+          return [
+            {
+              type: "image",
+              ...imageData,
+            },
+            {
+              type: "paragraph",
+              text,
+              classes:
+                this.tagProcessor?.processLineTags?.(tags)?.customClasses || [],
+              tags,
+              hasSpecialAction: false,
+              action: null,
+            },
+          ];
+        }
 
-      // If there's also text, include it as a paragraph
-      if (text && typeof text === "string" && text.trim()) {
-        return [
-          ...statBars,
-          {
-            type: "paragraph",
-            text,
-            classes:
-              this.tagProcessor?.processLineTags?.(tags)?.customClasses || [],
-            tags,
-            hasSpecialAction: false,
-            action: null,
-          },
-        ];
-      }
+        if (tagDef === TAGS.STATBAR) {
+          // Collect ALL statbar tags (there could be multiple)
+          const parsedTags = tags.map((t) => TagRegistry.parseTag(t));
+          const statBarTags = parsedTags.filter(
+            ({ tagDef: def, invalid }) => def === TAGS.STATBAR && !invalid,
+          );
 
-      // Return single statbar or array of statbars
-      return statBars.length === 1 ? statBars[0] : statBars;
-    }
-    // Check for USER_INPUT tag and return typed content
-    let userInputTag = null;
-    if (Array.isArray(tags)) {
-      userInputTag = tags.find(
-        (tag) =>
-          typeof tag === "string" &&
-          (tag.trim().toUpperCase().startsWith("USER_INPUT:") ||
-            tag.trim().toUpperCase().startsWith("INPUT:")),
-      );
-    }
+          const statBars = statBarTags.map(({ tagValue: val }) => ({
+            type: "statbar",
+            ...this.parseStatBarTag(val),
+          }));
 
-    if (userInputTag && typeof userInputTag === "string") {
-      const userInputValue = userInputTag
-        .substring(userInputTag.indexOf(":") + 1)
-        .trim();
-      const userInputData = this.parseUserInputTag(userInputValue);
+          // If there's also text, include it as a paragraph
+          if (text && typeof text === "string" && text.trim()) {
+            return [
+              ...statBars,
+              {
+                type: "paragraph",
+                text,
+                classes:
+                  this.tagProcessor?.processLineTags?.(tags)?.customClasses ||
+                  [],
+                tags,
+                hasSpecialAction: false,
+                action: null,
+              },
+            ];
+          }
 
-      // Check if variable already has a value (re-processing after input was submitted)
-      const currentValue =
-        window.storyManager?.story?.variablesState?.[
-          userInputData.variableName
-        ];
+          // Return single statbar or array of statbars
+          return statBars.length === 1 ? statBars[0] : statBars;
+        }
 
-      if (
-        currentValue &&
-        currentValue !== "" &&
-        window.storyManager?.reprocessingAfterUserInput
-      ) {
-        // Variable already set AND we're re-processing after submit
-        // Fall through to normal paragraph processing
-      } else {
-        // Either variable not set, OR we're visiting fresh — show input field
-        return {
-          type: "user-input",
-          ...userInputData,
-        };
+        if (tagDef === TAGS.USER_INPUT) {
+          const userInputData = this.parseUserInputTag(tagValue);
+
+          // Check if variable already has a value (re-processing after input was submitted)
+          const currentValue =
+            window.storyManager?.story?.variablesState?.[
+              userInputData.variableName
+            ];
+
+          if (
+            currentValue &&
+            currentValue !== "" &&
+            window.storyManager?.reprocessingAfterUserInput
+          ) {
+            // Variable already set AND we're re-processing after submit
+            // Fall through to normal paragraph processing
+            break;
+          }
+
+          // Either variable not set, OR we're visiting fresh — show input field
+          return {
+            type: "user-input",
+            ...userInputData,
+          };
+        }
       }
     }
+
+    // Normal paragraph processing
     if (!Array.isArray(tags)) {
       window.errorManager.warning(
         "Invalid tags array provided to ContentProcessor.process",
         null,
         "content-processor",
       );
-      tags = []; // Fallback to empty array
+      tags = [];
     }
 
-    // Check if tag processor is available
     if (!this.tagProcessor?.processLineTags) {
       window.errorManager.error(
         "TagProcessor not available in ContentProcessor",
         null,
         "content-processor",
       );
-      // Return basic content without tag processing
       return {
         type: "paragraph",
         text,
@@ -155,11 +139,9 @@ class ContentProcessor {
     }
 
     try {
-      // Process tags to get classes and special actions
       const { customClasses, specialActions } =
         this.tagProcessor.processLineTags(tags);
 
-      // Find special action
       const specialAction = this.findSpecialAction(specialActions);
 
       return {
@@ -236,16 +218,6 @@ class ContentProcessor {
       processorType: this.tagProcessor?.constructor?.name || "unknown",
       timestamp: new Date().toISOString(),
     };
-  }
-
-  /**
-   * Reset the content processor (useful for cleanup)
-   */
-  reset() {
-    // Recreate tag processor if needed
-    if (!this.tagProcessor) {
-      this.tagProcessor = new TagProcessor();
-    }
   }
 
   /**
