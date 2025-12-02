@@ -391,8 +391,9 @@ class StoryManager {
       if (this.story.currentChoices?.length > 0) {
         const choices = this.choices?.generate?.(this.story.currentChoices);
         if (choices) {
-          const showNumbers = this.settings?.settings?.choiceNumbering ?? true;
-          this.display?.renderChoices?.(choices, showNumbers);
+          // Always include hints in HTML - CSS handles visibility via container class
+          // TODO: Fix this to remove unused parameter
+          this.display?.renderChoices?.(choices, true);
         }
       }
     } catch (error) {

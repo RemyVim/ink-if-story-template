@@ -15,6 +15,7 @@ class SettingsManager {
     this.toneIndicatorsAvailable = false;
     this.toneIndicatorsTrailing = false;
     this.toneMap = {}; // Will be populated from global tags
+    this.authorChoiceNumbering = "auto";
 
     this.init();
   }
@@ -94,16 +95,23 @@ class SettingsManager {
           }
           break;
 
-        case "CHOICE_NUMBERS":
+        case "CHOICE_NUMBERS": {
           // 'on' = always show, 'off' = never show, 'auto' = keyboard only (default)
           const numMode = value.toLowerCase();
           if (numMode === "off") {
-            this.settings.choiceNumbering = "off";
+            this.authorChoiceNumbering = "off";
           } else if (numMode === "on") {
-            this.settings.choiceNumbering = "on";
+            this.authorChoiceNumbering = "on";
           } else {
-            this.settings.choiceNumbering = "auto";
+            this.authorChoiceNumbering = "auto";
           }
+
+          // Only apply if user hasn't set a preference
+          const storedSettings = this.getStoredSettings();
+          if (!storedSettings?.choiceNumbering) {
+            this.settings.choiceNumbering = this.authorChoiceNumbering;
+          }
+
           document.body?.classList.remove(
             "choice-numbers-on",
             "choice-numbers-off",
@@ -113,6 +121,7 @@ class SettingsManager {
             `choice-numbers-${this.settings.choiceNumbering}`,
           );
           break;
+        }
 
         case "TONE_INDICATORS":
           const toneMode = value.toLowerCase();
@@ -310,6 +319,15 @@ class SettingsManager {
           <input type="checkbox" name="animations" class="setting-checkbox">
           <span>Enable Animations</span>
         </label>
+      </div>
+
+      <div class="setting-item">
+        <label class="setting-label" for="setting-choicenumbering">Choice Number Hints</label>
+        <select name="choiceNumbering" id="setting-choicenumbering" class="setting-select">
+          <option value="auto">Auto (hide on mobile)</option>
+          <option value="on">Always show</option>
+          <option value="off">Always hide</option>
+        </select>
       </div>
 
       ${
@@ -533,9 +551,25 @@ class SettingsManager {
       case "toneIndicators":
         this.refreshChoices();
         break;
+      case "choiceNumbering":
+        this.applyChoiceNumbering();
+        break;
     }
   }
 
+  /**
+   * Apply choice numbering setting to container
+   */
+  applyChoiceNumbering() {
+    document.body?.classList.remove(
+      "choice-numbers-on",
+      "choice-numbers-off",
+      "choice-numbers-auto",
+    );
+    document.body?.classList.add(
+      `choice-numbers-${this.settings.choiceNumbering || "auto"}`,
+    );
+  }
   populateSettings() {
     if (!this.modal?.modalElement) return;
 
@@ -548,6 +582,7 @@ class SettingsManager {
       { name: "audioEnabled", checked: this.settings.audioEnabled },
       { name: "autoSave", checked: this.settings.autoSave },
       { name: "animations", checked: this.settings.animations },
+      { name: "choiceNumbering", value: this.settings.choiceNumbering },
       { name: "toneIndicators", checked: this.settings.toneIndicators },
     ];
 
@@ -585,6 +620,8 @@ class SettingsManager {
       getValue("autoSave", true) ?? this.settings.autoSave;
     this.settings.animations =
       getValue("animations", true) ?? this.settings.animations;
+    this.settings.choiceNumbering =
+      getValue("choiceNumbering") || this.settings.choiceNumbering;
     this.settings.toneIndicators =
       getValue("toneIndicators", true) ?? this.settings.toneIndicators;
 
@@ -645,6 +682,9 @@ class SettingsManager {
       toneIndicators: this.modal.modalElement.querySelector(
         'input[name="toneIndicators"]',
       ),
+      choiceNumbering: this.modal.modalElement.querySelector(
+        'select[name="choiceNumbering"]',
+      ),
     };
 
     Object.entries(elements).forEach(([setting, element]) => {
@@ -671,6 +711,7 @@ class SettingsManager {
       autoSave: true,
       animations: true,
       toneIndicators: true,
+      choiceNumbering: this.authorChoiceNumbering,
     };
 
     this.populateSettings();
@@ -684,6 +725,7 @@ class SettingsManager {
     this.applyTextSize();
     this.applyLineHeight();
     this.applyAnimations();
+    this.applyChoiceNumbering();
   }
 
   applyFontFamily() {

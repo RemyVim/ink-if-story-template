@@ -16,6 +16,8 @@ On devices with keyboards, choices display number hints (1, 2, 3...) so readers 
 | `on` | Always show hints |
 | `off` | Never show hints |
 
+**Tip:** Readers can override this setting in the Settings menu under "Accessibility" → "Choice Number Hints". If you're testing and don't see the expected behavior, click "Reset to Defaults" in the Settings menu. This will restore your `# CHOICE_NUMBERS:` tag setting as the active preference.
+
 ## Tone Indicators
 
 Show small icons next to choices to hint at their tone or consequences—like whether a response is flirty, aggressive, or risky.
