@@ -33,6 +33,7 @@ class SettingsManager {
       className: "settings-modal",
       maxWidth: "500px",
       onShow: () => this.populateSettings(),
+      onHide: () => this.saveSettings(),
     });
   }
 
@@ -201,102 +202,144 @@ class SettingsManager {
   }
 
   getSettingsHTML() {
+    const audioAvailable =
+      window.storyManager?.contentProcessor?.tagProcessor?.hasAudio?.();
+
     return `
-      <div class="settings-section">
-        <h3>Appearance</h3>
-        
-        <div class="setting-item">
-          <label for="theme" class="setting-label">Theme</label>
-          <select id="theme" name="theme" class="setting-select">
-            <option value="auto">Auto (System)</option>
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-          </select>
-        </div>
+    <div class="settings-tabs" role="tablist" aria-label="Settings categories">
+      <button role="tab" class="settings-tab active" 
+              id="tab-reading"
+              data-tab="reading" 
+              aria-selected="true" 
+              aria-controls="panel-reading"
+              tabindex="0">
+        <span class="material-icons" aria-hidden="true">auto_stories</span>
+        <span class="sr-only">Reading</span>
+      </button>
+      <button role="tab" class="settings-tab" 
+              id="tab-accessibility"
+              data-tab="accessibility" 
+              aria-selected="false" 
+              aria-controls="panel-accessibility"
+              tabindex="-1">
+        <span class="material-icons" aria-hidden="true">accessibility_new</span>
+        <span class="sr-only">Accessibility</span>
+      </button>
+      ${
+        audioAvailable
+          ? `
+      <button role="tab" class="settings-tab" 
+              id="tab-audio"
+              data-tab="audio" 
+              aria-selected="false" 
+              aria-controls="panel-audio"
+              tabindex="-1">
+        <span class="material-icons" aria-hidden="true">volume_up</span>
+        <span class="sr-only">Audio</span>
+      </button>
+      `
+          : ""
+      }
+    </div>
 
-        <div class="setting-item">
-          <label for="font" class="setting-label">Font Family</label>
-          <select id="font" name="fontFamily" class="setting-select">
-            <option value="serif">Merriweather (Serif)</option>
-            <option value="sans">Inter (Sans-serif)</option>
-            <option value="dyslexic">OpenDyslexic (Accessibility)</option>
-          </select>
-        </div>
-
-        <div class="setting-item">
-          <label for="text-size" class="setting-label">Text Size</label>
-          <select id="text-size" name="text-size" class="setting-select">
-            <option value="small">Small</option>
-            <option value="medium">Medium</option>
-            <option value="large">Large</option>
-            <option value="xl">Extra Large</option>
-          </select>
-        </div>
-
-        <div class="setting-item">
-          <label for="line-height" class="setting-label">Line Height</label>
-          <select id="line-height" name="line-height" class="setting-select">
-            <option value="tight">Tight (1.4)</option>
-            <option value="normal">Normal (1.7)</option>
-            <option value="loose">Loose (2.0)</option>
-          </select>
-        </div>
+  <div class="settings-panels">
+    <!-- Reading Panel -->
+    <div role="tabpanel" class="settings-panel active" id="panel-reading" aria-labelledby="tab-reading">
+      <div class="setting-item">
+        <label class="setting-label" for="setting-theme">Theme</label>
+        <select name="theme" id="setting-theme" class="setting-select">
+          <option value="auto">Auto (System)</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
       </div>
 
-      <div class="settings-section">
-        <h3>Experience</h3>
-        
-        ${
-          window.storyHasAudio !== false
-            ? `
-        <div class="setting-item">
-          <label class="setting-checkbox-label">
-            <input type="checkbox" name="audioEnabled" class="setting-checkbox">
-            <span>Enable Audio</span>
-          </label>
-        </div>
-        `
-            : ""
-        }
-
-        ${
-          this.toneIndicatorsAvailable
-            ? `
-          <div class="setting-item">
-            <label class="setting-label">
-              <input type="checkbox" name="toneIndicators" class="setting-checkbox">
-              Show tone indicators on choices
-            </label>
-          </div>
-        `
-            : ""
-        }
-
-        <div class="setting-item">
-          <label class="setting-checkbox-label">
-            <input type="checkbox" name="autoSave" class="setting-checkbox">
-            <span>Auto Save Progress</span>
-          </label>
-        </div>
-
-        <div class="setting-item">
-          <label class="setting-checkbox-label">
-            <input type="checkbox" name="animations" class="setting-checkbox">
-            <span>Enable Animations</span>
-          </label>
-        </div>
+      <div class="setting-item">
+        <label class="setting-label" for="setting-font">Font Family</label>
+        <select name="fontFamily" id="setting-font" class="setting-select">
+          <option value="serif">Serif</option>
+          <option value="sans">Sans-serif</option>
+          <option value="dyslexic">OpenDyslexic</option>
+        </select>
       </div>
-${
-  window.keyboardHelpModal?.isAvailable()
-    ? `
-  <div class="settings-section">
-    <h3>Help</h3>
-    <button type="button" class="keyboard-help-btn">Keyboard Shortcuts</button>
+
+      <div class="setting-item">
+        <label class="setting-label" for="setting-size">Text Size</label>
+        <select name="textSize" id="setting-size" class="setting-select">
+          <option value="small">Small</option>
+          <option value="medium">Medium</option>
+          <option value="large">Large</option>
+          <option value="xl">Extra Large</option>
+        </select>
+      </div>
+
+      <div class="setting-item">
+        <label class="setting-label" for="setting-lineheight">Line Height</label>
+        <select name="lineHeight" id="setting-lineheight" class="setting-select">
+          <option value="tight">Tight</option>
+          <option value="normal">Normal</option>
+          <option value="loose">Loose</option>
+        </select>
+      </div>
+
+      ${
+        this.toneIndicatorsAvailable
+          ? `
+      <div class="setting-item">
+        <label class="setting-checkbox-label">
+          <input type="checkbox" name="toneIndicators" class="setting-checkbox">
+          <span>Show tone indicators on choices</span>
+        </label>
+      </div>
+      `
+          : ""
+      }
+
+      <div class="setting-item">
+        <label class="setting-checkbox-label">
+          <input type="checkbox" name="autoSave" class="setting-checkbox">
+          <span>Auto Save Progress</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Accessibility Panel -->
+    <div role="tabpanel" class="settings-panel" id="panel-accessibility" aria-labelledby="tab-accessibility">
+      <div class="setting-item">
+        <label class="setting-checkbox-label">
+          <input type="checkbox" name="animations" class="setting-checkbox">
+          <span>Enable Animations</span>
+        </label>
+      </div>
+
+      ${
+        window.keyboardHelpModal?.isAvailable()
+          ? `
+      <div class="setting-item">
+        <button type="button" class="keyboard-help-btn">Keyboard Shortcuts</button>
+      </div>
+      `
+          : ""
+      }
+    </div>
+
+    <!-- Audio Panel (conditional) -->
+    ${
+      audioAvailable
+        ? `
+    <div role="tabpanel" class="settings-panel" id="panel-audio" aria-labelledby="tab-audio">
+      <div class="setting-item">
+        <label class="setting-checkbox-label">
+          <input type="checkbox" name="audioEnabled" class="setting-checkbox">
+          <span>Enable Audio</span>
+        </label>
+      </div>
+    </div>
   </div>
-`
-    : ""
-}
-    `;
+    `
+        : ""
+    }
+  `;
   }
 
   setupEventListeners() {
@@ -324,26 +367,29 @@ ${
       // Set content
       modal.setContent(this.getSettingsHTML());
 
-      // Set footer with buttons
+      // Set footer with single "Done" button (auto-save handles persistence)
       const footer = modal.getFooter();
       if (footer) {
         footer.innerHTML = "";
+        footer.style.display = "flex";
+        footer.style.justifyContent = "space-between";
 
         const resetBtn = modal.createButton("Reset to Defaults", {
           variant: "secondary",
           onClick: () => this.resetSettings(),
         });
 
-        const saveBtn = modal.createButton("Save Settings", {
+        const doneBtn = modal.createButton("Done", {
           variant: "primary",
-          onClick: () => this.saveSettings(),
+          onClick: () => this.hideSettings(),
         });
 
-        footer.style.display = "flex";
-        footer.style.justifyContent = "space-between";
         footer.appendChild(resetBtn);
-        footer.appendChild(saveBtn);
+        footer.appendChild(doneBtn);
       }
+
+      // Setup tab switching
+      this.setupTabSwitching();
 
       // Setup real-time preview
       this.setupRealtimePreview();
@@ -397,6 +443,79 @@ ${
     });
   }
 
+  /**
+   * Set up tab switching functionality
+   */
+  setupTabSwitching() {
+    if (!this.modal?.modalElement) return;
+
+    const tabs = this.modal.modalElement.querySelectorAll(".settings-tab");
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => this.switchTab(tab.dataset.tab));
+      tab.addEventListener("keydown", (e) => this.handleTabKeydown(e, tabs));
+    });
+  }
+
+  /**
+   * Switch to a specific tab
+   * @param {string} tabId - The tab identifier to switch to
+   */
+  switchTab(tabId) {
+    if (!this.modal?.modalElement) return;
+
+    // Update tab buttons
+    const tabs = this.modal.modalElement.querySelectorAll(".settings-tab");
+    tabs.forEach((tab) => {
+      const isActive = tab.dataset.tab === tabId;
+      tab.classList.toggle("active", isActive);
+      tab.setAttribute("aria-selected", isActive);
+      tab.setAttribute("tabindex", isActive ? "0" : "-1");
+    });
+
+    // Update panels
+    const panels = this.modal.modalElement.querySelectorAll(".settings-panel");
+    panels.forEach((panel) => {
+      panel.classList.toggle("active", panel.id === `panel-${tabId}`);
+    });
+  }
+
+  /**
+   * Handle keyboard navigation within tabs
+   * @param {KeyboardEvent} e - The keyboard event
+   * @param {NodeList} tabs - All tab elements
+   */
+  handleTabKeydown(e, tabs) {
+    const tabArray = Array.from(tabs);
+    const currentIndex = tabArray.findIndex((tab) => tab === e.target);
+
+    let newIndex;
+    switch (e.key) {
+      case "ArrowRight":
+      case "ArrowDown":
+        e.preventDefault();
+        newIndex = (currentIndex + 1) % tabArray.length;
+        break;
+      case "ArrowLeft":
+      case "ArrowUp":
+        e.preventDefault();
+        newIndex = (currentIndex - 1 + tabArray.length) % tabArray.length;
+        break;
+      case "Home":
+        e.preventDefault();
+        newIndex = 0;
+        break;
+      case "End":
+        e.preventDefault();
+        newIndex = tabArray.length - 1;
+        break;
+      default:
+        return;
+    }
+
+    tabArray[newIndex].focus();
+    this.switchTab(tabArray[newIndex].dataset.tab);
+  }
+
   applyIndividualSetting(setting) {
     switch (setting) {
       case "theme":
@@ -447,13 +566,11 @@ ${
   saveSettings() {
     if (!this.modal?.modalElement) return;
 
-    // Get values from form
     const getValue = (name, isCheckbox = false) => {
       const element = this.modal.modalElement.querySelector(`[name="${name}"]`);
       return element ? (isCheckbox ? element.checked : element.value) : null;
     };
 
-    // Store previous audio setting to detect changes
     const prevAudioEnabled = this.settings.audioEnabled;
 
     this.settings.theme = getValue("theme") || this.settings.theme;
@@ -471,12 +588,9 @@ ${
     this.settings.toneIndicators =
       getValue("toneIndicators", true) ?? this.settings.toneIndicators;
 
-    // Handle audio setting changes
     this.handleAudioSettingChange(prevAudioEnabled, this.settings.audioEnabled);
-
     this.storeSettings();
     this.applySettings();
-    this.hideSettings();
 
     this.modal.showNotification("Settings saved successfully!");
   }

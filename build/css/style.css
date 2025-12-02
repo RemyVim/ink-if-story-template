@@ -1104,13 +1104,14 @@ h4 {
     border-radius: var(--border-radius-lg);
     padding: 2rem;
     max-height: 80vh;
-    overflow-y: auto;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     transition: transform 0.3s ease;
     z-index: 1001;
-    /* Default sizing - can be overridden */
     max-width: 500px;
     width: 90%;
+    /* Flex layout for sticky footer */
+    display: flex;
+    flex-direction: column;
   }
 
   .modal-header {
@@ -1144,11 +1145,14 @@ h4 {
   }
 
   .modal-body {
-    /* Content container - no specific styles needed */
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0; /* Important for flex overflow */
   }
 
   .modal-footer {
-    margin-top: 2rem;
+    flex-shrink: 0;
+    margin-top: 1.5rem;
     text-align: right;
     border-top: 1px solid var(--color-border-light);
     padding-top: 1rem;
@@ -1330,6 +1334,58 @@ h4 {
     padding: 1rem;
     background: var(--color-hover-bg);
     border-radius: var(--border-radius);
+  }
+
+  /* =============================================================================
+     SETTINGS TABS
+     ============================================================================= */
+
+  .settings-tabs {
+    display: flex;
+    gap: 0.25rem;
+    border-bottom: 1px solid var(--color-border-light);
+    margin-bottom: 1.5rem;
+  }
+
+  .settings-tab {
+    padding: 0.75rem 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.2s, border-color 0.2s;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+
+  .settings-tab:hover {
+    opacity: 0.8;
+  }
+
+  .settings-tab.active {
+    opacity: 1;
+    border-bottom-color: var(--color-accent-primary);
+  }
+
+  .settings-tab .material-icons {
+    font-size: 1.4rem;
+    color: var(--color-text-primary);
+  }
+
+  .settings-panels {
+    display: grid;
+  }
+
+  .settings-panel {
+    grid-area: 1 / 1;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity var(--transition-medium) ease;
+  }
+
+  .settings-panel.active {
+    visibility: visible;
+    opacity: 1;
   }
 
   /* =============================================================================
