@@ -3,7 +3,7 @@
 
 class KeyboardShortcuts {
   constructor() {
-    this.enabled = true;
+    this.enabled = !this.isMobile();
     this.init();
   }
 
@@ -180,6 +180,16 @@ class KeyboardShortcuts {
    */
   disable() {
     this.enabled = false;
+  }
+
+  /**
+   * Check if device is mobile/touch-only
+   */
+  isMobile() {
+    return (
+      window.matchMedia("(pointer: coarse)").matches &&
+      !window.matchMedia("(pointer: fine)").matches
+    );
   }
 }
 

@@ -1,17 +1,8 @@
 // settings.js
 class SettingsManager {
   constructor() {
-    this.settings = {
-      theme: "auto", // 'light', 'dark', 'auto'
-      textSize: "medium", // 'small', 'medium', 'large', 'xl'
-      lineHeight: "normal", // 'tight', 'normal', 'loose'
-      fontFamily: "serif", // 'serif', 'sans', 'dyslexic'
-      audioEnabled: true,
-      autoSave: true,
-      animations: true,
-      choiceNumbering: "auto",
-      toneIndicators: true, // User preference (when feature is available)
-    };
+    this.settings = this.getDefaults();
+
     this.toneIndicatorsAvailable = false;
     this.toneIndicatorsTrailing = false;
     this.toneMap = {}; // Will be populated from global tags
@@ -26,6 +17,21 @@ class SettingsManager {
     this.setupEventListeners();
     this.setupThemeDetection();
     this.applySettings();
+  }
+
+  getDefaults() {
+    return {
+      theme: "auto",
+      textSize: "medium",
+      lineHeight: "normal",
+      fontFamily: "serif",
+      audioEnabled: true,
+      autoSave: true,
+      animations: true,
+      toneIndicators: true,
+      choiceNumbering: this.authorChoiceNumbering || "auto",
+      keyboardShortcuts: true,
+    };
   }
 
   createSettingsModal() {
@@ -112,14 +118,7 @@ class SettingsManager {
             this.settings.choiceNumbering = this.authorChoiceNumbering;
           }
 
-          document.body?.classList.remove(
-            "choice-numbers-on",
-            "choice-numbers-off",
-            "choice-numbers-auto",
-          );
-          document.body?.classList.add(
-            `choice-numbers-${this.settings.choiceNumbering}`,
-          );
+          this.applyChoiceNumbering();
           break;
         }
 
@@ -334,6 +333,19 @@ class SettingsManager {
         window.keyboardHelpModal?.isAvailable()
           ? `
       <div class="setting-item">
+        <label class="setting-checkbox-label">
+          <input type="checkbox" name="keyboardShortcuts" class="setting-checkbox">
+          <span>Enable Keyboard Shortcuts</span>
+        </label>
+      </div>
+      `
+          : ""
+      }
+
+      ${
+        window.keyboardHelpModal?.isAvailable()
+          ? `
+      <div class="setting-item">
         <button type="button" class="keyboard-help-btn">Keyboard Shortcuts</button>
       </div>
       `
@@ -411,6 +423,7 @@ class SettingsManager {
 
       // Setup real-time preview
       this.setupRealtimePreview();
+      this.updateKeyboardHelpButtonVisibility();
 
       // Keyboard help button
       const helpBtn =
@@ -444,6 +457,12 @@ class SettingsManager {
       ),
       toneIndicators: this.modal.modalElement.querySelector(
         'input[name="toneIndicators"]',
+      ),
+      choiceNumbering: this.modal.modalElement.querySelector(
+        'select[name="choiceNumbering"]',
+      ),
+      keyboardShortcuts: this.modal.modalElement.querySelector(
+        'input[name="keyboardShortcuts"]',
       ),
     };
 
@@ -554,6 +573,9 @@ class SettingsManager {
       case "choiceNumbering":
         this.applyChoiceNumbering();
         break;
+      case "keyboardShortcuts":
+        this.applyKeyboardShortcuts();
+        break;
     }
   }
 
@@ -584,6 +606,7 @@ class SettingsManager {
       { name: "animations", checked: this.settings.animations },
       { name: "choiceNumbering", value: this.settings.choiceNumbering },
       { name: "toneIndicators", checked: this.settings.toneIndicators },
+      { name: "keyboardShortcuts", checked: this.settings.keyboardShortcuts },
     ];
 
     elements.forEach(({ name, value, checked }) => {
@@ -624,6 +647,8 @@ class SettingsManager {
       getValue("choiceNumbering") || this.settings.choiceNumbering;
     this.settings.toneIndicators =
       getValue("toneIndicators", true) ?? this.settings.toneIndicators;
+    this.settings.keyboardShortcuts =
+      getValue("keyboardShortcuts", true) ?? this.settings.keyboardShortcuts;
 
     this.handleAudioSettingChange(prevAudioEnabled, this.settings.audioEnabled);
     this.storeSettings();
@@ -662,57 +687,8 @@ class SettingsManager {
     }
   }
 
-  /**
-   * Setup real-time preview with audio handling
-   */
-  setupRealtimePreview() {
-    if (!this.modal?.modalElement) return;
-
-    const elements = {
-      theme: this.modal.modalElement.querySelector('select[name="theme"]'),
-      fontFamily: this.modal.modalElement.querySelector(
-        'select[name="fontFamily"]',
-      ),
-      textSize: this.modal.modalElement.querySelector(
-        'select[name="textSize"]',
-      ),
-      lineHeight: this.modal.modalElement.querySelector(
-        'select[name="lineHeight"]',
-      ),
-      toneIndicators: this.modal.modalElement.querySelector(
-        'input[name="toneIndicators"]',
-      ),
-      choiceNumbering: this.modal.modalElement.querySelector(
-        'select[name="choiceNumbering"]',
-      ),
-    };
-
-    Object.entries(elements).forEach(([setting, element]) => {
-      if (element) {
-        element.addEventListener("change", () => {
-          if (element.type === "checkbox") {
-            this.settings[setting] = element.checked;
-          } else {
-            this.settings[setting] = element.value;
-          }
-          this.applyIndividualSetting(setting);
-        });
-      }
-    });
-  }
   resetSettings() {
-    // Reset to defaults
-    this.settings = {
-      theme: "auto",
-      textSize: "medium",
-      lineHeight: "normal",
-      fontFamily: "serif",
-      audioEnabled: true,
-      autoSave: true,
-      animations: true,
-      toneIndicators: true,
-      choiceNumbering: this.authorChoiceNumbering,
-    };
+    this.settings = this.getDefaults();
 
     this.populateSettings();
     this.applySettings();
@@ -726,6 +702,7 @@ class SettingsManager {
     this.applyLineHeight();
     this.applyAnimations();
     this.applyChoiceNumbering();
+    this.applyKeyboardShortcuts();
   }
 
   applyFontFamily() {
@@ -795,6 +772,35 @@ class SettingsManager {
     }
   }
 
+  /**
+   * Apply keyboard shortcuts setting
+   */
+  applyKeyboardShortcuts() {
+    if (this.settings.keyboardShortcuts) {
+      window.keyboardShortcuts?.enable?.();
+    } else {
+      window.keyboardShortcuts?.disable?.();
+    }
+
+    // Update button visibility if modal is open
+    this.updateKeyboardHelpButtonVisibility();
+  }
+
+  /**
+   * Show/hide keyboard help button based on shortcuts setting
+   */
+  updateKeyboardHelpButtonVisibility() {
+    const helpBtn =
+      this.modal?.modalElement?.querySelector(".keyboard-help-btn");
+    if (helpBtn) {
+      // Hide the entire setting-item container, not just the button
+      helpBtn.closest(".setting-item").style.display = this.settings
+        .keyboardShortcuts
+        ? ""
+        : "none";
+    }
+  }
+
   refreshChoices() {
     if (
       window.storyManager?.display?.domHelpers &&
@@ -808,12 +814,9 @@ class SettingsManager {
 
   loadSettings() {
     try {
-      const stored = localStorage.getItem("ink-template-settings");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed) {
-          this.settings = { ...this.settings, ...parsed };
-        }
+      const parsed = this.getStoredSettings();
+      if (parsed) {
+        this.settings = { ...this.settings, ...parsed };
       }
     } catch (error) {
       window.errorManager.warning("Failed to load settings", error, "settings");

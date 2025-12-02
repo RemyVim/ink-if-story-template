@@ -23,6 +23,20 @@ Navigate and interact with your story using keyboard shortcuts. These work autom
 - Scrolling/choice shortcuts are disabled when a modal (save menu, settings) is open
 - On Mac, use `Cmd` instead of `Ctrl`
 
+## Disabling Keyboard Shortcuts
+
+Keyboard shortcuts can be disabled in **Settings → Accessibility → Enable Keyboard Shortcuts**.
+
+This is useful for:
+
+- Screen reader users, where shortcuts like `1`, `2`, `A`, `B` may conflict with the reader's own navigation
+- Users who prefer to navigate purely by mouse or touch
+- Situations where accidental key presses cause unwanted choice selections
+
+When disabled, all keyboard shortcuts (choice selection, scrolling, menu shortcuts) are turned off.
+
+> **Note:** Keyboard shortcuts are automatically disabled on mobile/touch-only devices.
+
 ---
 
 Need help with something else? Check out the rest of the docs:

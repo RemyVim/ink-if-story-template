@@ -1,7 +1,6 @@
 # author: Rémy Vim
 # title: Ink Story Template
 # PAGE_MENU: sheet, inventory_page, relationships ,,credits,content_warnings
-# CHOICE_NUMBERS: off
 
 # TONE_INDICATORS: on
 # TONE: flirty local_fire_department

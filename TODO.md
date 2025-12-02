@@ -63,6 +63,7 @@ Features are organized by feature domain.
 - [x] Keyboard shortcut (Ctrl+S) to open save menu
 - [x] Keyboard shortcut (Esc) to close save menu
 - [x] Keyboard shortcut (Ctrl+R) to restart story
+- [ ] Saves modal redesign to avoid scrolling overflow
 - [ ] Configurable names/descriptions for saves
 - [ ] Auto-load prompt on story start (if save exists)
 - [ ] URL-shareable save states (encoded in URL)
@@ -193,8 +194,7 @@ Twine-style interactive text elements.
 - [x] Confirmation dialogs for restart/delete saves
 - [x] Responsive design (mobile, tablet, desktop)
 - [ ] Page break / Continue button (`# PAGE_BREAK: Button Text`)
-- [ ] Progress bars for stats display
-- [ ] Modal popups for info boxes
+- [x] Progress bars for stats display
 - [ ] Tooltips (hover for more info)
 - [ ] Toast notifications positioning options
 - [ ] Customizable UI layout via tags
