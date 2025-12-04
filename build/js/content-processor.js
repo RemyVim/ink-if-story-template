@@ -1,7 +1,20 @@
 // content-processor.js
 class ContentProcessor {
+  static errorSource = ErrorManager.SOURCES.CONTENT_PROCESSOR;
   constructor() {
     this.tagProcessor = window.tagProcessor;
+  }
+
+  static _error(message, error = null) {
+    window.errorManager.error(message, error, ContentProcessor.errorSource);
+  }
+
+  static _warning(message, error = null) {
+    window.errorManager.warning(message, error, ContentProcessor.errorSource);
+  }
+
+  static _critical(message, error = null) {
+    window.errorManager.critical(message, error, ContentProcessor.errorSource);
   }
 
   /**
@@ -11,123 +24,115 @@ class ContentProcessor {
    * @returns {Object|null} Processed content object or null if empty
    */
   process(text, tags) {
-    const { TAGS, getTagDef } = window.TagRegistry || {};
+    const { TAGS } = window.TagRegistry || {};
 
-    // Check tags for content-type tags (IMAGE, STATBAR, USER_INPUT)
-    if (TAGS && getTagDef && Array.isArray(tags)) {
-      for (const tag of tags) {
-        if (typeof tag !== "string") continue;
+    if (TAGS && Array.isArray(tags)) {
+      const contentOverride = this.checkContentTypeTags(tags, text);
+      if (contentOverride) return contentOverride;
+    }
 
-        const { tagDef, tagValue, invalid } = TagRegistry.parseTag(tag);
-        if (invalid) continue;
+    return this.createParagraph(text, tags);
+  }
 
-        if (tagDef === TAGS.IMAGE) {
-          const imageData = this.parseImageTag(tagValue);
+  checkContentTypeTags(tags, text) {
+    const { TAGS } = window.TagRegistry;
 
-          // Only return pure image type if there's no text
-          if (!text || typeof text !== "string" || !text.trim()) {
-            return {
-              type: "image",
-              ...imageData,
-            };
-          }
+    for (const tag of tags) {
+      if (typeof tag !== "string") continue;
 
-          // If there's both text AND image, return both as an array
-          // Image comes first, then the paragraph
-          return [
-            {
-              type: "image",
-              ...imageData,
-            },
-            {
-              type: "paragraph",
-              text,
-              classes:
-                this.tagProcessor?.processLineTags?.(tags)?.customClasses || [],
-              tags,
-              hasSpecialAction: false,
-              action: null,
-            },
-          ];
-        }
+      const { tagDef, tagValue, invalid } = TagRegistry.parseTag(tag);
+      if (invalid) continue;
 
-        if (tagDef === TAGS.STATBAR) {
-          // Collect ALL statbar tags (there could be multiple)
-          const parsedTags = tags.map((t) => TagRegistry.parseTag(t));
-          const statBarTags = parsedTags.filter(
-            ({ tagDef: def, invalid }) => def === TAGS.STATBAR && !invalid,
-          );
-
-          const statBars = statBarTags.map(({ tagValue: val }) => ({
-            type: "statbar",
-            ...this.parseStatBarTag(val),
-          }));
-
-          // If there's also text, include it as a paragraph
-          if (text && typeof text === "string" && text.trim()) {
-            return [
-              ...statBars,
-              {
-                type: "paragraph",
-                text,
-                classes:
-                  this.tagProcessor?.processLineTags?.(tags)?.customClasses ||
-                  [],
-                tags,
-                hasSpecialAction: false,
-                action: null,
-              },
-            ];
-          }
-
-          // Return single statbar or array of statbars
-          return statBars.length === 1 ? statBars[0] : statBars;
-        }
-
-        if (tagDef === TAGS.USER_INPUT) {
-          const userInputData = this.parseUserInputTag(tagValue);
-
-          // Check if variable already has a value (re-processing after input was submitted)
-          const currentValue =
-            window.storyManager?.story?.variablesState?.[
-              userInputData.variableName
-            ];
-
-          if (
-            currentValue &&
-            currentValue !== "" &&
-            window.storyManager?.reprocessingAfterUserInput
-          ) {
-            // Variable already set AND we're re-processing after submit
-            // Fall through to normal paragraph processing
-            break;
-          }
-
-          // Either variable not set, OR we're visiting fresh — show input field
-          return {
-            type: "user-input",
-            ...userInputData,
-          };
-        }
+      switch (tagDef) {
+        case TAGS.STATBAR:
+          return this.handleStatBarContent(tags, text);
+        case TAGS.USER_INPUT:
+          return this.handleUserInputContent(tagValue);
+        case TAGS.IMAGE:
+          return this.handleImageContent(tagValue, text, tags);
       }
     }
 
-    // Normal paragraph processing
+    return null; // No content-type override found
+  }
+
+  handleImageContent(tagValue, text, tags) {
+    const imageData = this.parseImageTag(tagValue);
+
+    // Pure image (no accompanying text)
+    if (!text?.trim()) {
+      return {
+        type: "image",
+        ...imageData,
+      };
+    }
+
+    // Image + text: return both as array (image first)
+    return [
+      {
+        type: "image",
+        ...imageData,
+      },
+      this.createParagraph(text, tags),
+    ];
+  }
+
+  handleStatBarContent(tags, text) {
+    const { TAGS } = window.TagRegistry;
+
+    // Collect ALL statbar tags (there could be multiple)
+    const parsedTags = tags.map((t) => TagRegistry.parseTag(t));
+    const statBarTags = parsedTags.filter(
+      ({ tagDef, invalid }) => tagDef === TAGS.STATBAR && !invalid,
+    );
+
+    const statBars = statBarTags.map(({ tagValue }) => ({
+      type: "statbar",
+      ...this.parseStatBarTag(tagValue),
+    }));
+
+    // If there's also text, include it as a paragraph
+    if (text?.trim()) {
+      return [...statBars, this.createParagraph(text, tags)];
+    }
+
+    // Return single statbar or array of statbars
+    return statBars.length === 1 ? statBars[0] : statBars;
+  }
+
+  handleUserInputContent(tagValue) {
+    const userInputData = this.parseUserInputTag(tagValue);
+
+    // Check if variable already has a value (re-processing after input was submitted)
+    const currentValue =
+      window.storyManager?.story?.variablesState?.[userInputData.variableName];
+
+    if (
+      currentValue &&
+      currentValue !== "" &&
+      window.storyManager?.reprocessingAfterUserInput
+    ) {
+      // Variable already set AND we're re-processing after submit
+      // Return null to fall through to normal paragraph processing
+      return null;
+    }
+
+    return {
+      type: "user-input",
+      ...userInputData,
+    };
+  }
+
+  createParagraph(text, tags) {
     if (!Array.isArray(tags)) {
-      window.errorManager.warning(
-        "Invalid tags array provided to ContentProcessor.process",
-        null,
-        "content-processor",
+      ContentProcessor._warning(
+        "Invalid tags array provided to createParagraph",
       );
       tags = [];
     }
 
     if (!this.tagProcessor?.processLineTags) {
-      window.errorManager.error(
-        "TagProcessor not available in ContentProcessor",
-        null,
-        "content-processor",
-      );
+      ContentProcessor._error("TagProcessor not available in ContentProcessor");
       return {
         type: "paragraph",
         text,
@@ -138,35 +143,18 @@ class ContentProcessor {
       };
     }
 
-    try {
-      const { customClasses, specialActions } =
-        this.tagProcessor.processLineTags(tags);
+    const { customClasses, specialActions } =
+      this.tagProcessor.processLineTags(tags);
+    const specialAction = this.findSpecialAction(specialActions);
 
-      const specialAction = this.findSpecialAction(specialActions);
-
-      return {
-        type: "paragraph",
-        text,
-        classes: customClasses || [],
-        tags,
-        hasSpecialAction: !!specialAction,
-        action: specialAction?.(),
-      };
-    } catch (error) {
-      window.errorManager.error(
-        "Failed to process content",
-        error,
-        "content-processor",
-      );
-      return {
-        type: "paragraph",
-        text,
-        classes: [],
-        tags,
-        hasSpecialAction: false,
-        action: null,
-      };
-    }
+    return {
+      type: "paragraph",
+      text,
+      classes: customClasses || [],
+      tags,
+      hasSpecialAction: !!specialAction,
+      action: specialAction?.(),
+    };
   }
 
   /**
@@ -181,11 +169,7 @@ class ContentProcessor {
 
     return specialActions.find((actionFn) => {
       if (typeof actionFn !== "function") {
-        window.errorManager.warning(
-          "Non-function found in specialActions array",
-          null,
-          "content-processor",
-        );
+        ContentProcessor._warning("Non-function found in specialActions array");
         return false;
       }
 
@@ -198,10 +182,9 @@ class ContentProcessor {
           typeof result === "object"
         );
       } catch (error) {
-        window.errorManager.error(
+        ContentProcessor._error(
           "Error executing special action function",
           error,
-          "content-processor",
         );
         return false;
       }

@@ -2,7 +2,15 @@
 // Main entry point - load story and initialize the application
 
 fetch("story.json")
-  .then((response) => response.json())
+  .then((response) => {
+    if (!response.ok) {
+      throw new Error(
+        `story.json not found (${response.status}). ` +
+          `Make sure story.json is in the root folder alongside index.html. `,
+      );
+    }
+    return response.json();
+  })
   .then((storyContent) => {
     try {
       window.StoryFeatures.scan(storyContent);
@@ -43,13 +51,17 @@ fetch("story.json")
       window.errorManager.critical(
         "Failed to initialize story manager",
         error,
-        "story",
+        ErrorManager.SOURCES.SYSTEM,
       );
       showFallbackUI(error);
     }
   })
   .catch((error) => {
-    window.errorManager.critical("Failed to load story file", error, "story");
+    window.errorManager.critical(
+      "Failed to load story file",
+      error,
+      ErrorManager.SOURCES.SYSTEM,
+    );
     showFallbackUI(error);
   });
 
@@ -60,6 +72,13 @@ fetch("story.json")
 function showFallbackUI(error) {
   const storyContainer = document.getElementById("story");
   if (!storyContainer) return;
+
+  // Hide loading screen even on error
+  const loadingScreen = document.getElementById("loading-screen");
+  if (loadingScreen) {
+    loadingScreen.classList.add("hidden");
+    setTimeout(() => loadingScreen.remove(), 300);
+  }
 
   storyContainer.innerHTML = `
     <div style="text-align: center; padding: 2rem; color: var(--color-important);">

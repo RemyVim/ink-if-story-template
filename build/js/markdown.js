@@ -1,5 +1,7 @@
 // markdown.js
 class MarkdownProcessor {
+  static errorSource = ErrorManager.SOURCES.KEYBOARD_HELP;
+
   // Cache regex patterns for better performance
   static patterns = {
     escape: [
@@ -35,6 +37,18 @@ class MarkdownProcessor {
       [/  $/gm, "<br>"],
     ],
   };
+
+  static _error(message, error = null) {
+    window.errorManager.error(message, error, MarkdownProcessor.errorSource);
+  }
+
+  static _warning(message, error = null) {
+    window.errorManager.warning(message, error, MarkdownProcessor.errorSource);
+  }
+
+  static _critical(message, error = null) {
+    window.errorManager.critical(message, error, MarkdownProcessor.errorSource);
+  }
 
   /**
    * Process [text](target) - detect if target is URL or class name
@@ -145,11 +159,7 @@ class MarkdownProcessor {
 
       return text;
     } catch (error) {
-      window.errorManager.warning(
-        "Markdown processing failed",
-        error,
-        "markdown",
-      );
+      MarkdownProcessor._warning("Markdown processing failed", error);
       return text; // Return original text on error
     }
   }
@@ -214,11 +224,7 @@ class MarkdownProcessor {
       }
       return text;
     } catch (error) {
-      window.errorManager.warning(
-        "Inline markdown processing failed",
-        error,
-        "markdown",
-      );
+      MarkdownProcessor._warning("Inline markdown processing failed", error);
       return text;
     }
   }

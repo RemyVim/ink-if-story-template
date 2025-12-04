@@ -1,16 +1,42 @@
 // error-manager.js
 class ErrorManager {
+  static SOURCES = {
+    CHOICE_MANAGER: "Choice Manager",
+    CONTENT_PROCESSOR: "Content Processor",
+    DISPLAY_MANAGER: "Display Manager",
+    DOM_HELPERS: "DOM Helpers",
+    KEYBOARD_HELP: "Keyboard Help",
+    KEYBOARD_SHORTCUTS: "Keyboard Shortcuts",
+    MODAL: "Modal",
+    NAVIGATION_MANAGER: "Navigation Manager",
+    PAGE_MANAGER: "Page Manager",
+    SAVES_MODAL: "Saves Modal",
+    SAVE_SYSTEM: "Save System",
+    SETTINGS_MANAGER: "Settings Manager",
+    STORY_MANAGER: "Story Manager",
+    SYSTEM: "System",
+    TAG_PROCESSOR: "Tag Processor",
+  };
+
   constructor() {
     this.setupGlobalHandlers();
   }
 
   setupGlobalHandlers() {
     window.addEventListener("error", (event) => {
-      this.handleError("Uncaught Error", event.error, "system");
+      this.handleError(
+        "Uncaught Error",
+        event.error,
+        ErrorManager.SOURCES.SYSTEM,
+      );
     });
 
     window.addEventListener("unhandledrejection", (event) => {
-      this.handleError("Unhandled Promise", event.reason, "system");
+      this.handleError(
+        "Unhandled Promise",
+        event.reason,
+        ErrorManager.SOURCES.SYSTEM,
+      );
       event.preventDefault();
     });
   }
@@ -23,7 +49,11 @@ class ErrorManager {
     console[severity === "warning" ? "warn" : "error"]("Source:", source);
 
     if (error) {
-      console[severity === "warning" ? "warn" : "error"]("Error:", error);
+      const errorDetails = error instanceof Error ? error.message : error;
+      console[severity === "warning" ? "warn" : "error"](
+        "Details:",
+        errorDetails,
+      );
       if (error.stack) {
         console[severity === "warning" ? "warn" : "error"](
           "Stack:",
@@ -58,7 +88,7 @@ class ErrorManager {
     console.log(`[RECOVERY] Attempting recovery for ${source} error`);
 
     switch (source) {
-      case "story":
+      case ErrorManager.SOURCES.STORY_MANAGER:
         if (window.storyManager) {
           try {
             window.storyManager.restart();
@@ -69,7 +99,7 @@ class ErrorManager {
         }
         break;
 
-      case "display":
+      case ErrorManager.SOURCES.DISPLAY_MANAGER:
         if (window.storyManager?.display) {
           try {
             window.storyManager.display.clear();
@@ -80,7 +110,7 @@ class ErrorManager {
         }
         break;
 
-      case "save-system":
+      case ErrorManager.SOURCES.SAVE_SYSTEM:
         if (window.storyManager?.settings) {
           try {
             window.storyManager.settings.setSetting("autoSave", false);
@@ -95,6 +125,8 @@ class ErrorManager {
           }
         }
         break;
+      default:
+        console.error("[RECOVERY] Critical error: Failed to recover");
     }
   }
 
@@ -116,7 +148,11 @@ class ErrorManager {
     try {
       return func();
     } catch (error) {
-      this.handleError("Safe execution failed", error, "system");
+      this.handleError(
+        "Safe execution failed",
+        error,
+        ErrorManager.SOURCES.SYSTEM,
+      );
       return fallback;
     }
   }
@@ -126,7 +162,11 @@ class ErrorManager {
     try {
       return await func();
     } catch (error) {
-      this.handleError("Safe async execution failed", error, "system");
+      this.handleError(
+        "Safe async execution failed",
+        error,
+        ErrorManager.SOURCES.SYSTEM,
+      );
       return fallback;
     }
   }

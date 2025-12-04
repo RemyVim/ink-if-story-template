@@ -1,20 +1,32 @@
 // display-manager.js
 class DisplayManager {
+  static errorSource = ErrorManager.SOURCES.DISPLAY_MANAGER;
   constructor() {
     this.container = document.querySelector("#story");
     this.scrollContainer = document.querySelector(".outerContainer");
     this.history = [];
 
     if (!this.container) {
-      window.errorManager.critical(
+      DisplayManager._critical(
         "Story container element not found",
         new Error("Missing #story element"),
-        "display",
       );
       return;
     }
 
     this.domHelpers = new DOMHelpers(this.container);
+  }
+
+  static _error(message, error = null) {
+    window.errorManager.error(message, error, DisplayManager.errorSource);
+  }
+
+  static _warning(message, error = null) {
+    window.errorManager.warning(message, error, DisplayManager.errorSource);
+  }
+
+  static _critical(message, error = null) {
+    window.errorManager.critical(message, error, DisplayManager.errorSource);
   }
 
   /**
@@ -23,10 +35,8 @@ class DisplayManager {
    */
   render(content) {
     if (!Array.isArray(content)) {
-      window.errorManager.warning(
+      DisplayManager._warning(
         "Invalid content passed to render - expected array",
-        null,
-        "display",
       );
       return;
     }
@@ -57,10 +67,9 @@ class DisplayManager {
           }
         }
       } catch (error) {
-        window.errorManager.error(
+        DisplayManager._error(
           `Failed to render content item at index ${index}`,
           error,
-          "display",
         );
       }
     });
@@ -72,10 +81,8 @@ class DisplayManager {
    */
   renderChoices(choices, showNumbers = true) {
     if (!Array.isArray(choices)) {
-      window.errorManager.warning(
+      DisplayManager._warning(
         "Invalid choices passed to renderChoices - expected array",
-        null,
-        "display",
       );
       return;
     }
@@ -94,10 +101,8 @@ class DisplayManager {
           if (typeof choice.onClick === "function") {
             this.domHelpers.addChoiceClickHandler(element, choice.onClick);
           } else {
-            window.errorManager.warning(
+            DisplayManager._warning(
               `Choice at index ${index} has invalid onClick handler`,
-              null,
-              "display",
             );
           }
         }
@@ -106,10 +111,9 @@ class DisplayManager {
           this.fadeInElement(element);
         }
       } catch (error) {
-        window.errorManager.error(
+        DisplayManager._error(
           `Failed to render choice at index ${index}`,
           error,
-          "display",
         );
       }
     });
@@ -123,19 +127,13 @@ class DisplayManager {
   createElement(content) {
     // Validate content object
     if (!content?.text || typeof content.text !== "string") {
-      window.errorManager.warning(
-        "createElement called with invalid content",
-        null,
-        "display",
-      );
+      DisplayManager._warning("createElement called with invalid content");
       return null;
     }
 
     if (!this.domHelpers) {
-      window.errorManager.error(
+      DisplayManager._error(
         "Cannot create element - DOM helpers not available",
-        null,
-        "display",
       );
       return null;
     }
@@ -153,96 +151,98 @@ class DisplayManager {
 
       return element;
     } catch (error) {
-      window.errorManager.error("Failed to create element", error, "display");
+      DisplayManager._error("Failed to create element", error);
       return null;
     }
   }
 
   createStatBar(item) {
-    // Get the current variable value from the story
-    let currentValue = 0;
-    try {
-      const storyValue =
-        window.storyManager?.story?.variablesState?.[item.variableName];
-      if (typeof storyValue === "number") {
-        currentValue = storyValue;
-      } else if (typeof storyValue === "string") {
-        currentValue = parseFloat(storyValue) || 0;
-      }
-    } catch (error) {
-      window.errorManager?.warning(
-        `Failed to get variable "${item.variableName}" for stat bar`,
-        error,
-        "display",
-      );
-    }
+    const value = this.getStatValue(item.variableName);
+    const calculations = this.calculateStatBarMetrics(item, value);
 
-    // Calculate fill percentage
+    const element = item.isOpposed
+      ? this.renderOpposedStatBar(item, calculations)
+      : this.renderSimpleStatBar(item, calculations);
+
+    this.container.appendChild(element);
+    return element;
+  }
+
+  getStatValue(variableName) {
+    try {
+      return window.storyManager?.story?.variablesState?.[variableName] ?? 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  calculateStatBarMetrics(item, currentValue) {
     const range = item.max - item.min;
     const fillPercent =
-      range !== 0
+      range > 0
         ? Math.max(0, Math.min(100, ((currentValue - item.min) / range) * 100))
         : 0;
 
-    // Build the stat bar element
+    const clampedValue = item.clamp
+      ? Math.max(item.min, Math.min(item.max, currentValue))
+      : currentValue;
+
+    return {
+      fillPercent,
+      displayValue: Math.round(clampedValue),
+      displayLeft: Math.round(Math.max(0, clampedValue - item.min)),
+      displayRight: Math.round(Math.max(0, item.max - clampedValue)),
+    };
+  }
+
+  renderSimpleStatBar(item, metrics) {
     const container = document.createElement("div");
     container.className = "stat-bar-container";
 
-    const displayValue = item.clamp
-      ? Math.round(Math.max(item.min, Math.min(item.max, currentValue)))
-      : Math.round(currentValue);
+    const displayName =
+      item.leftLabel ||
+      item.variableName.charAt(0).toUpperCase() + item.variableName.slice(1);
 
-    const displayLeft = item.clamp
-      ? Math.round(
-          Math.max(0, Math.min(item.max - item.min, currentValue - item.min)),
-        )
-      : Math.round(currentValue - item.min);
+    container.innerHTML = `
+    <div class="stat-bar-header" aria-hidden="true">
+      <span class="stat-bar-label">${displayName}</span>
+      <span class="stat-bar-value">
+        <span class="stat-bar-current">${metrics.displayValue}</span>/${item.max}
+      </span>
+    </div>
+    <div class="stat-bar-track" role="progressbar"
+         aria-valuenow="${metrics.displayValue}"
+         aria-valuemin="${item.min}"
+         aria-valuemax="${item.max}"
+         aria-label="${displayName}: ${metrics.displayValue} out of ${item.max}">
+      <div class="stat-bar-fill" style="width: ${metrics.fillPercent}%"></div>
+    </div>
+  `;
 
-    const displayRight = item.clamp
-      ? Math.round(
-          Math.max(0, Math.min(item.max - item.min, item.max - currentValue)),
-        )
-      : Math.round(item.max - currentValue);
+    return container;
+  }
 
-    if (item.isOpposed) {
-      container.classList.add("stat-bar-opposed");
+  renderOpposedStatBar(item, metrics) {
+    const container = document.createElement("div");
+    container.className = "stat-bar-container stat-bar-opposed";
 
-      container.innerHTML = `
+    container.innerHTML = `
     <div class="stat-bar-labels" aria-hidden="true">
       <span class="stat-bar-label stat-bar-label-left">${item.leftLabel || item.variableName}</span>
-      <span class="stat-bar-value"><span class="stat-bar-current">${displayLeft}</span>/<span class="stat-bar-current">${displayRight}</span></span>
+      <span class="stat-bar-value">
+        <span class="stat-bar-current">${metrics.displayLeft}</span>/
+        <span class="stat-bar-current">${metrics.displayRight}</span>
+      </span>
       <span class="stat-bar-label stat-bar-label-right">${item.rightLabel || ""}</span>
     </div>
-      <div class="stat-bar-track" role="progressbar"
-           aria-valuenow="${currentValue}"
-           aria-valuemin="${item.min}"
-           aria-valuemax="${item.max}"
-           aria-label="${item.leftLabel || item.variableName} versus ${item.rightLabel || ""}">
-        <div class="stat-bar-fill" style="width: ${fillPercent}%"></div>
-      </div>
-    `;
-    } else {
-      const displayName =
-        item.leftLabel ||
-        item.variableName.charAt(0).toUpperCase() + item.variableName.slice(1);
-
-      container.innerHTML = `
-      <div class="stat-bar-header" aria-hidden="true">
-        <span class="stat-bar-label">${displayName}</span>
-        <span class="stat-bar-value"><span class="stat-bar-current">${displayValue}</span>/${item.max}</span>
-      </div>
-      <div class="stat-bar-track" role="progressbar"
-           aria-valuenow="${displayValue}"
-           aria-valuemin="${item.min}"
-           aria-valuemax="${item.max}"
-           aria-label="${displayName}: ${displayValue} out of ${item.max}">
-        <div class="stat-bar-fill" style="width: ${fillPercent}%"></div>
-      </div>
-    `;
-    }
-
-    // Append to container
-    this.container.appendChild(container);
+    <div class="stat-bar-track" role="progressbar"
+         aria-valuenow="${metrics.displayValue}"
+         aria-valuemin="${item.min}"
+         aria-valuemax="${item.max}"
+         aria-label="${item.leftLabel || item.variableName} versus ${item.rightLabel || ""}">
+      <div class="stat-bar-fill" style="width: ${metrics.fillPercent}%"></div>
+    </div>
+  `;
 
     return container;
   }
@@ -267,11 +267,7 @@ class DisplayManager {
     }
 
     imageElement.onerror = () => {
-      window.errorManager.warning(
-        `Failed to load image: ${item.src}`,
-        null,
-        "display",
-      );
+      DisplayManager._warning(`Failed to load image: ${item.src}`);
     };
 
     let elementToInsert;
@@ -369,11 +365,7 @@ class DisplayManager {
         // Clear the flag after continue completes
         window.storyManager.reprocessingAfterUserInput = false;
       } catch (error) {
-        window.errorManager.error(
-          "Failed to set user input variable",
-          error,
-          "display",
-        );
+        DisplayManager._error("Failed to set user input variable", error);
         inputField.style.borderColor = "var(--color-important)";
         inputField.placeholder = "Error - please try again...";
       }
@@ -421,11 +413,7 @@ class DisplayManager {
    */
   clear() {
     if (!this.domHelpers) {
-      window.errorManager.error(
-        "Cannot clear - DOM helpers not available",
-        null,
-        "display",
-      );
+      DisplayManager._error("Cannot clear - DOM helpers not available");
       return;
     }
 
@@ -438,11 +426,7 @@ class DisplayManager {
    */
   clearContent() {
     if (!this.domHelpers) {
-      window.errorManager.error(
-        "Cannot clear content - DOM helpers not available",
-        null,
-        "display",
-      );
+      DisplayManager._error("Cannot clear content - DOM helpers not available");
       return;
     }
 
@@ -454,20 +438,12 @@ class DisplayManager {
    */
   scrollToTop() {
     if (!this.scrollContainer) {
-      window.errorManager.warning(
-        "Cannot scroll - scroll container not available",
-        null,
-        "display",
-      );
+      DisplayManager._warning("Cannot scroll - scroll container not available");
       return;
     }
 
     if (!this.domHelpers) {
-      window.errorManager.error(
-        "Cannot scroll - DOM helpers not available",
-        null,
-        "display",
-      );
+      DisplayManager._error("Cannot scroll - DOM helpers not available");
       return;
     }
 
@@ -504,11 +480,7 @@ class DisplayManager {
    */
   restoreState(state) {
     if (!state || typeof state !== "object") {
-      window.errorManager.warning(
-        "Invalid state passed to restoreState",
-        null,
-        "display",
-      );
+      DisplayManager._warning("Invalid state passed to restoreState");
       return;
     }
 
@@ -530,11 +502,7 @@ class DisplayManager {
    */
   trackInHistory(item) {
     if (!item || typeof item !== "object") {
-      window.errorManager.warning(
-        "Invalid item passed to trackInHistory",
-        null,
-        "display",
-      );
+      DisplayManager._warning("Invalid item passed to trackInHistory");
       return;
     }
 

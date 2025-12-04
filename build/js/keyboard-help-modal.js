@@ -2,35 +2,37 @@
 // Displays a modal with keyboard shortcut reference
 
 class KeyboardHelpModal {
+  static errorSource = ErrorManager.SOURCES.KEYBOARD_HELP;
   constructor() {
     this.modal = null;
-    this.isMac =
-      navigator.userAgentData?.platform === "macOS" ||
-      navigator.platform.toUpperCase().includes("MAC");
+    this.isMac = window.Utils.isMac();
+    this.isMobile = window.Utils.isMobile();
     this.init();
+  }
+
+  static _error(message, error = null) {
+    window.errorManager.error(message, error, KeyboardHelpModal.errorSource);
+  }
+
+  static _warning(message, error = null) {
+    window.errorManager.warning(message, error, KeyboardHelpModal.errorSource);
+  }
+
+  static _critical(message, error = null) {
+    window.errorManager.critical(message, error, KeyboardHelpModal.errorSource);
   }
 
   init() {
     // Don't create modal on mobile devices
-    if (this.isMobile()) return;
+    if (this.isMobile) return;
     this.createModal();
-  }
-
-  /**
-   * Check if device is mobile/touch-only
-   */
-  isMobile() {
-    return (
-      window.matchMedia("(pointer: coarse)").matches &&
-      !window.matchMedia("(pointer: fine)").matches
-    );
   }
 
   /**
    * Check if keyboard shortcuts help should be available
    */
   isAvailable() {
-    return !this.isMobile();
+    return !this.isMobile;
   }
 
   createModal() {
@@ -43,13 +45,11 @@ class KeyboardHelpModal {
   }
 
   show() {
-    if (this.isMobile()) return;
+    if (this.isMobile) return;
 
     if (!this.modal?.isReady()) {
-      window.errorManager.error(
+      KeyboadHelpModal._error(
         "Cannot show keyboard help - modal not available",
-        null,
-        "keyboard-help",
       );
       return;
     }

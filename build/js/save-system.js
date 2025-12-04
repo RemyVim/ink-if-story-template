@@ -1,5 +1,9 @@
 // save-system.js
+const MAX_IMPORT_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
+const IMPORT_TIMEOUT_MS = 30000; // 30 seconds
+
 class SaveSystem {
+  static errorSource = ErrorManager.SOURCES.SAVE_SYSTEM;
   constructor(storyManager) {
     this.storyManager = storyManager;
     this.savePrefix = "ink-save-slot-";
@@ -9,6 +13,18 @@ class SaveSystem {
     // Initialize the modal UI
     this.modal = new SavesModalManager(this);
     this.setupEventListeners();
+  }
+
+  static _error(message, error = null) {
+    window.errorManager.error(message, error, SaveSystem.errorSource);
+  }
+
+  static _warning(message, error = null) {
+    window.errorManager.warning(message, error, SaveSystem.errorSource);
+  }
+
+  static _critical(message, error = null) {
+    window.errorManager.critical(message, error, SaveSystem.errorSource);
   }
 
   /**
@@ -30,51 +46,66 @@ class SaveSystem {
    */
   saveToSlot(slotNumber) {
     try {
-      if (typeof slotNumber !== "number" || slotNumber < 0) {
-        throw new Error(`Invalid slot number: ${slotNumber}`);
-      }
+      this.validateSlotNumber(slotNumber);
+      this.requireStorage();
 
-      if (!this.isStorageAvailable()) {
-        throw new Error("localStorage not available");
-      }
-
-      // Check if we're on a special page - if so, save the underlying story state
-      const isOnSpecialPage = this.storyManager.pages?.isViewingSpecialPage?.();
-
-      // Get game state - use saved state if on special page, otherwise current state
-      const gameState = isOnSpecialPage
-        ? this.storyManager.pages.savedStoryState
-        : this.storyManager.story.state.ToJson();
-
-      const displayState = isOnSpecialPage
-        ? this.storyManager.pages.savedDisplayState
-        : this.storyManager.display.getState();
-
-      const saveData = {
-        gameState: gameState,
-        saveName: this.generateSaveName(slotNumber),
-        description: this.generateDescription(),
-        timestamp: Date.now(),
-        version: "1.0",
-        isAutosave: slotNumber === this.autosaveSlot,
-        currentPage: null, // Never save as being on a special page
-        displayState: displayState,
-        stateBeforeUserInput: this.storyManager.stateBeforeUserInput || null,
-      };
-      // Try to save
+      const saveData = this.buildSaveData(slotNumber);
       this.writeSaveData(slotNumber, saveData);
-      const slotName =
-        slotNumber === this.autosaveSlot ? "Autosave" : `Slot ${slotNumber}`;
-      if (slotNumber != 0) this.showNotification(`Game saved to ${slotName}!`);
-      // Refresh modal if open
+
+      this.notifySaveSuccess(slotNumber);
       this.modal?.populateSaveSlots?.();
       return true;
     } catch (error) {
-      window.errorManager.error("Failed to save game", error, "save-system");
+      SaveSystem._error("Failed to save game", error);
       return false;
     }
   }
 
+  validateSlotNumber(slotNumber) {
+    if (typeof slotNumber !== "number" || slotNumber < 0) {
+      throw new Error(`Invalid slot number: ${slotNumber}`);
+    }
+  }
+
+  requireStorage() {
+    if (!this.isStorageAvailable()) {
+      throw new Error("localStorage not available");
+    }
+  }
+
+  buildSaveData(slotNumber) {
+    const isOnSpecialPage = this.storyManager.pages?.isViewingSpecialPage?.();
+
+    return {
+      gameState: this.getGameState(isOnSpecialPage),
+      displayState: this.getDisplayState(isOnSpecialPage),
+      saveName: this.generateSaveName(slotNumber),
+      description: this.generateDescription(),
+      timestamp: Date.now(),
+      version: "1.0",
+      isAutosave: slotNumber === this.autosaveSlot,
+      currentPage: null,
+      stateBeforeUserInput: this.storyManager.stateBeforeUserInput || null,
+    };
+  }
+
+  getGameState(isOnSpecialPage) {
+    return isOnSpecialPage
+      ? this.storyManager.pages.savedStoryState
+      : this.storyManager.story.state.ToJson();
+  }
+
+  getDisplayState(isOnSpecialPage) {
+    return isOnSpecialPage
+      ? this.storyManager.pages.savedDisplayState
+      : this.storyManager.display.getState();
+  }
+
+  notifySaveSuccess(slotNumber) {
+    if (slotNumber !== this.autosaveSlot) {
+      this.showNotification(`Game saved to Slot ${slotNumber}!`);
+    }
+  }
   /**
    * Load game from a specific slot using ink.js state
    * @param {number} slotNumber - Slot number to load from
@@ -102,7 +133,7 @@ class SaveSystem {
       this.hideSaveDialog();
       return true;
     } catch (error) {
-      window.errorManager.error("Failed to load game", error, "save-system");
+      SaveSystem._error("Failed to load game", error);
       return false;
     }
   }
@@ -123,7 +154,7 @@ class SaveSystem {
       this.saveToSlot(this.autosaveSlot);
       console.log("[AUTOSAVE] Game autosaved successfully");
     } catch (error) {
-      window.errorManager.error("Autosave failed", error, "save-system");
+      SaveSystem._error("Autosave failed", error);
     }
   }
 
@@ -160,11 +191,7 @@ class SaveSystem {
 
               this.modal?.populateSaveSlots?.();
             } catch (error) {
-              window.errorManager.error(
-                "Failed to delete save slot",
-                error,
-                "save-system",
-              );
+              SaveSystem._error("Failed to delete save slot", error);
             }
           },
           null, // No cancel callback needed
@@ -196,11 +223,7 @@ class SaveSystem {
         return false;
       }
     } catch (error) {
-      window.errorManager.error(
-        "Failed to delete save slot",
-        error,
-        "save-system",
-      );
+      SaveSystem._error("Failed to delete save slot", error);
       return false;
     }
   }
@@ -240,7 +263,7 @@ class SaveSystem {
       this.showNotification(`Save exported from ${exportSlotName}!`);
       return true;
     } catch (error) {
-      window.errorManager.error("Failed to export save", error, "save-system");
+      SaveSystem._error("Failed to export save", error);
       return false;
     }
   }
@@ -260,11 +283,11 @@ class SaveSystem {
       if (!file) return;
 
       // Validate file size (10MB limit)
-      if (file.size > 10 * 1024 * 1024) {
-        window.errorManager.error(
-          "Import file too large (>10MB)",
+      if (file.size > MAX_IMPORT_SIZE_BYTES) {
+        const maxSizeMB = MAX_IMPORT_SIZE_BYTES / (1024 * 1024);
+        SaveSystem._error(
+          `Import file too large (>${maxSizeMB}MB)`,
           new Error("File size exceeds limit"),
-          "save-system",
         );
         return;
       }
@@ -272,12 +295,11 @@ class SaveSystem {
       const reader = new FileReader();
       const timeout = setTimeout(() => {
         reader.abort();
-        window.errorManager.error(
+        SaveSystem._error(
           "File import timed out",
           new Error("FileReader timeout"),
-          "save-system",
         );
-      }, 30000);
+      }, IMPORT_TIMEOUT_MS);
 
       reader.onload = (e) => {
         clearTimeout(timeout);
@@ -303,21 +325,13 @@ class SaveSystem {
 
           this.modal?.populateSaveSlots?.();
         } catch (error) {
-          window.errorManager.error(
-            "Failed to import save file",
-            error,
-            "save-system",
-          );
+          SaveSystem._error("Failed to import save file", error);
         }
       };
 
       reader.onerror = () => {
         clearTimeout(timeout);
-        window.errorManager.error(
-          "Failed to read import file",
-          reader.error,
-          "save-system",
-        );
+        SaveSystem._error("Failed to read import file", reader.error);
       };
 
       reader.readAsText(file);
@@ -382,11 +396,7 @@ class SaveSystem {
       const saveJson = localStorage.getItem(saveKey);
       return saveJson ? JSON.parse(saveJson) : null;
     } catch (error) {
-      window.errorManager.error(
-        "Failed to get save data",
-        error,
-        "save-system",
-      );
+      SaveSystem._error("Failed to get save data", error);
       return null;
     }
   }
@@ -527,7 +537,7 @@ class SaveSystem {
         );
       }
     } catch (error) {
-      window.errorManager.error("Storage cleanup failed", error, "save-system");
+      SaveSystem._error("Storage cleanup failed", error);
     }
   }
 

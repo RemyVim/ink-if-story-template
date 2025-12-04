@@ -1,16 +1,18 @@
 // saves-modal-manager.js
+const REFRESH_DELAY_MS = 100;
+
 class SavesModalManager {
+  static errorSource = ErrorManager.SOURCES.SAVES_MODAL;
   constructor(gameSaveSystem) {
     this.gameSaveSystem = gameSaveSystem;
-    this.maxSaveSlots = 5;
-    this.autosaveSlot = 0;
+    this.maxSaveSlots = gameSaveSystem.maxSaveSlots;
+    this.autosaveSlot = gameSaveSystem.autosaveSlot;
     this.confirmModal = null;
 
     if (!this.gameSaveSystem) {
-      window.errorManager.critical(
+      SavesModalManager._critical(
         "SavesModalManager requires a save system",
         new Error("Invalid save system"),
-        "saves-modal",
       );
       return;
     }
@@ -21,6 +23,18 @@ class SavesModalManager {
   init() {
     this.createModal();
     this.createConfirmModal();
+  }
+
+  static _error(message, error = null) {
+    window.errorManager.error(message, error, SavesModalManager.errorSource);
+  }
+
+  static _warning(message, error = null) {
+    window.errorManager.warning(message, error, SavesModalManager.errorSource);
+  }
+
+  static _critical(message, error = null) {
+    window.errorManager.critical(message, error, SavesModalManager.errorSource);
   }
 
   createModal() {
@@ -111,11 +125,7 @@ class SavesModalManager {
         </div>`;
       }
     } catch (error) {
-      window.errorManager.error(
-        "Failed to create save slot HTML",
-        error,
-        "saves-modal",
-      );
+      SavesModalManager._error("Failed to create save slot HTML", error);
       return "";
     }
   }
@@ -179,8 +189,13 @@ class SavesModalManager {
   setupSlotEventListeners() {
     if (!this.modal?.modalElement) return;
 
-    // Add hover effects to slots
+    this.setupSlotHoverEffects();
+    this.setupSlotActionHandlers();
+  }
+
+  setupSlotHoverEffects() {
     const slots = this.modal.modalElement.querySelectorAll(".save-slot");
+
     slots.forEach((slot) => {
       const isAutosave = slot.classList.contains("autosave-slot");
 
@@ -198,46 +213,43 @@ class SavesModalManager {
         slot.style.color = "";
       });
     });
+  }
 
-    // Setup action buttons
-    const actionHandlers = {
-      "save-to-slot": (slotNumber) =>
-        this.gameSaveSystem.saveToSlot(slotNumber),
-      "load-from-slot": (slotNumber) =>
-        this.gameSaveSystem.loadFromSlot(slotNumber),
-      "export-from-slot": (slotNumber) =>
-        this.gameSaveSystem.exportFromSlot(slotNumber),
-      "import-to-slot": (slotNumber) =>
-        this.gameSaveSystem.importToSlot(slotNumber),
-      "overwrite-slot": (slotNumber) =>
-        this.gameSaveSystem.saveToSlot(slotNumber),
-      "delete-slot": (slotNumber) => {
-        const slot = this.modal.modalElement.querySelector(
-          `[data-slot="${slotNumber}"]`,
-        );
-        const isAutosave = slot?.classList.contains("autosave-slot");
-        this.gameSaveSystem.deleteSlot(slotNumber, isAutosave);
-      },
+  setupSlotActionHandlers() {
+    const actions = {
+      "save-to-slot": (n) => this.gameSaveSystem.saveToSlot(n),
+      "load-from-slot": (n) => this.gameSaveSystem.loadFromSlot(n),
+      "export-from-slot": (n) => this.gameSaveSystem.exportFromSlot(n),
+      "import-to-slot": (n) => this.gameSaveSystem.importToSlot(n),
+      "overwrite-slot": (n) => this.gameSaveSystem.saveToSlot(n),
+      "delete-slot": (n) => this.handleDeleteSlot(n),
     };
 
-    Object.entries(actionHandlers).forEach(([className, handler]) => {
-      this.modal.addBodyEventListener(`.${className}`, "click", (e) => {
-        try {
-          const slot = e.target.closest("[data-slot]");
-          const slotNumber = parseInt(slot?.dataset.slot);
-          if (!isNaN(slotNumber)) {
-            handler(slotNumber);
-            // Refresh slots after action
-            setTimeout(() => this.populateSaveSlots(), 100);
-          }
-        } catch (error) {
-          window.errorManager.error(
-            "Save slot action failed",
-            error,
-            "saves-modal",
-          );
+    Object.entries(actions).forEach(([className, handler]) => {
+      this.bindSlotAction(className, handler);
+    });
+  }
+
+  handleDeleteSlot(slotNumber) {
+    const slot = this.modal.modalElement.querySelector(
+      `[data-slot="${slotNumber}"]`,
+    );
+    const isAutosave = slot?.classList.contains("autosave-slot");
+    this.gameSaveSystem.deleteSlot(slotNumber, isAutosave);
+  }
+
+  bindSlotAction(className, handler) {
+    this.modal.addBodyEventListener(`.${className}`, "click", (e) => {
+      try {
+        const slot = e.target.closest("[data-slot]");
+        const slotNumber = parseInt(slot?.dataset.slot);
+        if (!isNaN(slotNumber)) {
+          handler(slotNumber);
+          setTimeout(() => this.populateSaveSlots(), REFRESH_DELAY_MS);
         }
-      });
+      } catch (error) {
+        SavesModalManager._error("Save slot action failed", error);
+      }
     });
   }
 

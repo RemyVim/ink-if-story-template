@@ -1,5 +1,9 @@
 // modal.js
 class BaseModal {
+  static errorSource = ErrorManager.SOURCES.MODAL;
+
+  static instances = new Set();
+
   constructor(options = {}) {
     this.config = {
       maxWidth: "500px",
@@ -27,6 +31,19 @@ class BaseModal {
   init() {
     this.createModal();
     this.setupEventListeners();
+    BaseModal.instances.add(this);
+  }
+
+  static _error(message, error = null) {
+    window.errorManager.error(message, error, BaseModal.errorSource);
+  }
+
+  static _warning(message, error = null) {
+    window.errorManager.warning(message, error, BaseModal.errorSource);
+  }
+
+  static _critical(message, error = null) {
+    window.errorManager.critical(message, error, BaseModal.errorSource);
   }
 
   createModal() {
@@ -66,11 +83,7 @@ class BaseModal {
     modalBackdrop.appendChild(modalContent);
 
     if (!document.body) {
-      window.errorManager.error(
-        "Cannot create modal - document.body not available",
-        null,
-        "modal",
-      );
+      BaseModal._error("Cannot create modal - document.body not available");
       return;
     }
 
@@ -165,12 +178,9 @@ class BaseModal {
   }
 
   show(contentCallback = null) {
+    BaseModal.closeAll(this);
     if (!this.modalElement) {
-      window.errorManager.error(
-        "Cannot show modal - modal element not available",
-        null,
-        "modal",
-      );
+      BaseModal._error("Cannot show modal - modal element not available");
       return;
     }
 
@@ -181,11 +191,7 @@ class BaseModal {
       try {
         contentCallback(this);
       } catch (error) {
-        window.errorManager.error(
-          "Failed to populate modal content",
-          error,
-          "modal",
-        );
+        BaseModal._error("Failed to populate modal content", error);
       }
     }
 
@@ -219,11 +225,7 @@ class BaseModal {
       try {
         this.onShow();
       } catch (error) {
-        window.errorManager.warning(
-          "Modal onShow callback failed",
-          error,
-          "modal",
-        );
+        BaseModal._warning("Modal onShow callback failed", error);
       }
     }
   }
@@ -253,11 +255,7 @@ class BaseModal {
       try {
         this.onHide();
       } catch (error) {
-        window.errorManager.warning(
-          "Modal onHide callback failed",
-          error,
-          "modal",
-        );
+        BaseModal._warning("Modal onHide callback failed", error);
       }
     }
   }
@@ -343,6 +341,7 @@ class BaseModal {
 
   destroy() {
     try {
+      BaseModal.instances.delete(this);
       if (this.escapeHandler) {
         document.removeEventListener("keydown", this.escapeHandler);
         this.escapeHandler = null;
@@ -359,7 +358,7 @@ class BaseModal {
       this.modalElement = null;
       this.isVisible = false;
     } catch (error) {
-      window.errorManager.warning("Failed to destroy modal", error, "modal");
+      BaseModal._warning("Failed to destroy modal", error);
     }
   }
   /**
@@ -438,5 +437,61 @@ class BaseModal {
       }
     };
     document.addEventListener("keydown", this.escapeHandler);
+  }
+
+  /**
+   * Close all currently visible modals
+   * @param {BaseModal} except - Optional modal to skip (don't close this one)
+   */
+  static closeAll(except = null) {
+    for (const modal of BaseModal.instances) {
+      if (modal !== except && modal.isVisible) {
+        modal.hide();
+      }
+    }
+  }
+
+  /**
+   * Check if any modal is currently visible
+   */
+  static hasVisibleModal() {
+    for (const modal of BaseModal.instances) {
+      if (modal.isVisible) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Static helper for simple confirmation dialogs
+   * Closes any open modals first, creates temporary modal, then cleans up
+   */
+  static confirm({
+    title,
+    message,
+    confirmText = "Yes",
+    cancelText = "Cancel",
+    confirmVariant = "danger",
+    onConfirm,
+    onCancel,
+  }) {
+    const modal = new BaseModal({
+      title: title || "Confirm",
+      className: "confirm-modal",
+      maxWidth: "400px",
+      showFooter: true,
+    });
+
+    modal.showConfirmation(
+      message,
+      () => {
+        onConfirm?.();
+        modal.destroy();
+      },
+      () => {
+        onCancel?.();
+        modal.destroy();
+      },
+      { title, confirmText, cancelText, confirmVariant },
+    );
   }
 }

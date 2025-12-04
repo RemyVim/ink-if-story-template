@@ -1,10 +1,26 @@
 // keyboard-shortcuts.js
 // Handles all keyboard shortcuts for the story application
+const SMALL_SCROLL_PERCENT = 0.15; // ~15% of viewport
+const LARGE_SCROLL_PERCENT = 0.8; // ~80% of viewport
 
 class KeyboardShortcuts {
+  static errorSource = ErrorManager.SOURCES.KEYBOARD_SHORTCUTS;
+
   constructor() {
-    this.enabled = !this.isMobile();
+    this.enabled = !window.Utils.isMobile();
     this.init();
+  }
+
+  static _error(message, error = null) {
+    window.errorManager.error(message, error, KeyboardShortcuts.errorSource);
+  }
+
+  static _warning(message, error = null) {
+    window.errorManager.warning(message, error, KeyboardShortcuts.errorSource);
+  }
+
+  static _critical(message, error = null) {
+    window.errorManager.critical(message, error, KeyboardShortcuts.errorSource);
   }
 
   init() {
@@ -57,18 +73,7 @@ class KeyboardShortcuts {
           break;
         case "r":
           event.preventDefault();
-          const confirmModal = new BaseModal({
-            title: "Restart Story",
-            className: "confirm-modal",
-            maxWidth: "400px",
-            showFooter: true,
-          });
-          confirmModal.showConfirmation(
-            "Are you sure you want to restart the story from the beginning? Any unsaved progress will be lost.",
-            () => window.storyManager.restart(),
-            null,
-            { title: "Restart Story" },
-          );
+          window.storyManager.confirmRestart();
           break;
         case ",":
           event.preventDefault();
@@ -80,11 +85,7 @@ class KeyboardShortcuts {
           break;
       }
     } catch (error) {
-      window.errorManager.error(
-        "Keyboard shortcut failed",
-        error,
-        "navigation",
-      );
+      KeyboardShortcuts._error("Keyboard shortcut failed", error);
     }
   }
 
@@ -93,11 +94,7 @@ class KeyboardShortcuts {
       try {
         window.storyManager.pages.returnToStory();
       } catch (error) {
-        window.errorManager.error(
-          "Failed to return from special page",
-          error,
-          "navigation",
-        );
+        KeyboardShortcuts._error("Failed to return from special page", error);
       }
     }
   }
@@ -107,8 +104,8 @@ class KeyboardShortcuts {
     const scrollContainer = document.querySelector(".outerContainer");
     if (!scrollContainer) return false;
 
-    const smallScroll = window.innerHeight * 0.15;
-    const largeScroll = window.innerHeight * 0.8;
+    const smallScroll = window.innerHeight * SMALL_SCROLL_PERCENT;
+    const largeScroll = window.innerHeight * LARGE_SCROLL_PERCENT;
 
     switch (event.key) {
       case "ArrowUp":
@@ -180,16 +177,6 @@ class KeyboardShortcuts {
    */
   disable() {
     this.enabled = false;
-  }
-
-  /**
-   * Check if device is mobile/touch-only
-   */
-  isMobile() {
-    return (
-      window.matchMedia("(pointer: coarse)").matches &&
-      !window.matchMedia("(pointer: fine)").matches
-    );
   }
 }
 

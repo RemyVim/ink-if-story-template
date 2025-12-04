@@ -1,5 +1,7 @@
 // story-manager.js
 class StoryManager {
+  static errorSource = ErrorManager.SOURCES.STORY_MANAGER;
+
   constructor(storyContent) {
     try {
       this.story = new inkjs.Story(storyContent);
@@ -16,13 +18,21 @@ class StoryManager {
       this.detectSpecialPages();
       this.setupInitialState();
     } catch (error) {
-      window.errorManager.critical(
-        "Failed to initialize story",
-        error,
-        "story",
-      );
+      StoryManager._critical("Failed to initialize story", error);
       throw error;
     }
+  }
+
+  static _error(message, error = null) {
+    window.errorManager.error(message, error, StoryManager.errorSource);
+  }
+
+  static _warning(message, error = null) {
+    window.errorManager.warning(message, error, StoryManager.errorSource);
+  }
+
+  static _critical(message, error = null) {
+    window.errorManager.critical(message, error, StoryManager.errorSource);
   }
 
   initializeSubsystems() {
@@ -51,11 +61,7 @@ class StoryManager {
     try {
       return initFunc();
     } catch (error) {
-      window.errorManager.error(
-        `Failed to initialize ${componentName}`,
-        error,
-        "story",
-      );
+      StoryManager._error(`Failed to initialize ${componentName}`, error);
       return null;
     }
   }
@@ -90,19 +96,14 @@ class StoryManager {
             };
           }
         } catch (error) {
-          window.errorManager.warning(
+          StoryManager._warning(
             `Failed to check if ${knotName} is special page`,
             error,
-            "story",
           );
         }
       }
     } catch (error) {
-      window.errorManager.error(
-        "Failed to detect special pages",
-        error,
-        "story",
-      );
+      StoryManager._error("Failed to detect special pages", error);
     }
   }
 
@@ -170,11 +171,7 @@ class StoryManager {
       this.savePoint = this.story.state.ToJson();
       this.continue(true);
     } catch (error) {
-      window.errorManager.error(
-        "Failed to setup initial state",
-        error,
-        "story",
-      );
+      StoryManager._error("Failed to setup initial state", error);
     }
   }
 
@@ -262,7 +259,7 @@ class StoryManager {
       // Update save point after generating new content
       this.savePoint = this.story.state.ToJson();
     } catch (error) {
-      window.errorManager.error("Failed to continue story", error, "story");
+      StoryManager._error("Failed to continue story", error);
     }
   }
 
@@ -285,11 +282,7 @@ class StoryManager {
       // Update save point after generating new content
       this.savePoint = this.story.state.ToJson();
     } catch (error) {
-      window.errorManager.error(
-        "Failed to continue story without clearing",
-        error,
-        "story",
-      );
+      StoryManager._error("Failed to continue story without clearing", error);
     }
   }
 
@@ -338,11 +331,7 @@ class StoryManager {
         }
       }
     } catch (error) {
-      window.errorManager.error(
-        "Error generating story content",
-        error,
-        "story",
-      );
+      StoryManager._error("Error generating story content", error);
     }
 
     return {
@@ -362,7 +351,7 @@ class StoryManager {
             this.display?.hideHeader?.();
             return true;
           case "RESTART":
-            this.restart();
+            this.confirmRestart();
             return false;
           default:
             return true;
@@ -370,11 +359,7 @@ class StoryManager {
       }
       return true;
     } catch (error) {
-      window.errorManager.error(
-        "Failed to handle special action",
-        error,
-        "story",
-      );
+      StoryManager._error("Failed to handle special action", error);
       return true;
     }
   }
@@ -390,7 +375,7 @@ class StoryManager {
         }
       }
     } catch (error) {
-      window.errorManager.error("Failed to create choices", error, "choices");
+      StoryManager._error("Failed to create choices", error, "choices");
     }
   }
 
@@ -424,7 +409,7 @@ class StoryManager {
       // Auto-save if enabled
       this.saves?.autosave?.();
     } catch (error) {
-      window.errorManager.error("Failed to select choice", error, "navigation");
+      StoryManager._error("Failed to select choice", error, "navigation");
     }
   }
 
@@ -446,7 +431,7 @@ class StoryManager {
         "Story restarted from the beginning",
       );
     } catch (error) {
-      window.errorManager.error("Failed to restart story", error, "story");
+      StoryManager._error("Failed to restart story", error);
     }
   }
 
@@ -460,7 +445,7 @@ class StoryManager {
         timestamp: Date.now(),
       };
     } catch (error) {
-      window.errorManager.error("Failed to get current state", error, "story");
+      StoryManager._error("Failed to get current state", error);
       return {};
     }
   }
@@ -506,7 +491,7 @@ class StoryManager {
 
       this.display?.scrollToTop?.();
     } catch (error) {
-      window.errorManager.error("Failed to load state", error, "save-system");
+      StoryManager._error("Failed to load state", error, "save-system");
     }
   }
 
@@ -524,11 +509,7 @@ class StoryManager {
         this.display?.render?.(content);
       }
     } catch (error) {
-      window.errorManager.error(
-        "Failed to regenerate display",
-        error,
-        "display",
-      );
+      StoryManager._error("Failed to regenerate display", error, "display");
     }
   }
 
@@ -536,11 +517,7 @@ class StoryManager {
     try {
       return this.story.canContinue;
     } catch (error) {
-      window.errorManager.warning(
-        "Failed to check canContinue",
-        error,
-        "story",
-      );
+      StoryManager._warning("Failed to check canContinue", error);
       return false;
     }
   }
@@ -549,13 +526,29 @@ class StoryManager {
     try {
       return this.story.currentChoices?.length > 0;
     } catch (error) {
-      window.errorManager.warning("Failed to check hasChoices", error, "story");
+      StoryManager._warning("Failed to check hasChoices", error);
       return false;
     }
   }
 
   hasEnded() {
     return !this.canContinue() && !this.hasChoices();
+  }
+
+  /**
+   * Show confirmation dialog before restarting
+   * Called by all restart entry points (keyboard, button, title, tag)
+   */
+  confirmRestart() {
+    BaseModal.confirm({
+      title: "Restart Story",
+      message:
+        "Are you sure you want to restart the story from the beginning? Any unsaved progress will be lost.",
+      confirmText: "Restart",
+      cancelText: "Cancel",
+      confirmVariant: "primary",
+      onConfirm: () => this.restart(),
+    });
   }
 
   getStats() {
@@ -570,7 +563,7 @@ class StoryManager {
         specialPagesFound: Object.keys(this.availablePages).length,
       };
     } catch (error) {
-      window.errorManager.warning("Failed to get stats", error, "story");
+      StoryManager._warning("Failed to get stats", error);
       return {};
     }
   }
@@ -590,7 +583,7 @@ class StoryManager {
       this.settings?.cleanup?.();
       this.pages?.reset?.();
     } catch (error) {
-      window.errorManager.warning("Failed to cleanup", error, "system");
+      StoryManager._warning("Failed to cleanup", error, "system");
     }
   }
 }

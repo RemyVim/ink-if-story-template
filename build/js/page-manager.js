@@ -1,5 +1,6 @@
 // page-manager.js
 class PageManager {
+  static errorSource = ErrorManager.SOURCES.PAGE_MANAGER;
   constructor(storyManager) {
     this.storyManager = storyManager;
     this.tagProcessor = window.tagProcessor;
@@ -7,12 +8,23 @@ class PageManager {
     this.savedStoryState = null;
 
     if (!this.storyManager) {
-      window.errorManager.critical(
+      PageManager._critical(
         "PageManager requires a story manager",
         new Error("Invalid story manager"),
-        "pages",
       );
     }
+  }
+
+  static _error(message, error = null) {
+    window.errorManager.error(message, error, PageManager.errorSource);
+  }
+
+  static _warning(message, error = null) {
+    window.errorManager.warning(message, error, PageManager.errorSource);
+  }
+
+  static _critical(message, error = null) {
+    window.errorManager.critical(message, error, PageManager.errorSource);
   }
 
   /**
@@ -21,20 +33,14 @@ class PageManager {
    */
   show(knotName) {
     if (!knotName || typeof knotName !== "string") {
-      window.errorManager.warning(
-        "Invalid knotName passed to show",
-        null,
-        "pages",
-      );
+      PageManager._warning("Invalid knotName passed to show");
       return;
     }
 
     // Check if this is actually a special page
     if (!this.isSpecialPage(knotName)) {
-      window.errorManager.warning(
+      PageManager._warning(
         `Page "${knotName}" is not marked as a special page`,
-        null,
-        "pages",
       );
       return;
     }
@@ -123,64 +129,63 @@ class PageManager {
    */
   generatePageContent(knotName) {
     try {
-      // Create a temporary story instance to evaluate the special page
-      const tempStory = this.storyManager.createTempStory();
-
-      // Get the current variable state from the main story
-      const currentState = this.storyManager.story.state.ToJson();
-      tempStory.state.LoadJson(currentState);
-
-      tempStory.ChoosePathString(knotName);
-
-      const content = [];
-      let isFirstLine = true;
-
-      while (tempStory.canContinue) {
-        const text = tempStory.Continue();
-        const tags = tempStory.currentTags || [];
-
-        // Skip the first line if it only contains the SPECIAL_PAGE tag
-        if (isFirstLine && this.containsOnlySpecialPageTag(text, tags)) {
-          isFirstLine = false;
-          continue;
-        }
-        isFirstLine = false;
-
-        // Check if there are any tags that should be processed
-        const hasAnyTag = tags.some(
-          (tag) => typeof tag === "string" && tag.trim(),
-        );
-
-        // Skip empty paragraphs unless they have tags
-        if (!text?.trim() && !hasAnyTag) continue;
-
-        // Process content through ContentProcessor (handles STATBAR, IMAGE, etc.)
-        const contentProcessor = new ContentProcessor();
-        const processed = contentProcessor.process(text, tags);
-
-        // Handle array results (multiple items like statbars + text)
-        const items = Array.isArray(processed) ? processed : [processed];
-
-        items.forEach((item) => {
-          if (item) {
-            // Add special-page class to paragraphs
-            if (item.type === "paragraph" || !item.type) {
-              item.classes = ["special-page", ...(item.classes || [])];
-            }
-            content.push(item);
-          }
-        });
-      }
-
-      return content;
+      const tempStory = this.createPageStory(knotName);
+      return this.extractPageContent(tempStory);
     } catch (error) {
-      window.errorManager.error(
-        "Failed to generate page content",
-        error,
-        "pages",
-      );
+      PageManager._error("Failed to generate page content");
       return [];
     }
+  }
+
+  createPageStory(knotName) {
+    const tempStory = this.storyManager.createTempStory();
+    const currentState = this.storyManager.story.state.ToJson();
+    tempStory.state.LoadJson(currentState);
+    tempStory.ChoosePathString(knotName);
+    return tempStory;
+  }
+
+  extractPageContent(tempStory) {
+    const content = [];
+    let isFirstLine = true;
+
+    while (tempStory.canContinue) {
+      const text = tempStory.Continue();
+      const tags = tempStory.currentTags || [];
+
+      const items = this.processPageLine(text, tags, isFirstLine);
+      isFirstLine = false;
+
+      if (items) {
+        content.push(...items);
+      }
+    }
+
+    return content;
+  }
+
+  processPageLine(text, tags, isFirstLine) {
+    // Skip first line if only SPECIAL_PAGE tag
+    if (isFirstLine && this.containsOnlySpecialPageTag(text, tags)) {
+      return null;
+    }
+
+    const hasAnyTag = tags.some((tag) => typeof tag === "string" && tag.trim());
+    if (!text?.trim() && !hasAnyTag) {
+      return null;
+    }
+
+    const processed = this.storyManager.contentProcessor.process(text, tags);
+    const items = Array.isArray(processed) ? processed : [processed];
+
+    return items
+      .map((item) => {
+        if (item && (item.type === "paragraph" || !item.type)) {
+          item.classes = ["special-page", ...(item.classes || [])];
+        }
+        return item;
+      })
+      .filter(Boolean);
   }
 
   /**
@@ -202,11 +207,7 @@ class PageManager {
    */
   addReturnButton() {
     if (!this.storyManager.choices || !this.storyManager.display) {
-      window.errorManager.error(
-        "Required managers not available for return button",
-        null,
-        "pages",
-      );
+      PageManager._error("Required managers not available for return button");
       return;
     }
 
@@ -217,7 +218,7 @@ class PageManager {
 
       this.storyManager.display.renderChoices([returnChoice], false);
     } catch (error) {
-      window.errorManager.error("Failed to add return button", error, "pages");
+      PageManager._error("Failed to add return button", error);
     }
   }
 
@@ -232,11 +233,7 @@ class PageManager {
       this.storyManager.currentPage = null;
 
       if (!this.storyManager.display) {
-        window.errorManager.error(
-          "Display manager not available for return",
-          null,
-          "pages",
-        );
+        PageManager._error("Display manager not available for return");
         return;
       }
 
@@ -248,11 +245,7 @@ class PageManager {
         try {
           this.storyManager.story.state.LoadJson(this.savedStoryState);
         } catch (error) {
-          window.errorManager.error(
-            "Failed to restore story state",
-            error,
-            "pages",
-          );
+          PageManager._error("Failed to restore story state", error);
           // Fallback to the current savePoint
           if (this.storyManager.savePoint) {
             this.storyManager.story.state.LoadJson(this.storyManager.savePoint);
@@ -265,11 +258,7 @@ class PageManager {
         try {
           this.storyManager.display.restoreState(this.savedDisplayState);
         } catch (error) {
-          window.errorManager.error(
-            "Failed to restore display state",
-            error,
-            "pages",
-          );
+          PageManager._error("Failed to restore display state", error);
           this.regenerateDisplayFromStoryState();
         }
       } else {
@@ -285,7 +274,7 @@ class PageManager {
       this.savedDisplayState = null;
       this.savedStoryState = null;
     } catch (error) {
-      window.errorManager.error("Failed to return to story", error, "pages");
+      PageManager._error("Failed to return to story", error);
     }
   }
 
@@ -400,11 +389,7 @@ class PageManager {
 
       return fullText.trim();
     } catch (error) {
-      window.errorManager.error(
-        "Failed to evaluate page content",
-        error,
-        "pages",
-      );
+      PageManager._error("Failed to evaluate page content", error);
       return "";
     }
   }

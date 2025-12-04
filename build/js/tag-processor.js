@@ -1,5 +1,7 @@
 // tag-processor.js
 class TagProcessor {
+  static errorSource = ErrorManager.SOURCES.TAG_PROCESSOR;
+
   constructor(storyContainer, outerScrollContainer) {
     this.storyContainer = storyContainer || document.querySelector("#story");
     this.outerScrollContainer =
@@ -88,14 +90,22 @@ class TagProcessor {
     ]);
   }
 
+  static _error(message, error = null) {
+    window.errorManager.error(message, error, TagProcessor.errorSource);
+  }
+
+  static _warning(message, error = null) {
+    window.errorManager.warning(message, error, TagProcessor.errorSource);
+  }
+
+  static _critical(message, error = null) {
+    window.errorManager.critical(message, error, TagProcessor.errorSource);
+  }
+
   processLineTags(tags) {
     try {
       if (!Array.isArray(tags)) {
-        window.errorManager.warning(
-          "Invalid tags array passed to processLineTags",
-          null,
-          "tags",
-        );
+        TagProcessor._warning("Invalid tags array passed to processLineTags");
         return { customClasses: [], specialActions: [] };
       }
 
@@ -103,7 +113,7 @@ class TagProcessor {
       this._processTags(tags, ctx, "line", false);
       return ctx;
     } catch (error) {
-      window.errorManager.error("Failed to process line tags", error, "tags");
+      TagProcessor._error("Failed to process line tags", error);
       return { customClasses: [], specialActions: [] };
     }
   }
@@ -111,10 +121,8 @@ class TagProcessor {
   processChoiceTags(choiceTags) {
     try {
       if (!Array.isArray(choiceTags)) {
-        window.errorManager.warning(
+        TagProcessor._warning(
           "Invalid choiceTags array passed to processChoiceTags",
-          null,
-          "tags",
         );
         return { customClasses: [], isClickable: true };
       }
@@ -123,7 +131,7 @@ class TagProcessor {
       this._processTags(choiceTags, ctx, "choice", true);
       return ctx;
     } catch (error) {
-      window.errorManager.error("Failed to process choice tags", error, "tags");
+      TagProcessor._error("Failed to process choice tags", error);
       return { customClasses: [], isClickable: true };
     }
   }
@@ -141,7 +149,7 @@ class TagProcessor {
 
       // Skip invalid tags (already warned in parseTag)
       if (invalid) {
-        if (error) console.warn(`[Tag Registry] ${error}`);
+        if (error) TagProcessor._warning(error);
         continue;
       }
 
@@ -198,11 +206,7 @@ class TagProcessor {
       }
 
       if (!src || typeof src !== "string") {
-        window.errorManager.warning(
-          "Invalid audio source provided",
-          null,
-          "tags",
-        );
+        TagProcessor._warning("Invalid audio source provided");
         return;
       }
 
@@ -215,25 +219,17 @@ class TagProcessor {
 
       this.audio = new Audio(src);
       this.audio.play().catch((error) => {
-        window.errorManager.warning(
-          `Failed to play audio: ${src}`,
-          error,
-          "tags",
-        );
+        TagProcessor._warning(`Failed to play audio: ${src}`, error);
       });
     } catch (error) {
-      window.errorManager.error("Failed to play audio", error, "tags");
+      TagProcessor._error("Failed to play audio", error);
     }
   }
 
   playAudioLoop(src) {
     try {
       if (!src || typeof src !== "string") {
-        window.errorManager.warning(
-          "Invalid audio loop source provided",
-          null,
-          "tags",
-        );
+        TagProcessor._warning("Invalid audio loop source provided");
         return;
       }
 
@@ -271,14 +267,10 @@ class TagProcessor {
       this.audioLoop = new Audio(src);
       this.audioLoop.loop = true;
       this.audioLoop.play().catch((error) => {
-        window.errorManager.warning(
-          `Failed to play audio loop: ${src}`,
-          error,
-          "tags",
-        );
+        TagProcessor._warning(`Failed to play audio loop: ${src}`, error);
       });
     } catch (error) {
-      window.errorManager.error("Failed to play audio loop", error, "tags");
+      TagProcessor._error("Failed to play audio loop", error);
     }
   }
 
@@ -301,7 +293,7 @@ class TagProcessor {
         this.audioLoop = null;
       }
     } catch (error) {
-      window.errorManager.warning("Failed to stop audio", error, "tags");
+      TagProcessor._warning("Failed to stop audio", error);
     }
   }
 
@@ -317,7 +309,7 @@ class TagProcessor {
         this.playAudioLoop(this.lastAudioLoopSrc);
       }
     } catch (error) {
-      window.errorManager.warning("Failed to resume audio loop", error, "tags");
+      TagProcessor._warning("Failed to resume audio loop", error);
     }
   }
 
@@ -330,20 +322,14 @@ class TagProcessor {
   setBackground(src) {
     try {
       if (!this.outerScrollContainer) {
-        window.errorManager.warning(
+        TagProcessor._warning(
           "Outer scroll container not available for background",
-          null,
-          "tags",
         );
         return;
       }
 
       if (!src || typeof src !== "string") {
-        window.errorManager.warning(
-          "Invalid background source provided",
-          null,
-          "tags",
-        );
+        TagProcessor._warning("Invalid background source provided");
         return;
       }
 
@@ -354,7 +340,7 @@ class TagProcessor {
         this.outerScrollContainer.style.backgroundImage = "url(" + src + ")";
       }
     } catch (error) {
-      window.errorManager.error("Failed to set background", error, "tags");
+      TagProcessor._error("Failed to set background", error);
     }
   }
 
@@ -385,8 +371,8 @@ class TagProcessor {
       }
     }
 
-    console.warn(
-      `[Tag Processor] Unknown tag "${tagName}" on ${context}: "# ${fullTag}".${suggestion}`,
+    TagProcessor._warning(
+      `Unknown tag "${tagName}" on ${context}: "# ${fullTag}".${suggestion}`,
     );
   }
 
@@ -410,33 +396,9 @@ class TagProcessor {
         if (known.length >= 3 && input.startsWith(known.slice(0, 3)))
           return true;
         // Simple edit distance check (off by 1-2 chars)
-        return this.levenshteinDistance(input, known) <= 2;
+        return window.Utils.levenshteinDistance(input, known) <= 2;
       })
       .slice(0, 3);
-  }
-
-  /**
-   * Calculate Levenshtein distance between two strings
-   */
-  levenshteinDistance(a, b) {
-    if (a.length === 0) return b.length;
-    if (b.length === 0) return a.length;
-
-    const matrix = [];
-    for (let i = 0; i <= b.length; i++) matrix[i] = [i];
-    for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
-
-    for (let i = 1; i <= b.length; i++) {
-      for (let j = 1; j <= a.length; j++) {
-        const cost = a[j - 1] === b[i - 1] ? 0 : 1;
-        matrix[i][j] = Math.min(
-          matrix[i - 1][j] + 1,
-          matrix[i][j - 1] + 1,
-          matrix[i - 1][j - 1] + cost,
-        );
-      }
-    }
-    return matrix[b.length][a.length];
   }
 
   /**
@@ -447,7 +409,7 @@ class TagProcessor {
     try {
       return !!(this.storyContainer || this.outerScrollContainer);
     } catch (error) {
-      window.errorManager.warning("Failed to check readiness", error, "tags");
+      TagProcessor._warning("Failed to check readiness", error);
       return false;
     }
   }
@@ -465,7 +427,7 @@ class TagProcessor {
         hasActiveAudioLoop: !!this.audioLoop,
       };
     } catch (error) {
-      window.errorManager.warning("Failed to get stats", error, "tags");
+      TagProcessor._warning("Failed to get stats", error);
       return {};
     }
   }
@@ -484,7 +446,7 @@ class TagProcessor {
         this.audioLoop = null;
       }
     } catch (error) {
-      window.errorManager.warning("Failed to cleanup", error, "tags");
+      TagProcessor._warning("Failed to cleanup", error);
     }
   }
 }

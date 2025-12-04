@@ -1,5 +1,7 @@
 // navigation-manager.js
 class NavigationManager {
+  static errorSource = ErrorManager.SOURCES.NAVIGATION_MANAGER;
+
   constructor(storyManager) {
     this.storyManager = storyManager;
     this.dynamicButtons = new Map();
@@ -7,7 +9,7 @@ class NavigationManager {
     this.dropdownButton = null;
 
     if (!this.storyManager) {
-      window.errorManager.critical(
+      NavigationManager._critical(
         "NavigationManager requires a story manager",
         new Error("Invalid story manager"),
         "navigation",
@@ -18,6 +20,18 @@ class NavigationManager {
     this.setupButtons();
   }
 
+  static _error(message, error = null) {
+    window.errorManager.error(message, error, NavigationManager.errorSource);
+  }
+
+  static _warning(message, error = null) {
+    window.errorManager.warning(message, error, NavigationManager.errorSource);
+  }
+
+  static _critical(message, error = null) {
+    window.errorManager.critical(message, error, NavigationManager.errorSource);
+  }
+
   /**
    * Update navigation button visibility based on available special pages
    * @param {Object} availablePages - Object mapping knot names to page info
@@ -25,7 +39,7 @@ class NavigationManager {
    */
   updateVisibility(availablePages, pageMenuOrder = null) {
     if (!availablePages || typeof availablePages !== "object") {
-      window.errorManager.warning(
+      NavigationManager._warning(
         "Invalid availablePages object passed to updateVisibility",
         null,
         "navigation",
@@ -264,26 +278,7 @@ class NavigationManager {
    */
   setupClickableTitle() {
     this.setupButton("title-restart", () => {
-      const confirmModal = new BaseModal({
-        title: "Restart Story",
-        className: "confirm-modal",
-        maxWidth: "400px",
-        showFooter: true,
-      });
-
-      confirmModal.showConfirmation(
-        "Are you sure you want to restart the story from the beginning? Any unsaved progress will be lost.",
-        () => {
-          this.storyManager.restart();
-        },
-        null,
-        {
-          title: "Restart Story",
-          confirmText: "Restart",
-          cancelText: "Cancel",
-          confirmVariant: "primary",
-        },
-      );
+      this.storyManager.confirmRestart();
     });
   }
   /**
@@ -298,30 +293,8 @@ class NavigationManager {
    * Setup core navigation buttons (restart, save, load, settings)
    */
   setupCoreButtons() {
-    // Restart button
     this.setupButton("rewind", () => {
-      // Create a temporary confirmation modal
-      const confirmModal = new BaseModal({
-        title: "Restart Story",
-        className: "confirm-modal",
-        maxWidth: "400px",
-        showFooter: true,
-      });
-
-      confirmModal.showConfirmation(
-        "Are you sure you want to restart the story from the beginning? Any unsaved progress will be lost.",
-        () => {
-          // On confirm
-          this.storyManager.restart();
-        },
-        null, // No cancel callback needed
-        {
-          title: "Restart Story",
-          confirmText: "Restart",
-          cancelText: "Cancel",
-          confirmVariant: "primary",
-        },
-      );
+      this.storyManager.confirmRestart();
     });
 
     // Note: Saves and settings buttons are handled by their respective managers
@@ -334,7 +307,7 @@ class NavigationManager {
    */
   setupButton(buttonId, clickHandler) {
     if (!buttonId || typeof clickHandler !== "function") {
-      window.errorManager.warning(
+      NavigationManager._warning(
         `Invalid parameters for button ${buttonId}`,
         null,
         "navigation",
@@ -344,7 +317,7 @@ class NavigationManager {
 
     const button = document.getElementById(buttonId);
     if (!button) {
-      window.errorManager.warning(
+      NavigationManager._warning(
         `Button not found: ${buttonId}`,
         null,
         "navigation",
@@ -361,7 +334,7 @@ class NavigationManager {
         try {
           clickHandler(e);
         } catch (error) {
-          window.errorManager.error(
+          NavigationManager._error(
             `Button click failed: ${buttonId}`,
             error,
             "navigation",
@@ -369,7 +342,7 @@ class NavigationManager {
         }
       });
     } catch (error) {
-      window.errorManager.warning(
+      NavigationManager._warning(
         `Failed to setup button ${buttonId}`,
         error,
         "navigation",

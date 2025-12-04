@@ -1,5 +1,6 @@
 // notification-manager.js
 class NotificationManager {
+  // Uses console.warn directly to avoid circular dependency with ErrorManager
   constructor(options = {}) {
     this.config = {
       position: "bottom-right", // top-left, top-right, bottom-left, bottom-right, top-center, bottom-center

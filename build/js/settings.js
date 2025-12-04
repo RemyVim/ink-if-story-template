@@ -1,5 +1,7 @@
 // settings.js
 class SettingsManager {
+  static errorSource = ErrorManager.SOURCES.SETTINGS_MANAGER;
+
   constructor() {
     this.settings = this.getDefaults();
 
@@ -18,6 +20,18 @@ class SettingsManager {
     this.setupEventListeners();
     this.setupThemeDetection();
     this.applySettings();
+  }
+
+  static _error(message, error = null) {
+    window.errorManager.error(message, error, SettingsManager.errorSource);
+  }
+
+  static _warning(message, error = null) {
+    window.errorManager.warning(message, error, SettingsManager.errorSource);
+  }
+
+  static _critical(message, error = null) {
+    window.errorManager.critical(message, error, SettingsManager.errorSource);
   }
 
   getDefaults() {
@@ -211,162 +225,152 @@ class SettingsManager {
     const audioAvailable = window.StoryFeatures?.hasAudio;
 
     return `
+      ${this.renderSettingsTabs()}
+      <div class="settings-panels">
+        ${this.renderReadingPanel()}
+        ${this.renderAccessibilityPanel()}
+        ${this.renderAudioPanel()}
+      </div>
+  `;
+  }
+
+  renderSettingsTabs() {
+    const audioAvailable = window.StoryFeatures?.hasAudio;
+    return `
     <div class="settings-tabs" role="tablist" aria-label="Settings categories">
-      <button role="tab" class="settings-tab active" 
-              id="tab-reading"
-              data-tab="reading" 
-              aria-selected="true" 
-              aria-controls="panel-reading"
-              tabindex="0">
-        <span class="material-icons" aria-hidden="true">auto_stories</span>
-        <span class="sr-only">Reading</span>
-      </button>
-      <button role="tab" class="settings-tab" 
-              id="tab-accessibility"
-              data-tab="accessibility" 
-              aria-selected="false" 
-              aria-controls="panel-accessibility"
-              tabindex="-1">
-        <span class="material-icons" aria-hidden="true">accessibility_new</span>
-        <span class="sr-only">Accessibility</span>
-      </button>
-      ${
-        audioAvailable
-          ? `
-      <button role="tab" class="settings-tab" 
-              id="tab-audio"
-              data-tab="audio" 
-              aria-selected="false" 
-              aria-controls="panel-audio"
-              tabindex="-1">
-        <span class="material-icons" aria-hidden="true">volume_up</span>
-        <span class="sr-only">Audio</span>
-      </button>
-      `
-          : ""
-      }
+      ${this.renderSettingsTab("reading", "auto_stories", "Reading", true)}
+      ${this.renderSettingsTab("accessibility", "accessibility_new", "Accessibility")}
+      ${audioAvailable ? this.renderSettingsTab("audio", "volume_up", "Audio") : ""}
     </div>
+    `;
+  }
 
-  <div class="settings-panels">
-    <!-- Reading Panel -->
+  renderSettingsTab(id, icon, label, isActive = false) {
+    return `
+      <button role="tab" class="settings-tab ${isActive ? "active" : ""}" 
+              id="tab-${id}"
+              data-tab="${id}" 
+              aria-selected="${isActive}" 
+              aria-controls="panel-${id}"
+              tabindex="${isActive ? "0" : "-1"}">
+        <span class="material-icons" aria-hidden="true">${icon}</span>
+        <span class="sr-only">${label}</span>
+      </button>
+    `;
+  }
+
+  renderReadingPanel() {
+    return `
     <div role="tabpanel" class="settings-panel active" id="panel-reading" aria-labelledby="tab-reading">
-      <div class="setting-item">
-        <label class="setting-label" for="setting-theme">Theme</label>
-        <select name="theme" id="setting-theme" class="setting-select">
-          <option value="auto">Auto (System)</option>
-          <option value="light">Light</option>
-          <option value="dark">Dark</option>
-        </select>
-      </div>
-
-      <div class="setting-item">
-        <label class="setting-label" for="setting-font">Font Family</label>
-        <select name="fontFamily" id="setting-font" class="setting-select">
-          <option value="serif">Serif</option>
-          <option value="sans">Sans-serif</option>
-          <option value="dyslexic">OpenDyslexic</option>
-        </select>
-      </div>
-
-      <div class="setting-item">
-        <label class="setting-label" for="setting-size">Text Size</label>
-        <select name="textSize" id="setting-size" class="setting-select">
-          <option value="small">Small</option>
-          <option value="medium">Medium</option>
-          <option value="large">Large</option>
-          <option value="xl">Extra Large</option>
-        </select>
-      </div>
-
-      <div class="setting-item">
-        <label class="setting-label" for="setting-lineheight">Line Height</label>
-        <select name="lineHeight" id="setting-lineheight" class="setting-select">
-          <option value="tight">Tight</option>
-          <option value="normal">Normal</option>
-          <option value="loose">Loose</option>
-        </select>
-      </div>
-
-      <div class="setting-item">
-        <label class="setting-checkbox-label">
-          <input type="checkbox" name="autoSave" class="setting-checkbox">
-          <span>Auto Save Progress</span>
-        </label>
-      </div>
+    ${this.renderDropdownSetting("theme", "setting-theme", "Theme", [
+      { value: "auto", label: "Auto (System)" },
+      { value: "light", label: "Light" },
+      { value: "dark", label: "Dark" },
+    ])}
+    ${this.renderDropdownSetting("fontFamily", "setting-font", "Font Family", [
+      { value: "serif", label: "Serif" },
+      { value: "sans", label: "Sans-serif" },
+      { value: "dyslexic", label: "OpenDyslexic" },
+    ])}
+    ${this.renderDropdownSetting("textSize", "setting-size", "Text Size", [
+      { value: "small", label: "Small" },
+      { value: "medium", label: "Medium" },
+      { value: "large", label: "Large" },
+      { value: "xl", label: "Extra Large" },
+    ])}
+    ${this.renderDropdownSetting(
+      "lineHeight",
+      "setting-lineheight",
+      "Line Height",
+      [
+        { value: "tight", label: "Tight" },
+        { value: "normal", label: "Normal" },
+        { value: "loose", label: "Loose" },
+      ],
+    )}
+      ${this.renderCheckboxSetting("autoSave", "Auto Save Progress")}
     </div>
+    `;
+  }
 
-    <!-- Accessibility Panel -->
+  renderAccessibilityPanel() {
+    return `
     <div role="tabpanel" class="settings-panel" id="panel-accessibility" aria-labelledby="tab-accessibility">
-      <div class="setting-item">
-        <label class="setting-checkbox-label">
-          <input type="checkbox" name="animations" class="setting-checkbox">
-          <span>Enable Animations</span>
-        </label>
-      </div>
 
+      ${this.renderCheckboxSetting("animations", "Enable Animations")}
       ${
         this.toneIndicatorsAvailable
-          ? `
-      <div class="setting-item">
-        <label class="setting-checkbox-label">
-          <input type="checkbox" name="toneIndicators" class="setting-checkbox">
-          <span>Show tone indicators on choices</span>
-        </label>
-      </div>
-      `
+          ? this.renderCheckboxSetting(
+              "toneIndicators",
+              "Show tone indicators on choices",
+            )
           : ""
       }
-
-      <div class="setting-item">
-        <label class="setting-label" for="setting-choicenumbering">Choice Number Hints</label>
-        <select name="choiceNumbering" id="setting-choicenumbering" class="setting-select">
-          <option value="auto">Auto (hide on mobile)</option>
-          <option value="on">Always show</option>
-          <option value="off">Always hide</option>
-        </select>
-      </div>
-
+      ${this.renderDropdownSetting(
+        "choiceNumbering",
+        "setting-choicenumbering",
+        "Choice Number Hints",
+        [
+          { value: "auto", label: "Auto (hide on mobile)" },
+          { value: "on", label: "Always Show" },
+          { value: "off", label: "Always Hide" },
+        ],
+      )}
       ${
         window.keyboardHelpModal?.isAvailable()
-          ? `
-      <div class="setting-item">
-        <label class="setting-checkbox-label">
-          <input type="checkbox" name="keyboardShortcuts" class="setting-checkbox">
-          <span>Enable Keyboard Shortcuts</span>
-        </label>
-      </div>
-      `
+          ? this.renderCheckboxSetting(
+              "keyboardShortcuts",
+              "Enable Keyboard Shortcuts",
+            )
           : ""
       }
-
       ${
         window.keyboardHelpModal?.isAvailable()
-          ? `
-      <div class="setting-item">
-        <button type="button" class="keyboard-help-btn">Keyboard Shortcuts</button>
-      </div>
-      `
+          ? this.renderButtonSetting("keyboard-help-btn", "Keyboard Shortcuts")
           : ""
       }
     </div>
-
-    <!-- Audio Panel (conditional) -->
-    ${
-      audioAvailable
-        ? `
-    <div role="tabpanel" class="settings-panel" id="panel-audio" aria-labelledby="tab-audio">
-      <div class="setting-item">
-        <label class="setting-checkbox-label">
-          <input type="checkbox" name="audioEnabled" class="setting-checkbox">
-          <span>Enable Audio</span>
-        </label>
-      </div>
-    </div>
-  </div>
-    `
-        : ""
-    }
   `;
+  }
+
+  renderAudioPanel() {
+    if (!window.StoryFeatures?.hasAudio) return "";
+
+    return `
+    <div role="tabpanel" class="settings-panel" id="panel-audio" aria-labelledby="tab-audio">
+      ${this.renderCheckboxSetting("audioEnabled", "Enable Audio")}
+    </div>`;
+  }
+
+  renderCheckboxSetting(name, label) {
+    return `
+      <div class="setting-item">
+        <label class="setting-checkbox-label">
+          <input type="checkbox" name="${name}" class="setting-checkbox">
+          <span>${label}</span>
+        </label>
+      </div>`;
+  }
+
+  renderDropdownSetting(name, id, label, options) {
+    const optionsHtml = options
+      .map((opt) => `<option value="${opt.value}">${opt.label}</option>`)
+      .join("\n          ");
+
+    return `
+      <div class="setting-item">
+        <label class="setting-label" for="${id}">${label}</label>
+        <select name="${name}" id="${id}" class="setting-select">
+          ${optionsHtml}
+        </select>
+      </div>`;
+  }
+
+  renderButtonSetting(className, label) {
+    return `
+      <div class="setting-item">
+        <button type="button" class="${className}">${label}</button>
+      </div>`;
   }
 
   setupEventListeners() {
@@ -382,11 +386,7 @@ class SettingsManager {
 
   showSettings() {
     if (!this.modal?.isReady()) {
-      window.errorManager.error(
-        "Cannot show settings - modal not available",
-        null,
-        "settings",
-      );
+      SettingsManager._error("Cannot show settings - modal not available");
       return;
     }
 
@@ -676,11 +676,7 @@ class SettingsManager {
         tagProcessor.resumeAudioLoop();
       }
     } catch (error) {
-      window.errorManager.warning(
-        "Failed to handle audio setting change",
-        error,
-        "settings",
-      );
+      SettingsManager._warning("Failed to handle audio setting change", error);
     }
   }
 
@@ -816,7 +812,7 @@ class SettingsManager {
         this.settings = { ...this.settings, ...parsed };
       }
     } catch (error) {
-      window.errorManager.warning("Failed to load settings", error, "settings");
+      SettingsManager._warning("Failed to load settings", error);
     }
   }
 
@@ -827,7 +823,7 @@ class SettingsManager {
         JSON.stringify(this.settings),
       );
     } catch (error) {
-      window.errorManager.error("Failed to store settings", error, "settings");
+      SettingsManager._error("Failed to store settings", error);
     }
   }
 

@@ -1,11 +1,11 @@
 // dom-helpers.js
 class DOMHelpers {
+  static errorSource = ErrorManager.SOURCES.DOM_HELPERS;
   constructor(storyContainer) {
     if (!storyContainer || !(storyContainer instanceof Element)) {
-      window.errorManager.critical(
+      DOMHelpers._critical(
         "Invalid story container provided to DOM helpers",
         new Error("Invalid story container"),
-        "dom-helpers",
       );
       return;
     }
@@ -13,14 +13,22 @@ class DOMHelpers {
     this.storyContainer = storyContainer;
   }
 
+  static _error(message, error = null) {
+    window.errorManager.error(message, error, DOMHelpers.errorSource);
+  }
+
+  static _warning(message, error = null) {
+    window.errorManager.warning(message, error, DOMHelpers.errorSource);
+  }
+
+  static _critical(message, error = null) {
+    window.errorManager.critical(message, error, DOMHelpers.errorSource);
+  }
+
   // Remove all elements that match the given selector
   removeAll(selector) {
     if (!selector || typeof selector !== "string") {
-      window.errorManager.warning(
-        "Invalid selector passed to removeAll",
-        null,
-        "dom-helpers",
-      );
+      DOMHelpers._warning("Invalid selector passed to removeAll");
       return;
     }
 
@@ -33,11 +41,7 @@ class DOMHelpers {
           el.parentNode.removeChild(el);
         }
       } catch (error) {
-        window.errorManager.warning(
-          `Failed to remove element at index ${i}`,
-          error,
-          "dom-helpers",
-        );
+        DOMHelpers._warning(`Failed to remove element at index ${i}`, error);
       }
     }
   }
@@ -45,11 +49,7 @@ class DOMHelpers {
   // Used for hiding and showing elements
   setVisible(selector, visible) {
     if (!selector || typeof selector !== "string") {
-      window.errorManager.warning(
-        "Invalid selector passed to setVisible",
-        null,
-        "dom-helpers",
-      );
+      DOMHelpers._warning("Invalid selector passed to setVisible");
       return;
     }
 
@@ -66,10 +66,9 @@ class DOMHelpers {
           el.classList.remove("invisible");
         }
       } catch (error) {
-        window.errorManager.warning(
+        DOMHelpers._warning(
           `Failed to set visibility for element at index ${i}`,
           error,
-          "dom-helpers",
         );
       }
     }
@@ -78,19 +77,13 @@ class DOMHelpers {
   // Create a paragraph element with text and classes
   createParagraph(text, customClasses = []) {
     if (!text || typeof text !== "string") {
-      window.errorManager.warning(
-        "Invalid text passed to createParagraph",
-        null,
-        "dom-helpers",
-      );
+      DOMHelpers._warning("Invalid text passed to createParagraph");
       return null;
     }
 
     if (!Array.isArray(customClasses)) {
-      window.errorManager.warning(
+      DOMHelpers._warning(
         "Invalid customClasses passed to createParagraph - using empty array",
-        null,
-        "dom-helpers",
       );
       customClasses = [];
     }
@@ -109,11 +102,7 @@ class DOMHelpers {
       this.storyContainer.appendChild(paragraphElement);
       return paragraphElement;
     } catch (error) {
-      window.errorManager.error(
-        "Failed to create paragraph",
-        error,
-        "dom-helpers",
-      );
+      DOMHelpers._error("Failed to create paragraph", error);
       return null;
     }
   }
@@ -128,19 +117,13 @@ class DOMHelpers {
     toneIndicators = [],
   ) {
     if (!choiceText || typeof choiceText !== "string") {
-      window.errorManager.warning(
-        "Invalid choiceText passed to createChoice",
-        null,
-        "dom-helpers",
-      );
+      DOMHelpers._warning("Invalid choiceText passed to createChoice");
       choiceText = "[Invalid Choice]";
     }
 
     if (!Array.isArray(customClasses)) {
-      window.errorManager.warning(
+      DOMHelpers._warning(
         "Invalid customClasses passed to createChoice - using empty array",
-        null,
-        "dom-helpers",
       );
       customClasses = [];
     }
@@ -208,11 +191,7 @@ class DOMHelpers {
       this.storyContainer.appendChild(choiceParagraphElement);
       return choiceParagraphElement;
     } catch (error) {
-      window.errorManager.error(
-        "Failed to create choice",
-        error,
-        "dom-helpers",
-      );
+      DOMHelpers._error("Failed to create choice", error);
       return null;
     }
   }
@@ -220,20 +199,14 @@ class DOMHelpers {
   // Add click handler to choice
   addChoiceClickHandler(choiceElement, callback) {
     if (!choiceElement || !(choiceElement instanceof Element)) {
-      window.errorManager.warning(
+      DOMHelpers._warning(
         "Invalid choiceElement passed to addChoiceClickHandler",
-        null,
-        "dom-helpers",
       );
       return;
     }
 
     if (!callback || typeof callback !== "function") {
-      window.errorManager.warning(
-        "Invalid callback passed to addChoiceClickHandler",
-        null,
-        "dom-helpers",
-      );
+      DOMHelpers._warning("Invalid callback passed to addChoiceClickHandler");
       return;
     }
 
@@ -244,18 +217,12 @@ class DOMHelpers {
           event.preventDefault();
           callback();
         } catch (error) {
-          window.errorManager.error(
-            "Choice click handler failed",
-            error,
-            "dom-helpers",
-          );
+          DOMHelpers._error("Choice click handler failed", error);
         }
       });
     } else {
-      window.errorManager.warning(
+      DOMHelpers._warning(
         "No anchor element found in choice for click handler",
-        null,
-        "dom-helpers",
       );
     }
   }
@@ -272,11 +239,7 @@ class DOMHelpers {
   // Scroll container to top
   scrollToTop(container) {
     if (!container || !(container instanceof Element)) {
-      window.errorManager.warning(
-        "Invalid container passed to scrollToTop",
-        null,
-        "dom-helpers",
-      );
+      DOMHelpers._warning("Invalid container passed to scrollToTop");
       return;
     }
 
@@ -287,18 +250,10 @@ class DOMHelpers {
         container.scrollTop = 0;
         container.scrollLeft = 0;
       } else {
-        window.errorManager.warning(
-          "Container does not support scrolling operations",
-          null,
-          "dom-helpers",
-        );
+        DOMHelpers._warning("Container does not support scrolling operations");
       }
     } catch (error) {
-      window.errorManager.warning(
-        "Failed to scroll to top",
-        error,
-        "dom-helpers",
-      );
+      DOMHelpers._warning("Failed to scroll to top", error);
     }
   }
 
@@ -339,16 +294,12 @@ class DOMHelpers {
       const newContainer = document.querySelector("#story");
       if (newContainer) {
         this.storyContainer = newContainer;
-        window.errorManager.warning(
+        DOMHelpers._warning(
           "DOM helpers recovered by finding new story container",
-          null,
-          "dom-helpers",
         );
       } else {
-        window.errorManager.error(
+        DOMHelpers._error(
           "DOM helpers recovery failed - no story container found",
-          null,
-          "dom-helpers",
         );
       }
     }
