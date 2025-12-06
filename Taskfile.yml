@@ -7,13 +7,115 @@ tasks:
     cmds:
       - |
         echo "---- Compiling Ink story to JSON"
-        echo "./bin/inklecate -o build/story.json -j src/main.ink"
-        if ./bin/inklecate -o build/story.json -j src/main.ink; then
+        echo "./bin/inklecate -o build/story.json -j src/ink/main.ink"
+        if ./bin/inklecate -o build/story.json -j src/ink/main.ink; then
           echo "✅ Compilation complete! Refresh your browser."
         else
           echo ""
           echo "❌ Compilation failed. Fix errors and save to retry."
         fi
+
+  build:js:
+    desc: Bundle and minify JavaScript
+    silent: true
+    cmds:
+      - |
+        echo "---- Bundling and minifying JavaScript..."
+        mkdir -p build/js
+        MINIFY_CMD=$(command -v minify || command -v gominify)
+        if [ -z "$MINIFY_CMD" ]; then
+          echo "❌ minify not found. Run 'task setup:minify'"
+          exit 1
+        fi
+        cat \
+          src/js/tag-registry.js \
+          src/js/utils.js \
+          src/js/ink.js \
+          src/js/notification-manager.js \
+          src/js/error-manager.js \
+          src/js/markdown.js \
+          src/js/dom-helpers.js \
+          src/js/tag-processor.js \
+          src/js/modal.js \
+          src/js/settings.js \
+          src/js/saves-modal-manager.js \
+          src/js/save-system.js \
+          src/js/display-manager.js \
+          src/js/choice-manager.js \
+          src/js/page-manager.js \
+          src/js/navigation-manager.js \
+          src/js/content-processor.js \
+          src/js/ink-functions.js \
+          src/js/story-manager.js \
+          src/js/keyboard-help-modal.js \
+          src/js/keyboard-shortcuts.js \
+          src/js/main.js \
+        | $MINIFY_CMD --type=js -o build/js/template.min.js
+        echo "✅ build/js/template.min.js created"
+
+  build:css:
+    desc: Bundle and minify CSS
+    silent: true
+    cmds:
+      - |
+        echo "---- Bundling and minifying CSS..."
+        mkdir -p build/css
+        MINIFY_CMD=$(command -v minify || command -v gominify)
+        if [ -z "$MINIFY_CMD" ]; then
+          echo "❌ minify not found. Run 'task setup:minify'"
+          exit 1
+        fi
+        cat \
+          src/css/variables.css \
+          src/css/themes.css \
+          src/css/base.css \
+          src/css/layout.css \
+          src/css/loading.css \
+          src/css/navigation.css \
+          src/css/choices.css \
+          src/css/images.css \
+          src/css/inline.css \
+          src/css/stat-bars.css \
+          src/css/user-input.css \
+          src/css/notifications.css \
+          src/css/modals.css \
+          src/css/settings.css \
+          src/css/saves.css \
+          src/css/keyboard-help.css \
+          src/css/responsive.css \
+        | $MINIFY_CMD --type=css -o build/css/template.min.css
+        echo "✅ build/css/template.min.css created"
+
+  build:html:
+    desc: Copy HTML to build
+    silent: true
+    cmds:
+      - |
+        echo "---- Copying HTML..."
+        cp src/index.html build/index.html
+        echo "✅ build/index.html copied"
+
+  build:
+    desc: Build everything for production
+    cmds:
+      - task: clean
+      - task: build:js
+      - task: build:css
+      - task: build:html
+      - task: compile
+      - echo "✅ Production build complete."
+
+  clean:
+    desc: Clean generated build files (preserves author files)
+    silent: true
+    cmds:
+      - |
+        echo "---- Cleaning generated build files..."
+        rm -f build/story.json
+        rm -f build/js/template.min.js
+        rm -f build/css/template.min.css
+        rm -f build/index.html
+        echo "Done"
 
   serve:
     desc: Start web server for development
@@ -21,31 +123,25 @@ tasks:
     cmds:
       - |
         echo "---- Starting web server for development."
-        echo "cd build && python3 -m http.server 8000"
+        echo "http://localhost:8000"
         echo "Press Ctrl+C to stop"
         cd build && python3 -m http.server 8000
     interactive: true
 
   watch:
-    desc: Watch for changes and auto-compile
+    desc: Watch for changes and auto-rebuild
     silent: true
     cmds:
       - |
         echo "---- Watching src/ for changes..."
-        echo "Press Ctrl+C to stop"
-        
-        # Initial compile
-        task compile
-        
-        # Watch for changes (requires inotify-tools on Linux)
+        task build
         if command -v inotifywait >/dev/null 2>&1; then
           while inotifywait -e modify,create,delete -r src/ --exclude='.*\.swp$' 2>/dev/null; do
-            echo "📝 Changes detected, recompiling..."
-            task compile
+            echo "🔄 Changes detected, rebuilding..."
+            task build
           done
         else
-          echo "❌ inotify-tools not found."
-          echo "Run 'task setup:watch' to install it."
+          echo "❌ inotify-tools not found. Run 'task setup:watch' to install."
         fi
     interactive: true
 
@@ -53,46 +149,61 @@ tasks:
     desc: Start development environment (watch + serve)
     deps: [watch, serve]
 
-  clean:
-    desc: Clean build directory
-    silent: true
-    cmds:
-      - |
-        echo "---- Cleaning build directory"
-        echo "rm -f build/story.json"
-        rm -f build/story.json
-        echo "Done"
-
   setup:
+    desc: Install all build dependencies
+    cmds:
+      - task: setup:inklecate
+      - task: setup:minify
+      - task: setup:watch
+
+  setup:inklecate:
     desc: Install inklecate compiler
     silent: true
     cmds:
       - |
-        echo "---- Setting up inklecate compiler..."
         if [ -f "./bin/inklecate" ]; then
           echo "✅ inklecate already installed"
-        else
-          echo "📦 Installing inklecate..."
-          mkdir -p bin
-          cd bin
-          wget -q https://github.com/inkle/ink/releases/latest/download/inklecate_linux.zip
-          unzip inklecate_linux.zip
-          rm -rf inklecate_linux.zip
-          cd ..
+          exit 0
         fi
-        chmod +x ./bin/inklecate
-        echo "Done. Run 'task setup:watch' if you need file watching (requires sudo)."
+        echo "📦 Installing inklecate..."
+        mkdir -p bin
+        cd bin
+        wget -q https://github.com/inkle/ink/releases/latest/download/inklecate_linux.zip
+        unzip -q inklecate_linux.zip
+        rm -rf inklecate_linux.zip
+        chmod +x inklecate
+        echo "✅ inklecate installed"
 
-  setup:watch:
-    desc: Install inotify-tools for file watching (requires sudo)
+  setup:minify:
+    desc: Install minify tool
     silent: true
     cmds:
       - |
-        echo "---- Installing inotify-tools..."
+        if command -v minify >/dev/null 2>&1 || command -v gominify >/dev/null 2>&1; then
+          echo "✅ minify already installed"
+          exit 0
+        fi
+        echo "📦 Installing minify..."
+        if command -v apt-get >/dev/null 2>&1; then
+          sudo apt-get update && sudo apt-get install -y minify
+        elif command -v dnf >/dev/null 2>&1; then
+          sudo dnf install -y golang-github-tdewolff-minify
+        else
+          echo "❌ Unknown package manager. Install minify manually."
+          exit 1
+        fi
+        echo "✅ minify installed"
+
+  setup:watch:
+    desc: Install inotify-tools for file watching
+    silent: true
+    cmds:
+      - |
         if command -v inotifywait >/dev/null 2>&1; then
           echo "✅ inotify-tools already installed"
           exit 0
         fi
+        echo "📦 Installing inotify-tools..."
         if command -v apt-get >/dev/null 2>&1; then
           sudo apt-get update && sudo apt-get install -y inotify-tools
         elif command -v dnf >/dev/null 2>&1; then
@@ -103,19 +214,11 @@ tasks:
         fi
         echo "✅ inotify-tools installed"
 
-  build:
-    desc: Build story for production
-    cmds:
-      - task clean
-      - task compile
-      - echo "Production build complete."
-
   help:
     desc: Show available tasks
     cmds:
       - task --list
 
   default:
-    desc: Default task - start development environment
     cmds:
-      - task dev
+      - task: help

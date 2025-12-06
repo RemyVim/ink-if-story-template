@@ -1,2 +1,6 @@
 bin
 build/story.json
+
+# Generated files (tracked for convenience)
+# build/js/template.min.js
+# build/css/template.min.css
