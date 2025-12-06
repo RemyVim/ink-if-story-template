@@ -460,7 +460,8 @@ class NavigationManager {
       buttons.push({
         buttonId,
         knotName,
-        displayName: pageInfo?.displayName || this.formatKnotName(knotName),
+        displayName:
+          pageInfo?.displayName || window.Utils.formatKnotName(knotName),
         element: buttonElement,
         visible: buttonElement.style.display !== "none",
         enabled: !buttonElement.hasAttribute("disabled"),

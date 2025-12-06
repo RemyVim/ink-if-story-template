@@ -137,7 +137,8 @@ class StoryManager {
 
           if (tagDef === TAGS.SPECIAL_PAGE) {
             return {
-              displayName: tagValue?.trim() || this.formatKnotName(knotName),
+              displayName:
+                tagValue?.trim() || window.Utils.formatKnotName(knotName),
               isSpecialPage: true,
             };
           }
@@ -153,16 +154,6 @@ class StoryManager {
   // Check if a knot is marked as a special page
   isSpecialPage(knotName) {
     return this.getSpecialPageInfo(knotName) !== null;
-  }
-
-  formatKnotName(knotName) {
-    return knotName
-      .replace(/([a-z])([A-Z])/g, "$1 $2") // camelCase to words
-      .replace(/_/g, " ") // snake_case to words
-      .toLowerCase()
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
   }
 
   setupInitialState() {

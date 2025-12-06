@@ -46,6 +46,22 @@ const Utils = {
     }
     return matrix[b.length][a.length];
   },
+
+  /**
+   * Format knot names for display (fallback when no display name is specified)
+   * @param {string} knotName - Raw knot name
+   * @returns {string} Formatted display name
+   */
+  formatKnotName(knotName) {
+    return knotName
+      .replace(/([a-z])([A-Z])/g, "$1 $2") // camelCase to words
+      .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2") // multiple caps NPCDialogue -> NPC Dialogue
+      .replace(/_/g, " ") // snake_case to words
+      .toLowerCase()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  },
 };
 
 window.Utils = Utils;

@@ -182,7 +182,7 @@ class ContentProcessor {
         return (
           result === "RESTART" ||
           result === "CLEAR" ||
-          typeof result === "object"
+          (typeof result === "object" && result !== null)
         );
       } catch (error) {
         ContentProcessor._error(
@@ -235,20 +235,33 @@ class ContentProcessor {
     const shouldClamp = parts.some((p) => p.toLowerCase() === "clamp");
 
     // First part is always the variable name
-    const variableName = parts[0];
+    const variableName = parts[0] || null;
 
-    // Check for min/max values (two consecutive numbers)
+    // Find all numbers in parts (skip first - that's variable name)
     let min = 0;
     let max = 100;
+    const numbers = parts
+      .slice(1)
+      .map((p) => ({ value: parseFloat(p), original: p }))
+      .filter((p) => !isNaN(p.value));
 
-    if (parts.length >= 3) {
-      const possibleMin = parseFloat(parts[1]);
-      const possibleMax = parseFloat(parts[2]);
+    if (numbers.length === 2) {
+      min = numbers[0].value;
+      max = numbers[1].value;
+    } else if (numbers.length === 1) {
+      ContentProcessor._warning(
+        `STATBAR "${variableName}" has only one number - provide both min and max (e.g., "0 100")`,
+      );
+    } else if (numbers.length > 2) {
+      ContentProcessor._warning(
+        `STATBAR "${variableName}" has too many numbers - provide only min and max (e.g., "0 100")`,
+      );
+    }
 
-      if (!isNaN(possibleMin) && !isNaN(possibleMax)) {
-        min = possibleMin;
-        max = possibleMax;
-      }
+    if (numbers.length === 2 && min >= max) {
+      ContentProcessor._warning(
+        `STATBAR "${variableName}" has min (${min}) >= max (${max}) - bar will not display correctly`,
+      );
     }
 
     // Determine labels based on quoted strings count
@@ -264,6 +277,26 @@ class ContentProcessor {
       leftLabel = quotedStrings[0];
       rightLabel = quotedStrings[1];
       isOpposed = true;
+    }
+    if (quotedStrings.length > 2) {
+      ContentProcessor._warning(
+        `STATBAR "${variableName}" has ${quotedStrings.length} labels - only first two are used`,
+      );
+    }
+
+    // Warn about unrecognized unquoted strings (likely intended as labels)
+    const keywords = ["clamp"];
+    for (let i = 1; i < parts.length; i++) {
+      const part = parts[i].toLowerCase();
+      const isNumber = !isNaN(parseFloat(parts[i]));
+      const isKeyword = keywords.includes(part);
+
+      if (!isNumber && !isKeyword) {
+        ContentProcessor._warning(
+          `STATBAR "${variableName}" has unquoted text "${parts[i]}" - use quotes for labels (e.g., "Label")`,
+        );
+        break;
+      }
     }
 
     return {
@@ -296,7 +329,7 @@ class ContentProcessor {
 
     // Parse remaining parts
     const parts = remainingValue.split(/\s+/).filter((p) => p);
-    const src = parts[0];
+    const src = parts[0] || null;
 
     let alignment = null;
     let width = null;

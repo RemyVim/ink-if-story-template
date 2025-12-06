@@ -1,3 +1,5 @@
+import { Utils } from "../src/js/utils.js";
+
 describe("Utils", () => {
   describe("levenshteinDistance", () => {
     test("returns 0 for identical strings", () => {
@@ -42,6 +44,34 @@ describe("Utils", () => {
     test("handles single character strings", () => {
       expect(Utils.levenshteinDistance("a", "b")).toBe(1);
       expect(Utils.levenshteinDistance("a", "a")).toBe(0);
+    });
+  });
+
+  describe("formatKnotName", () => {
+    test("converts camelCase to Title Case", () => {
+      expect(Utils.formatKnotName("characterSheet")).toBe("Character Sheet");
+    });
+
+    test("converts snake_case to Title Case", () => {
+      expect(Utils.formatKnotName("character_sheet")).toBe("Character Sheet");
+    });
+
+    test("handles single word", () => {
+      expect(Utils.formatKnotName("inventory")).toBe("Inventory");
+    });
+
+    test("handles mixed camelCase and snake_case", () => {
+      expect(Utils.formatKnotName("myCharacter_info")).toBe(
+        "My Character Info",
+      );
+    });
+
+    test("handles already lowercase", () => {
+      expect(Utils.formatKnotName("credits")).toBe("Credits");
+    });
+
+    test("consecutive capitals treated as single word", () => {
+      expect(Utils.formatKnotName("NPCDialogue")).toBe("Npc Dialogue");
     });
   });
 });

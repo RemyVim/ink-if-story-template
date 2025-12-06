@@ -92,22 +92,7 @@ class PageManager {
     }
 
     // Fallback to formatting the knot name
-    return this.formatKnotName(knotName);
-  }
-
-  /**
-   * Format knot names for display (fallback when no display name is specified)
-   * @param {string} knotName - Raw knot name
-   * @returns {string} Formatted display name
-   */
-  formatKnotName(knotName) {
-    return knotName
-      .replace(/([a-z])([A-Z])/g, "$1 $2") // camelCase to words
-      .replace(/_/g, " ") // snake_case to words
-      .toLowerCase()
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
+    return window.Utils.formatKnotName(knotName);
   }
 
   /**
@@ -407,7 +392,8 @@ class PageManager {
 
     return {
       knotName: knotName,
-      displayName: pageInfo.displayName || this.formatKnotName(knotName),
+      displayName:
+        pageInfo.displayName || window.Utils.formatKnotName(knotName),
       isSpecialPage: pageInfo.isSpecialPage,
       content: this.evaluatePageContent(knotName),
     };

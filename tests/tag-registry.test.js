@@ -1,3 +1,5 @@
+import { TagRegistry, StoryFeatures } from "../src/js/tag-registry.js";
+
 describe("TagRegistry", () => {
   describe("Constants", () => {
     test("TAG_PHASE has expected values", () => {

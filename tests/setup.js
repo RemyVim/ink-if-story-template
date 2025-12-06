@@ -1,16 +1,55 @@
-import { readFileSync } from "fs";
-import { join } from "path";
+// tests/setup.js
+import { JSDOM } from "jsdom";
 
-function loadScript(relativePath) {
-  const code = readFileSync(join(process.cwd(), relativePath), "utf-8");
-  const script = new Function(code);
-  script();
-}
+const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
+globalThis.window = dom.window;
+globalThis.document = dom.window.document;
+globalThis.localStorage = {
+  getItem: () => null,
+  setItem: () => {},
+  removeItem: () => {},
+};
 
-// jsdom (from vitest config) already provides window, document, navigator, etc.
-// We just need to make sure globalThis.window exists
-globalThis.window = globalThis;
+export const localStorageMock = {
+  store: {},
+  getItem: vi.fn((key) => localStorageMock.store[key] ?? null),
+  setItem: vi.fn((key, value) => {
+    localStorageMock.store[key] = String(value);
+  }),
+  removeItem: vi.fn((key) => {
+    delete localStorageMock.store[key];
+  }),
+  clear: vi.fn(() => {
+    localStorageMock.store = {};
+  }),
+};
 
-loadScript("src/js/error-manager.js");
-loadScript("src/js/utils.js");
-loadScript("src/js/tag-registry.js");
+Object.defineProperty(globalThis, "localStorage", {
+  value: localStorageMock,
+  writable: true,
+});
+
+let consoleLogs = [];
+const originalLog = console.log;
+const originalError = console.error;
+
+beforeEach(() => {
+  consoleLogs = [];
+  vi.spyOn(console, "log").mockImplementation((...args) => {
+    consoleLogs.push({ type: "log", args });
+  });
+  vi.spyOn(console, "error").mockImplementation((...args) => {
+    consoleLogs.push({ type: "error", args });
+  });
+});
+
+afterEach((context) => {
+  // If test failed, replay captured console output
+  if (context.task.result?.state === "fail") {
+    consoleLogs.forEach(({ type, args }) => {
+      if (type === "log") originalLog(...args);
+      if (type === "error") originalError(...args);
+    });
+  }
+  vi.restoreAllMocks();
+});

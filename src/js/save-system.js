@@ -65,7 +65,12 @@ class SaveSystem {
   }
 
   validateSlotNumber(slotNumber) {
-    if (typeof slotNumber !== "number" || slotNumber < 0) {
+    if (
+      typeof slotNumber !== "number" ||
+      !Number.isInteger(slotNumber) ||
+      slotNumber < 0 ||
+      slotNumber > this.maxSaveSlots
+    ) {
       throw new Error(`Invalid slot number: ${slotNumber}`);
     }
   }
