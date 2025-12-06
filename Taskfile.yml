@@ -7,6 +7,7 @@ tasks:
       - task: setup:inklecate
       - task: setup:minify
       - task: setup:watch
+      - task: setup:npm
 
   setup:inklecate:
     desc: Install inklecate compiler
@@ -65,6 +66,24 @@ tasks:
           exit 1
         fi
         echo "✅ inotify-tools installed"
+
+  setup:npm:
+    desc: Install npm dependencies for testing
+    silent: true
+    cmds:
+      - |
+        if ! command -v node >/dev/null 2>&1; then
+          echo "❌ Node.js not found. Install from https://nodejs.org/"
+          exit 1
+        fi
+        if [ ! -d "node_modules" ] || [ "package.json" -nt "node_modules" ]; then
+          echo "📦 Installing npm dependencies..."
+          npm install
+          echo "✅ npm dependencies installed"
+        else
+          echo "✅ npm dependencies already installed"
+        fi
+
 
   build:
     desc: Build everything for production
@@ -173,6 +192,20 @@ tasks:
   dev:
     desc: Start development environment (watch + serve)
     deps: [watch, serve]
+
+  test:
+    desc: Run unit tests
+    silent: true
+    deps: [setup:npm]
+    cmds:
+      - npm test
+
+  test:verbose:
+    desc: Run unit tests
+    silent: true
+    deps: [setup:npm]
+    cmds:
+      - npm run test:verbose
 
   serve:
     desc: Start web server for development

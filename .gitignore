@@ -1,6 +1,7 @@
-bin
-build/story.json
+bin/
+node_modules/
 
 # Generated files (tracked for convenience)
 # build/js/template.min.js
 # build/css/template.min.css
+# build/story.json

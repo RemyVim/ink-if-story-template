@@ -75,6 +75,18 @@ const TAGS = {
     value: TAG_VALUE.REQUIRED,
     description: "Choice numbering mode (auto/on/off)",
   },
+  PAGE_MENU: {
+    names: [
+      "PAGE_MENU",
+      "MENU",
+      "MENU_ORDER",
+      "PAGE_ORDER",
+      "SPECIAL_PAGE_ORDER",
+    ],
+    phase: TAG_PHASE.GLOBAL,
+    value: TAG_VALUE.REQUIRED,
+    description: "Define page menu order",
+  },
 
   // ============================================
   // DISCOVERY TAGS (story-manager.js) - page scanning
@@ -84,18 +96,6 @@ const TAGS = {
     phase: TAG_PHASE.DISCOVERY,
     value: TAG_VALUE.OPTIONAL,
     description: "Mark knot as special page, optionally with display name",
-  },
-  PAGE_MENU: {
-    names: [
-      "PAGE_MENU",
-      "MENU",
-      "MENU_ORDER",
-      "PAGE_ORDER",
-      "SPECIAL_PAGE_ORDER",
-    ],
-    phase: TAG_PHASE.GLOBAL, // Actually processed at init with globals
-    value: TAG_VALUE.REQUIRED,
-    description: "Define page menu order",
   },
 
   // ============================================
@@ -231,6 +231,7 @@ function getTagsByPhase(phase) {
  * @returns {boolean}
  */
 function isKnownTag(tagName) {
+  if (!tagName || typeof tagName !== "string") return false;
   return TAG_LOOKUP[tagName.toUpperCase()] !== undefined;
 }
 
@@ -240,6 +241,7 @@ function isKnownTag(tagName) {
  * @returns {Object|null} Tag definition or null
  */
 function getTagDef(tagName) {
+  if (!tagName || typeof tagName !== "string") return null;
   const key = TAG_LOOKUP[tagName.toUpperCase()];
   return key ? TAGS[key] : null;
 }
@@ -284,7 +286,7 @@ window.TagRegistry = {
 
   parseTag(tag) {
     if (!tag || typeof tag !== "string") {
-      return { tagDef: null, tagValue: "" };
+      return { tagDef: null, tagValue: "", invalid: false, error: null };
     }
 
     const splitTag = this.splitPropertyTag(tag);
