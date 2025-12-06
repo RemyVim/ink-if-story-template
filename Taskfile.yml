@@ -1,6 +1,81 @@
 version: '3'
 
 tasks:
+  setup:
+    desc: Install all build dependencies
+    cmds:
+      - task: setup:inklecate
+      - task: setup:minify
+      - task: setup:watch
+
+  setup:inklecate:
+    desc: Install inklecate compiler
+    silent: true
+    cmds:
+      - |
+        if [ -f "./bin/inklecate" ]; then
+          echo "✅ inklecate already installed"
+          exit 0
+        fi
+        echo "📦 Installing inklecate..."
+        mkdir -p bin
+        cd bin
+        wget -q https://github.com/inkle/ink/releases/latest/download/inklecate_linux.zip
+        unzip -q inklecate_linux.zip
+        rm -rf inklecate_linux.zip
+        chmod +x inklecate
+        echo "✅ inklecate installed"
+
+  setup:minify:
+    desc: Install minify tool
+    silent: true
+    cmds:
+      - |
+        if command -v minify >/dev/null 2>&1 || command -v gominify >/dev/null 2>&1; then
+          echo "✅ minify already installed"
+          exit 0
+        fi
+        echo "📦 Installing minify..."
+        if command -v apt-get >/dev/null 2>&1; then
+          sudo apt-get update && sudo apt-get install -y minify
+        elif command -v dnf >/dev/null 2>&1; then
+          sudo dnf install -y golang-github-tdewolff-minify
+        else
+          echo "❌ Unknown package manager. Install minify manually."
+          exit 1
+        fi
+        echo "✅ minify installed"
+
+  setup:watch:
+    desc: Install inotify-tools for file watching
+    silent: true
+    cmds:
+      - |
+        if command -v inotifywait >/dev/null 2>&1; then
+          echo "✅ inotify-tools already installed"
+          exit 0
+        fi
+        echo "📦 Installing inotify-tools..."
+        if command -v apt-get >/dev/null 2>&1; then
+          sudo apt-get update && sudo apt-get install -y inotify-tools
+        elif command -v dnf >/dev/null 2>&1; then
+          sudo dnf install -y inotify-tools
+        else
+          echo "❌ Unknown package manager. Install inotify-tools manually."
+          exit 1
+        fi
+        echo "✅ inotify-tools installed"
+
+  build:
+    desc: Build everything for production
+    cmds:
+      - task: clean
+      - task: build:js
+      - task: build:css
+      - task: build:html
+      - task: compile
+      - echo "✅ Production build complete."
+
   compile:
     desc: Compile Ink story to JSON
     silent: true
@@ -95,27 +170,9 @@ tasks:
         cp src/index.html build/index.html
         echo "✅ build/index.html copied"
 
-  build:
-    desc: Build everything for production
-    cmds:
-      - task: clean
-      - task: build:js
-      - task: build:css
-      - task: build:html
-      - task: compile
-      - echo "✅ Production build complete."
-
-  clean:
-    desc: Clean generated build files (preserves author files)
-    silent: true
-    cmds:
-      - |
-        echo "---- Cleaning generated build files..."
-        rm -f build/story.json
-        rm -f build/js/template.min.js
-        rm -f build/css/template.min.css
-        rm -f build/index.html
-        echo "Done"
+  dev:
+    desc: Start development environment (watch + serve)
+    deps: [watch, serve]
 
   serve:
     desc: Start web server for development
@@ -145,74 +202,18 @@ tasks:
         fi
     interactive: true
 
-  dev:
-    desc: Start development environment (watch + serve)
-    deps: [watch, serve]
 
-  setup:
-    desc: Install all build dependencies
-    cmds:
-      - task: setup:inklecate
-      - task: setup:minify
-      - task: setup:watch
-
-  setup:inklecate:
-    desc: Install inklecate compiler
+  clean:
+    desc: Clean generated build files (preserves author files)
     silent: true
     cmds:
       - |
-        if [ -f "./bin/inklecate" ]; then
-          echo "✅ inklecate already installed"
-          exit 0
-        fi
-        echo "📦 Installing inklecate..."
-        mkdir -p bin
-        cd bin
-        wget -q https://github.com/inkle/ink/releases/latest/download/inklecate_linux.zip
-        unzip -q inklecate_linux.zip
-        rm -rf inklecate_linux.zip
-        chmod +x inklecate
-        echo "✅ inklecate installed"
-
-  setup:minify:
-    desc: Install minify tool
-    silent: true
-    cmds:
-      - |
-        if command -v minify >/dev/null 2>&1 || command -v gominify >/dev/null 2>&1; then
-          echo "✅ minify already installed"
-          exit 0
-        fi
-        echo "📦 Installing minify..."
-        if command -v apt-get >/dev/null 2>&1; then
-          sudo apt-get update && sudo apt-get install -y minify
-        elif command -v dnf >/dev/null 2>&1; then
-          sudo dnf install -y golang-github-tdewolff-minify
-        else
-          echo "❌ Unknown package manager. Install minify manually."
-          exit 1
-        fi
-        echo "✅ minify installed"
-
-  setup:watch:
-    desc: Install inotify-tools for file watching
-    silent: true
-    cmds:
-      - |
-        if command -v inotifywait >/dev/null 2>&1; then
-          echo "✅ inotify-tools already installed"
-          exit 0
-        fi
-        echo "📦 Installing inotify-tools..."
-        if command -v apt-get >/dev/null 2>&1; then
-          sudo apt-get update && sudo apt-get install -y inotify-tools
-        elif command -v dnf >/dev/null 2>&1; then
-          sudo dnf install -y inotify-tools
-        else
-          echo "❌ Unknown package manager. Install inotify-tools manually."
-          exit 1
-        fi
-        echo "✅ inotify-tools installed"
+        echo "---- Cleaning generated build files..."
+        rm -f build/story.json
+        rm -f build/js/template.min.js
+        rm -f build/css/template.min.css
+        rm -f build/index.html
+        echo "Done"
 
   help:
     desc: Show available tasks

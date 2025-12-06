@@ -1,0 +1,297 @@
+/* =============================================================================
+   CUSTOM STYLES
+   =============================================================================
+   
+   This file is for YOUR customizations. It loads AFTER the template styles,
+   so anything you define here will override the defaults.
+   
+   The template's core CSS (template.min.css) is minified and shouldn't be 
+   edited directly. Use this file instead!
+   
+   TIP: Uncomment any variable below to customize it. The values shown are
+   the template defaults. Change them to whatever you like!
+   
+   ============================================================================= */
+
+/* =============================================================================
+   COLOR SCHEME
+   =============================================================================
+   
+   The template has both light and dark themes. Customize each separately below.
+   Users can switch themes in Settings, or it follows their system preference.
+   
+   ============================================================================= */
+
+/* --- Light Theme Colors --- */
+:root {
+  /* Main background color of the page */
+  /* --color-background: #ddd; */
+
+  /* Primary text color */
+  /* --color-text-primary: #222; */
+
+  /* Secondary text (less prominent) */
+  /* --color-text-secondary: #444; */
+
+  /* Tertiary text (even less prominent, hints) */
+  /* --color-text-tertiary: #aaa; */
+
+  /* Bold/strong text color */
+  /* --color-text-strong: black; */
+
+  /* Accent color - used for links, buttons, highlights */
+  /* --color-accent-primary: #b97c2c; */
+
+  /* Darker accent - used for visited/inactive links */
+  /* --color-accent-dark: #4f3411; */
+
+  /* Warning accent color */
+  /* --color-accent-warning: #cc8f1a; */
+
+  /* Light border color */
+  /* --color-border-light: #eee; */
+
+  /* Medium border color */
+  /* --color-border-medium: #ccc; */
+
+  /* Disabled element color */
+  /* --color-disabled: #ccc; */
+
+  /* Hover background color */
+  /* --color-hover-bg: rgba(185, 124, 44, 0.1); */
+
+  /* Text highlight color (for [text](highlight) syntax) */
+  /* --color-highlight: yellow; */
+
+  /* Important text color (for [text](important) syntax) */
+  /* --color-important: #e74c3c; */
+
+  /* Quiet text color (for [text](quiet) syntax) */
+  /* --color-quiet: #7f8c8d; */
+
+  /* Code block background */
+  /* --color-code-bg: #222; */
+
+  /* Blockquote styling */
+  /* --color-blockquote-bg: #f9f9f9; */
+  /* --color-blockquote-border: #ccc; */
+  /* --color-blockquote-text: #666; */
+
+  /* Horizontal separator line color */
+  /* --color-separator-line: #666; */
+
+  /* Container background opacity (0-100%) */
+  /* --container-bg-opacity: 98%; */
+}
+
+/* --- Dark Theme Colors --- */
+/* These override the light theme when dark mode is active */
+html.dark body,
+body.dark {
+  /* --color-background: #222; */
+  /* --color-text-primary: #ddd; */
+  /* --color-text-secondary: #888; */
+  /* --color-text-tertiary: #666; */
+  /* --color-text-strong: white; */
+  /* --color-accent-primary: #cc8f1a; */
+  /* --color-accent-dark: #c4af87; */
+  /* --color-accent-warning: #cc8f1a; */
+  /* --color-border-light: #333; */
+  /* --color-border-medium: #444; */
+  /* --color-disabled: #444; */
+  /* --color-hover-bg: rgba(204, 143, 26, 0.1); */
+  /* --color-code-bg: #ddd; */
+  /* --color-blockquote-bg: #2d3748; */
+  /* --color-blockquote-border: #555; */
+  /* --color-blockquote-text: #bbb; */
+  /* --color-separator-line: #bbb; */
+  /* --stat-bar-track-bg: #444; */
+}
+
+/* =============================================================================
+   FONTS
+   =============================================================================
+   
+   The template includes these fonts by default:
+   - Merriweather (serif) - used for body text and headings
+   - Inter (sans-serif) - available as an alternative
+   - OpenDyslexic - for accessibility
+
+   Users can switch fonts in Settings.
+   
+   To use a custom font:
+   1. Import it (see example below)
+   2. Set the appropriate variable
+   
+   ============================================================================= */
+
+/* Example: Adding a custom Google Font */
+/* @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&display=swap'); */
+
+:root {
+  /* Main serif font stack */
+  /* --font-serif: "Merriweather", Georgia, "Times New Roman", Times, serif; */
+
+  /* Sans-serif font stack */
+  /* --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; */
+
+  /* Heading font (defaults to serif) */
+  /* --font-heading: "Merriweather", Georgia, "Times New Roman", Times, serif; */
+
+  /* Monospace font for code */
+  /* --font-monospace: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace; */
+
+  /* Font weights */
+  /* --font-weight-light: 300; */
+  /* --font-weight-normal: 400; */
+  /* --font-weight-bold: 700; */
+}
+
+/* =============================================================================
+   FONT SIZES
+   =============================================================================
+   
+   All sizes use 'pt' (points) for consistency.
+   Users can also adjust text size in Settings.
+   
+   ============================================================================= */
+
+:root {
+  /* Base text size (paragraphs, choices) */
+  /* --text-size-base: 13pt; */
+
+  /* Small text */
+  /* --text-size-small: 8pt; */
+  /* --text-size-medium: 9pt; */
+  /* --text-size-tiny: 11pt; */
+
+  /* Large text */
+  /* --text-size-large: 15pt; */
+  /* --text-size-xl: 16pt; */
+  /* --text-size-xxl: 18pt; */
+
+  /* Title sizes */
+  /* --text-size-title: 30pt; */
+  /* --text-size-title-smaller: 20pt; */
+  /* --text-size-subtitle: 14pt; */
+}
+
+/* =============================================================================
+   LINE HEIGHTS
+   ============================================================================= */
+
+:root {
+  /* --line-height-heading: 1.2em; */
+  /* --line-height-text: 1.7em; */
+  /* --line-height-choice: 1.7em; */
+  /* --line-height-list: 1.6em; */
+  /* --line-height-tight: 1; */
+}
+
+/* =============================================================================
+   SPACING
+   =============================================================================
+   
+   Used for margins, padding, and gaps throughout the template.
+   
+   ============================================================================= */
+
+:root {
+  /* --spacing-xs: 3px; */
+  /* --spacing-sm: 6px; */
+  /* --spacing-md: 8px; */
+  /* --spacing-lg: 10px; */
+  /* --spacing-xl: 12px; */
+  /* --spacing-xxl: 15px; */
+  /* --spacing-huge: 30px; */
+  /* --spacing-massive: 60px; */
+}
+
+/* =============================================================================
+   LAYOUT
+   =============================================================================
+   
+   Control the overall page layout.
+   
+   ============================================================================= */
+
+:root {
+  /* Maximum width of the story content area */
+  /* --content-max-width: 700px; */
+
+  /* Navigation bar heights */
+  /* --nav-height-desktop: 60px; */
+  /* --nav-height-mobile: 80px; */
+
+  /* Border radius for buttons, modals, etc. */
+  /* --border-radius: 3px; */
+  /* --border-radius-lg: 8px; */
+}
+
+/* =============================================================================
+   ANIMATIONS & TRANSITIONS
+   =============================================================================
+   
+   Control how fast things animate. Set to 0 to disable animations.
+   Note: Users who prefer reduced motion (system setting) will automatically
+   get minimal animations regardless of these values.
+   
+   ============================================================================= */
+
+:root {
+  /* --transition-fast: 0.1s; */
+  /* --transition-medium: 0.2s; */
+  /* --transition-slow: 0.6s; */
+  /* --transition-very-slow: 2s; */
+}
+
+/* =============================================================================
+   STAT BARS
+   =============================================================================
+   
+   If your story uses stat bars (# STATBAR: variable), customize them here.
+   
+   ============================================================================= */
+
+:root {
+  /* --stat-bar-height: 10px; */
+  /* --stat-bar-track-bg: #ccc; */
+  /* --stat-bar-fill-bg: var(--color-accent-primary); */
+  /* --stat-bar-border-radius: 5px; */
+}
+
+/* =============================================================================
+   NAVIGATION
+   ============================================================================= */
+
+:root {
+  /* Text transform for navigation items (capitalize, uppercase, lowercase, none) */
+  /* --navigation-text-transform: capitalize; */
+}
+
+/* =============================================================================
+   YOUR CUSTOM STYLES
+   =============================================================================
+   
+   Add any additional CSS rules below. These can target specific elements,
+   add new classes for use with the # CLASS: tag, or override anything else.
+   
+   Examples:
+   
+   Target the story container:
+   #story { ... }
+   
+   Custom class for dramatic text (use with # CLASS: dramatic):
+   .dramatic {
+     color: red;
+     font-weight: bold;
+     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+   }
+   
+   Style all images:
+   .story-image {
+     border: 2px solid var(--color-accent-primary);
+     border-radius: 8px;
+   }
+   
+   ============================================================================= */

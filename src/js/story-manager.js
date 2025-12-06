@@ -244,6 +244,20 @@ class StoryManager {
       // Render content if any was generated
       if (storyContent.length > 0) {
         this.display?.render?.(storyContent);
+        document.dispatchEvent(
+          new CustomEvent("story:content", {
+            detail: { content: storyContent },
+          }),
+        );
+      }
+
+      // Fire start event on first load
+      // Use setTimeout to ensure window.storyManager is assigned
+      if (isFirstTime) {
+        setTimeout(
+          () => document.dispatchEvent(new CustomEvent("story:start")),
+          0,
+        );
       }
 
       // Store state for user input restoration
@@ -254,6 +268,11 @@ class StoryManager {
       // Only generate choices if we didn't stop for user input
       if (!stoppedForUserInput) {
         this.createChoices();
+      }
+
+      if (!stoppedForUserInput && this.hasEnded()) {
+        // Story has ended
+        document.dispatchEvent(new CustomEvent("story:end"));
       }
 
       // Update save point after generating new content
@@ -399,6 +418,11 @@ class StoryManager {
 
       // Tell the story where to go next
       this.story.ChooseChoiceIndex(choiceIndex);
+      document.dispatchEvent(
+        new CustomEvent("story:choice", {
+          detail: { index: choiceIndex },
+        }),
+      );
 
       // Update save point before continuing
       this.savePoint = this.story.state.ToJson();
@@ -415,6 +439,7 @@ class StoryManager {
 
   restart() {
     try {
+      document.dispatchEvent(new CustomEvent("story:restart"));
       this.story.ResetState();
       this.currentPage = null;
       this.display?.reset?.();
