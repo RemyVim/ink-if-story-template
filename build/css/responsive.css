@@ -1,0 +1,47 @@
+/* =============================================================================
+   RESPONSIVE MODAL STYLES
+   ============================================================================= */
+
+@media screen and (max-width: 680px) {
+  .base-modal-content {
+    width: 95%;
+    max-width: none;
+    padding: 1.5rem;
+    margin: 1rem;
+    max-height: 90vh;
+  }
+
+  .modal-button {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .modal-footer {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.5rem;
+  }
+
+  .modal-footer .modal-button {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .save-slot-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .save-slot-actions {
+    margin-left: 0;
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .save-action-button {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.6rem;
+  }
+}

@@ -1,0 +1,58 @@
+/* =============================================================================
+   KEYBOAD HELP MODAL
+   ============================================================================= */
+
+.keyboard-help-section h3 {
+  margin: 1rem 0 0.5rem 0;
+  color: var(--color-text-strong);
+  font-size: 1rem;
+}
+
+.keyboard-help-section:first-child h3 {
+  margin-top: 0;
+}
+
+.keyboard-help-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.keyboard-help-table td {
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.keyboard-help-table .shortcut-key {
+  width: 45%;
+  text-align: left;
+}
+
+.keyboard-help-table kbd {
+  background: var(--color-hover-bg);
+  border: 1px solid var(--color-border-medium);
+  border-radius: 3px;
+  padding: 0.15rem 0.4rem;
+  font-family: monospace;
+  font-size: 0.85rem;
+}
+
+.keyboard-help-note {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+.keyboard-help-btn {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  background: var(--color-hover-bg);
+  border: 1px solid var(--color-border-medium);
+  border-radius: var(--border-radius);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.keyboard-help-btn:hover {
+  background: var(--color-border-light);
+}

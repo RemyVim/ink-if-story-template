@@ -1,0 +1,143 @@
+/* =============================================================================
+   MODAL SYSTEM
+   ============================================================================= */
+
+.base-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.base-modal-content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  background: var(--color-background);
+  border: 1px solid var(--color-border-medium);
+  border-radius: var(--border-radius-lg);
+  padding: 2rem;
+  max-height: 80vh;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease;
+  z-index: 1001;
+  max-width: 500px;
+  width: 90%;
+  /* Flex layout for sticky footer */
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.modal-header h2 {
+  margin: 0 0 1.5rem 0;
+  color: var(--color-text-strong);
+  font-size: 1.5rem;
+  text-align: left;
+}
+
+.modal-close {
+  position: absolute;
+  top: -0.5rem;
+  right: -0.5rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: var(--border-radius);
+  transition: background-color var(--transition-medium);
+}
+
+.modal-close:hover {
+  background: var(--color-hover-bg);
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0; /* Important for flex overflow */
+}
+
+.modal-footer {
+  flex-shrink: 0;
+  margin-top: 1.5rem;
+  text-align: right;
+  border-top: 1px solid var(--color-border-light);
+  padding-top: 1rem;
+}
+
+/* Modal Button Base Styles */
+.modal-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  margin-left: 0.5rem;
+  font-size: 1rem;
+}
+
+.modal-button-primary {
+  background: var(--color-accent-primary);
+  color: white;
+}
+
+.modal-button-primary:hover {
+  background: var(--color-accent-dark);
+}
+
+.modal-button-secondary {
+  background: none;
+  border: 1px solid var(--color-border-medium);
+  color: var(--color-text-primary);
+}
+
+.modal-button-secondary:hover {
+  background: var(--color-hover-bg);
+}
+
+.modal-button-danger {
+  background: var(--color-important);
+  color: white;
+}
+
+.modal-button-danger:hover {
+  background: #c0392b;
+}
+
+.modal-button-warning {
+  background: var(--color-accent-warning);
+  color: white;
+}
+
+.modal-button-warning:hover {
+  background: #b7850f;
+}
+
+/* Size Variants */
+.base-modal-content.modal-small {
+  max-width: 400px;
+}
+
+.base-modal-content.modal-large {
+  max-width: 700px;
+}
+
+.base-modal-content.modal-wide {
+  max-width: 90%;
+  width: 90%;
+}

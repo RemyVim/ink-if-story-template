@@ -1,0 +1,114 @@
+/* =============================================================================
+   SAVES MODAL
+   ============================================================================= */
+
+.saves-section h3 {
+  margin: 0 0 1rem 0;
+  color: var(--color-text-strong);
+  font-size: 1.1rem;
+}
+
+.save-slots-container {
+  margin-bottom: 2rem;
+}
+
+.save-slot {
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  transition: all 0.2s ease;
+  border: 1px solid var(--color-border-medium);
+}
+
+.save-slot.autosave-slot {
+  border: 2px solid var(--color-accent-primary);
+  background: var(--color-hover-bg);
+  margin-bottom: 1rem;
+}
+
+.save-slot:hover {
+  background: var(--color-hover-bg);
+}
+
+.save-slot.autosave-slot:hover {
+  background: var(--color-accent-primary);
+  color: white;
+}
+
+.save-slot-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.save-slot-info {
+  flex: 1;
+}
+
+.save-slot-name {
+  color: var(--color-text-strong);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.save-slot-timestamp {
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+}
+
+.save-slot-description {
+  color: var(--color-text-primary);
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+}
+
+.save-slot-detail {
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.save-slot-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: 1rem;
+}
+
+.save-action-button {
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+.save-action-primary {
+  background: var(--color-accent-primary);
+  color: white;
+}
+
+.save-action-secondary {
+  background: none;
+  border: 1px solid var(--color-accent-primary);
+  color: var(--color-accent-primary);
+}
+
+.save-action-warning {
+  background: var(--color-accent-warning);
+  color: white;
+}
+
+.save-action-danger {
+  background: var(--color-important);
+  color: white;
+}
+
+.import-export-info {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+  padding: 1rem;
+  background: var(--color-hover-bg);
+  border-radius: var(--border-radius);
+}

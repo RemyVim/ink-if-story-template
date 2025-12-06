@@ -1,0 +1,90 @@
+/* =============================================================================
+   CHOICES
+   ============================================================================= */
+
+.choice {
+  line-height: var(--line-height-choice);
+}
+
+:not(.choice) + .choice {
+  padding-top: 1em;
+}
+
+.choice a,
+.choice span {
+  font-size: var(--text-size-base);
+}
+
+.choice-key-hint {
+  color: var(--color-text-secondary);
+  margin-right: 0.3em;
+}
+
+.choice:hover .choice-key-hint,
+.choice:focus-within .choice-key-hint {
+  color: inherit;
+}
+
+.choice-numbers-off .choice-key-hint {
+  display: none;
+}
+
+.choice-numbers-auto .choice-key-hint {
+  display: inline;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .choice-numbers-auto .choice-key-hint {
+    display: none;
+  }
+}
+
+.choice-numbers-on .choice-key-hint {
+  display: inline;
+}
+
+/* =============================================================================
+     TONE INDICATORS
+     ============================================================================= */
+
+.choice a,
+.choice .unclickable {
+  position: relative;
+  padding-left: 1.5em;
+}
+
+.tone-indicator-leading {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translateY(-0.3em);
+}
+
+.tone-indicator-trailing {
+  margin-left: 0.3em;
+  opacity: 0.85;
+}
+
+.tone-icon {
+  font-size: 0.95em;
+  line-height: 1;
+  vertical-align: baseline;
+}
+
+.tone-icon.material-icons {
+  font-size: 1.1em;
+  vertical-align: middle;
+}
+
+.tone-indicator-trailing .tone-icon {
+  font-size: 0.85em;
+}
+
+.tone-indicator-trailing .tone-icon.material-icons {
+  font-size: 0.95em;
+}
+
+/* Spacing between multiple trailing icons */
+.tone-indicator-trailing .tone-icon + .tone-icon {
+  margin-left: 0.15em;
+}

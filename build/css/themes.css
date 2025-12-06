@@ -1,0 +1,28 @@
+/* === COLORS - DARK THEME === */
+/* Dark mode on html element (for flash prevention) */
+/* === COLORS - DARK THEME === */
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body,
+body.dark {
+  --color-background: #222;
+  --color-text-primary: #ddd;
+  --color-text-secondary: #888;
+  --color-text-tertiary: #666;
+  --color-text-strong: white;
+  --color-accent-primary: #cc8f1a;
+  --color-accent-dark: #c4af87;
+  --color-accent-warning: #cc8f1a;
+  --color-border-light: #333;
+  --color-border-medium: #444;
+  --color-disabled: #444;
+  --color-hover-bg: rgba(204, 143, 26, 0.1);
+  --color-code-bg: #ddd;
+  --color-blockquote-bg: #2d3748;
+  --color-blockquote-border: #555;
+  --color-blockquote-text: #bbb;
+  --color-separator-line: #bbb;
+  --stat-bar-track-bg: #444;
+}

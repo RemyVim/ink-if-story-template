@@ -1,0 +1,63 @@
+/* =============================================================================
+     STAT BARS
+     ============================================================================= */
+
+.stat-bar-container {
+  margin: 1em 0;
+  width: 100%;
+}
+
+.stat-bar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.3em;
+  font-size: 1em;
+}
+.stat-bar-label {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-normal);
+}
+
+.stat-bar-value {
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-bold);
+}
+
+.stat-bar-current {
+  color: var(--stat-bar-fill-bg);
+}
+
+.stat-bar-track {
+  width: 100%;
+  height: var(--stat-bar-height);
+  background: var(--stat-bar-track-bg);
+  border-radius: var(--stat-bar-border-radius);
+  overflow: hidden;
+}
+
+.stat-bar-fill {
+  height: 100%;
+  background: var(--stat-bar-fill-bg);
+  border-radius: var(--stat-bar-border-radius);
+  min-width: 0;
+}
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  .stat-bar-fill {
+    transition: width 0.3s ease;
+  }
+}
+
+/* Opposed stat bars */
+.stat-bar-opposed .stat-bar-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.3em;
+  font-size: 1em;
+}
+.stat-bar-label-left,
+.stat-bar-label-right {
+  color: var(--color-text-primary);
+}
