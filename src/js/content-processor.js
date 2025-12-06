@@ -1,4 +1,7 @@
 // content-processor.js
+import { ErrorManager } from "./error-manager.js";
+import { TagRegistry } from "./tag-registry.js";
+
 class ContentProcessor {
   static errorSource = ErrorManager.SOURCES.CONTENT_PROCESSOR;
   constructor() {
@@ -346,3 +349,4 @@ class ContentProcessor {
     };
   }
 }
+export { ContentProcessor };

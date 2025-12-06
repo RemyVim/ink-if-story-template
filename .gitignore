@@ -1,5 +1,6 @@
 bin/
 node_modules/
+build/js/template.min.js.map
 
 # Generated files (tracked for convenience)
 # build/js/template.min.js

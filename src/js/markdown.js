@@ -1,4 +1,6 @@
 // markdown.js
+import { ErrorManager } from "./error-manager.js";
+
 class MarkdownProcessor {
   static errorSource = ErrorManager.SOURCES.KEYBOARD_HELP;
 
@@ -289,3 +291,5 @@ class MarkdownProcessor {
     };
   }
 }
+
+export { MarkdownProcessor };

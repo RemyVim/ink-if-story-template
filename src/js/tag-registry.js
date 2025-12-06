@@ -274,7 +274,7 @@ function validateTagValue(tagDef, tagValue) {
 }
 
 // Make available globally
-window.TagRegistry = {
+const TagRegistry = {
   TAG_PHASE,
   TAG_VALUE,
   TAGS,
@@ -335,7 +335,7 @@ window.TagRegistry = {
   },
 };
 
-window.StoryFeatures = {
+const StoryFeatures = {
   hasAudio: false,
 
   scan(storyContent) {
@@ -352,3 +352,8 @@ window.StoryFeatures = {
     return this;
   },
 };
+
+window.TagRegistry = TagRegistry;
+window.StoryFeatures = StoryFeatures;
+
+export { TAG_PHASE, TAG_VALUE, TAGS, TAG_LOOKUP, TagRegistry, StoryFeatures };

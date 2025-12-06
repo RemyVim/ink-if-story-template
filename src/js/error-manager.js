@@ -172,5 +172,8 @@ class ErrorManager {
   }
 }
 
-// Create global instance
-window.errorManager = new ErrorManager();
+const errorManager = new ErrorManager();
+window.errorManager = errorManager;
+window.ErrorManager = ErrorManager;
+
+export { ErrorManager, errorManager };

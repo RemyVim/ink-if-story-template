@@ -1,4 +1,6 @@
 // navigation-manager.js
+import { ErrorManager } from "./error-manager.js";
+
 class NavigationManager {
   static errorSource = ErrorManager.SOURCES.NAVIGATION_MANAGER;
 
@@ -620,3 +622,4 @@ class NavigationManager {
     this.clearDynamicButtons();
   }
 }
+export { NavigationManager };

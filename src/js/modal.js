@@ -1,4 +1,6 @@
 // modal.js
+import { ErrorManager } from "./error-manager.js";
+
 class BaseModal {
   static errorSource = ErrorManager.SOURCES.MODAL;
 
@@ -495,3 +497,5 @@ class BaseModal {
     );
   }
 }
+
+export { BaseModal };

@@ -1,4 +1,6 @@
 // page-manager.js
+import { ErrorManager } from "./error-manager.js";
+
 class PageManager {
   static errorSource = ErrorManager.SOURCES.PAGE_MANAGER;
   constructor(storyManager) {
@@ -492,3 +494,4 @@ class PageManager {
     return results;
   }
 }
+export { PageManager };

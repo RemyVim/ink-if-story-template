@@ -1,5 +1,5 @@
 // utils.js
-window.Utils = {
+const Utils = {
   /**
    * Check if device is mobile/touch-only
    * @returns {boolean}
@@ -47,3 +47,6 @@ window.Utils = {
     return matrix[b.length][a.length];
   },
 };
+
+window.Utils = Utils;
+export { Utils };

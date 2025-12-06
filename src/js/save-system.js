@@ -1,4 +1,7 @@
 // save-system.js
+import { ErrorManager } from "./error-manager.js";
+import { SavesModalManager } from "./saves-modal-manager.js";
+
 const MAX_IMPORT_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 const IMPORT_TIMEOUT_MS = 30000; // 30 seconds
 
@@ -581,3 +584,4 @@ class SaveSystem {
     this.modal?.modalElement?.remove?.();
   }
 }
+export { SaveSystem };

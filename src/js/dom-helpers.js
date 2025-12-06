@@ -1,4 +1,6 @@
 // dom-helpers.js
+import { ErrorManager } from "./error-manager.js";
+
 class DOMHelpers {
   static errorSource = ErrorManager.SOURCES.DOM_HELPERS;
   constructor(storyContainer) {
@@ -305,3 +307,4 @@ class DOMHelpers {
     }
   }
 }
+export { DOMHelpers };

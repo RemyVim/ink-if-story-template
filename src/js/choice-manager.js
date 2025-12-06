@@ -1,4 +1,6 @@
 // choice-manager.js
+import { ErrorManager } from "./error-manager.js";
+
 class ChoiceManager {
   static errorSource = ErrorManager.SOURCES.CHOICE_MANAGER;
   constructor(storyManager) {
@@ -231,3 +233,9 @@ class ChoiceManager {
     };
   }
 }
+
+// Global for non-module code
+window.ChoiceManager = ChoiceManager;
+
+// ES module export
+export { ChoiceManager };

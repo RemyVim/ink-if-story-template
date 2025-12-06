@@ -1,4 +1,7 @@
 // tag-processor.js
+import { ErrorManager } from "./error-manager.js";
+import { TagRegistry } from "./tag-registry.js";
+
 class TagProcessor {
   static errorSource = ErrorManager.SOURCES.TAG_PROCESSOR;
 
@@ -451,4 +454,7 @@ class TagProcessor {
   }
 }
 
-window.tagProcessor = new TagProcessor();
+const tagProcessor = new TagProcessor();
+window.tagProcessor = tagProcessor;
+
+export { TagProcessor, tagProcessor };

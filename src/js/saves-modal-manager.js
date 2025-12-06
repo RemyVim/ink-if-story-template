@@ -1,4 +1,7 @@
 // saves-modal-manager.js
+import { ErrorManager } from "./error-manager.js";
+import { BaseModal } from "./modal.js";
+
 const REFRESH_DELAY_MS = 100;
 
 class SavesModalManager {
@@ -271,3 +274,4 @@ class SavesModalManager {
     };
   }
 }
+export { SavesModalManager };

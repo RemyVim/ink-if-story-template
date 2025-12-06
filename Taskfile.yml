@@ -5,7 +5,6 @@ tasks:
     desc: Install all build dependencies
     cmds:
       - task: setup:inklecate
-      - task: setup:minify
       - task: setup:watch
       - task: setup:npm
 
@@ -26,26 +25,6 @@ tasks:
         rm -rf inklecate_linux.zip
         chmod +x inklecate
         echo "✅ inklecate installed"
-
-  setup:minify:
-    desc: Install minify tool
-    silent: true
-    cmds:
-      - |
-        if command -v minify >/dev/null 2>&1 || command -v gominify >/dev/null 2>&1; then
-          echo "✅ minify already installed"
-          exit 0
-        fi
-        echo "📦 Installing minify..."
-        if command -v apt-get >/dev/null 2>&1; then
-          sudo apt-get update && sudo apt-get install -y minify
-        elif command -v dnf >/dev/null 2>&1; then
-          sudo dnf install -y golang-github-tdewolff-minify
-        else
-          echo "❌ Unknown package manager. Install minify manually."
-          exit 1
-        fi
-        echo "✅ minify installed"
 
   setup:watch:
     desc: Install inotify-tools for file watching
@@ -110,74 +89,25 @@ tasks:
         fi
 
   build:js:
-    desc: Bundle and minify JavaScript
+    desc: Bundle and minify JS
     silent: true
+    deps: [setup:npm]
     cmds:
       - |
         echo "---- Bundling and minifying JavaScript..."
         mkdir -p build/js
-        MINIFY_CMD=$(command -v minify || command -v gominify)
-        if [ -z "$MINIFY_CMD" ]; then
-          echo "❌ minify not found. Run 'task setup:minify'"
-          exit 1
-        fi
-        cat \
-          src/js/tag-registry.js \
-          src/js/utils.js \
-          src/js/ink.js \
-          src/js/notification-manager.js \
-          src/js/error-manager.js \
-          src/js/markdown.js \
-          src/js/dom-helpers.js \
-          src/js/tag-processor.js \
-          src/js/modal.js \
-          src/js/settings.js \
-          src/js/saves-modal-manager.js \
-          src/js/save-system.js \
-          src/js/display-manager.js \
-          src/js/choice-manager.js \
-          src/js/page-manager.js \
-          src/js/navigation-manager.js \
-          src/js/content-processor.js \
-          src/js/ink-functions.js \
-          src/js/story-manager.js \
-          src/js/keyboard-help-modal.js \
-          src/js/keyboard-shortcuts.js \
-          src/js/main.js \
-        | $MINIFY_CMD --type=js -o build/js/template.min.js
+        npx esbuild src/js/main.js --bundle --minify --sourcemap --outfile=build/js/template.min.js
         echo "✅ build/js/template.min.js created"
 
   build:css:
     desc: Bundle and minify CSS
     silent: true
+    deps: [setup:npm]
     cmds:
       - |
         echo "---- Bundling and minifying CSS..."
         mkdir -p build/css
-        MINIFY_CMD=$(command -v minify || command -v gominify)
-        if [ -z "$MINIFY_CMD" ]; then
-          echo "❌ minify not found. Run 'task setup:minify'"
-          exit 1
-        fi
-        cat \
-          src/css/variables.css \
-          src/css/themes.css \
-          src/css/base.css \
-          src/css/layout.css \
-          src/css/loading.css \
-          src/css/navigation.css \
-          src/css/choices.css \
-          src/css/images.css \
-          src/css/inline.css \
-          src/css/stat-bars.css \
-          src/css/user-input.css \
-          src/css/notifications.css \
-          src/css/modals.css \
-          src/css/settings.css \
-          src/css/saves.css \
-          src/css/keyboard-help.css \
-          src/css/responsive.css \
-        | $MINIFY_CMD --type=css -o build/css/template.min.css
+        npx esbuild src/css/main.css --bundle --minify --outfile=build/css/template.min.css --external:*.woff2 --external:*.woff
         echo "✅ build/css/template.min.css created"
 
   build:html:

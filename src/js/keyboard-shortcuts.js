@@ -1,5 +1,7 @@
 // keyboard-shortcuts.js
 // Handles all keyboard shortcuts for the story application
+import { ErrorManager } from "./error-manager.js";
+
 const SMALL_SCROLL_PERCENT = 0.15; // ~15% of viewport
 const LARGE_SCROLL_PERCENT = 0.8; // ~80% of viewport
 
@@ -188,3 +190,5 @@ if (document.readyState === "loading") {
 } else {
   window.keyboardShortcuts = new KeyboardShortcuts();
 }
+
+export { KeyboardShortcuts };

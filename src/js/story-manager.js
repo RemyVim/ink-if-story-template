@@ -1,18 +1,28 @@
 // story-manager.js
+import { Story } from "inkjs";
+import { ErrorManager } from "./error-manager.js";
+import { TagRegistry } from "./tag-registry.js";
+import { DisplayManager } from "./display-manager.js";
+import { ContentProcessor } from "./content-processor.js";
+import { SettingsManager } from "./settings.js";
+import { PageManager } from "./page-manager.js";
+import { ChoiceManager } from "./choice-manager.js";
+import { NavigationManager } from "./navigation-manager.js";
+import { InkFunctions } from "./ink-functions.js";
+import { SaveSystem } from "./save-system.js";
+import { BaseModal } from "./modal.js";
+
 class StoryManager {
   static errorSource = ErrorManager.SOURCES.STORY_MANAGER;
 
   constructor(storyContent) {
     try {
-      this.story = new inkjs.Story(storyContent);
+      this.story = new Story(storyContent);
       InkFunctions.bindAll(this.story);
       this.savePoint = "";
       this.currentPage = null;
       this.availablePages = {};
       this.pageMenuOrder = null;
-
-      // Get tag constants from registry
-      const { TAGS } = window.TagRegistry || {};
 
       this.initializeSubsystems();
       this.detectSpecialPages();
@@ -71,7 +81,7 @@ class StoryManager {
    * @returns {Story} A new story instance with functions bound
    */
   createTempStory() {
-    const tempStory = new inkjs.Story(this.story.ToJson());
+    const tempStory = new Story(this.story.ToJson());
     InkFunctions.bindAll(tempStory);
     return tempStory;
   }
@@ -187,7 +197,7 @@ class StoryManager {
       const property = tag.substring(0, colonIndex).trim().toUpperCase();
       const value = tag.substring(colonIndex + 1).trim();
 
-      if (getTagDef(property) === TAGS.PAGE_MENU) {
+      if (TagRegistry.getTagDef(property) === TagRegistry.TAGS.PAGE_MENU) {
         this.pageMenuOrder = this.parseMenuOrder(value);
         break;
       }
@@ -612,3 +622,4 @@ class StoryManager {
     }
   }
 }
+export { StoryManager };

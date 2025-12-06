@@ -1,4 +1,7 @@
 // settings.js
+import { ErrorManager } from "./error-manager.js";
+import { BaseModal } from "./modal.js";
+
 class SettingsManager {
   static errorSource = ErrorManager.SOURCES.SETTINGS_MANAGER;
 
@@ -875,3 +878,4 @@ class SettingsManager {
     return indicators;
   }
 }
+export { SettingsManager };

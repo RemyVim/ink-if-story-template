@@ -320,10 +320,7 @@ class NotificationManager {
   }
 }
 
-// Create global instance
-window.notificationManager = new NotificationManager();
+const notificationManager = new NotificationManager();
+window.notificationManager = notificationManager;
 
-// Export for module systems
-if (typeof module !== "undefined" && module.exports) {
-  module.exports = NotificationManager;
-}
+export { NotificationManager, notificationManager };

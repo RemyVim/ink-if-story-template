@@ -1,4 +1,8 @@
 // display-manager.js
+import { ErrorManager } from "./error-manager.js";
+import { MarkdownProcessor } from "./markdown.js";
+import { DOMHelpers } from "./dom-helpers.js";
+
 class DisplayManager {
   static errorSource = ErrorManager.SOURCES.DISPLAY_MANAGER;
   constructor() {
@@ -584,3 +588,4 @@ class DisplayManager {
     }
   }
 }
+export { DisplayManager };

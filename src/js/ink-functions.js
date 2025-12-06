@@ -190,3 +190,4 @@ class InkFunctions {
     );
   }
 }
+export { InkFunctions };

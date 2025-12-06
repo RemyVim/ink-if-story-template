@@ -22,7 +22,11 @@
   },
   "homepage": "https://github.com/RemyVim/ink-if-story-template#readme",
   "devDependencies": {
+    "esbuild": "^0.27.1",
     "jsdom": "^27.2.0",
     "vitest": "^4.0.15"
+  },
+  "dependencies": {
+    "inkjs": "^2.3.2"
   }
 }

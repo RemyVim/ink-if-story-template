@@ -1,5 +1,6 @@
 // keyboard-help.js
 // Displays a modal with keyboard shortcut reference
+import { BaseModal } from "./modal.js";
 
 class KeyboardHelpModal {
   static errorSource = ErrorManager.SOURCES.KEYBOARD_HELP;
@@ -160,3 +161,5 @@ if (document.readyState === "loading") {
 } else {
   window.keyboardHelpModal = new KeyboardHelpModal();
 }
+
+export { KeyboardHelpModal };

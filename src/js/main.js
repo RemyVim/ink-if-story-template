@@ -1,6 +1,15 @@
 // main.js
 // Main entry point - load story and initialize the application
 
+import { StoryManager } from "./story-manager.js";
+import { ErrorManager } from "./error-manager.js";
+
+import "./utils.js";
+import "./notification-manager.js";
+import "./tag-processor.js";
+import "./keyboard-shortcuts.js";
+import "./keyboard-help-modal.js";
+
 fetch("story.json")
   .then((response) => {
     if (!response.ok) {
