@@ -1,4 +1,4 @@
-import { SettingsManager } from "../src/js/settings.js";
+import { SettingsManager } from "../src/js/settings-manager.js";
 
 describe("SettingsManager", () => {
   describe("getToneIndicators", () => {

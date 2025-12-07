@@ -1,7 +1,7 @@
-import { SaveSystem } from "../src/js/save-system.js";
+import { SavesManager } from "../src/js/saves-manager.js";
 import { localStorageMock } from "./setup.js";
 
-describe("SaveSystem", () => {
+describe("SavesManager", () => {
   let saveSystem;
 
   const mockStoryManager = {
@@ -40,7 +40,7 @@ describe("SaveSystem", () => {
       localStorageMock.store = {};
     });
 
-    saveSystem = new SaveSystem(mockStoryManager);
+    saveSystem = new SavesManager(mockStoryManager);
   });
 
   describe("validateSlotNumber", () => {

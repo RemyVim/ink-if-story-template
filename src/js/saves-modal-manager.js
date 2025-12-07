@@ -1,6 +1,6 @@
 // saves-modal-manager.js
 import { ErrorManager } from "./error-manager.js";
-import { BaseModal } from "./modal.js";
+import { BaseModal } from "./base-modal.js";
 
 const REFRESH_DELAY_MS = 100;
 

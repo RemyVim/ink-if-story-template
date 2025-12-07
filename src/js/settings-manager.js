@@ -1,6 +1,6 @@
 // settings.js
 import { ErrorManager } from "./error-manager.js";
-import { BaseModal } from "./modal.js";
+import { BaseModal } from "./base-modal.js";
 
 class SettingsManager {
   static errorSource = ErrorManager.SOURCES.SETTINGS_MANAGER;

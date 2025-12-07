@@ -4,13 +4,13 @@ import { ErrorManager } from "./error-manager.js";
 import { TagRegistry } from "./tag-registry.js";
 import { DisplayManager } from "./display-manager.js";
 import { ContentProcessor } from "./content-processor.js";
-import { SettingsManager } from "./settings.js";
+import { SettingsManager } from "./settings-manager.js";
 import { PageManager } from "./page-manager.js";
 import { ChoiceManager } from "./choice-manager.js";
 import { NavigationManager } from "./navigation-manager.js";
 import { InkFunctions } from "./ink-functions.js";
-import { SaveSystem } from "./save-system.js";
-import { BaseModal } from "./modal.js";
+import { SavesManager } from "./saves-manager.js";
+import { BaseModal } from "./base-modal.js";
 
 class StoryManager {
   static errorSource = ErrorManager.SOURCES.STORY_MANAGER;
@@ -59,7 +59,7 @@ class StoryManager {
       () => new NavigationManager(this),
       "navigation",
     );
-    this.saves = this.safeInit(() => new SaveSystem(this), "saves");
+    this.saves = this.safeInit(() => new SavesManager(this), "saves");
 
     // Check if critical systems failed to initialize
     if (!this.display || !this.story) {

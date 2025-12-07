@@ -1,6 +1,6 @@
 // display-manager.js
 import { ErrorManager } from "./error-manager.js";
-import { MarkdownProcessor } from "./markdown.js";
+import { MarkdownProcessor } from "./markdown-processor.js";
 import { DOMHelpers } from "./dom-helpers.js";
 
 class DisplayManager {
