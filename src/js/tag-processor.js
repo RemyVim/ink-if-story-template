@@ -1,18 +1,18 @@
-import { ErrorManager } from "./error-manager.js";
-import { TagRegistry } from "./tag-registry.js";
+import { TagRegistry, TAGS } from "./tag-registry.js";
+import { Utils } from "./utils.js";
+import { notificationManager } from "./notification-manager.js";
+import { errorManager, ERROR_SOURCES } from "./error-manager.js";
+
+const log = errorManager.forSource(ERROR_SOURCES.TAG_PROCESSOR);
 
 class TagProcessor {
-  static errorSource = ErrorManager.SOURCES.TAG_PROCESSOR;
-
-  constructor(storyContainer, outerScrollContainer) {
-    this.storyContainer = storyContainer || document.querySelector("#story");
-    this.outerScrollContainer =
-      outerScrollContainer || document.querySelector(".outerContainer");
+  constructor(settings = null) {
+    this.settings = settings;
+    this.storyContainer = document.querySelector("#story");
+    this.outerScrollContainer = document.querySelector(".outerContainer");
     this.audio = null;
     this.audioLoop = null;
     this.lastAudioLoopSrc = null;
-
-    const { TAGS } = window.TagRegistry || {};
 
     this.tagHandlers = new Map([
       [
@@ -94,7 +94,7 @@ class TagProcessor {
   processLineTags(tags) {
     try {
       if (!Array.isArray(tags)) {
-        TagProcessor._warning("Invalid tags array passed to processLineTags");
+        log.warning("Invalid tags array passed to processLineTags");
         return { customClasses: [], specialActions: [] };
       }
 
@@ -102,7 +102,7 @@ class TagProcessor {
       this._processTags(tags, ctx, "line", false);
       return ctx;
     } catch (error) {
-      TagProcessor._error("Failed to process line tags", error);
+      log.error("Failed to process line tags", error);
       return { customClasses: [], specialActions: [] };
     }
   }
@@ -110,9 +110,7 @@ class TagProcessor {
   processChoiceTags(choiceTags) {
     try {
       if (!Array.isArray(choiceTags)) {
-        TagProcessor._warning(
-          "Invalid choiceTags array passed to processChoiceTags",
-        );
+        log.warning("Invalid choiceTags array passed to processChoiceTags");
         return { customClasses: [], isClickable: true };
       }
 
@@ -120,7 +118,7 @@ class TagProcessor {
       this._processTags(choiceTags, ctx, "choice", true);
       return ctx;
     } catch (error) {
-      TagProcessor._error("Failed to process choice tags", error);
+      log.error("Failed to process choice tags", error);
       return { customClasses: [], isClickable: true };
     }
   }
@@ -137,7 +135,7 @@ class TagProcessor {
       const { tagDef, tagValue, invalid, error } = TagRegistry.parseTag(tag);
 
       if (invalid) {
-        if (error) TagProcessor._warning(error);
+        if (error) log.warning(error);
         continue;
       }
 
@@ -167,7 +165,7 @@ class TagProcessor {
       if (
         allowTones &&
         !isPropertyTag &&
-        TagRegistry.isRegisteredToneTag(tagName)
+        TagRegistry.isRegisteredToneTag(tagName, this.settings?.toneMap)
       ) {
         ctx.customClasses.push(tagName.toLowerCase());
         continue;
@@ -179,15 +177,12 @@ class TagProcessor {
 
   playAudio(src) {
     try {
-      if (
-        window.storyManager?.settings &&
-        !window.storyManager.settings.getSetting("audioEnabled")
-      ) {
+      if (this.settings && !this.settings.getSetting("audioEnabled")) {
         return;
       }
 
       if (!src || typeof src !== "string") {
-        TagProcessor._warning("Invalid audio source provided");
+        log.warning("Invalid audio source provided");
         return;
       }
 
@@ -199,17 +194,17 @@ class TagProcessor {
 
       this.audio = new Audio(src);
       this.audio.play().catch((error) => {
-        TagProcessor._warning(`Failed to play audio: ${src}`, error);
+        log.warning(`Failed to play audio: ${src}`, error);
       });
     } catch (error) {
-      TagProcessor._error("Failed to play audio", error);
+      log.error("Failed to play audio", error);
     }
   }
 
   playAudioLoop(src) {
     try {
       if (!src || typeof src !== "string") {
-        TagProcessor._warning("Invalid audio loop source provided");
+        log.warning("Invalid audio loop source provided");
         return;
       }
 
@@ -226,10 +221,7 @@ class TagProcessor {
 
       this.lastAudioLoopSrc = src;
 
-      if (
-        window.storyManager?.settings &&
-        !window.storyManager.settings.getSetting("audioEnabled")
-      ) {
+      if (this.settings && !this.settings.getSetting("audioEnabled")) {
         return;
       }
 
@@ -243,10 +235,10 @@ class TagProcessor {
       this.audioLoop = new Audio(src);
       this.audioLoop.loop = true;
       this.audioLoop.play().catch((error) => {
-        TagProcessor._warning(`Failed to play audio loop: ${src}`, error);
+        log.warning(`Failed to play audio loop: ${src}`, error);
       });
     } catch (error) {
-      TagProcessor._error("Failed to play audio loop", error);
+      log.error("Failed to play audio loop", error);
     }
   }
 
@@ -266,34 +258,29 @@ class TagProcessor {
         this.audioLoop = null;
       }
     } catch (error) {
-      TagProcessor._warning("Failed to stop audio", error);
+      log.warning("Failed to stop audio", error);
     }
   }
 
   resumeAudioLoop() {
     try {
-      if (
-        this.lastAudioLoopSrc &&
-        window.storyManager?.settings?.getSetting("audioEnabled")
-      ) {
+      if (this.lastAudioLoopSrc && this.settings?.getSetting("audioEnabled")) {
         this.playAudioLoop(this.lastAudioLoopSrc);
       }
     } catch (error) {
-      TagProcessor._warning("Failed to resume audio loop", error);
+      log.warning("Failed to resume audio loop", error);
     }
   }
 
   setBackground(src) {
     try {
       if (!this.outerScrollContainer) {
-        TagProcessor._warning(
-          "Outer scroll container not available for background",
-        );
+        log.warning("Outer scroll container not available for background");
         return;
       }
 
       if (!src || typeof src !== "string") {
-        TagProcessor._warning("Invalid background source provided");
+        log.warning("Invalid background source provided");
         return;
       }
 
@@ -303,13 +290,13 @@ class TagProcessor {
         this.outerScrollContainer.style.backgroundImage = "url(" + src + ")";
       }
     } catch (error) {
-      TagProcessor._error("Failed to set background", error);
+      log.error("Failed to set background", error);
     }
   }
 
   showNotification(message, type = "info", duration = 4000) {
-    if (window.notificationManager) {
-      window.notificationManager.show(message, { type, duration });
+    if (notificationManager) {
+      notificationManager.show(message, { type, duration });
     }
   }
 
@@ -338,7 +325,7 @@ class TagProcessor {
       }
     }
 
-    TagProcessor._warning(
+    log.warning(
       `Unknown tag "${tagName}" on ${context}: "# ${fullTag}".${suggestion}`,
     );
   }
@@ -349,7 +336,6 @@ class TagProcessor {
    * @returns {string[]} Up to 3 similar tag names
    */
   getSimilarTags(tagName) {
-    const { TAGS } = window.TagRegistry || {};
     if (!TAGS) return [];
 
     const input = tagName.toUpperCase();
@@ -361,7 +347,7 @@ class TagProcessor {
           return true;
         if (known.length >= 3 && input.startsWith(known.slice(0, 3)))
           return true;
-        return window.Utils.levenshteinDistance(input, known) <= 2;
+        return Utils.levenshteinDistance(input, known) <= 2;
       })
       .slice(0, 3);
   }
@@ -370,7 +356,7 @@ class TagProcessor {
     try {
       return !!(this.storyContainer || this.outerScrollContainer);
     } catch (error) {
-      TagProcessor._warning("Failed to check readiness", error);
+      log.warning("Failed to check readiness", error);
       return false;
     }
   }
@@ -384,7 +370,7 @@ class TagProcessor {
         hasActiveAudioLoop: !!this.audioLoop,
       };
     } catch (error) {
-      TagProcessor._warning("Failed to get stats", error);
+      log.warning("Failed to get stats", error);
       return {};
     }
   }
@@ -400,24 +386,9 @@ class TagProcessor {
         this.audioLoop = null;
       }
     } catch (error) {
-      TagProcessor._warning("Failed to cleanup", error);
+      log.warning("Failed to cleanup", error);
     }
-  }
-
-  static _error(message, error = null) {
-    window.errorManager.error(message, error, TagProcessor.errorSource);
-  }
-
-  static _warning(message, error = null) {
-    window.errorManager.warning(message, error, TagProcessor.errorSource);
-  }
-
-  static _critical(message, error = null) {
-    window.errorManager.critical(message, error, TagProcessor.errorSource);
   }
 }
 
-const tagProcessor = new TagProcessor();
-window.tagProcessor = tagProcessor;
-
-export { TagProcessor, tagProcessor };
+export { TagProcessor };

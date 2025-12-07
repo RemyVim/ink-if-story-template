@@ -1,12 +1,12 @@
-import { ErrorManager } from "./error-manager.js";
 import { SavesModalManager } from "./saves-modal-manager.js";
+import { errorManager, ERROR_SOURCES } from "./error-manager.js";
+
+const log = errorManager.forSource(ERROR_SOURCES.SAVE_SYSTEM);
 
 const MAX_IMPORT_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 const IMPORT_TIMEOUT_MS = 30000; // 30 seconds
 
 class SavesManager {
-  static errorSource = ErrorManager.SOURCES.SAVE_SYSTEM;
-
   constructor(storyManager) {
     this.storyManager = storyManager;
     this.savePrefix = "ink-save-slot-";
@@ -50,7 +50,7 @@ class SavesManager {
       this.modal?.populateSaveSlots?.();
       return true;
     } catch (error) {
-      SavesManager._error("Failed to save game", error);
+      log.error("Failed to save game", error);
       return false;
     }
   }
@@ -80,7 +80,7 @@ class SavesManager {
       this.hideSaveDialog();
       return true;
     } catch (error) {
-      SavesManager._error("Failed to load game", error);
+      log.error("Failed to load game", error);
       return false;
     }
   }
@@ -111,7 +111,7 @@ class SavesManager {
 
               this.modal?.populateSaveSlots?.();
             } catch (error) {
-              SavesManager._error("Failed to delete save slot", error);
+              log.error("Failed to delete save slot", error);
             }
           },
           null, // No cancel callback needed
@@ -142,7 +142,7 @@ class SavesManager {
         return false;
       }
     } catch (error) {
-      SavesManager._error("Failed to delete save slot", error);
+      log.error("Failed to delete save slot", error);
       return false;
     }
   }
@@ -180,7 +180,7 @@ class SavesManager {
       this.showNotification(`Save exported from ${exportSlotName}!`);
       return true;
     } catch (error) {
-      SavesManager._error("Failed to export save", error);
+      log.error("Failed to export save", error);
       return false;
     }
   }
@@ -197,7 +197,7 @@ class SavesManager {
 
       if (file.size > MAX_IMPORT_SIZE_BYTES) {
         const maxSizeMB = MAX_IMPORT_SIZE_BYTES / (1024 * 1024);
-        SavesManager._error(
+        log.error(
           `Import file too large (>${maxSizeMB}MB)`,
           new Error("File size exceeds limit"),
         );
@@ -207,10 +207,7 @@ class SavesManager {
       const reader = new FileReader();
       const timeout = setTimeout(() => {
         reader.abort();
-        SavesManager._error(
-          "File import timed out",
-          new Error("FileReader timeout"),
-        );
+        log.error("File import timed out", new Error("FileReader timeout"));
       }, IMPORT_TIMEOUT_MS);
 
       reader.onload = (e) => {
@@ -235,13 +232,13 @@ class SavesManager {
 
           this.modal?.populateSaveSlots?.();
         } catch (error) {
-          SavesManager._error("Failed to import save file", error);
+          log.error("Failed to import save file", error);
         }
       };
 
       reader.onerror = () => {
         clearTimeout(timeout);
-        SavesManager._error("Failed to read import file", reader.error);
+        log.error("Failed to read import file", reader.error);
       };
 
       reader.readAsText(file);
@@ -265,7 +262,7 @@ class SavesManager {
       this.saveToSlot(this.autosaveSlot);
       console.log("[AUTOSAVE] Game autosaved successfully");
     } catch (error) {
-      SavesManager._error("Autosave failed", error);
+      log.error("Autosave failed", error);
     }
   }
 
@@ -286,7 +283,7 @@ class SavesManager {
       const saveJson = localStorage.getItem(saveKey);
       return saveJson ? JSON.parse(saveJson) : null;
     } catch (error) {
-      SavesManager._error("Failed to get save data", error);
+      log.error("Failed to get save data", error);
       return null;
     }
   }
@@ -486,24 +483,13 @@ class SavesManager {
         );
       }
     } catch (error) {
-      SavesManager._error("Storage cleanup failed", error);
+      log.error("Storage cleanup failed", error);
     }
   }
 
   cleanup() {
     this.modal?.modalElement?.remove?.();
   }
-
-  static _error(message, error = null) {
-    window.errorManager.error(message, error, SavesManager.errorSource);
-  }
-
-  static _warning(message, error = null) {
-    window.errorManager.warning(message, error, SavesManager.errorSource);
-  }
-
-  static _critical(message, error = null) {
-    window.errorManager.critical(message, error, SavesManager.errorSource);
-  }
 }
+
 export { SavesManager };

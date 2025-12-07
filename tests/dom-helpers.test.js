@@ -1,31 +1,17 @@
 import { DOMHelpers } from "../src/js/dom-helpers.js";
+import { errorManager } from "../src/js/error-manager.js";
 
 describe("DOMHelpers", () => {
   let domHelpers;
   let container;
-
-  beforeAll(() => {
-    window.errorManager = {
-      error: vi.fn(),
-      warning: vi.fn(),
-      critical: vi.fn(),
-    };
-    window.storyManager = {
-      settings: { toneIndicatorsTrailing: false },
-    };
-  });
-
-  afterAll(() => {
-    delete window.errorManager;
-    delete window.storyManager;
-  });
 
   beforeEach(() => {
     vi.clearAllMocks();
     container = document.createElement("div");
     container.id = "story";
     document.body.appendChild(container);
-    domHelpers = new DOMHelpers(container);
+    const mockSettings = { toneIndicatorsTrailing: false };
+    domHelpers = new DOMHelpers(container, mockSettings);
     // Ensure storyContainer is set (instanceof Element check can fail in jsdom)
     domHelpers.storyContainer = container;
   });
@@ -60,7 +46,7 @@ describe("DOMHelpers", () => {
       const element = domHelpers.createParagraph(null);
 
       expect(element).toBeNull();
-      expect(window.errorManager.warning).toHaveBeenCalled();
+      expect(errorManager.warning).toHaveBeenCalled();
     });
 
     test("returns null for empty string", () => {
@@ -73,7 +59,7 @@ describe("DOMHelpers", () => {
       const element = domHelpers.createParagraph("Text", "not-an-array");
 
       expect(element.tagName).toBe("P");
-      expect(window.errorManager.warning).toHaveBeenCalled();
+      expect(errorManager.warning).toHaveBeenCalled();
     });
 
     test("skips invalid class names in array", () => {
@@ -143,7 +129,7 @@ describe("DOMHelpers", () => {
       const element = domHelpers.createChoice(null);
 
       expect(element.textContent).toContain("[Invalid Choice]");
-      expect(window.errorManager.warning).toHaveBeenCalled();
+      expect(errorManager.warning).toHaveBeenCalled();
     });
 
     test("adds tone indicators", () => {
@@ -196,7 +182,7 @@ describe("DOMHelpers", () => {
     test("handles invalid customClasses gracefully", () => {
       const element = domHelpers.createChoice("Option", "not-an-array");
       expect(element.classList.contains("choice")).toBe(true);
-      expect(window.errorManager.warning).toHaveBeenCalled();
+      expect(errorManager.warning).toHaveBeenCalled();
     });
   });
 
@@ -221,7 +207,7 @@ describe("DOMHelpers", () => {
     test("warns on invalid selector", () => {
       domHelpers.removeAll(null);
 
-      expect(window.errorManager.warning).toHaveBeenCalled();
+      expect(errorManager.warning).toHaveBeenCalled();
     });
 
     test("handles empty container", () => {
@@ -232,7 +218,7 @@ describe("DOMHelpers", () => {
 
     test("warns on empty string selector", () => {
       domHelpers.removeAll("");
-      expect(window.errorManager.warning).toHaveBeenCalled();
+      expect(errorManager.warning).toHaveBeenCalled();
     });
   });
 
@@ -270,7 +256,7 @@ describe("DOMHelpers", () => {
     test("warns on invalid selector", () => {
       domHelpers.setVisible(null, true);
 
-      expect(window.errorManager.warning).toHaveBeenCalled();
+      expect(errorManager.warning).toHaveBeenCalled();
     });
 
     test("handles no matching elements gracefully", () => {
@@ -306,7 +292,7 @@ describe("DOMHelpers", () => {
     test("warns on invalid element", () => {
       domHelpers.addChoiceClickHandler(null, () => {});
 
-      expect(window.errorManager.warning).toHaveBeenCalled();
+      expect(errorManager.warning).toHaveBeenCalled();
     });
 
     test("warns on invalid callback", () => {
@@ -315,7 +301,7 @@ describe("DOMHelpers", () => {
 
       domHelpers.addChoiceClickHandler(choice, "not-a-function");
 
-      expect(window.errorManager.warning).toHaveBeenCalled();
+      expect(errorManager.warning).toHaveBeenCalled();
     });
 
     test("warns when no anchor found", () => {
@@ -323,12 +309,12 @@ describe("DOMHelpers", () => {
 
       domHelpers.addChoiceClickHandler(element, () => {});
 
-      expect(window.errorManager.warning).toHaveBeenCalled();
+      expect(errorManager.warning).toHaveBeenCalled();
     });
 
     test("warns on undefined element", () => {
       domHelpers.addChoiceClickHandler(undefined, () => {});
-      expect(window.errorManager.warning).toHaveBeenCalled();
+      expect(errorManager.warning).toHaveBeenCalled();
     });
   });
 });

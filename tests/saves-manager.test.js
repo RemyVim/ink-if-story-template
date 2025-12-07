@@ -1,5 +1,6 @@
 import { SavesManager } from "../src/js/saves-manager.js";
 import { localStorageMock } from "./setup.js";
+import { errorManager } from "../src/js/error-manager.js";
 
 describe("SavesManager", () => {
   let saveSystem;
@@ -10,18 +11,6 @@ describe("SavesManager", () => {
     pages: { isViewingSpecialPage: () => false },
     settings: { getSetting: () => false },
   };
-
-  beforeAll(() => {
-    window.errorManager = {
-      error: vi.fn(),
-      warning: vi.fn(),
-      critical: vi.fn(),
-    };
-  });
-
-  afterAll(() => {
-    delete window.errorManager;
-  });
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -134,7 +123,7 @@ describe("SavesManager", () => {
 
       const result = saveSystem.getSaveData(1);
       expect(result).toBeNull();
-      expect(window.errorManager.error).toHaveBeenCalled();
+      expect(errorManager.error).toHaveBeenCalled();
     });
 
     test("returns null when storage unavailable", () => {

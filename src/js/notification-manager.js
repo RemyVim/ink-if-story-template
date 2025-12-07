@@ -286,6 +286,4 @@ class NotificationManager {
 }
 
 const notificationManager = new NotificationManager();
-window.notificationManager = notificationManager;
-
-export { NotificationManager, notificationManager };
+export { notificationManager };

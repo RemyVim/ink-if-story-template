@@ -1,27 +1,39 @@
-import { ErrorManager } from "../src/js/error-manager.js";
+vi.unmock("../src/js/error-manager.js");
+import { errorManager, ERROR_SOURCES } from "../src/js/error-manager.js";
 
 describe("ErrorManager", () => {
-  let errorManager;
-
-  beforeAll(() => {
-    window.notificationManager = { show: vi.fn() };
-  });
-
-  afterAll(() => {
-    delete window.notificationManager;
-  });
-
   beforeEach(() => {
     vi.clearAllMocks();
-    errorManager = new ErrorManager();
   });
 
   describe("SOURCES", () => {
     test("contains expected error sources", () => {
-      expect(ErrorManager.SOURCES.STORY_MANAGER).toBe("Story Manager");
-      expect(ErrorManager.SOURCES.DISPLAY_MANAGER).toBe("Display Manager");
-      expect(ErrorManager.SOURCES.SAVE_SYSTEM).toBe("Save System");
-      expect(ErrorManager.SOURCES.SYSTEM).toBe("System");
+      expect(ERROR_SOURCES.STORY_MANAGER).toBe("Story Manager");
+      expect(ERROR_SOURCES.DISPLAY_MANAGER).toBe("Display Manager");
+      expect(ERROR_SOURCES.SAVE_SYSTEM).toBe("Save System");
+      expect(ERROR_SOURCES.SYSTEM).toBe("System");
+    });
+  });
+
+  describe("forSource", () => {
+    test("returns object with error, warning, critical methods", () => {
+      const log = errorManager.forSource(ERROR_SOURCES.STORY_MANAGER);
+      expect(typeof log.error).toBe("function");
+      expect(typeof log.warning).toBe("function");
+      expect(typeof log.critical).toBe("function");
+    });
+
+    test("bound methods call underlying methods with correct source", () => {
+      const spy = vi.spyOn(errorManager, "error");
+      const log = errorManager.forSource(ERROR_SOURCES.DISPLAY_MANAGER);
+
+      log.error("test message", new Error("test"));
+
+      expect(spy).toHaveBeenCalledWith(
+        "test message",
+        expect.any(Error),
+        ERROR_SOURCES.DISPLAY_MANAGER,
+      );
     });
   });
 

@@ -83,8 +83,8 @@
  * @param {string} type - 'success', 'error', 'warning', or 'info'
  */
 // function showNotification(message, type = "info") {
-//   if (window.notificationManager) {
-//     window.notificationManager.show(message, type);
+//   if (window.InkTemplate.notificationManager) {
+//     window.InkTemplate.notificationManager.show(message, type);
 //   }
 // }
 
@@ -96,8 +96,8 @@
  * @returns {*} The variable value, or undefined if not found
  */
 // function getStoryVariable(varName) {
-//   if (window.storyManager && window.storyManager.story) {
-//     return window.storyManager.story.variablesState[varName];
+//   if (window.InkTemplate.storyManager && window.InkTemplate.storyManager.story) {
+//     return window.InkTemplate.storyManager.story.variablesState[varName];
 //   }
 //   return undefined;
 // }
@@ -110,8 +110,8 @@
  * @param {*} value - The new value
  */
 // function setStoryVariable(varName, value) {
-//   if (window.storyManager && window.storyManager.story) {
-//     window.storyManager.story.variablesState[varName] = value;
+//   if (window.InkTemplate.storyManager && window.InkTemplate.storyManager.story) {
+//     window.InkTemplate.storyManager.story.variablesState[varName] = value;
 //   }
 // }
 

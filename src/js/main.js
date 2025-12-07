@@ -1,26 +1,86 @@
 import { StoryManager } from "./story-manager.js";
-import { ErrorManager } from "./error-manager.js";
+import { errorManager, ERROR_SOURCES } from "./error-manager.js";
+import { notificationManager } from "./notification-manager.js";
+import { StoryFeatures } from "./tag-registry.js";
+import { Utils } from "./utils.js";
+import { KeyboardShortcuts } from "./keyboard-shortcuts.js";
+import { KeyboardHelpModal } from "./keyboard-help-modal.js";
+import { DisplayManager } from "./display-manager.js";
+import { ContentProcessor } from "./content-processor.js";
+import { TagProcessor } from "./tag-processor.js";
+import { SettingsManager } from "./settings-manager.js";
+import { PageManager } from "./page-manager.js";
+import { ChoiceManager } from "./choice-manager.js";
+import { NavigationManager } from "./navigation-manager.js";
+import { SavesManager } from "./saves-manager.js";
 
-import "./utils.js";
-import "./notification-manager.js";
-import "./tag-processor.js";
-import "./keyboard-shortcuts.js";
-import "./keyboard-help-modal.js";
+// Initialize the public API namespace
+window.InkTemplate = {
+  storyManager: null,
+  errorManager,
+  notificationManager,
+  keyboardShortcuts: null,
+  keyboardHelpModal: null,
+};
 
 fetch("story.json")
   .then((response) => {
     if (!response.ok) {
       throw new Error(
         `story.json not found (${response.status}). ` +
-          `Make sure story.json is in the root folder alongside index.html. `,
+          `Make sure story.json is in the root folder alongside index.html.`,
       );
     }
     return response.json();
   })
   .then((storyContent) => {
     try {
-      window.StoryFeatures.scan(storyContent);
-      window.storyManager = new StoryManager(storyContent);
+      StoryFeatures.scan(storyContent);
+
+      const settings = new SettingsManager();
+      const tagProcessor = new TagProcessor(settings);
+      const contentProcessor = new ContentProcessor(tagProcessor);
+      const display = new DisplayManager(settings);
+      const storyManager = new StoryManager(storyContent, {
+        display,
+        settings,
+        contentProcessor,
+      });
+      const pages = new PageManager(storyManager);
+      const choices = new ChoiceManager(storyManager);
+      const navigation = new NavigationManager(storyManager);
+      const saves = new SavesManager(storyManager);
+
+      // Wire circular dependencies
+      storyManager.pages = pages;
+      storyManager.choices = choices;
+      storyManager.navigation = navigation;
+      storyManager.saves = saves;
+      contentProcessor.storyManager = storyManager;
+      display.storyManager = storyManager;
+
+      // Initialize keyboard features (desktop only)
+      let keyboardShortcuts = null;
+      let keyboardHelpModal = null;
+      if (!Utils.isMobile()) {
+        keyboardHelpModal = new KeyboardHelpModal();
+        keyboardShortcuts = new KeyboardShortcuts();
+        keyboardShortcuts.storyManager = storyManager;
+        keyboardShortcuts.keyboardHelpModal = keyboardHelpModal;
+      }
+
+      // Wire settings dependencies
+      settings.storyManager = storyManager;
+      settings.keyboardShortcuts = keyboardShortcuts;
+      settings.keyboardHelpModal = keyboardHelpModal;
+
+      // Start the story
+      storyManager.start();
+
+      // Set up public API
+      window.InkTemplate.storyManager = storyManager;
+      window.InkTemplate.keyboardShortcuts = keyboardShortcuts;
+      window.InkTemplate.keyboardHelpModal = keyboardHelpModal;
 
       const loadingScreen = document.getElementById("loading-screen");
       if (loadingScreen) {
@@ -33,35 +93,36 @@ fetch("story.json")
         mainContent.removeAttribute("aria-busy");
       }
 
+      // Debug tools (localhost only)
       if (
         window.location.hostname === "localhost" ||
         window.location.hostname === "127.0.0.1"
       ) {
         window.debug = {
-          story: window.storyManager.story,
-          display: window.storyManager.display,
-          saves: window.storyManager.saves,
-          settings: window.storyManager.settings,
-          errors: window.errorManager,
-          getStats: () => window.storyManager.getStats(),
-          getFeatureInfo: () => window.storyManager.getFeatureInfo(),
+          story: storyManager.story,
+          display: storyManager.display,
+          saves: storyManager.saves,
+          settings: storyManager.settings,
+          errors: errorManager,
+          getStats: () => storyManager.getStats(),
+          getFeatureInfo: () => storyManager.getFeatureInfo(),
         };
         console.log("Debug tools available in window.debug");
       }
     } catch (error) {
-      window.errorManager.critical(
+      errorManager.critical(
         "Failed to initialize story manager",
         error,
-        ErrorManager.SOURCES.SYSTEM,
+        ERROR_SOURCES.SYSTEM,
       );
       showFallbackUI(error);
     }
   })
   .catch((error) => {
-    window.errorManager.critical(
+    errorManager.critical(
       "Failed to load story file",
       error,
-      ErrorManager.SOURCES.SYSTEM,
+      ERROR_SOURCES.SYSTEM,
     );
     showFallbackUI(error);
   });

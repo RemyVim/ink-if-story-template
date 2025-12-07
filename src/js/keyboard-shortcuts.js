@@ -1,13 +1,16 @@
-import { ErrorManager } from "./error-manager.js";
+import { Utils } from "./utils.js";
+import { errorManager, ERROR_SOURCES } from "./error-manager.js";
+
+const log = errorManager.forSource(ERROR_SOURCES.KEYBOARD_SHORTCUTS);
 
 const SMALL_SCROLL_PERCENT = 0.15; // ~15% of viewport
 const LARGE_SCROLL_PERCENT = 0.8; // ~80% of viewport
 
 class KeyboardShortcuts {
-  static errorSource = ErrorManager.SOURCES.KEYBOARD_SHORTCUTS;
-
   constructor() {
-    this.enabled = !window.Utils.isMobile();
+    this.enabled = !Utils.isMobile();
+    this.storyManager = null; // Wired by main.js
+    this.keyboardHelpModal = null; // Wired by main.js
     this.init();
   }
 
@@ -24,7 +27,7 @@ class KeyboardShortcuts {
   }
 
   handleKeyDown(event) {
-    if (!window.storyManager || !this.enabled) return;
+    if (!this.storyManager || !this.enabled) return;
 
     // Ignore Alt key combinations (used by browser/OS)
     if (event.altKey) return;
@@ -51,32 +54,32 @@ class KeyboardShortcuts {
       switch (event.key) {
         case "s":
           event.preventDefault();
-          window.storyManager.saves?.showSaveDialog?.();
+          this.storyManager.saves?.showSaveDialog?.();
           break;
         case "r":
           event.preventDefault();
-          window.storyManager.confirmRestart();
+          this.storyManager.confirmRestart();
           break;
         case ",":
           event.preventDefault();
-          window.storyManager.settings?.showSettings?.();
+          this.storyManager.settings?.showSettings?.();
           break;
         case "h":
           event.preventDefault();
-          window.keyboardHelpModal?.show?.();
+          this.keyboardHelpModal?.show?.();
           break;
       }
     } catch (error) {
-      KeyboardShortcuts._error("Keyboard shortcut failed", error);
+      log.error("Keyboard shortcut failed", error);
     }
   }
 
   handleEscape(event) {
-    if (window.storyManager.pages?.isViewingSpecialPage?.()) {
+    if (this.storyManager.pages?.isViewingSpecialPage?.()) {
       try {
-        window.storyManager.pages.returnToStory();
+        this.storyManager.pages.returnToStory();
       } catch (error) {
-        KeyboardShortcuts._error("Failed to return from special page", error);
+        log.error("Failed to return from special page", error);
       }
     }
   }
@@ -125,7 +128,7 @@ class KeyboardShortcuts {
   handleChoiceSelection(event) {
     if (!this.isInStoryArea()) return;
 
-    const choices = window.storyManager.story?.currentChoices;
+    const choices = this.storyManager.story?.currentChoices;
     if (!choices || choices.length === 0) return;
 
     const key = event.key.toLowerCase();
@@ -140,7 +143,7 @@ class KeyboardShortcuts {
 
     if (choiceIndex !== null && choiceIndex < choices.length) {
       event.preventDefault();
-      window.storyManager.selectChoice(choiceIndex);
+      this.storyManager.selectChoice(choiceIndex);
     }
   }
 
@@ -156,26 +159,6 @@ class KeyboardShortcuts {
 
     return active === document.body || outerContainer?.contains(active);
   }
-
-  static _error(message, error = null) {
-    window.errorManager.error(message, error, KeyboardShortcuts.errorSource);
-  }
-
-  static _warning(message, error = null) {
-    window.errorManager.warning(message, error, KeyboardShortcuts.errorSource);
-  }
-
-  static _critical(message, error = null) {
-    window.errorManager.critical(message, error, KeyboardShortcuts.errorSource);
-  }
-}
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", () => {
-    window.keyboardShortcuts = new KeyboardShortcuts();
-  });
-} else {
-  window.keyboardShortcuts = new KeyboardShortcuts();
 }
 
 export { KeyboardShortcuts };

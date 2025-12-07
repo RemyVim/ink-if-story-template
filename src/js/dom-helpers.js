@@ -1,28 +1,29 @@
-import { ErrorManager } from "./error-manager.js";
+import { errorManager, ERROR_SOURCES } from "./error-manager.js";
+
+const log = errorManager.forSource(ERROR_SOURCES.DOM_HELPERS);
 
 class DOMHelpers {
-  static errorSource = ErrorManager.SOURCES.DOM_HELPERS;
-
-  constructor(storyContainer) {
+  constructor(storyContainer, settings = null) {
     if (!storyContainer || !(storyContainer instanceof Element)) {
-      DOMHelpers._critical(
+      log.critical(
         "Invalid story container provided to DOM helpers",
         new Error("Invalid story container"),
       );
       return;
     }
 
+    this.settings = settings;
     this.storyContainer = storyContainer;
   }
 
   createParagraph(text, customClasses = []) {
     if (!text || typeof text !== "string") {
-      DOMHelpers._warning("Invalid text passed to createParagraph");
+      log.warning("Invalid text passed to createParagraph");
       return null;
     }
 
     if (!Array.isArray(customClasses)) {
-      DOMHelpers._warning(
+      log.warning(
         "Invalid customClasses passed to createParagraph - using empty array",
       );
       customClasses = [];
@@ -41,7 +42,7 @@ class DOMHelpers {
       this.storyContainer.appendChild(paragraphElement);
       return paragraphElement;
     } catch (error) {
-      DOMHelpers._error("Failed to create paragraph", error);
+      log.error("Failed to create paragraph", error);
       return null;
     }
   }
@@ -65,12 +66,12 @@ class DOMHelpers {
     toneIndicators = [],
   ) {
     if (!choiceText || typeof choiceText !== "string") {
-      DOMHelpers._warning("Invalid choiceText passed to createChoice");
+      log.warning("Invalid choiceText passed to createChoice");
       choiceText = "[Invalid Choice]";
     }
 
     if (!Array.isArray(customClasses)) {
-      DOMHelpers._warning(
+      log.warning(
         "Invalid customClasses passed to createChoice - using empty array",
       );
       customClasses = [];
@@ -102,8 +103,7 @@ class DOMHelpers {
             : `<span class="tone-icon" aria-hidden="true">${icon}</span>`;
         };
 
-        const allTrailing =
-          window.storyManager?.settings?.toneIndicatorsTrailing;
+        const allTrailing = this.settings?.toneIndicatorsTrailing;
 
         if (allTrailing) {
           const trailingSpans = toneIndicators.map(buildIconSpan).join("");
@@ -135,21 +135,19 @@ class DOMHelpers {
       this.storyContainer.appendChild(choiceParagraphElement);
       return choiceParagraphElement;
     } catch (error) {
-      DOMHelpers._error("Failed to create choice", error);
+      log.error("Failed to create choice", error);
       return null;
     }
   }
 
   addChoiceClickHandler(choiceElement, callback) {
     if (!choiceElement || !(choiceElement instanceof Element)) {
-      DOMHelpers._warning(
-        "Invalid choiceElement passed to addChoiceClickHandler",
-      );
+      log.warning("Invalid choiceElement passed to addChoiceClickHandler");
       return;
     }
 
     if (!callback || typeof callback !== "function") {
-      DOMHelpers._warning("Invalid callback passed to addChoiceClickHandler");
+      log.warning("Invalid callback passed to addChoiceClickHandler");
       return;
     }
 
@@ -160,19 +158,17 @@ class DOMHelpers {
           event.preventDefault();
           callback();
         } catch (error) {
-          DOMHelpers._error("Choice click handler failed", error);
+          log.error("Choice click handler failed", error);
         }
       });
     } else {
-      DOMHelpers._warning(
-        "No anchor element found in choice for click handler",
-      );
+      log.warning("No anchor element found in choice for click handler");
     }
   }
 
   removeAll(selector) {
     if (!selector || typeof selector !== "string") {
-      DOMHelpers._warning("Invalid selector passed to removeAll");
+      log.warning("Invalid selector passed to removeAll");
       return;
     }
 
@@ -185,14 +181,14 @@ class DOMHelpers {
           el.parentNode.removeChild(el);
         }
       } catch (error) {
-        DOMHelpers._warning(`Failed to remove element at index ${i}`, error);
+        log.warning(`Failed to remove element at index ${i}`, error);
       }
     }
   }
 
   setVisible(selector, visible) {
     if (!selector || typeof selector !== "string") {
-      DOMHelpers._warning("Invalid selector passed to setVisible");
+      log.warning("Invalid selector passed to setVisible");
       return;
     }
 
@@ -209,7 +205,7 @@ class DOMHelpers {
           el.classList.remove("invisible");
         }
       } catch (error) {
-        DOMHelpers._warning(
+        log.warning(
           `Failed to set visibility for element at index ${i}`,
           error,
         );
@@ -227,7 +223,7 @@ class DOMHelpers {
 
   scrollToTop(container) {
     if (!container || !(container instanceof Element)) {
-      DOMHelpers._warning("Invalid container passed to scrollToTop");
+      log.warning("Invalid container passed to scrollToTop");
       return;
     }
 
@@ -238,10 +234,10 @@ class DOMHelpers {
         container.scrollTop = 0;
         container.scrollLeft = 0;
       } else {
-        DOMHelpers._warning("Container does not support scrolling operations");
+        log.warning("Container does not support scrolling operations");
       }
     } catch (error) {
-      DOMHelpers._warning("Failed to scroll to top", error);
+      log.warning("Failed to scroll to top", error);
     }
   }
 
@@ -250,13 +246,9 @@ class DOMHelpers {
       const newContainer = document.querySelector("#story");
       if (newContainer) {
         this.storyContainer = newContainer;
-        DOMHelpers._warning(
-          "DOM helpers recovered by finding new story container",
-        );
+        log.warning("DOM helpers recovered by finding new story container");
       } else {
-        DOMHelpers._error(
-          "DOM helpers recovery failed - no story container found",
-        );
+        log.error("DOM helpers recovery failed - no story container found");
       }
     }
   }
@@ -280,17 +272,6 @@ class DOMHelpers {
       imageCount: this.storyContainer.querySelectorAll("img").length,
     };
   }
-
-  static _error(message, error = null) {
-    window.errorManager.error(message, error, DOMHelpers.errorSource);
-  }
-
-  static _warning(message, error = null) {
-    window.errorManager.warning(message, error, DOMHelpers.errorSource);
-  }
-
-  static _critical(message, error = null) {
-    window.errorManager.critical(message, error, DOMHelpers.errorSource);
-  }
 }
+
 export { DOMHelpers };

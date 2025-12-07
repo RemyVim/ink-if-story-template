@@ -3,18 +3,6 @@ import { DisplayManager } from "../src/js/display-manager.js";
 describe("DisplayManager", () => {
   let displayManager;
 
-  beforeAll(() => {
-    window.errorManager = {
-      error: vi.fn(),
-      warning: vi.fn(),
-      critical: vi.fn(),
-    };
-  });
-
-  afterAll(() => {
-    delete window.errorManager;
-  });
-
   beforeEach(() => {
     vi.clearAllMocks();
     // Constructor will log a critical error about missing #story element,
@@ -157,6 +145,25 @@ describe("DisplayManager", () => {
     test("rejects invalid item", () => {
       displayManager.trackInHistory(null);
       expect(displayManager.history.length).toBe(0);
+    });
+  });
+
+  describe("shouldAnimateContent", () => {
+    test("returns true when settings is null", () => {
+      const dm = new DisplayManager(null);
+      expect(dm.shouldAnimateContent()).toBe(true);
+    });
+
+    test("returns true when animations setting is true", () => {
+      const mockSettings = { getSetting: vi.fn(() => true) };
+      const dm = new DisplayManager(mockSettings);
+      expect(dm.shouldAnimateContent()).toBe(true);
+    });
+
+    test("returns false when animations setting is false", () => {
+      const mockSettings = { getSetting: vi.fn(() => false) };
+      const dm = new DisplayManager(mockSettings);
+      expect(dm.shouldAnimateContent()).toBe(false);
     });
   });
 });

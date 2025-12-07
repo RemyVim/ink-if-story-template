@@ -1,29 +1,19 @@
 import { ContentProcessor } from "../src/js/content-processor.js";
+import { errorManager } from "../src/js/error-manager.js";
 
 describe("ContentProcessor", () => {
   let processor;
 
-  beforeAll(() => {
-    window.notificationManager = {
-      show: vi.fn(),
-    };
-    window.tagProcessor = null; // Will set per-test as needed
-    window.errorManager = {
-      error: vi.fn(),
-      warning: vi.fn(),
-      critical: vi.fn(),
-    };
-  });
-
-  afterAll(() => {
-    delete window.notificationManager;
-    delete window.tagProcessor;
-    delete window.errorManager;
-  });
-
   beforeEach(() => {
     vi.clearAllMocks();
-    processor = new ContentProcessor();
+    const mockTagProcessor = {
+      processLineTags: vi.fn(() => ({ customClasses: [], specialActions: [] })),
+      processChoiceTags: vi.fn(() => ({
+        customClasses: [],
+        isClickable: true,
+      })),
+    };
+    processor = new ContentProcessor(mockTagProcessor);
   });
 
   describe("parseImageTag", () => {
@@ -283,10 +273,8 @@ describe("ContentProcessor", () => {
       const result = processor.parseStatBarTag("health 50");
       expect(result.min).toBe(0);
       expect(result.max).toBe(100);
-      expect(window.errorManager.warning).toHaveBeenCalledWith(
+      expect(errorManager.warning).toHaveBeenCalledWith(
         expect.stringContaining("only one number"),
-        null,
-        expect.anything(),
       );
     });
 
@@ -294,10 +282,8 @@ describe("ContentProcessor", () => {
       const result = processor.parseStatBarTag("health 50 100 200");
       expect(result.min).toBe(0);
       expect(result.max).toBe(100);
-      expect(window.errorManager.warning).toHaveBeenCalledWith(
+      expect(errorManager.warning).toHaveBeenCalledWith(
         expect.stringContaining("too many numbers"),
-        null,
-        expect.anything(),
       );
     });
 
@@ -305,10 +291,8 @@ describe("ContentProcessor", () => {
       const result = processor.parseStatBarTag('stat "One" "Two" "Three"');
       expect(result.leftLabel).toBe("One");
       expect(result.rightLabel).toBe("Two");
-      expect(window.errorManager.warning).toHaveBeenCalledWith(
+      expect(errorManager.warning).toHaveBeenCalledWith(
         expect.stringContaining("only first two are used"),
-        null,
-        expect.anything(),
       );
     });
 
@@ -339,10 +323,8 @@ describe("ContentProcessor", () => {
       expect(result.max).toBe(100);
       expect(result.leftLabel).toBeNull();
       expect(result.rightLabel).toBeNull();
-      expect(window.errorManager.warning).toHaveBeenCalledWith(
+      expect(errorManager.warning).toHaveBeenCalledWith(
         expect.stringContaining("use quotes for labels"),
-        null,
-        expect.anything(),
       );
     });
 
@@ -350,10 +332,8 @@ describe("ContentProcessor", () => {
       const result = processor.parseStatBarTag("health 100 0");
       expect(result.min).toBe(100);
       expect(result.max).toBe(0);
-      expect(window.errorManager.warning).toHaveBeenCalledWith(
+      expect(errorManager.warning).toHaveBeenCalledWith(
         expect.stringContaining("min (100) >= max (0)"),
-        null,
-        expect.anything(),
       );
     });
 
@@ -361,10 +341,8 @@ describe("ContentProcessor", () => {
       const result = processor.parseStatBarTag("health 50 50");
       expect(result.min).toBe(50);
       expect(result.max).toBe(50);
-      expect(window.errorManager.warning).toHaveBeenCalledWith(
+      expect(errorManager.warning).toHaveBeenCalledWith(
         expect.stringContaining("min (50) >= max (50)"),
-        null,
-        expect.anything(),
       );
     });
 
@@ -449,7 +427,7 @@ describe("ContentProcessor", () => {
       ];
       const result = processor.findSpecialAction(actions);
       expect(result()).toBe("RESTART");
-      expect(window.errorManager.error).toHaveBeenCalled();
+      expect(errorManager.error).toHaveBeenCalled();
     });
 
     test("returns undefined when no special actions found", () => {
@@ -473,10 +451,8 @@ describe("ContentProcessor", () => {
 
     test("verifies warning is called for non-function", () => {
       processor.findSpecialAction(["not a function"]);
-      expect(window.errorManager.warning).toHaveBeenCalledWith(
+      expect(errorManager.warning).toHaveBeenCalledWith(
         expect.stringContaining("Non-function"),
-        null,
-        expect.anything(),
       );
     });
   });

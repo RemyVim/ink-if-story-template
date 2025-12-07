@@ -317,9 +317,9 @@ const TagRegistry = {
     });
   },
 
-  isRegisteredToneTag(tagName) {
-    // Check against registered tone indicators
-    const toneMap = window.storyManager?.settings?.toneMap || {};
+  isRegisteredToneTag(tagName, toneMap = {}) {
+    if (!toneMap) return false;
+
     return Object.keys(toneMap).some(
       (key) => key.toLowerCase() === tagName.toLowerCase(),
     );
@@ -343,8 +343,5 @@ const StoryFeatures = {
     return this;
   },
 };
-
-window.TagRegistry = TagRegistry;
-window.StoryFeatures = StoryFeatures;
 
 export { TAG_PHASE, TAG_VALUE, TAGS, TAG_LOOKUP, TagRegistry, StoryFeatures };

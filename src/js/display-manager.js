@@ -1,23 +1,31 @@
-import { ErrorManager } from "./error-manager.js";
 import { MarkdownProcessor } from "./markdown-processor.js";
 import { DOMHelpers } from "./dom-helpers.js";
+import { errorManager, ERROR_SOURCES } from "./error-manager.js";
+
+const log = errorManager.forSource(ERROR_SOURCES.DISPLAY_MANAGER);
 
 class DisplayManager {
-  static errorSource = ErrorManager.SOURCES.DISPLAY_MANAGER;
-  constructor() {
+  constructor(settings) {
+    if (!settings) {
+      log.warning(
+        "DisplayManager created without settings: animations will default to on",
+      );
+    }
+    this.settings = settings;
+    this.storyManager = null; // Wired by main.js after StoryManager is created
     this.container = document.querySelector("#story");
     this.scrollContainer = document.querySelector(".outerContainer");
     this.history = [];
 
     if (!this.container) {
-      DisplayManager._critical(
+      log.critical(
         "Story container element not found",
         new Error("Missing #story element"),
       );
       return;
     }
 
-    this.domHelpers = new DOMHelpers(this.container);
+    this.domHelpers = new DOMHelpers(this.container, this.settings);
   }
 
   /**
@@ -26,9 +34,7 @@ class DisplayManager {
    */
   render(content) {
     if (!Array.isArray(content)) {
-      DisplayManager._warning(
-        "Invalid content passed to render - expected array",
-      );
+      log.warning("Invalid content passed to render - expected array");
       return;
     }
 
@@ -58,10 +64,7 @@ class DisplayManager {
           }
         }
       } catch (error) {
-        DisplayManager._error(
-          `Failed to render content item at index ${index}`,
-          error,
-        );
+        log.error(`Failed to render content item at index ${index}`, error);
       }
     });
   }
@@ -72,9 +75,7 @@ class DisplayManager {
    */
   renderChoices(choices, showNumbers = true) {
     if (!Array.isArray(choices)) {
-      DisplayManager._warning(
-        "Invalid choices passed to renderChoices - expected array",
-      );
+      log.warning("Invalid choices passed to renderChoices - expected array");
       return;
     }
 
@@ -92,9 +93,7 @@ class DisplayManager {
           if (typeof choice.onClick === "function") {
             this.domHelpers.addChoiceClickHandler(element, choice.onClick);
           } else {
-            DisplayManager._warning(
-              `Choice at index ${index} has invalid onClick handler`,
-            );
+            log.warning(`Choice at index ${index} has invalid onClick handler`);
           }
         }
 
@@ -102,24 +101,19 @@ class DisplayManager {
           this.fadeInElement(element);
         }
       } catch (error) {
-        DisplayManager._error(
-          `Failed to render choice at index ${index}`,
-          error,
-        );
+        log.error(`Failed to render choice at index ${index}`, error);
       }
     });
   }
 
   createElement(content) {
     if (!content?.text || typeof content.text !== "string") {
-      DisplayManager._warning("createElement called with invalid content");
+      log.warning("createElement called with invalid content");
       return null;
     }
 
     if (!this.domHelpers) {
-      DisplayManager._error(
-        "Cannot create element - DOM helpers not available",
-      );
+      log.error("Cannot create element - DOM helpers not available");
       return null;
     }
 
@@ -136,7 +130,7 @@ class DisplayManager {
 
       return element;
     } catch (error) {
-      DisplayManager._error("Failed to create element", error);
+      log.error("Failed to create element", error);
       return null;
     }
   }
@@ -161,7 +155,7 @@ class DisplayManager {
     }
 
     imageElement.onerror = () => {
-      DisplayManager._warning(`Failed to load image: ${item.src}`);
+      log.warning(`Failed to load image: ${item.src}`);
     };
 
     let elementToInsert;
@@ -242,30 +236,27 @@ class DisplayManager {
       }
 
       try {
-        window.storyManager.story.variablesState.$(
-          item.variableName,
-          userInput,
-        );
+        this.storyManager.story.variablesState.$(item.variableName, userInput);
 
         // Restore state to before this content batch and re-set variable
-        if (window.storyManager.stateBeforeUserInput) {
-          window.storyManager.story.state.LoadJson(
-            window.storyManager.stateBeforeUserInput,
+        if (this.storyManager.stateBeforeUserInput) {
+          this.storyManager.story.state.LoadJson(
+            this.storyManager.stateBeforeUserInput,
           );
-          window.storyManager.story.variablesState.$(
+          this.storyManager.story.variablesState.$(
             item.variableName,
             userInput,
           );
-          window.storyManager.stateBeforeUserInput = null;
+          this.storyManager.stateBeforeUserInput = null;
         }
 
         // Set flag so content-processor knows to skip input on re-process
         // and clear and re-render with variable now set
-        window.storyManager.reprocessingAfterUserInput = true;
-        window.storyManager.continue();
-        window.storyManager.reprocessingAfterUserInput = false;
+        this.storyManager.reprocessingAfterUserInput = true;
+        this.storyManager.continue();
+        this.storyManager.reprocessingAfterUserInput = false;
       } catch (error) {
-        DisplayManager._error("Failed to set user input variable", error);
+        log.error("Failed to set user input variable", error);
         inputField.style.borderColor = "var(--color-important)";
         inputField.placeholder = "Error - please try again...";
       }
@@ -285,7 +276,7 @@ class DisplayManager {
 
   getStatValue(variableName) {
     try {
-      return window.storyManager?.story?.variablesState?.[variableName] ?? 0;
+      return this.storyManager?.story?.variablesState?.[variableName] ?? 0;
     } catch {
       return 0;
     }
@@ -369,17 +360,7 @@ class DisplayManager {
   }
 
   shouldAnimateContent() {
-    try {
-      const settings = window.storyManager?.settings;
-      if (!settings?.getSetting) {
-        return true;
-      }
-      const result = settings.getSetting("animations") === true;
-      return result;
-    } catch (error) {
-      console.log("Error checking animations, defaulting to true");
-      return true;
-    }
+    return this.settings?.getSetting("animations") !== false;
   }
 
   fadeInElement(element) {
@@ -395,7 +376,7 @@ class DisplayManager {
 
   clear() {
     if (!this.domHelpers) {
-      DisplayManager._error("Cannot clear - DOM helpers not available");
+      log.error("Cannot clear - DOM helpers not available");
       return;
     }
 
@@ -405,7 +386,7 @@ class DisplayManager {
 
   clearContent() {
     if (!this.domHelpers) {
-      DisplayManager._error("Cannot clear content - DOM helpers not available");
+      log.error("Cannot clear content - DOM helpers not available");
       return;
     }
 
@@ -414,12 +395,12 @@ class DisplayManager {
 
   scrollToTop() {
     if (!this.scrollContainer) {
-      DisplayManager._warning("Cannot scroll - scroll container not available");
+      log.warning("Cannot scroll - scroll container not available");
       return;
     }
 
     if (!this.domHelpers) {
-      DisplayManager._error("Cannot scroll - DOM helpers not available");
+      log.error("Cannot scroll - DOM helpers not available");
       return;
     }
 
@@ -455,7 +436,7 @@ class DisplayManager {
    */
   restoreState(state) {
     if (!state || typeof state !== "object") {
-      DisplayManager._warning("Invalid state passed to restoreState");
+      log.warning("Invalid state passed to restoreState");
       return;
     }
 
@@ -472,7 +453,7 @@ class DisplayManager {
 
   trackInHistory(item) {
     if (!item || typeof item !== "object") {
-      DisplayManager._warning("Invalid item passed to trackInHistory");
+      log.warning("Invalid item passed to trackInHistory");
       return;
     }
 
@@ -522,18 +503,6 @@ class DisplayManager {
         ? this.container.children.length
         : 0,
     };
-  }
-
-  static _error(message, error = null) {
-    window.errorManager.error(message, error, DisplayManager.errorSource);
-  }
-
-  static _warning(message, error = null) {
-    window.errorManager.warning(message, error, DisplayManager.errorSource);
-  }
-
-  static _critical(message, error = null) {
-    window.errorManager.critical(message, error, DisplayManager.errorSource);
   }
 }
 

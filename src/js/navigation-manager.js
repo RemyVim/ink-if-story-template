@@ -1,8 +1,9 @@
-import { ErrorManager } from "./error-manager.js";
+import { errorManager, ERROR_SOURCES } from "./error-manager.js";
+import { Utils } from "./utils.js";
+
+const log = errorManager.forSource(ERROR_SOURCES.NAVIGATION_MANAGER);
 
 class NavigationManager {
-  static errorSource = ErrorManager.SOURCES.NAVIGATION_MANAGER;
-
   constructor(storyManager) {
     this.storyManager = storyManager;
     this.dynamicButtons = new Map();
@@ -10,7 +11,7 @@ class NavigationManager {
     this.dropdownButton = null;
 
     if (!this.storyManager) {
-      NavigationManager._critical(
+      log.critical(
         "NavigationManager requires a story manager",
         new Error("Invalid story manager"),
         "navigation",
@@ -47,7 +48,7 @@ class NavigationManager {
    */
   setupButton(buttonId, clickHandler) {
     if (!buttonId || typeof clickHandler !== "function") {
-      NavigationManager._warning(
+      log.warning(
         `Invalid parameters for button ${buttonId}`,
         null,
         "navigation",
@@ -57,11 +58,7 @@ class NavigationManager {
 
     const button = document.getElementById(buttonId);
     if (!button) {
-      NavigationManager._warning(
-        `Button not found: ${buttonId}`,
-        null,
-        "navigation",
-      );
+      log.warning(`Button not found: ${buttonId}`, null, "navigation");
       return;
     }
 
@@ -73,19 +70,11 @@ class NavigationManager {
         try {
           clickHandler(e);
         } catch (error) {
-          NavigationManager._error(
-            `Button click failed: ${buttonId}`,
-            error,
-            "navigation",
-          );
+          log.error(`Button click failed: ${buttonId}`, error, "navigation");
         }
       });
     } catch (error) {
-      NavigationManager._warning(
-        `Failed to setup button ${buttonId}`,
-        error,
-        "navigation",
-      );
+      log.warning(`Failed to setup button ${buttonId}`, error, "navigation");
     }
   }
 
@@ -96,7 +85,7 @@ class NavigationManager {
    */
   updateVisibility(availablePages, pageMenuOrder = null) {
     if (!availablePages || typeof availablePages !== "object") {
-      NavigationManager._warning(
+      log.warning(
         "Invalid availablePages object passed to updateVisibility",
         null,
         "navigation",
@@ -385,8 +374,7 @@ class NavigationManager {
       buttons.push({
         buttonId,
         knotName,
-        displayName:
-          pageInfo?.displayName || window.Utils.formatKnotName(knotName),
+        displayName: pageInfo?.displayName || Utils.formatKnotName(knotName),
         element: buttonElement,
         visible: buttonElement.style.display !== "none",
         enabled: !buttonElement.hasAttribute("disabled"),
@@ -451,7 +439,7 @@ class NavigationManager {
 
   getPageDisplayName(knotName) {
     const pageInfo = this.storyManager?.availablePages?.[knotName];
-    return pageInfo?.displayName || window.Utils.formatKnotName(knotName);
+    return pageInfo?.displayName || Utils.formatKnotName(knotName);
   }
 
   isReady() {
@@ -519,17 +507,6 @@ class NavigationManager {
       },
     };
   }
-
-  static _error(message, error = null) {
-    window.errorManager.error(message, error, NavigationManager.errorSource);
-  }
-
-  static _warning(message, error = null) {
-    window.errorManager.warning(message, error, NavigationManager.errorSource);
-  }
-
-  static _critical(message, error = null) {
-    window.errorManager.critical(message, error, NavigationManager.errorSource);
-  }
 }
+
 export { NavigationManager };

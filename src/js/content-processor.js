@@ -1,11 +1,15 @@
-import { ErrorManager } from "./error-manager.js";
-import { TagRegistry } from "./tag-registry.js";
+import { TagRegistry, TAGS } from "./tag-registry.js";
+import { errorManager, ERROR_SOURCES } from "./error-manager.js";
+
+const log = errorManager.forSource(ERROR_SOURCES.CONTENT_PROCESSOR);
 
 class ContentProcessor {
-  static errorSource = ErrorManager.SOURCES.CONTENT_PROCESSOR;
-
-  constructor() {
-    this.tagProcessor = window.tagProcessor;
+  constructor(tagProcessor) {
+    if (!tagProcessor) {
+      log.warning("ContentProcessor created without tagProcessor");
+    }
+    this.tagProcessor = tagProcessor;
+    this.storyManager = null; // Wired by main.js after StoryManager is created
   }
 
   /**
@@ -15,8 +19,6 @@ class ContentProcessor {
    * @returns {Object|null} Processed content object or null if empty
    */
   process(text, tags) {
-    const { TAGS } = window.TagRegistry || {};
-
     if (TAGS && Array.isArray(tags)) {
       const contentOverride = this.checkContentTypeTags(tags, text);
       if (contentOverride) return contentOverride;
@@ -27,14 +29,12 @@ class ContentProcessor {
 
   createParagraph(text, tags) {
     if (!Array.isArray(tags)) {
-      ContentProcessor._warning(
-        "Invalid tags array provided to createParagraph",
-      );
+      log.warning("Invalid tags array provided to createParagraph");
       tags = [];
     }
 
     if (!this.tagProcessor?.processLineTags) {
-      ContentProcessor._error("TagProcessor not available in ContentProcessor");
+      log.error("TagProcessor not available in ContentProcessor");
       return {
         type: "paragraph",
         text,
@@ -60,8 +60,6 @@ class ContentProcessor {
   }
 
   checkContentTypeTags(tags, text) {
-    const { TAGS } = window.TagRegistry;
-
     for (const tag of tags) {
       if (typeof tag !== "string") continue;
 
@@ -101,8 +99,6 @@ class ContentProcessor {
   }
 
   handleStatBarContent(tags, text) {
-    const { TAGS } = window.TagRegistry;
-
     const parsedTags = tags.map((t) => TagRegistry.parseTag(t));
     const statBarTags = parsedTags.filter(
       ({ tagDef, invalid }) => tagDef === TAGS.STATBAR && !invalid,
@@ -125,12 +121,12 @@ class ContentProcessor {
 
     // Check if variable already has a value (re-processing after input was submitted)
     const currentValue =
-      window.storyManager?.story?.variablesState?.[userInputData.variableName];
+      this.storyManager?.story?.variablesState?.[userInputData.variableName];
 
     if (
       currentValue &&
       currentValue !== "" &&
-      window.storyManager?.reprocessingAfterUserInput
+      this.storyManager?.reprocessingAfterUserInput
     ) {
       // Variable already set AND we're re-processing after submit
       // Return null to fall through to normal paragraph processing
@@ -212,17 +208,17 @@ class ContentProcessor {
       min = numbers[0].value;
       max = numbers[1].value;
     } else if (numbers.length === 1) {
-      ContentProcessor._warning(
+      log.warning(
         `STATBAR "${variableName}" has only one number - provide both min and max (e.g., "0 100")`,
       );
     } else if (numbers.length > 2) {
-      ContentProcessor._warning(
+      log.warning(
         `STATBAR "${variableName}" has too many numbers - provide only min and max (e.g., "0 100")`,
       );
     }
 
     if (numbers.length === 2 && min >= max) {
-      ContentProcessor._warning(
+      log.warning(
         `STATBAR "${variableName}" has min (${min}) >= max (${max}) - bar will not display correctly`,
       );
     }
@@ -239,7 +235,7 @@ class ContentProcessor {
       isOpposed = true;
     }
     if (quotedStrings.length > 2) {
-      ContentProcessor._warning(
+      log.warning(
         `STATBAR "${variableName}" has ${quotedStrings.length} labels - only first two are used`,
       );
     }
@@ -251,7 +247,7 @@ class ContentProcessor {
       const isKeyword = keywords.includes(part);
 
       if (!isNumber && !isKeyword) {
-        ContentProcessor._warning(
+        log.warning(
           `STATBAR "${variableName}" has unquoted text "${parts[i]}" - use quotes for labels (e.g., "Label")`,
         );
         break;
@@ -301,7 +297,7 @@ class ContentProcessor {
 
     return specialActions.find((actionFn) => {
       if (typeof actionFn !== "function") {
-        ContentProcessor._warning("Non-function found in specialActions array");
+        log.warning("Non-function found in specialActions array");
         return false;
       }
 
@@ -313,10 +309,7 @@ class ContentProcessor {
           (typeof result === "object" && result !== null)
         );
       } catch (error) {
-        ContentProcessor._error(
-          "Error executing special action function",
-          error,
-        );
+        log.error("Error executing special action function", error);
         return false;
       }
     });
@@ -333,17 +326,6 @@ class ContentProcessor {
       timestamp: new Date().toISOString(),
     };
   }
-
-  static _error(message, error = null) {
-    window.errorManager.error(message, error, ContentProcessor.errorSource);
-  }
-
-  static _warning(message, error = null) {
-    window.errorManager.warning(message, error, ContentProcessor.errorSource);
-  }
-
-  static _critical(message, error = null) {
-    window.errorManager.critical(message, error, ContentProcessor.errorSource);
-  }
 }
+
 export { ContentProcessor };

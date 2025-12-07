@@ -1,11 +1,11 @@
-import { ErrorManager } from "./error-manager.js";
 import { BaseModal } from "./base-modal.js";
+import { errorManager, ERROR_SOURCES } from "./error-manager.js";
+
+const log = errorManager.forSource(ERROR_SOURCES.SAVES_MODAL);
 
 const REFRESH_DELAY_MS = 100;
 
 class SavesModalManager {
-  static errorSource = ErrorManager.SOURCES.SAVES_MODAL;
-
   constructor(gameSaveSystem) {
     this.gameSaveSystem = gameSaveSystem;
     this.maxSaveSlots = gameSaveSystem.maxSaveSlots;
@@ -13,7 +13,7 @@ class SavesModalManager {
     this.confirmModal = null;
 
     if (!this.gameSaveSystem) {
-      SavesModalManager._critical(
+      log.critical(
         "SavesModalManager requires a save system",
         new Error("Invalid save system"),
       );
@@ -122,7 +122,7 @@ class SavesModalManager {
         </div>`;
       }
     } catch (error) {
-      SavesModalManager._error("Failed to create save slot HTML", error);
+      log.error("Failed to create save slot HTML", error);
       return "";
     }
   }
@@ -222,7 +222,7 @@ class SavesModalManager {
           setTimeout(() => this.populateSaveSlots(), REFRESH_DELAY_MS);
         }
       } catch (error) {
-        SavesModalManager._error("Save slot action failed", error);
+        log.error("Save slot action failed", error);
       }
     });
   }
@@ -240,17 +240,6 @@ class SavesModalManager {
       modalVisible: this.modal?.isVisible || false,
     };
   }
-
-  static _error(message, error = null) {
-    window.errorManager.error(message, error, SavesModalManager.errorSource);
-  }
-
-  static _warning(message, error = null) {
-    window.errorManager.warning(message, error, SavesModalManager.errorSource);
-  }
-
-  static _critical(message, error = null) {
-    window.errorManager.critical(message, error, SavesModalManager.errorSource);
-  }
 }
+
 export { SavesModalManager };

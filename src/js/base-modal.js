@@ -1,7 +1,9 @@
-import { ErrorManager } from "./error-manager.js";
+import { errorManager, ERROR_SOURCES } from "./error-manager.js";
+import { notificationManager } from "./notification-manager.js";
+
+const log = errorManager.forSource(ERROR_SOURCES.MODAL);
 
 class BaseModal {
-  static errorSource = ErrorManager.SOURCES.MODAL;
   static instances = new Set();
 
   /**
@@ -83,7 +85,7 @@ class BaseModal {
     modalBackdrop.appendChild(modalContent);
 
     if (!document.body) {
-      BaseModal._error("Cannot create modal - document.body not available");
+      log.error("Cannot create modal - document.body not available");
       return;
     }
 
@@ -180,7 +182,7 @@ class BaseModal {
   show(contentCallback = null) {
     BaseModal.closeAll(this);
     if (!this.modalElement) {
-      BaseModal._error("Cannot show modal - modal element not available");
+      log.error("Cannot show modal - modal element not available");
       return;
     }
 
@@ -190,7 +192,7 @@ class BaseModal {
       try {
         contentCallback(this);
       } catch (error) {
-        BaseModal._error("Failed to populate modal content", error);
+        log.error("Failed to populate modal content", error);
       }
     }
 
@@ -221,7 +223,7 @@ class BaseModal {
       try {
         this.onShow();
       } catch (error) {
-        BaseModal._warning("Modal onShow callback failed", error);
+        log.warning("Modal onShow callback failed", error);
       }
     }
   }
@@ -250,7 +252,7 @@ class BaseModal {
       try {
         this.onHide();
       } catch (error) {
-        BaseModal._warning("Modal onHide callback failed", error);
+        log.warning("Modal onHide callback failed", error);
       }
     }
   }
@@ -413,7 +415,7 @@ class BaseModal {
 
   showNotification(message, isError = false, duration = 4000) {
     const type = isError ? "error" : "success";
-    window.notificationManager.show(message, { type, duration });
+    notificationManager.show(message, { type, duration });
   }
 
   isReady() {
@@ -449,7 +451,7 @@ class BaseModal {
       this.modalElement = null;
       this.isVisible = false;
     } catch (error) {
-      BaseModal._warning("Failed to destroy modal", error);
+      log.warning("Failed to destroy modal", error);
     }
   }
 
@@ -511,18 +513,6 @@ class BaseModal {
       },
       { title, confirmText, cancelText, confirmVariant },
     );
-  }
-
-  static _error(message, error = null) {
-    window.errorManager.error(message, error, BaseModal.errorSource);
-  }
-
-  static _warning(message, error = null) {
-    window.errorManager.warning(message, error, BaseModal.errorSource);
-  }
-
-  static _critical(message, error = null) {
-    window.errorManager.critical(message, error, BaseModal.errorSource);
   }
 }
 

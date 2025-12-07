@@ -1,3 +1,5 @@
+import { notificationManager } from "./notification-manager.js";
+
 class ErrorManager {
   static SOURCES = {
     CHOICE_MANAGER: "Choice Manager",
@@ -39,6 +41,20 @@ class ErrorManager {
       );
       event.preventDefault();
     });
+  }
+
+  /**
+   * Create a logger bound to a specific source
+   * @param {string} source - Source identifier (use ErrorManager.SOURCES)
+   * @returns {Object} Object with error, warning, critical methods
+   */
+  forSource(source) {
+    return {
+      error: (message, error = null) => this.error(message, error, source),
+      warning: (message, error = null) => this.warning(message, error, source),
+      critical: (message, error = null) =>
+        this.critical(message, error, source),
+    };
   }
 
   critical(message, error, source) {
@@ -135,17 +151,18 @@ class ErrorManager {
 
   showNotification(message, severity) {
     const type = severity === "critical" ? "critical" : "error";
-    window.notificationManager.show(message, { type });
+    notificationManager.show(message, { type });
   }
 
   attemptRecovery(source) {
     console.log(`[RECOVERY] Attempting recovery for ${source} error`);
+    const storyManager = window.InkTemplate?.storyManager;
 
     switch (source) {
       case ErrorManager.SOURCES.STORY_MANAGER:
-        if (window.storyManager) {
+        if (storyManager) {
           try {
-            window.storyManager.restart();
+            storyManager.restart();
             console.log("[RECOVERY] Story restarted successfully");
           } catch (recoveryError) {
             console.error("[RECOVERY] Failed to restart story:", recoveryError);
@@ -154,9 +171,9 @@ class ErrorManager {
         break;
 
       case ErrorManager.SOURCES.DISPLAY_MANAGER:
-        if (window.storyManager?.display) {
+        if (storyManager?.display) {
           try {
-            window.storyManager.display.clear();
+            storyManager.display.clear();
             console.log("[RECOVERY] Display cleared");
           } catch (recoveryError) {
             console.error("[RECOVERY] Failed to clear display:", recoveryError);
@@ -165,9 +182,9 @@ class ErrorManager {
         break;
 
       case ErrorManager.SOURCES.SAVE_SYSTEM:
-        if (window.storyManager?.settings) {
+        if (storyManager?.settings) {
           try {
-            window.storyManager.settings.setSetting("autoSave", false);
+            storyManager.settings.setSetting("autoSave", false);
             console.log(
               "[RECOVERY] Autosave disabled due to save system error",
             );
@@ -186,7 +203,5 @@ class ErrorManager {
 }
 
 const errorManager = new ErrorManager();
-window.errorManager = errorManager;
-window.ErrorManager = ErrorManager;
-
-export { ErrorManager, errorManager };
+const ERROR_SOURCES = ErrorManager.SOURCES;
+export { errorManager, ERROR_SOURCES };

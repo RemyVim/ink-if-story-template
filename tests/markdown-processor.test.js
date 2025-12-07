@@ -1,18 +1,6 @@
 import { MarkdownProcessor } from "../src/js/markdown-processor.js";
 
 describe("MarkdownProcessor", () => {
-  beforeAll(() => {
-    window.errorManager = {
-      error: vi.fn(),
-      warning: vi.fn(),
-      critical: vi.fn(),
-    };
-  });
-
-  afterAll(() => {
-    delete window.errorManager;
-  });
-
   describe("bold and italic", () => {
     test("converts __text__ to bold", () => {
       expect(MarkdownProcessor.process("__bold__")).toBe(

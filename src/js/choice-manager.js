@@ -1,10 +1,11 @@
-import { ErrorManager } from "./error-manager.js";
+import { errorManager, ERROR_SOURCES } from "./error-manager.js";
+
+const log = errorManager.forSource(ERROR_SOURCES.CHOICE_MANAGER);
 
 class ChoiceManager {
-  static errorSource = ErrorManager.SOURCES.CHOICE_MANAGER;
   constructor(storyManager) {
     this.storyManager = storyManager;
-    this.tagProcessor = window.tagProcessor;
+    this.tagProcessor = storyManager.tagProcessor;
   }
 
   /**
@@ -14,7 +15,7 @@ class ChoiceManager {
    */
   generate(storyChoices) {
     if (!Array.isArray(storyChoices)) {
-      ChoiceManager._error("Invalid storyChoices - expected array");
+      log.error("Invalid storyChoices - expected array");
       return [];
     }
 
@@ -41,10 +42,7 @@ class ChoiceManager {
           toneIndicators,
         };
       } catch (error) {
-        ChoiceManager._error(
-          `Failed to process choice at index ${index}`,
-          error,
-        );
+        log.error(`Failed to process choice at index ${index}`, error);
 
         return {
           text: choice.text || "Invalid choice",
@@ -61,19 +59,19 @@ class ChoiceManager {
 
   selectChoice(choiceIndex) {
     if (typeof choiceIndex !== "number" || choiceIndex < 0) {
-      ChoiceManager._error(`Invalid choice index: ${choiceIndex}`);
+      log.error(`Invalid choice index: ${choiceIndex}`);
       return;
     }
 
     if (!this.storyManager) {
-      ChoiceManager._error("Story manager not available");
+      log.error("Story manager not available");
       return;
     }
 
     try {
       this.storyManager.selectChoice(choiceIndex);
     } catch (error) {
-      ChoiceManager._error("Failed to select choice", error);
+      log.error("Failed to select choice", error);
     }
   }
 
@@ -86,7 +84,7 @@ class ChoiceManager {
    */
   createSpecialChoice(text, onClick, classes = []) {
     if (typeof text !== "string" || typeof onClick !== "function") {
-      ChoiceManager._error("Invalid parameters for special choice");
+      log.error("Invalid parameters for special choice");
       return {
         text: text || "Error",
         classes: ["error-choice"],
@@ -100,7 +98,7 @@ class ChoiceManager {
       try {
         onClick();
       } catch (error) {
-        ChoiceManager._error("Special choice click failed", error);
+        log.error("Special choice click failed", error);
       }
     };
 
@@ -115,7 +113,7 @@ class ChoiceManager {
 
   createReturnChoice(onReturn) {
     if (typeof onReturn !== "function") {
-      ChoiceManager._error("onReturn must be a function");
+      log.error("onReturn must be a function");
       return this.createSpecialChoice("← Return to Story", () => {}, [
         "return-button",
         "error-choice",
@@ -129,16 +127,14 @@ class ChoiceManager {
 
   processChoiceTags(tags) {
     if (!this.tagProcessor?.processChoiceTags) {
-      ChoiceManager._warning(
-        "TagProcessor not available, using default choice behavior",
-      );
+      log.warning("TagProcessor not available, using default choice behavior");
       return { customClasses: [], isClickable: true };
     }
 
     try {
       return this.tagProcessor.processChoiceTags(tags || []);
     } catch (error) {
-      ChoiceManager._warning("Failed to process choice tags", error);
+      log.warning("Failed to process choice tags", error);
       return { customClasses: [], isClickable: true };
     }
   }
@@ -185,22 +181,6 @@ class ChoiceManager {
       withClasses: choices.filter((c) => c?.classes?.length > 0).length,
     };
   }
-
-  static _error(message, error = null) {
-    window.errorManager.error(message, error, ChoiceManager.errorSource);
-  }
-
-  static _warning(message, error = null) {
-    window.errorManager.warning(message, error, ChoiceManager.errorSource);
-  }
-
-  static _critical(message, error = null) {
-    window.errorManager.critical(message, error, ChoiceManager.errorSource);
-  }
 }
 
-// Global for non-module code
-window.ChoiceManager = ChoiceManager;
-
-// ES module export
 export { ChoiceManager };

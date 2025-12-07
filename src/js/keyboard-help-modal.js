@@ -1,12 +1,14 @@
 import { BaseModal } from "./base-modal.js";
+import { Utils } from "./utils.js";
+import { errorManager, ERROR_SOURCES } from "./error-manager.js";
+
+const log = errorManager.forSource(ERROR_SOURCES.KEYBOARD_HELP);
 
 class KeyboardHelpModal {
-  static errorSource = ErrorManager.SOURCES.KEYBOARD_HELP;
-
   constructor() {
     this.modal = null;
-    this.isMac = window.Utils.isMac();
-    this.isMobile = window.Utils.isMobile();
+    this.isMac = Utils.isMac();
+    this.isMobile = Utils.isMobile();
     this.init();
   }
 
@@ -28,9 +30,7 @@ class KeyboardHelpModal {
     if (this.isMobile) return;
 
     if (!this.modal?.isReady()) {
-      KeyboardHelpModal._error(
-        "Cannot show keyboard help - modal not available",
-      );
+      log.error("Cannot show keyboard help - modal not available");
       return;
     }
 
@@ -131,27 +131,6 @@ class KeyboardHelpModal {
       </div>
     `;
   }
-
-  static _error(message, error = null) {
-    window.errorManager.error(message, error, KeyboardHelpModal.errorSource);
-  }
-
-  static _warning(message, error = null) {
-    window.errorManager.warning(message, error, KeyboardHelpModal.errorSource);
-  }
-
-  static _critical(message, error = null) {
-    window.errorManager.critical(message, error, KeyboardHelpModal.errorSource);
-  }
-}
-
-// Initialize when DOM is ready
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", () => {
-    window.keyboardHelpModal = new KeyboardHelpModal();
-  });
-} else {
-  window.keyboardHelpModal = new KeyboardHelpModal();
 }
 
 export { KeyboardHelpModal };

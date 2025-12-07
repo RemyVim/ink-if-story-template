@@ -465,50 +465,42 @@ describe("TagRegistry", () => {
   });
 
   describe("isRegisteredToneTag", () => {
-    beforeEach(() => {
-      window.storyManager = {
-        settings: {
-          toneMap: {
-            flirty: "🔥",
-            angry: "😠",
-            Sarcastic: "🙄",
-          },
-        },
-      };
-    });
-
-    afterEach(() => {
-      delete window.storyManager;
-    });
+    const toneMap = {
+      flirty: "🔥",
+      angry: "😠",
+      Sarcastic: "🙄",
+    };
 
     test("returns true for registered tone (exact case)", () => {
-      expect(TagRegistry.isRegisteredToneTag("flirty")).toBe(true);
+      expect(TagRegistry.isRegisteredToneTag("flirty", toneMap)).toBe(true);
     });
 
     test("returns true for registered tone (case-insensitive)", () => {
-      expect(TagRegistry.isRegisteredToneTag("FLIRTY")).toBe(true);
-      expect(TagRegistry.isRegisteredToneTag("Flirty")).toBe(true);
-      expect(TagRegistry.isRegisteredToneTag("sarcastic")).toBe(true);
+      expect(TagRegistry.isRegisteredToneTag("FLIRTY", toneMap)).toBe(true);
+      expect(TagRegistry.isRegisteredToneTag("Flirty", toneMap)).toBe(true);
+      expect(TagRegistry.isRegisteredToneTag("sarcastic", toneMap)).toBe(true);
     });
 
     test("returns false for unregistered tone", () => {
-      expect(TagRegistry.isRegisteredToneTag("happy")).toBe(false);
-      expect(TagRegistry.isRegisteredToneTag("unknown")).toBe(false);
+      expect(TagRegistry.isRegisteredToneTag("happy", toneMap)).toBe(false);
+      expect(TagRegistry.isRegisteredToneTag("unknown", toneMap)).toBe(false);
     });
 
     test("returns false for regular tag", () => {
-      expect(TagRegistry.isRegisteredToneTag("TITLE")).toBe(false);
-      expect(TagRegistry.isRegisteredToneTag("IMAGE")).toBe(false);
-    });
-
-    test("returns false when storyManager is undefined", () => {
-      delete window.storyManager;
-      expect(TagRegistry.isRegisteredToneTag("flirty")).toBe(false);
+      expect(TagRegistry.isRegisteredToneTag("TITLE", toneMap)).toBe(false);
+      expect(TagRegistry.isRegisteredToneTag("IMAGE", toneMap)).toBe(false);
     });
 
     test("returns false when toneMap is empty", () => {
-      window.storyManager.settings.toneMap = {};
-      expect(TagRegistry.isRegisteredToneTag("flirty")).toBe(false);
+      expect(TagRegistry.isRegisteredToneTag("flirty", {})).toBe(false);
+    });
+
+    test("returns false when storyManager is undefined", () => {
+      expect(TagRegistry.isRegisteredToneTag("flirty", undefined)).toBe(false);
+    });
+
+    test("returns false when storyManager is null", () => {
+      expect(TagRegistry.isRegisteredToneTag("flirty", null)).toBe(false);
     });
   });
 

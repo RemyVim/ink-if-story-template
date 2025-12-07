@@ -1,16 +1,17 @@
-import { ErrorManager } from "./error-manager.js";
+import { errorManager, ERROR_SOURCES } from "./error-manager.js";
+import { Utils } from "./utils.js";
+
+const log = errorManager.forSource(ERROR_SOURCES.PAGE_MANAGER);
 
 class PageManager {
-  static errorSource = ErrorManager.SOURCES.PAGE_MANAGER;
-
   constructor(storyManager) {
     this.storyManager = storyManager;
-    this.tagProcessor = window.tagProcessor;
+    this.tagProcessor = storyManager.TagProcessor;
     this.savedDisplayState = null;
     this.savedStoryState = null;
 
     if (!this.storyManager) {
-      PageManager._critical(
+      log.critical(
         "PageManager requires a story manager",
         new Error("Invalid story manager"),
       );
@@ -23,14 +24,12 @@ class PageManager {
    */
   show(knotName) {
     if (!knotName || typeof knotName !== "string") {
-      PageManager._warning("Invalid knotName passed to show");
+      log.warning("Invalid knotName passed to show");
       return;
     }
 
     if (!this.isSpecialPage(knotName)) {
-      PageManager._warning(
-        `Page "${knotName}" is not marked as a special page`,
-      );
+      log.warning(`Page "${knotName}" is not marked as a special page`);
       return;
     }
 
@@ -62,7 +61,7 @@ class PageManager {
       this.storyManager.currentPage = null;
 
       if (!this.storyManager.display) {
-        PageManager._error("Display manager not available for return");
+        log.error("Display manager not available for return");
         return;
       }
 
@@ -72,7 +71,7 @@ class PageManager {
         try {
           this.storyManager.story.state.LoadJson(this.savedStoryState);
         } catch (error) {
-          PageManager._error("Failed to restore story state", error);
+          log.error("Failed to restore story state", error);
           if (this.storyManager.savePoint) {
             this.storyManager.story.state.LoadJson(this.storyManager.savePoint);
           }
@@ -83,7 +82,7 @@ class PageManager {
         try {
           this.storyManager.display.restoreState(this.savedDisplayState);
         } catch (error) {
-          PageManager._error("Failed to restore display state", error);
+          log.error("Failed to restore display state", error);
           this.regenerateDisplayFromStoryState();
         }
       } else {
@@ -97,7 +96,7 @@ class PageManager {
       this.savedDisplayState = null;
       this.savedStoryState = null;
     } catch (error) {
-      PageManager._error("Failed to return to story", error);
+      log.error("Failed to return to story", error);
     }
   }
 
@@ -137,7 +136,7 @@ class PageManager {
       return pageInfo.displayName;
     }
 
-    return window.Utils.formatKnotName(knotName);
+    return Utils.formatKnotName(knotName);
   }
 
   getAvailablePages() {
@@ -168,8 +167,7 @@ class PageManager {
 
     return {
       knotName: knotName,
-      displayName:
-        pageInfo.displayName || window.Utils.formatKnotName(knotName),
+      displayName: pageInfo.displayName || Utils.formatKnotName(knotName),
       isSpecialPage: pageInfo.isSpecialPage,
       content: this.evaluatePageContent(knotName),
     };
@@ -200,7 +198,7 @@ class PageManager {
 
       return fullText.trim();
     } catch (error) {
-      PageManager._error("Failed to evaluate page content", error);
+      log.error("Failed to evaluate page content", error);
       return "";
     }
   }
@@ -229,7 +227,7 @@ class PageManager {
       const tempStory = this.createPageStory(knotName);
       return this.extractPageContent(tempStory);
     } catch (error) {
-      PageManager._error("Failed to generate page content");
+      log.error("Failed to generate page content");
       return [];
     }
   }
@@ -300,7 +298,7 @@ class PageManager {
 
   addReturnButton() {
     if (!this.storyManager.choices || !this.storyManager.display) {
-      PageManager._error("Required managers not available for return button");
+      log.error("Required managers not available for return button");
       return;
     }
 
@@ -311,7 +309,7 @@ class PageManager {
 
       this.storyManager.display.renderChoices([returnChoice], false);
     } catch (error) {
-      PageManager._error("Failed to add return button", error);
+      log.error("Failed to add return button", error);
     }
   }
 
@@ -372,17 +370,6 @@ class PageManager {
 
     return results;
   }
-
-  static _error(message, error = null) {
-    window.errorManager.error(message, error, PageManager.errorSource);
-  }
-
-  static _warning(message, error = null) {
-    window.errorManager.warning(message, error, PageManager.errorSource);
-  }
-
-  static _critical(message, error = null) {
-    window.errorManager.critical(message, error, PageManager.errorSource);
-  }
 }
+
 export { PageManager };

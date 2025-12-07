@@ -1,8 +1,8 @@
-import { ErrorManager } from "./error-manager.js";
+import { errorManager, ERROR_SOURCES } from "./error-manager.js";
+
+const log = errorManager.forSource(ERROR_SOURCES.MARKDOWN);
 
 class MarkdownProcessor {
-  static errorSource = ErrorManager.SOURCES.MARKDOWN;
-
   // Regex patterns: escape sequences, block elements, inline formatting
   static patterns = {
     escape: [
@@ -63,7 +63,7 @@ class MarkdownProcessor {
 
       return text;
     } catch (error) {
-      MarkdownProcessor._warning("Markdown processing failed", error);
+      log.warning("Markdown processing failed", error);
       return text;
     }
   }
@@ -125,7 +125,7 @@ class MarkdownProcessor {
       }
       return text;
     } catch (error) {
-      MarkdownProcessor._warning("Inline markdown processing failed", error);
+      log.warning("Inline markdown processing failed", error);
       return text;
     }
   }
@@ -212,18 +212,6 @@ class MarkdownProcessor {
       supportsInlineClasses: true,
       timestamp: new Date().toISOString(),
     };
-  }
-
-  static _error(message, error = null) {
-    window.errorManager.error(message, error, MarkdownProcessor.errorSource);
-  }
-
-  static _warning(message, error = null) {
-    window.errorManager.warning(message, error, MarkdownProcessor.errorSource);
-  }
-
-  static _critical(message, error = null) {
-    window.errorManager.critical(message, error, MarkdownProcessor.errorSource);
   }
 }
 

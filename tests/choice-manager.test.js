@@ -3,21 +3,20 @@ import { ChoiceManager } from "../src/js/choice-manager.js";
 describe("ChoiceManager", () => {
   let choiceManager;
 
-  beforeAll(() => {
-    window.notificationManager = {
-      show: vi.fn(),
-      success: vi.fn(),
-      error: vi.fn(),
-      warning: vi.fn(),
-    };
-  });
-
-  afterAll(() => {
-    delete window.notificationManager;
-  });
-
   beforeEach(() => {
-    choiceManager = new ChoiceManager(null);
+    vi.clearAllMocks();
+    const mockStoryManager = {
+      tagProcessor: {
+        processChoiceTags: vi.fn(() => ({
+          customClasses: [],
+          isClickable: true,
+        })),
+      },
+      settings: {
+        getToneIndicators: vi.fn(() => []),
+      },
+    };
+    choiceManager = new ChoiceManager(mockStoryManager);
   });
 
   describe("getKeyHint", () => {

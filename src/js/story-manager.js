@@ -1,82 +1,72 @@
 import { Story } from "inkjs";
-import { ErrorManager } from "./error-manager.js";
-import { TagRegistry } from "./tag-registry.js";
-import { DisplayManager } from "./display-manager.js";
-import { ContentProcessor } from "./content-processor.js";
-import { SettingsManager } from "./settings-manager.js";
-import { PageManager } from "./page-manager.js";
-import { ChoiceManager } from "./choice-manager.js";
-import { NavigationManager } from "./navigation-manager.js";
+import { TagRegistry, TAGS } from "./tag-registry.js";
+import { notificationManager } from "./notification-manager.js";
 import { InkFunctions } from "./ink-functions.js";
-import { SavesManager } from "./saves-manager.js";
 import { BaseModal } from "./base-modal.js";
+import { Utils } from "./utils.js";
+import { errorManager, ERROR_SOURCES } from "./error-manager.js";
+
+const log = errorManager.forSource(ERROR_SOURCES.STORY_MANAGER);
 
 class StoryManager {
-  static errorSource = ErrorManager.SOURCES.STORY_MANAGER;
-
-  constructor(storyContent) {
+  constructor(storyContent, { display, settings, contentProcessor }) {
     try {
       this.story = new Story(storyContent);
       InkFunctions.bindAll(this.story);
+
       this.savePoint = "";
       this.currentPage = null;
       this.availablePages = {};
       this.pageMenuOrder = null;
 
-      this.initializeSubsystems();
-      this.detectSpecialPages();
-      this.setupInitialState();
+      this.display = display;
+      this.settings = settings;
+      this.contentProcessor = contentProcessor;
+
+      // Wired by main.js after construction
+      this.pages = null;
+      this.choices = null;
+      this.navigation = null;
+      this.saves = null;
     } catch (error) {
-      StoryManager._critical("Failed to initialize story", error);
+      log.critical("Failed to initialize story", error);
       throw error;
     }
   }
 
-  initializeSubsystems() {
-    this.display = this.safeInit(() => new DisplayManager(), "display");
-    this.contentProcessor = this.safeInit(
-      () => new ContentProcessor(),
-      "content",
-    );
-    this.settings = this.safeInit(() => new SettingsManager(), "settings");
-    this.pages = this.safeInit(() => new PageManager(this), "pages");
-    this.choices = this.safeInit(() => new ChoiceManager(this), "choices");
-    this.navigation = this.safeInit(
-      () => new NavigationManager(this),
-      "navigation",
-    );
-    this.saves = this.safeInit(() => new SavesManager(this), "saves");
+  start() {
+    const required = {
+      display: this.display,
+      settings: this.settings,
+      contentProcessor: this.contentProcessor,
+      pages: this.pages,
+      choices: this.choices,
+      navigation: this.navigation,
+      saves: this.saves,
+    };
 
-    if (!this.display || !this.story) {
-      throw new Error("Critical systems failed to initialize");
+    const missing = Object.entries(required)
+      .filter(([_, value]) => !value)
+      .map(([key]) => key);
+
+    if (missing.length > 0) {
+      throw new Error(
+        `StoryManager.start() called before wiring dependencies: ${missing.join(", ")}`,
+      );
     }
-  }
 
-  safeInit(initFunc, componentName) {
-    try {
-      return initFunc();
-    } catch (error) {
-      StoryManager._error(`Failed to initialize ${componentName}`, error);
-      return null;
-    }
-  }
+    this.detectSpecialPages();
 
-  setupInitialState() {
     try {
       // Process global tags for theme, metadata, and menu order
-      this.settings?.processGlobalTags?.(this.story.globalTags);
+      this.settings.processGlobalTags(this.story.globalTags);
       this.processMenuOrderTag(this.story.globalTags);
-
-      this.navigation?.updateVisibility?.(
-        this.availablePages,
-        this.pageMenuOrder,
-      );
-
+      this.navigation.updateVisibility(this.availablePages, this.pageMenuOrder);
       // Set initial save point and start
       this.savePoint = this.story.state.ToJson();
       this.continue(true);
     } catch (error) {
-      StoryManager._error("Failed to setup initial state", error);
+      log.error("Failed to setup initial state", error);
     }
   }
 
@@ -106,7 +96,7 @@ class StoryManager {
       }
 
       // Fire start event on first load
-      // Use setTimeout to ensure window.storyManager is assigned
+      // Use setTimeout to ensure window.InkTemplate.storyManager is assigned
       if (isFirstTime) {
         setTimeout(
           () => document.dispatchEvent(new CustomEvent("story:start")),
@@ -131,7 +121,7 @@ class StoryManager {
       // Update save point after generating new content
       this.savePoint = this.story.state.ToJson();
     } catch (error) {
-      StoryManager._error("Failed to continue story", error);
+      log.error("Failed to continue story", error);
     }
   }
 
@@ -150,7 +140,7 @@ class StoryManager {
       // Update save point after generating new content
       this.savePoint = this.story.state.ToJson();
     } catch (error) {
-      StoryManager._error("Failed to continue story without clearing", error);
+      log.error("Failed to continue story without clearing", error);
     }
   }
 
@@ -165,7 +155,7 @@ class StoryManager {
         }
       }
     } catch (error) {
-      StoryManager._error("Failed to create choices", error, "choices");
+      log.error("Failed to create choices", error, "choices");
     }
   }
 
@@ -197,7 +187,7 @@ class StoryManager {
       this.continue();
       this.saves?.autosave?.();
     } catch (error) {
-      StoryManager._error("Failed to select choice", error, "navigation");
+      log.error("Failed to select choice", error, "navigation");
     }
   }
 
@@ -212,11 +202,9 @@ class StoryManager {
       this.continue(true);
       this.display?.scrollToTop?.();
 
-      window.notificationManager?.success?.(
-        "Story restarted from the beginning",
-      );
+      notificationManager.success?.("Story restarted from the beginning");
     } catch (error) {
-      StoryManager._error("Failed to restart story", error);
+      log.error("Failed to restart story", error);
     }
   }
 
@@ -277,7 +265,7 @@ class StoryManager {
         }
       }
     } catch (error) {
-      StoryManager._error("Error generating story content", error);
+      log.error("Error generating story content", error);
     }
 
     return {
@@ -304,7 +292,7 @@ class StoryManager {
       }
       return true;
     } catch (error) {
-      StoryManager._error("Failed to handle special action", error);
+      log.error("Failed to handle special action", error);
       return true;
     }
   }
@@ -319,7 +307,7 @@ class StoryManager {
         timestamp: Date.now(),
       };
     } catch (error) {
-      StoryManager._error("Failed to get current state", error);
+      log.error("Failed to get current state", error);
       return {};
     }
   }
@@ -363,7 +351,7 @@ class StoryManager {
 
       this.display?.scrollToTop?.();
     } catch (error) {
-      StoryManager._error("Failed to load state", error, "save-system");
+      log.error("Failed to load state", error, "save-system");
     }
   }
 
@@ -381,7 +369,7 @@ class StoryManager {
         this.display?.render?.(content);
       }
     } catch (error) {
-      StoryManager._error("Failed to regenerate display", error, "display");
+      log.error("Failed to regenerate display", error, "display");
     }
   }
 
@@ -402,20 +390,16 @@ class StoryManager {
             };
           }
         } catch (error) {
-          StoryManager._warning(
-            `Failed to check if ${knotName} is special page`,
-            error,
-          );
+          log.warning(`Failed to check if ${knotName} is special page`, error);
         }
       }
     } catch (error) {
-      StoryManager._error("Failed to detect special pages", error);
+      log.error("Failed to detect special pages", error);
     }
   }
 
   getSpecialPageInfo(knotName) {
-    const { TAGS, getTagDef } = window.TagRegistry || {};
-    if (!TAGS || !getTagDef) return null;
+    if (!TAGS || !TagRegistry.getTagDef) return null;
 
     try {
       const tempStory = this.createTempStory();
@@ -433,8 +417,7 @@ class StoryManager {
 
           if (tagDef === TAGS.SPECIAL_PAGE) {
             return {
-              displayName:
-                tagValue?.trim() || window.Utils.formatKnotName(knotName),
+              displayName: tagValue?.trim() || Utils.formatKnotName(knotName),
               isSpecialPage: true,
             };
           }
@@ -462,7 +445,7 @@ class StoryManager {
       const property = tag.substring(0, colonIndex).trim().toUpperCase();
       const value = tag.substring(colonIndex + 1).trim();
 
-      if (TagRegistry.getTagDef(property) === TagRegistry.TAGS.PAGE_MENU) {
+      if (TagRegistry.getTagDef(property) === TAGS.PAGE_MENU) {
         this.pageMenuOrder = this.parseMenuOrder(value);
         break;
       }
@@ -502,7 +485,7 @@ class StoryManager {
     try {
       return this.story.canContinue;
     } catch (error) {
-      StoryManager._warning("Failed to check canContinue", error);
+      log.warning("Failed to check canContinue", error);
       return false;
     }
   }
@@ -511,7 +494,7 @@ class StoryManager {
     try {
       return this.story.currentChoices?.length > 0;
     } catch (error) {
-      StoryManager._warning("Failed to check hasChoices", error);
+      log.warning("Failed to check hasChoices", error);
       return false;
     }
   }
@@ -542,7 +525,7 @@ class StoryManager {
         specialPagesFound: Object.keys(this.availablePages).length,
       };
     } catch (error) {
-      StoryManager._warning("Failed to get stats", error);
+      log.warning("Failed to get stats", error);
       return {};
     }
   }
@@ -562,20 +545,9 @@ class StoryManager {
       this.settings?.cleanup?.();
       this.pages?.reset?.();
     } catch (error) {
-      StoryManager._warning("Failed to cleanup", error, "system");
+      log.warning("Failed to cleanup", error, "system");
     }
   }
-
-  static _error(message, error = null) {
-    window.errorManager.error(message, error, StoryManager.errorSource);
-  }
-
-  static _warning(message, error = null) {
-    window.errorManager.warning(message, error, StoryManager.errorSource);
-  }
-
-  static _critical(message, error = null) {
-    window.errorManager.critical(message, error, StoryManager.errorSource);
-  }
 }
+
 export { StoryManager };

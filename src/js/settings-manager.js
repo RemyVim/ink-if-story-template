@@ -1,16 +1,23 @@
-import { ErrorManager } from "./error-manager.js";
 import { BaseModal } from "./base-modal.js";
+import { TagRegistry, TAGS, StoryFeatures } from "./tag-registry.js";
+import { errorManager, ERROR_SOURCES } from "./error-manager.js";
+
+const log = errorManager.forSource(ERROR_SOURCES.SETTINGS_MANAGER);
 
 // TODO: Split class into SettingsManager / SettingsModalManager
 class SettingsManager {
-  static errorSource = ErrorManager.SOURCES.SETTINGS_MANAGER;
-
   constructor() {
     this.settings = this.getDefaults();
+
+    // Wired by main.js after construction
+    this.storyManager = null;
+    this.keyboardShortcuts = null;
+    this.keyboardHelpModal = null;
 
     this.toneIndicatorsAvailable = false;
     this.authorToneIndicators = true;
     this.toneIndicatorsTrailing = false;
+    // TODO: Move toneMap to tagRegistry where it makes more sense
     this.toneMap = {}; // Will be populated from global tags
     this.authorChoiceNumbering = "auto";
 
@@ -71,7 +78,7 @@ class SettingsManager {
 
   showSettings() {
     if (!this.modal?.isReady()) {
-      SettingsManager._error("Cannot show settings - modal not available");
+      log.error("Cannot show settings - modal not available");
       return;
     }
 
@@ -107,7 +114,7 @@ class SettingsManager {
       if (helpBtn) {
         helpBtn.addEventListener("click", () => {
           this.hideSettings();
-          window.keyboardHelpModal?.show?.();
+          this.keyboardHelpModal?.show?.();
         });
       }
     });
@@ -160,7 +167,7 @@ class SettingsManager {
         this.settings = { ...this.settings, ...parsed };
       }
     } catch (error) {
-      SettingsManager._warning("Failed to load settings", error);
+      log.warning("Failed to load settings", error);
     }
   }
 
@@ -171,7 +178,7 @@ class SettingsManager {
         JSON.stringify(this.settings),
       );
     } catch (error) {
-      SettingsManager._error("Failed to store settings", error);
+      log.error("Failed to store settings", error);
     }
   }
 
@@ -358,9 +365,9 @@ class SettingsManager {
 
   applyKeyboardShortcuts() {
     if (this.settings.keyboardShortcuts) {
-      window.keyboardShortcuts?.enable?.();
+      this.keyboardShortcuts?.enable?.();
     } else {
-      window.keyboardShortcuts?.disable?.();
+      this.keyboardShortcuts?.disable?.();
     }
 
     this.updateKeyboardHelpButtonVisibility();
@@ -373,8 +380,7 @@ class SettingsManager {
   processGlobalTags(globalTags) {
     if (!Array.isArray(globalTags)) return;
 
-    const { TAGS, getTagDef } = window.TagRegistry || {};
-    if (!TAGS || !getTagDef) return;
+    if (!TAGS || !TagRegistry.getTagDef) return;
 
     for (const tag of globalTags) {
       if (typeof tag !== "string") continue;
@@ -448,7 +454,7 @@ class SettingsManager {
   }
 
   getSettingsHTML() {
-    const audioAvailable = window.StoryFeatures?.hasAudio;
+    const audioAvailable = StoryFeatures?.hasAudio;
 
     return `
       ${this.renderSettingsTabs()}
@@ -461,7 +467,7 @@ class SettingsManager {
   }
 
   renderSettingsTabs() {
-    const audioAvailable = window.StoryFeatures?.hasAudio;
+    const audioAvailable = StoryFeatures.hasAudio;
     return `
     <div class="settings-tabs" role="tablist" aria-label="Settings categories">
       ${this.renderSettingsTab("reading", "auto_stories", "Reading", true)}
@@ -543,7 +549,7 @@ class SettingsManager {
         ],
       )}
       ${
-        window.keyboardHelpModal?.isAvailable()
+        this.keyboardHelpModal?.isAvailable()
           ? this.renderCheckboxSetting(
               "keyboardShortcuts",
               "Enable Keyboard Shortcuts",
@@ -551,7 +557,7 @@ class SettingsManager {
           : ""
       }
       ${
-        window.keyboardHelpModal?.isAvailable()
+        this.keyboardHelpModal?.isAvailable()
           ? this.renderButtonSetting("keyboard-help-btn", "Keyboard Shortcuts")
           : ""
       }
@@ -560,7 +566,7 @@ class SettingsManager {
   }
 
   renderAudioPanel() {
-    if (!window.StoryFeatures?.hasAudio) return "";
+    if (!StoryFeatures.hasAudio) return "";
 
     return `
     <div role="tabpanel" class="settings-panel" id="panel-audio" aria-labelledby="tab-audio">
@@ -737,7 +743,7 @@ class SettingsManager {
    */
   handleAudioSettingChange(wasEnabled, isEnabled) {
     try {
-      const tagProcessor = window.storyManager?.contentProcessor?.tagProcessor;
+      const tagProcessor = this.storyManager?.contentProcessor?.tagProcessor;
       if (!tagProcessor) {
         return;
       }
@@ -748,7 +754,7 @@ class SettingsManager {
         tagProcessor.resumeAudioLoop();
       }
     } catch (error) {
-      SettingsManager._warning("Failed to handle audio setting change", error);
+      log.warning("Failed to handle audio setting change", error);
     }
   }
 
@@ -765,12 +771,12 @@ class SettingsManager {
 
   refreshChoices() {
     if (
-      window.storyManager?.display?.domHelpers &&
-      window.storyManager?.story?.currentChoices?.length > 0
+      this.storyManager?.display?.domHelpers &&
+      this.storyManager?.story?.currentChoices?.length > 0
     ) {
       // Re-render existing choices
-      window.storyManager.display.domHelpers.removeAll(".choice");
-      window.storyManager.createChoices();
+      this.storyManager.display.domHelpers.removeAll(".choice");
+      this.storyManager.createChoices();
     }
   }
 
@@ -813,17 +819,6 @@ class SettingsManager {
       settingsCount: Object.keys(this.settings).length,
     };
   }
-
-  static _error(message, error = null) {
-    window.errorManager.error(message, error, SettingsManager.errorSource);
-  }
-
-  static _warning(message, error = null) {
-    window.errorManager.warning(message, error, SettingsManager.errorSource);
-  }
-
-  static _critical(message, error = null) {
-    window.errorManager.critical(message, error, SettingsManager.errorSource);
-  }
 }
+
 export { SettingsManager };
