@@ -1,6 +1,3 @@
-// main.js
-// Main entry point - load story and initialize the application
-
 import { StoryManager } from "./story-manager.js";
 import { ErrorManager } from "./error-manager.js";
 
@@ -23,24 +20,19 @@ fetch("story.json")
   .then((storyContent) => {
     try {
       window.StoryFeatures.scan(storyContent);
-
-      // Initialize the story manager which handles everything
       window.storyManager = new StoryManager(storyContent);
 
-      // Hide loading screen
       const loadingScreen = document.getElementById("loading-screen");
       if (loadingScreen) {
         loadingScreen.classList.add("hidden");
         setTimeout(() => loadingScreen.remove(), 300);
       }
 
-      // Signal content is ready to screen readers
       const mainContent = document.getElementById("main-content");
       if (mainContent) {
         mainContent.removeAttribute("aria-busy");
       }
 
-      // Optional: expose for debugging in development
       if (
         window.location.hostname === "localhost" ||
         window.location.hostname === "127.0.0.1"
@@ -82,7 +74,6 @@ function showFallbackUI(error) {
   const storyContainer = document.getElementById("story");
   if (!storyContainer) return;
 
-  // Hide loading screen even on error
   const loadingScreen = document.getElementById("loading-screen");
   if (loadingScreen) {
     loadingScreen.classList.add("hidden");
@@ -126,9 +117,6 @@ function showFallbackUI(error) {
   `;
 }
 
-/**
- * Help users find the browser console
- */
 function showConsoleHelp() {
   alert(`To check the console for error details:
 
@@ -140,5 +128,4 @@ function showConsoleHelp() {
 Look for red error messages that show what went wrong.`);
 }
 
-// Make showConsoleHelp available globally for the fallback UI
 window.showConsoleHelp = showConsoleHelp;

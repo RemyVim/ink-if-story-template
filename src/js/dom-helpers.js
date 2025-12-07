@@ -1,8 +1,8 @@
-// dom-helpers.js
 import { ErrorManager } from "./error-manager.js";
 
 class DOMHelpers {
   static errorSource = ErrorManager.SOURCES.DOM_HELPERS;
+
   constructor(storyContainer) {
     if (!storyContainer || !(storyContainer instanceof Element)) {
       DOMHelpers._critical(
@@ -15,68 +15,6 @@ class DOMHelpers {
     this.storyContainer = storyContainer;
   }
 
-  static _error(message, error = null) {
-    window.errorManager.error(message, error, DOMHelpers.errorSource);
-  }
-
-  static _warning(message, error = null) {
-    window.errorManager.warning(message, error, DOMHelpers.errorSource);
-  }
-
-  static _critical(message, error = null) {
-    window.errorManager.critical(message, error, DOMHelpers.errorSource);
-  }
-
-  // Remove all elements that match the given selector
-  removeAll(selector) {
-    if (!selector || typeof selector !== "string") {
-      DOMHelpers._warning("Invalid selector passed to removeAll");
-      return;
-    }
-
-    const allElements = this.storyContainer.querySelectorAll(selector);
-
-    for (let i = 0; i < allElements.length; i++) {
-      const el = allElements[i];
-      try {
-        if (el?.parentNode) {
-          el.parentNode.removeChild(el);
-        }
-      } catch (error) {
-        DOMHelpers._warning(`Failed to remove element at index ${i}`, error);
-      }
-    }
-  }
-
-  // Used for hiding and showing elements
-  setVisible(selector, visible) {
-    if (!selector || typeof selector !== "string") {
-      DOMHelpers._warning("Invalid selector passed to setVisible");
-      return;
-    }
-
-    const allElements = this.storyContainer.querySelectorAll(selector);
-
-    for (let i = 0; i < allElements.length; i++) {
-      const el = allElements[i];
-      try {
-        if (!el?.classList) continue;
-
-        if (!visible) {
-          el.classList.add("invisible");
-        } else {
-          el.classList.remove("invisible");
-        }
-      } catch (error) {
-        DOMHelpers._warning(
-          `Failed to set visibility for element at index ${i}`,
-          error,
-        );
-      }
-    }
-  }
-
-  // Create a paragraph element with text and classes
   createParagraph(text, customClasses = []) {
     if (!text || typeof text !== "string") {
       DOMHelpers._warning("Invalid text passed to createParagraph");
@@ -94,7 +32,6 @@ class DOMHelpers {
       const paragraphElement = document.createElement("p");
       paragraphElement.innerHTML = text;
 
-      // Add custom classes safely
       for (const className of customClasses) {
         if (className && typeof className === "string") {
           paragraphElement.classList.add(className);
@@ -109,7 +46,16 @@ class DOMHelpers {
     }
   }
 
-  // Create a choice element
+  /**
+   * Create a choice element with optional key hint and tone indicators
+   * @param {string} choiceText - Choice display text
+   * @param {string[]} [customClasses] - Additional CSS classes
+   * @param {boolean} [isClickable=true] - Whether choice is clickable
+   * @param {string|null} [keyHint] - Keyboard shortcut hint (e.g., "1", "a")
+   * @param {boolean} [showHint=true] - Whether to display the key hint
+   * @param {Array} [toneIndicators] - Array of {icon, label} objects
+   * @returns {HTMLElement|null}
+   */
   createChoice(
     choiceText,
     customClasses = [],
@@ -134,20 +80,17 @@ class DOMHelpers {
       const choiceParagraphElement = document.createElement("p");
       choiceParagraphElement.classList.add("choice");
 
-      // Add custom classes safely
       for (const className of customClasses) {
         if (className && typeof className === "string") {
           choiceParagraphElement.classList.add(className);
         }
       }
 
-      // Build tone indicator HTML
       let leadingToneHTML = "";
       let trailingToneHTML = "";
-      let srOnlyLabels = ""; // Single sr-only element with all labels
+      let srOnlyLabels = "";
 
       if (toneIndicators.length > 0) {
-        // Build the sr-only text (all labels grouped)
         const labelList = toneIndicators.map((ind) => ind.label).join(", ");
         srOnlyLabels = `<span class="sr-only"> (${labelList})</span>`;
 
@@ -178,7 +121,6 @@ class DOMHelpers {
         }
       }
 
-      // Build the choice content
       const hintPrefix =
         keyHint && showHint
           ? `<span class="choice-key-hint">${keyHint}.</span> `
@@ -198,7 +140,6 @@ class DOMHelpers {
     }
   }
 
-  // Add click handler to choice
   addChoiceClickHandler(choiceElement, callback) {
     if (!choiceElement || !(choiceElement instanceof Element)) {
       DOMHelpers._warning(
@@ -229,7 +170,53 @@ class DOMHelpers {
     }
   }
 
-  // Clear story content but preserve certain elements
+  removeAll(selector) {
+    if (!selector || typeof selector !== "string") {
+      DOMHelpers._warning("Invalid selector passed to removeAll");
+      return;
+    }
+
+    const allElements = this.storyContainer.querySelectorAll(selector);
+
+    for (let i = 0; i < allElements.length; i++) {
+      const el = allElements[i];
+      try {
+        if (el?.parentNode) {
+          el.parentNode.removeChild(el);
+        }
+      } catch (error) {
+        DOMHelpers._warning(`Failed to remove element at index ${i}`, error);
+      }
+    }
+  }
+
+  setVisible(selector, visible) {
+    if (!selector || typeof selector !== "string") {
+      DOMHelpers._warning("Invalid selector passed to setVisible");
+      return;
+    }
+
+    const allElements = this.storyContainer.querySelectorAll(selector);
+
+    for (let i = 0; i < allElements.length; i++) {
+      const el = allElements[i];
+      try {
+        if (!el?.classList) continue;
+
+        if (!visible) {
+          el.classList.add("invisible");
+        } else {
+          el.classList.remove("invisible");
+        }
+      } catch (error) {
+        DOMHelpers._warning(
+          `Failed to set visibility for element at index ${i}`,
+          error,
+        );
+      }
+    }
+  }
+
   clearStoryContent() {
     this.removeAll("p");
     this.removeAll("img");
@@ -238,7 +225,6 @@ class DOMHelpers {
     this.removeAll(".user-input-inline-container");
   }
 
-  // Scroll container to top
   scrollToTop(container) {
     if (!container || !(container instanceof Element)) {
       DOMHelpers._warning("Invalid container passed to scrollToTop");
@@ -259,18 +245,26 @@ class DOMHelpers {
     }
   }
 
-  /**
-   * Validate that DOM helpers are in working condition
-   * @returns {boolean} True if DOM helpers are ready
-   */
+  recover() {
+    if (!this.storyContainer?.parentNode) {
+      const newContainer = document.querySelector("#story");
+      if (newContainer) {
+        this.storyContainer = newContainer;
+        DOMHelpers._warning(
+          "DOM helpers recovered by finding new story container",
+        );
+      } else {
+        DOMHelpers._error(
+          "DOM helpers recovery failed - no story container found",
+        );
+      }
+    }
+  }
+
   isReady() {
     return !!this.storyContainer?.parentNode;
   }
 
-  /**
-   * Get DOM helper statistics for debugging
-   * @returns {Object} DOM statistics
-   */
   getStats() {
     if (!this.storyContainer) {
       return { hasContainer: false };
@@ -287,24 +281,16 @@ class DOMHelpers {
     };
   }
 
-  /**
-   * Attempt to recover from errors by validating container
-   */
-  recover() {
-    if (!this.storyContainer?.parentNode) {
-      // Try to find the story container again
-      const newContainer = document.querySelector("#story");
-      if (newContainer) {
-        this.storyContainer = newContainer;
-        DOMHelpers._warning(
-          "DOM helpers recovered by finding new story container",
-        );
-      } else {
-        DOMHelpers._error(
-          "DOM helpers recovery failed - no story container found",
-        );
-      }
-    }
+  static _error(message, error = null) {
+    window.errorManager.error(message, error, DOMHelpers.errorSource);
+  }
+
+  static _warning(message, error = null) {
+    window.errorManager.warning(message, error, DOMHelpers.errorSource);
+  }
+
+  static _critical(message, error = null) {
+    window.errorManager.critical(message, error, DOMHelpers.errorSource);
   }
 }
 export { DOMHelpers };

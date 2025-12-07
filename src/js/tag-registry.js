@@ -1,7 +1,3 @@
-// tag-registry.js
-// Central registry of all Ink tags supported by this template.
-// This is the single source of truth for tag names and metadata.
-
 /**
  * Tag processing phases - determines WHEN a tag is processed
  */
@@ -225,11 +221,6 @@ function getTagsByPhase(phase) {
   return Object.keys(TAGS).filter((tag) => TAGS[tag].phase === phase);
 }
 
-/**
- * Helper: Check if a tag exists in the registry
- * @param {string} tagName - Tag name (case-insensitive)
- * @returns {boolean}
- */
 function isKnownTag(tagName) {
   if (!tagName || typeof tagName !== "string") return false;
   return TAG_LOOKUP[tagName.toUpperCase()] !== undefined;

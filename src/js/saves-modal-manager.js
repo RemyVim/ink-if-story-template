@@ -1,4 +1,3 @@
-// saves-modal-manager.js
 import { ErrorManager } from "./error-manager.js";
 import { BaseModal } from "./base-modal.js";
 
@@ -6,6 +5,7 @@ const REFRESH_DELAY_MS = 100;
 
 class SavesModalManager {
   static errorSource = ErrorManager.SOURCES.SAVES_MODAL;
+
   constructor(gameSaveSystem) {
     this.gameSaveSystem = gameSaveSystem;
     this.maxSaveSlots = gameSaveSystem.maxSaveSlots;
@@ -28,18 +28,6 @@ class SavesModalManager {
     this.createConfirmModal();
   }
 
-  static _error(message, error = null) {
-    window.errorManager.error(message, error, SavesModalManager.errorSource);
-  }
-
-  static _warning(message, error = null) {
-    window.errorManager.warning(message, error, SavesModalManager.errorSource);
-  }
-
-  static _critical(message, error = null) {
-    window.errorManager.critical(message, error, SavesModalManager.errorSource);
-  }
-
   createModal() {
     this.modal = new BaseModal({
       title: "Save & Load Game",
@@ -48,6 +36,7 @@ class SavesModalManager {
       onShow: () => this.populateSaveSlots(),
     });
   }
+
   createConfirmModal() {
     this.confirmModal = new BaseModal({
       title: "Confirm",
@@ -82,7 +71,6 @@ class SavesModalManager {
 
     this.modal.setContent(contentHTML);
 
-    // Set footer with close button
     const footer = this.modal.getFooter();
     if (footer) {
       footer.innerHTML = "";
@@ -99,13 +87,15 @@ class SavesModalManager {
     this.setupSlotEventListeners();
   }
 
+  showNotification(message, isError = false, duration = 4000) {
+    this.modal?.showNotification(message, isError, duration);
+  }
+
   generateSaveSlotsHTML() {
     let html = "";
 
-    // Add autosave slot first
     html += this.createSaveSlotHTML(this.autosaveSlot, true);
 
-    // Add regular save slots
     for (let i = 1; i <= this.maxSaveSlots; i++) {
       html += this.createSaveSlotHTML(i, false);
     }
@@ -113,6 +103,10 @@ class SavesModalManager {
     return html;
   }
 
+  /**
+   * @param {number} slotNumber - Slot number (0 = autosave)
+   * @param {boolean} isAutosave - Whether this is the autosave slot
+   */
   createSaveSlotHTML(slotNumber, isAutosave = false) {
     try {
       const saveData = this.gameSaveSystem.getSaveData(slotNumber);
@@ -192,30 +186,7 @@ class SavesModalManager {
   setupSlotEventListeners() {
     if (!this.modal?.modalElement) return;
 
-    this.setupSlotHoverEffects();
     this.setupSlotActionHandlers();
-  }
-
-  setupSlotHoverEffects() {
-    const slots = this.modal.modalElement.querySelectorAll(".save-slot");
-
-    slots.forEach((slot) => {
-      const isAutosave = slot.classList.contains("autosave-slot");
-
-      slot.addEventListener("mouseenter", () => {
-        slot.style.background = isAutosave
-          ? "var(--color-background)"
-          : "var(--color-hover-bg)";
-        if (isAutosave) slot.style.color = "white";
-      });
-
-      slot.addEventListener("mouseleave", () => {
-        slot.style.background = isAutosave
-          ? "var(--color-hover-bg)"
-          : "transparent";
-        slot.style.color = "";
-      });
-    });
   }
 
   setupSlotActionHandlers() {
@@ -256,10 +227,6 @@ class SavesModalManager {
     });
   }
 
-  showNotification(message, isError = false, duration = 4000) {
-    this.modal?.showNotification(message, isError, duration);
-  }
-
   isReady() {
     return !!(this.modal?.isReady() && this.gameSaveSystem);
   }
@@ -272,6 +239,18 @@ class SavesModalManager {
       autosaveSlot: this.autosaveSlot,
       modalVisible: this.modal?.isVisible || false,
     };
+  }
+
+  static _error(message, error = null) {
+    window.errorManager.error(message, error, SavesModalManager.errorSource);
+  }
+
+  static _warning(message, error = null) {
+    window.errorManager.warning(message, error, SavesModalManager.errorSource);
+  }
+
+  static _critical(message, error = null) {
+    window.errorManager.critical(message, error, SavesModalManager.errorSource);
   }
 }
 export { SavesModalManager };

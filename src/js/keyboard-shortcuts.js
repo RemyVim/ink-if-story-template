@@ -1,5 +1,3 @@
-// keyboard-shortcuts.js
-// Handles all keyboard shortcuts for the story application
 import { ErrorManager } from "./error-manager.js";
 
 const SMALL_SCROLL_PERCENT = 0.15; // ~15% of viewport
@@ -13,24 +11,19 @@ class KeyboardShortcuts {
     this.init();
   }
 
-  static _error(message, error = null) {
-    window.errorManager.error(message, error, KeyboardShortcuts.errorSource);
-  }
-
-  static _warning(message, error = null) {
-    window.errorManager.warning(message, error, KeyboardShortcuts.errorSource);
-  }
-
-  static _critical(message, error = null) {
-    window.errorManager.critical(message, error, KeyboardShortcuts.errorSource);
-  }
-
   init() {
     document.addEventListener("keydown", (event) => this.handleKeyDown(event));
   }
 
+  enable() {
+    this.enabled = true;
+  }
+
+  disable() {
+    this.enabled = false;
+  }
+
   handleKeyDown(event) {
-    // Only handle shortcuts if story manager is initialized
     if (!window.storyManager || !this.enabled) return;
 
     // Ignore Alt key combinations (used by browser/OS)
@@ -51,19 +44,6 @@ class KeyboardShortcuts {
     if (this.handleScrolling(event)) return;
 
     this.handleChoiceSelection(event);
-  }
-
-  isTypingInInput(event) {
-    return (
-      event.target.tagName === "INPUT" || event.target.tagName === "TEXTAREA"
-    );
-  }
-
-  isInStoryArea() {
-    const active = document.activeElement;
-    const outerContainer = document.querySelector(".outerContainer");
-
-    return active === document.body || outerContainer?.contains(active);
   }
 
   handleModifierShortcuts(event) {
@@ -151,38 +131,45 @@ class KeyboardShortcuts {
     const key = event.key.toLowerCase();
     let choiceIndex = null;
 
-    // Check for 1-9
     if (key >= "1" && key <= "9") {
       choiceIndex = parseInt(key) - 1;
-    }
-    // Check for a-z (for choices 10+)
-    else if (key >= "a" && key <= "z") {
+    } else if (key >= "a" && key <= "z") {
+      // Check for a-z (for choices 10+)
       choiceIndex = 9 + (key.charCodeAt(0) - 97);
     }
 
-    // Validate and select
     if (choiceIndex !== null && choiceIndex < choices.length) {
       event.preventDefault();
       window.storyManager.selectChoice(choiceIndex);
     }
   }
 
-  /**
-   * Enable keyboard shortcuts
-   */
-  enable() {
-    this.enabled = true;
+  isTypingInInput(event) {
+    return (
+      event.target.tagName === "INPUT" || event.target.tagName === "TEXTAREA"
+    );
   }
 
-  /**
-   * Disable keyboard shortcuts
-   */
-  disable() {
-    this.enabled = false;
+  isInStoryArea() {
+    const active = document.activeElement;
+    const outerContainer = document.querySelector(".outerContainer");
+
+    return active === document.body || outerContainer?.contains(active);
+  }
+
+  static _error(message, error = null) {
+    window.errorManager.error(message, error, KeyboardShortcuts.errorSource);
+  }
+
+  static _warning(message, error = null) {
+    window.errorManager.warning(message, error, KeyboardShortcuts.errorSource);
+  }
+
+  static _critical(message, error = null) {
+    window.errorManager.critical(message, error, KeyboardShortcuts.errorSource);
   }
 }
 
-// Initialize keyboard shortcuts when DOM is ready
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => {
     window.keyboardShortcuts = new KeyboardShortcuts();

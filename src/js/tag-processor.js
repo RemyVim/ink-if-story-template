@@ -1,4 +1,3 @@
-// tag-processor.js
 import { ErrorManager } from "./error-manager.js";
 import { TagRegistry } from "./tag-registry.js";
 
@@ -15,7 +14,6 @@ class TagProcessor {
 
     const { TAGS } = window.TagRegistry || {};
 
-    // Handler map keyed by tag definition objects
     this.tagHandlers = new Map([
       [
         TAGS.AUDIO,
@@ -93,18 +91,6 @@ class TagProcessor {
     ]);
   }
 
-  static _error(message, error = null) {
-    window.errorManager.error(message, error, TagProcessor.errorSource);
-  }
-
-  static _warning(message, error = null) {
-    window.errorManager.warning(message, error, TagProcessor.errorSource);
-  }
-
-  static _critical(message, error = null) {
-    window.errorManager.critical(message, error, TagProcessor.errorSource);
-  }
-
   processLineTags(tags) {
     try {
       if (!Array.isArray(tags)) {
@@ -150,39 +136,34 @@ class TagProcessor {
     for (const tag of tags) {
       const { tagDef, tagValue, invalid, error } = TagRegistry.parseTag(tag);
 
-      // Skip invalid tags (already warned in parseTag)
       if (invalid) {
         if (error) TagProcessor._warning(error);
         continue;
       }
 
-      // Check property tag handlers
       const handler = this.tagHandlers.get(tagDef);
       if (handler) {
         handler(tagValue, ctx);
         continue;
       }
 
-      // Check simple tag handlers
       const simpleHandler = this.simpleTagHandlers.get(tagDef);
       if (simpleHandler) {
         simpleHandler(ctx);
         continue;
       }
 
-      // Known marker tag (handled elsewhere) - skip silently
       if (tagDef !== null) {
+        // Known marker tag (handled elsewhere) - skip silently
         continue;
       }
 
-      // Unknown tag handling
       if (!tag || typeof tag !== "string") continue;
 
       const isPropertyTag = tag.includes(":");
       const tagName = isPropertyTag ? tag.split(":")[0].trim() : tag.trim();
       if (!tagName) continue;
 
-      // Tone indicators (choices only, simple tags only)
       if (
         allowTones &&
         !isPropertyTag &&
@@ -192,20 +173,17 @@ class TagProcessor {
         continue;
       }
 
-      // Warn and skip
       this.warnUnknownTag(tagName, context, tag);
     }
   }
 
-  // Media and interaction methods
   playAudio(src) {
     try {
-      // Check if audio is enabled in settings
       if (
         window.storyManager?.settings &&
         !window.storyManager.settings.getSetting("audioEnabled")
       ) {
-        return; // Skip audio if disabled
+        return;
       }
 
       if (!src || typeof src !== "string") {
@@ -213,7 +191,6 @@ class TagProcessor {
         return;
       }
 
-      // Stop existing audio
       if (this.audio) {
         this.audio.pause();
         this.audio.removeAttribute("src");
@@ -236,7 +213,6 @@ class TagProcessor {
         return;
       }
 
-      // Handle stopping audio loop (always process this, even if audio disabled)
       if (src.toLowerCase() === "none" || src === "stop") {
         this.lastAudioLoopSrc = null;
         if (this.audioLoop) {
@@ -248,18 +224,15 @@ class TagProcessor {
         return;
       }
 
-      // Store the source for potential resuming
       this.lastAudioLoopSrc = src;
 
-      // Check if audio is enabled in settings
       if (
         window.storyManager?.settings &&
         !window.storyManager.settings.getSetting("audioEnabled")
       ) {
-        return; // Audio disabled, but we've stored the source
+        return;
       }
 
-      // Stop existing audio loop
       if (this.audioLoop) {
         this.audioLoop.pause();
         this.audioLoop.removeAttribute("src");
@@ -277,9 +250,6 @@ class TagProcessor {
     }
   }
 
-  /**
-   * Stop all currently playing audio
-   */
   stopAllAudio() {
     try {
       if (this.audio) {
@@ -300,9 +270,6 @@ class TagProcessor {
     }
   }
 
-  /**
-   * Resume audioloop if there was one playing
-   */
   resumeAudioLoop() {
     try {
       if (
@@ -313,12 +280,6 @@ class TagProcessor {
       }
     } catch (error) {
       TagProcessor._warning("Failed to resume audio loop", error);
-    }
-  }
-
-  showNotification(message, type = "info", duration = 4000) {
-    if (window.notificationManager) {
-      window.notificationManager.show(message, { type, duration });
     }
   }
 
@@ -336,7 +297,6 @@ class TagProcessor {
         return;
       }
 
-      // Handle removing background
       if (src.toLowerCase() === "none" || src === "") {
         this.outerScrollContainer.style.backgroundImage = "none";
       } else {
@@ -344,6 +304,12 @@ class TagProcessor {
       }
     } catch (error) {
       TagProcessor._error("Failed to set background", error);
+    }
+  }
+
+  showNotification(message, type = "info", duration = 4000) {
+    if (window.notificationManager) {
+      window.notificationManager.show(message, { type, duration });
     }
   }
 
@@ -362,10 +328,8 @@ class TagProcessor {
 
     let suggestion = "";
     if (similar.length > 0) {
-      // We have similar tags - suggest those
       suggestion = ` Did you mean: ${similar.join(", ")}?`;
     } else {
-      // No similar tags - give usage hint
       if (context === "line") {
         suggestion = " Use # CLASS: for custom CSS classes.";
       } else if (context === "choice") {
@@ -393,21 +357,15 @@ class TagProcessor {
 
     return knownTags
       .filter((known) => {
-        // Prefix match (3+ chars)
         if (input.length >= 3 && known.startsWith(input.slice(0, 3)))
           return true;
         if (known.length >= 3 && input.startsWith(known.slice(0, 3)))
           return true;
-        // Simple edit distance check (off by 1-2 chars)
         return window.Utils.levenshteinDistance(input, known) <= 2;
       })
       .slice(0, 3);
   }
 
-  /**
-   * Check if tag processor is ready to use
-   * @returns {boolean} True if ready
-   */
   isReady() {
     try {
       return !!(this.storyContainer || this.outerScrollContainer);
@@ -417,10 +375,6 @@ class TagProcessor {
     }
   }
 
-  /**
-   * Get tag processor statistics
-   * @returns {Object} Tag processor stats
-   */
   getStats() {
     try {
       return {
@@ -435,9 +389,6 @@ class TagProcessor {
     }
   }
 
-  /**
-   * Clean up audio resources
-   */
   cleanup() {
     try {
       if (this.audio) {
@@ -451,6 +402,18 @@ class TagProcessor {
     } catch (error) {
       TagProcessor._warning("Failed to cleanup", error);
     }
+  }
+
+  static _error(message, error = null) {
+    window.errorManager.error(message, error, TagProcessor.errorSource);
+  }
+
+  static _warning(message, error = null) {
+    window.errorManager.warning(message, error, TagProcessor.errorSource);
+  }
+
+  static _critical(message, error = null) {
+    window.errorManager.critical(message, error, TagProcessor.errorSource);
   }
 }
 

@@ -1,4 +1,3 @@
-// display-manager.js
 import { ErrorManager } from "./error-manager.js";
 import { MarkdownProcessor } from "./markdown-processor.js";
 import { DOMHelpers } from "./dom-helpers.js";
@@ -19,18 +18,6 @@ class DisplayManager {
     }
 
     this.domHelpers = new DOMHelpers(this.container);
-  }
-
-  static _error(message, error = null) {
-    window.errorManager.error(message, error, DisplayManager.errorSource);
-  }
-
-  static _warning(message, error = null) {
-    window.errorManager.warning(message, error, DisplayManager.errorSource);
-  }
-
-  static _critical(message, error = null) {
-    window.errorManager.critical(message, error, DisplayManager.errorSource);
   }
 
   /**
@@ -123,13 +110,7 @@ class DisplayManager {
     });
   }
 
-  /**
-   * Create a DOM element from a content object
-   * @param {Object} content - Content object with text and classes
-   * @returns {HTMLElement|null} The created element or null if failed
-   */
   createElement(content) {
-    // Validate content object
     if (!content?.text || typeof content.text !== "string") {
       DisplayManager._warning("createElement called with invalid content");
       return null;
@@ -160,6 +141,61 @@ class DisplayManager {
     }
   }
 
+  createImage(item) {
+    const imageElement = document.createElement("img");
+    imageElement.src = item.src;
+    imageElement.className = "story-image";
+
+    if (item.altText) {
+      imageElement.alt = item.altText;
+    } else {
+      imageElement.alt = "";
+    }
+
+    if (item.alignment) {
+      imageElement.classList.add(`image-${item.alignment}`);
+    }
+
+    if (item.width) {
+      imageElement.style.width = item.width;
+    }
+
+    imageElement.onerror = () => {
+      DisplayManager._warning(`Failed to load image: ${item.src}`);
+    };
+
+    let elementToInsert;
+
+    if (item.showCaption && item.altText) {
+      const figure = document.createElement("figure");
+      figure.className = "story-figure";
+
+      if (item.alignment) {
+        figure.classList.add(`figure-${item.alignment}`);
+        imageElement.classList.remove(`image-${item.alignment}`);
+      }
+
+      if (item.width) {
+        figure.style.width = item.width;
+        imageElement.style.width = "100%";
+      }
+
+      const figcaption = document.createElement("figcaption");
+      figcaption.className = "story-caption";
+      figcaption.textContent = item.altText;
+
+      figure.appendChild(imageElement);
+      figure.appendChild(figcaption);
+      elementToInsert = figure;
+    } else {
+      elementToInsert = imageElement;
+    }
+
+    this.container.appendChild(elementToInsert);
+
+    return elementToInsert;
+  }
+
   createStatBar(item) {
     const value = this.getStatValue(item.variableName);
     const calculations = this.calculateStatBarMetrics(item, value);
@@ -172,6 +208,81 @@ class DisplayManager {
     return element;
   }
 
+  createUserInput(item) {
+    const container = document.createElement("div");
+    container.className = "user-input-inline-container";
+
+    const placeholder = item.placeholder || "Type your answer here...";
+
+    container.innerHTML = `
+    <div class="user-input-prompt">
+      <input type="text" class="user-input-inline-field" 
+             placeholder="${placeholder}" 
+             maxlength="100" autocomplete="off">
+      <button class="user-input-submit-btn">Submit</button>
+    </div>
+    <div class="user-input-help">Press Enter or click Submit to continue</div>
+  `;
+
+    this.container.appendChild(container);
+
+    const inputField = container.querySelector(".user-input-inline-field");
+    const submitBtn = container.querySelector(".user-input-submit-btn");
+
+    setTimeout(() => inputField.focus(), 100);
+
+    const submitInput = () => {
+      const userInput = inputField.value.trim();
+
+      if (!userInput) {
+        inputField.style.borderColor = "var(--color-important)";
+        inputField.placeholder = "Please enter a value...";
+        inputField.focus();
+        return;
+      }
+
+      try {
+        window.storyManager.story.variablesState.$(
+          item.variableName,
+          userInput,
+        );
+
+        // Restore state to before this content batch and re-set variable
+        if (window.storyManager.stateBeforeUserInput) {
+          window.storyManager.story.state.LoadJson(
+            window.storyManager.stateBeforeUserInput,
+          );
+          window.storyManager.story.variablesState.$(
+            item.variableName,
+            userInput,
+          );
+          window.storyManager.stateBeforeUserInput = null;
+        }
+
+        // Set flag so content-processor knows to skip input on re-process
+        // and clear and re-render with variable now set
+        window.storyManager.reprocessingAfterUserInput = true;
+        window.storyManager.continue();
+        window.storyManager.reprocessingAfterUserInput = false;
+      } catch (error) {
+        DisplayManager._error("Failed to set user input variable", error);
+        inputField.style.borderColor = "var(--color-important)";
+        inputField.placeholder = "Error - please try again...";
+      }
+    };
+
+    submitBtn.addEventListener("click", submitInput);
+    inputField.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") submitInput();
+    });
+
+    inputField.addEventListener("input", () => {
+      inputField.style.borderColor = "";
+    });
+
+    return container;
+  }
+
   getStatValue(variableName) {
     try {
       return window.storyManager?.story?.variablesState?.[variableName] ?? 0;
@@ -180,6 +291,12 @@ class DisplayManager {
     }
   }
 
+  /**
+   * Calculate stat bar display metrics
+   * @param {Object} item - Stat bar config with min, max, clamp
+   * @param {number} currentValue - Current variable value
+   * @returns {{fillPercent: number, displayValue: number, displayLeft: number, displayRight: number}}
+   */
   calculateStatBarMetrics(item, currentValue) {
     const range = item.max - item.min;
     const fillPercent =
@@ -251,143 +368,6 @@ class DisplayManager {
     return container;
   }
 
-  createImage(item) {
-    const imageElement = document.createElement("img");
-    imageElement.src = item.src;
-    imageElement.className = "story-image";
-
-    if (item.altText) {
-      imageElement.alt = item.altText;
-    } else {
-      imageElement.alt = "";
-    }
-
-    if (item.alignment) {
-      imageElement.classList.add(`image-${item.alignment}`);
-    }
-
-    if (item.width) {
-      imageElement.style.width = item.width;
-    }
-
-    imageElement.onerror = () => {
-      DisplayManager._warning(`Failed to load image: ${item.src}`);
-    };
-
-    let elementToInsert;
-
-    if (item.showCaption && item.altText) {
-      const figure = document.createElement("figure");
-      figure.className = "story-figure";
-
-      if (item.alignment) {
-        figure.classList.add(`figure-${item.alignment}`);
-        imageElement.classList.remove(`image-${item.alignment}`);
-      }
-
-      if (item.width) {
-        figure.style.width = item.width;
-        imageElement.style.width = "100%";
-      }
-
-      const figcaption = document.createElement("figcaption");
-      figcaption.className = "story-caption";
-      figcaption.textContent = item.altText;
-
-      figure.appendChild(imageElement);
-      figure.appendChild(figcaption);
-      elementToInsert = figure;
-    } else {
-      elementToInsert = imageElement;
-    }
-
-    this.container.appendChild(elementToInsert);
-
-    return elementToInsert;
-  }
-
-  createUserInput(item) {
-    const container = document.createElement("div");
-    container.className = "user-input-inline-container";
-
-    const placeholder = item.placeholder || "Type your answer here...";
-
-    container.innerHTML = `
-    <div class="user-input-prompt">
-      <input type="text" class="user-input-inline-field" 
-             placeholder="${placeholder}" 
-             maxlength="100" autocomplete="off">
-      <button class="user-input-submit-btn">Submit</button>
-    </div>
-    <div class="user-input-help">Press Enter or click Submit to continue</div>
-  `;
-
-    this.container.appendChild(container);
-
-    const inputField = container.querySelector(".user-input-inline-field");
-    const submitBtn = container.querySelector(".user-input-submit-btn");
-
-    // Focus the input
-    setTimeout(() => inputField.focus(), 100);
-
-    // Handle submission
-    const submitInput = () => {
-      const userInput = inputField.value.trim();
-
-      if (!userInput) {
-        inputField.style.borderColor = "var(--color-important)";
-        inputField.placeholder = "Please enter a value...";
-        inputField.focus();
-        return;
-      }
-
-      try {
-        // Set the Ink variable
-        window.storyManager.story.variablesState.$(
-          item.variableName,
-          userInput,
-        );
-
-        // Restore state to before this content batch and re-set variable
-        if (window.storyManager.stateBeforeUserInput) {
-          window.storyManager.story.state.LoadJson(
-            window.storyManager.stateBeforeUserInput,
-          );
-          window.storyManager.story.variablesState.$(
-            item.variableName,
-            userInput,
-          );
-          window.storyManager.stateBeforeUserInput = null;
-        }
-
-        // Set flag so content-processor knows to skip input on re-process
-        window.storyManager.reprocessingAfterUserInput = true;
-
-        // Continue the story (clears and re-renders with variable now set)
-        window.storyManager.continue();
-
-        // Clear the flag after continue completes
-        window.storyManager.reprocessingAfterUserInput = false;
-      } catch (error) {
-        DisplayManager._error("Failed to set user input variable", error);
-        inputField.style.borderColor = "var(--color-important)";
-        inputField.placeholder = "Error - please try again...";
-      }
-    };
-
-    // Event listeners
-    submitBtn.addEventListener("click", submitInput);
-    inputField.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") submitInput();
-    });
-
-    inputField.addEventListener("input", () => {
-      inputField.style.borderColor = "";
-    });
-
-    return container;
-  }
-
   shouldAnimateContent() {
     try {
       const settings = window.storyManager?.settings;
@@ -401,6 +381,7 @@ class DisplayManager {
       return true;
     }
   }
+
   fadeInElement(element) {
     if (!element) return;
     try {
@@ -412,9 +393,6 @@ class DisplayManager {
     }
   }
 
-  /**
-   * Clear all story content and reset history
-   */
   clear() {
     if (!this.domHelpers) {
       DisplayManager._error("Cannot clear - DOM helpers not available");
@@ -425,9 +403,6 @@ class DisplayManager {
     this.history = [];
   }
 
-  /**
-   * Clear content but preserve history (for regenerating from saves)
-   */
   clearContent() {
     if (!this.domHelpers) {
       DisplayManager._error("Cannot clear content - DOM helpers not available");
@@ -437,9 +412,6 @@ class DisplayManager {
     this.domHelpers.clearStoryContent();
   }
 
-  /**
-   * Scroll the container to the top
-   */
   scrollToTop() {
     if (!this.scrollContainer) {
       DisplayManager._warning("Cannot scroll - scroll container not available");
@@ -454,33 +426,32 @@ class DisplayManager {
     this.domHelpers.scrollToTop(this.scrollContainer);
   }
 
-  /**
-   * Hide the story header
-   */
   hideHeader() {
     this.domHelpers?.setVisible?.(".header", false);
   }
 
-  /**
-   * Show the story header
-   */
   showHeader() {
     this.domHelpers?.setVisible?.(".header", true);
   }
 
+  reset() {
+    this.clear();
+    this.showHeader();
+  }
+
   /**
-   * Get the current display state for saving
-   * @returns {Object} Current display state
+   * Get current display state for saving
+   * @returns {{history: Array}}
    */
   getState() {
     return {
-      history: [...this.history], // Copy the array
+      history: [...this.history],
     };
   }
 
   /**
-   * Restore display state from a saved state
-   * @param {Object} state - Previously saved display state
+   * Restore display from saved state
+   * @param {{history: Array}} state - Previously saved display state
    */
   restoreState(state) {
     if (!state || typeof state !== "object") {
@@ -494,16 +465,11 @@ class DisplayManager {
     const savedHistory = Array.isArray(state.history) ? state.history : [];
     this.history = [];
 
-    // Re-render all saved items (this will rebuild history too)
     if (savedHistory.length > 0) {
       this.render(savedHistory);
     }
   }
 
-  /**
-   * Track a content item in the display history
-   * @param {Object} item - Content item to track
-   */
   trackInHistory(item) {
     if (!item || typeof item !== "object") {
       DisplayManager._warning("Invalid item passed to trackInHistory");
@@ -516,34 +482,36 @@ class DisplayManager {
     });
   }
 
-  /**
-   * Reset the display to initial state
-   */
-  reset() {
-    this.clear();
-    this.showHeader();
-  }
-
-  /**
-   * Get the number of items in display history
-   * @returns {number} Number of items in history
-   */
   getHistoryLength() {
     return this.history.length;
   }
 
-  /**
-   * Check if display has any content
-   * @returns {boolean} True if display has content
-   */
   hasContent() {
     return this.history.length > 0;
   }
 
-  /**
-   * Get display statistics for debugging
-   * @returns {Object} Display statistics
-   */
+  recover() {
+    if (!this.container) {
+      this.container = document.querySelector("#story");
+    }
+
+    if (!this.scrollContainer) {
+      this.scrollContainer = document.querySelector(".outerContainer");
+    }
+
+    if (!this.domHelpers && this.container) {
+      this.domHelpers = new DOMHelpers(this.container);
+    }
+
+    if (!Array.isArray(this.history)) {
+      this.history = [];
+    }
+  }
+
+  isReady() {
+    return !!(this.container && this.domHelpers);
+  }
+
   getStats() {
     return {
       historyLength: this.history.length,
@@ -556,36 +524,17 @@ class DisplayManager {
     };
   }
 
-  /**
-   * Validate that the display manager is in a working state
-   * @returns {boolean} True if display manager is ready to use
-   */
-  isReady() {
-    return !!(this.container && this.domHelpers);
+  static _error(message, error = null) {
+    window.errorManager.error(message, error, DisplayManager.errorSource);
   }
 
-  /**
-   * Attempt to recover from a broken state
-   */
-  recover() {
-    // Try to re-find container elements
-    if (!this.container) {
-      this.container = document.querySelector("#story");
-    }
+  static _warning(message, error = null) {
+    window.errorManager.warning(message, error, DisplayManager.errorSource);
+  }
 
-    if (!this.scrollContainer) {
-      this.scrollContainer = document.querySelector(".outerContainer");
-    }
-
-    // Try to recreate DOM helpers if missing
-    if (!this.domHelpers && this.container) {
-      this.domHelpers = new DOMHelpers(this.container);
-    }
-
-    // Clear any corrupted history
-    if (!Array.isArray(this.history)) {
-      this.history = [];
-    }
+  static _critical(message, error = null) {
+    window.errorManager.critical(message, error, DisplayManager.errorSource);
   }
 }
+
 export { DisplayManager };

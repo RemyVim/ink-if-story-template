@@ -1,4 +1,3 @@
-// error-manager.js
 class ErrorManager {
   static SOURCES = {
     CHOICE_MANAGER: "Choice Manager",
@@ -8,6 +7,7 @@ class ErrorManager {
     KEYBOARD_HELP: "Keyboard Help",
     KEYBOARD_SHORTCUTS: "Keyboard Shortcuts",
     MODAL: "Modal",
+    MARKDOWN: "Markdown Processor",
     NAVIGATION_MANAGER: "Navigation Manager",
     PAGE_MANAGER: "Page Manager",
     SAVES_MODAL: "Saves Modal",
@@ -41,8 +41,64 @@ class ErrorManager {
     });
   }
 
+  critical(message, error, source) {
+    this.handleError(message, error, source, "critical");
+  }
+
+  error(message, error, source) {
+    this.handleError(message, error, source, "error");
+  }
+
+  warning(message, error, source) {
+    this.handleError(message, error, source, "warning");
+  }
+
+  /**
+   * Execute a function safely, catching any errors
+   * @param {Function} func - Function to execute
+   * @param {*} [fallback=null] - Value to return if function throws
+   * @returns {*} Function result or fallback
+   */
+  safely(func, fallback = null) {
+    try {
+      return func();
+    } catch (error) {
+      this.handleError(
+        "Safe execution failed",
+        error,
+        ErrorManager.SOURCES.SYSTEM,
+      );
+      return fallback;
+    }
+  }
+
+  /**
+   * Execute an async function safely, catching any errors
+   * @param {Function} func - Async function to execute
+   * @param {*} [fallback=null] - Value to return if function throws
+   * @returns {Promise<*>} Function result or fallback
+   */
+  async safelyAsync(func, fallback = null) {
+    try {
+      return await func();
+    } catch (error) {
+      this.handleError(
+        "Safe async execution failed",
+        error,
+        ErrorManager.SOURCES.SYSTEM,
+      );
+      return fallback;
+    }
+  }
+
+  /**
+   * Core error handling with logging, notifications, and recovery
+   * @param {string} message - Error message
+   * @param {Error|*} error - Error object or details
+   * @param {string} [source='unknown'] - Error source (use ErrorManager.SOURCES)
+   * @param {string} [severity='error'] - 'warning', 'error', or 'critical'
+   */
   handleError(message, error, source = "unknown", severity = "error") {
-    // Console logging
     const prefix = `[${severity.toUpperCase()}] [${source}]`;
     console.group(`${prefix} ${message}`);
     console[severity === "warning" ? "warn" : "error"]("Message:", message);
@@ -68,12 +124,10 @@ class ErrorManager {
     );
     console.groupEnd();
 
-    // Show user notification for errors and critical issues
     if (severity === "error" || severity === "critical") {
       this.showNotification(message, severity);
     }
 
-    // For critical errors, attempt basic recovery
     if (severity === "critical") {
       this.attemptRecovery(source);
     }
@@ -127,47 +181,6 @@ class ErrorManager {
         break;
       default:
         console.error("[RECOVERY] Critical error: Failed to recover");
-    }
-  }
-
-  // Convenience methods
-  critical(message, error, source) {
-    this.handleError(message, error, source, "critical");
-  }
-
-  error(message, error, source) {
-    this.handleError(message, error, source, "error");
-  }
-
-  warning(message, error, source) {
-    this.handleError(message, error, source, "warning");
-  }
-
-  // Simplified safe wrapper - only use when absolutely necessary
-  safely(func, fallback = null) {
-    try {
-      return func();
-    } catch (error) {
-      this.handleError(
-        "Safe execution failed",
-        error,
-        ErrorManager.SOURCES.SYSTEM,
-      );
-      return fallback;
-    }
-  }
-
-  // Async safe wrapper
-  async safelyAsync(func, fallback = null) {
-    try {
-      return await func();
-    } catch (error) {
-      this.handleError(
-        "Safe async execution failed",
-        error,
-        ErrorManager.SOURCES.SYSTEM,
-      );
-      return fallback;
     }
   }
 }

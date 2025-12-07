@@ -1,4 +1,3 @@
-// choice-manager.js
 import { ErrorManager } from "./error-manager.js";
 
 class ChoiceManager {
@@ -8,22 +7,10 @@ class ChoiceManager {
     this.tagProcessor = window.tagProcessor;
   }
 
-  static _error(message, error = null) {
-    window.errorManager.error(message, error, ChoiceManager.errorSource);
-  }
-
-  static _warning(message, error = null) {
-    window.errorManager.warning(message, error, ChoiceManager.errorSource);
-  }
-
-  static _critical(message, error = null) {
-    window.errorManager.critical(message, error, ChoiceManager.errorSource);
-  }
-
   /**
    * Generate choice objects from ink story choices
-   * @param {Array} storyChoices - Array of choices from ink story
-   * @returns {Array} Array of processed choice objects
+   * @param {Array} storyChoices - Raw choices from ink story
+   * @returns {Array} Processed choice objects with text, classes, onClick, keyHint, etc.
    */
   generate(storyChoices) {
     if (!Array.isArray(storyChoices)) {
@@ -71,10 +58,7 @@ class ChoiceManager {
       }
     });
   }
-  /**
-   * Handle choice selection
-   * @param {number} choiceIndex - Index of the selected choice
-   */
+
   selectChoice(choiceIndex) {
     if (typeof choiceIndex !== "number" || choiceIndex < 0) {
       ChoiceManager._error(`Invalid choice index: ${choiceIndex}`);
@@ -94,11 +78,11 @@ class ChoiceManager {
   }
 
   /**
-   * Create a special choice (like return buttons)
+   * Create a special choice (e.g., navigation buttons)
    * @param {string} text - Choice text
    * @param {Function} onClick - Click handler
-   * @param {Array} classes - Additional CSS classes
-   * @returns {Object} Choice object
+   * @param {string[]} [classes] - Additional CSS classes
+   * @returns {Object} Choice object with isSpecial: true
    */
   createSpecialChoice(text, onClick, classes = []) {
     if (typeof text !== "string" || typeof onClick !== "function") {
@@ -129,11 +113,6 @@ class ChoiceManager {
     };
   }
 
-  /**
-   * Create a return-to-story choice
-   * @param {Function} onReturn - Function to call when returning
-   * @returns {Object} Return choice object
-   */
   createReturnChoice(onReturn) {
     if (typeof onReturn !== "function") {
       ChoiceManager._error("onReturn must be a function");
@@ -148,11 +127,6 @@ class ChoiceManager {
     ]);
   }
 
-  /**
-   * Process choice tags for styling and behavior
-   * @param {Array} tags - Choice tags
-   * @returns {Object} Processed tag information
-   */
   processChoiceTags(tags) {
     if (!this.tagProcessor?.processChoiceTags) {
       ChoiceManager._warning(
@@ -170,9 +144,9 @@ class ChoiceManager {
   }
 
   /**
-   * Get the keyboard hint character for a choice at a given index
-   * @param {number} index - The zero-based index of the choice
-   * @returns {string} The keyboard hint character (1-9 for indices 0-8, a-z for indices 9-34)
+   * Get keyboard hint for a choice index (1-9, then a-z)
+   * @param {number} index - Zero-based choice index
+   * @returns {string} Hint character
    */
   getKeyHint(index) {
     if (index < 9) {
@@ -183,43 +157,22 @@ class ChoiceManager {
     }
   }
 
-  /**
-   * Check if there are any choices available
-   * @param {Array} choices - Array of choice objects
-   * @returns {boolean} True if there are clickable choices
-   */
   hasClickableChoices(choices) {
     if (!Array.isArray(choices)) return false;
     return choices.some((choice) => choice?.isClickable !== false);
   }
 
-  /**
-   * Filter choices by clickability
-   * @param {Array} choices - Array of choice objects
-   * @param {boolean} clickableOnly - If true, return only clickable choices
-   * @returns {Array} Filtered choices
-   */
   filterChoices(choices, clickableOnly = false) {
     if (!Array.isArray(choices)) return [];
     if (!clickableOnly) return choices;
     return choices.filter((choice) => choice?.isClickable !== false);
   }
 
-  /**
-   * Validate a choice object
-   * @param {Object} choice - Choice object to validate
-   * @returns {boolean} True if choice is valid
-   */
   validateChoice(choice) {
     if (!choice || typeof choice !== "object") return false;
     return ["text", "onClick"].every((prop) => prop in choice);
   }
 
-  /**
-   * Get choice statistics for debugging
-   * @param {Array} choices - Array of choice objects
-   * @returns {Object} Choice statistics
-   */
   getChoiceStats(choices) {
     if (!Array.isArray(choices)) {
       return { total: 0, clickable: 0, special: 0, withClasses: 0 };
@@ -231,6 +184,18 @@ class ChoiceManager {
       special: choices.filter((c) => c?.isSpecial).length,
       withClasses: choices.filter((c) => c?.classes?.length > 0).length,
     };
+  }
+
+  static _error(message, error = null) {
+    window.errorManager.error(message, error, ChoiceManager.errorSource);
+  }
+
+  static _warning(message, error = null) {
+    window.errorManager.warning(message, error, ChoiceManager.errorSource);
+  }
+
+  static _critical(message, error = null) {
+    window.errorManager.critical(message, error, ChoiceManager.errorSource);
   }
 }
 

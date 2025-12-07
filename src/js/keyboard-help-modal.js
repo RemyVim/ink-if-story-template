@@ -1,9 +1,8 @@
-// keyboard-help.js
-// Displays a modal with keyboard shortcut reference
 import { BaseModal } from "./base-modal.js";
 
 class KeyboardHelpModal {
   static errorSource = ErrorManager.SOURCES.KEYBOARD_HELP;
+
   constructor() {
     this.modal = null;
     this.isMac = window.Utils.isMac();
@@ -11,29 +10,9 @@ class KeyboardHelpModal {
     this.init();
   }
 
-  static _error(message, error = null) {
-    window.errorManager.error(message, error, KeyboardHelpModal.errorSource);
-  }
-
-  static _warning(message, error = null) {
-    window.errorManager.warning(message, error, KeyboardHelpModal.errorSource);
-  }
-
-  static _critical(message, error = null) {
-    window.errorManager.critical(message, error, KeyboardHelpModal.errorSource);
-  }
-
   init() {
-    // Don't create modal on mobile devices
     if (this.isMobile) return;
     this.createModal();
-  }
-
-  /**
-   * Check if keyboard shortcuts help should be available
-   */
-  isAvailable() {
-    return !this.isMobile;
   }
 
   createModal() {
@@ -49,7 +28,7 @@ class KeyboardHelpModal {
     if (this.isMobile) return;
 
     if (!this.modal?.isReady()) {
-      KeyboadHelpModal._error(
+      KeyboardHelpModal._error(
         "Cannot show keyboard help - modal not available",
       );
       return;
@@ -77,9 +56,14 @@ class KeyboardHelpModal {
     this.modal?.hide();
   }
 
-  /**
-   * Get the modifier key label based on platform
-   */
+  isAvailable() {
+    return !this.isMobile;
+  }
+
+  isReady() {
+    return !this.isMobile && this.modal?.isReady();
+  }
+
   getModifierKey() {
     return this.isMac ? "Cmd" : "Ctrl";
   }
@@ -148,8 +132,16 @@ class KeyboardHelpModal {
     `;
   }
 
-  isReady() {
-    return !this.isMobile() && this.modal?.isReady();
+  static _error(message, error = null) {
+    window.errorManager.error(message, error, KeyboardHelpModal.errorSource);
+  }
+
+  static _warning(message, error = null) {
+    window.errorManager.warning(message, error, KeyboardHelpModal.errorSource);
+  }
+
+  static _critical(message, error = null) {
+    window.errorManager.critical(message, error, KeyboardHelpModal.errorSource);
   }
 }
 

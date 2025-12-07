@@ -1,4 +1,3 @@
-// story-manager.js
 import { Story } from "inkjs";
 import { ErrorManager } from "./error-manager.js";
 import { TagRegistry } from "./tag-registry.js";
@@ -33,20 +32,7 @@ class StoryManager {
     }
   }
 
-  static _error(message, error = null) {
-    window.errorManager.error(message, error, StoryManager.errorSource);
-  }
-
-  static _warning(message, error = null) {
-    window.errorManager.warning(message, error, StoryManager.errorSource);
-  }
-
-  static _critical(message, error = null) {
-    window.errorManager.critical(message, error, StoryManager.errorSource);
-  }
-
   initializeSubsystems() {
-    // Core display and interaction systems with lite error handling
     this.display = this.safeInit(() => new DisplayManager(), "display");
     this.contentProcessor = this.safeInit(
       () => new ContentProcessor(),
@@ -61,7 +47,6 @@ class StoryManager {
     );
     this.saves = this.safeInit(() => new SavesManager(this), "saves");
 
-    // Check if critical systems failed to initialize
     if (!this.display || !this.story) {
       throw new Error("Critical systems failed to initialize");
     }
@@ -76,93 +61,12 @@ class StoryManager {
     }
   }
 
-  /**
-   * Create a temporary story instance with external functions bound
-   * @returns {Story} A new story instance with functions bound
-   */
-  createTempStory() {
-    const tempStory = new Story(this.story.ToJson());
-    InkFunctions.bindAll(tempStory);
-    return tempStory;
-  }
-
-  detectSpecialPages() {
-    this.availablePages = {};
-
-    try {
-      // Get all named content from the main container
-      const namedContent = this.story.mainContentContainer.namedContent;
-
-      for (let [knotName, knotContent] of namedContent) {
-        try {
-          // Check if this knot is marked as a special page and get its display name
-          const pageInfo = this.getSpecialPageInfo(knotName);
-          if (pageInfo) {
-            // Store both the display name and knot name
-            this.availablePages[knotName] = {
-              displayName: pageInfo.displayName,
-              knotName: knotName,
-              isSpecialPage: true,
-            };
-          }
-        } catch (error) {
-          StoryManager._warning(
-            `Failed to check if ${knotName} is special page`,
-            error,
-          );
-        }
-      }
-    } catch (error) {
-      StoryManager._error("Failed to detect special pages", error);
-    }
-  }
-
-  getSpecialPageInfo(knotName) {
-    const { TAGS, getTagDef } = window.TagRegistry || {};
-    if (!TAGS || !getTagDef) return null;
-
-    try {
-      const tempStory = this.createTempStory();
-      tempStory.ChoosePathString(knotName);
-
-      if (tempStory.canContinue) {
-        tempStory.Continue();
-
-        const tags = tempStory.currentTags || [];
-
-        for (const tag of tags) {
-          if (typeof tag !== "string") continue;
-
-          const { tagDef, tagValue } = TagRegistry.parseTag(tag);
-
-          if (tagDef === TAGS.SPECIAL_PAGE) {
-            return {
-              displayName:
-                tagValue?.trim() || window.Utils.formatKnotName(knotName),
-              isSpecialPage: true,
-            };
-          }
-        }
-      }
-      return null;
-    } catch (error) {
-      // If we can't navigate to it, it's not a valid knot
-      return null;
-    }
-  }
-
-  // Check if a knot is marked as a special page
-  isSpecialPage(knotName) {
-    return this.getSpecialPageInfo(knotName) !== null;
-  }
-
   setupInitialState() {
     try {
       // Process global tags for theme, metadata, and menu order
       this.settings?.processGlobalTags?.(this.story.globalTags);
       this.processMenuOrderTag(this.story.globalTags);
 
-      // Update navigation based on available special pages
       this.navigation?.updateVisibility?.(
         this.availablePages,
         this.pageMenuOrder,
@@ -176,55 +80,6 @@ class StoryManager {
     }
   }
 
-  processMenuOrderTag(globalTags) {
-    if (!Array.isArray(globalTags)) return;
-
-    for (const tag of globalTags) {
-      if (typeof tag !== "string") continue;
-
-      const colonIndex = tag.indexOf(":");
-      if (colonIndex === -1) continue;
-
-      const property = tag.substring(0, colonIndex).trim().toUpperCase();
-      const value = tag.substring(colonIndex + 1).trim();
-
-      if (TagRegistry.getTagDef(property) === TagRegistry.TAGS.PAGE_MENU) {
-        this.pageMenuOrder = this.parseMenuOrder(value);
-        break;
-      }
-    }
-  }
-
-  parseMenuOrder(menuString) {
-    // Parse format: "page1, page2,, page3, page4"
-    // Double commas (,,) separate sections, single commas separate items within sections
-    const sections = menuString.split(",,").map((s) => s.trim());
-    const menuOrder = [];
-
-    sections.forEach((section, sectionIndex) => {
-      const pages = section
-        .split(",")
-        .map((p) => p.trim())
-        .filter((p) => p);
-
-      pages.forEach((pageName) => {
-        // Check if this page exists in availablePages
-        if (this.availablePages[pageName]) {
-          menuOrder.push({
-            knotName: pageName,
-            section: sectionIndex,
-          });
-        } else {
-          console.warn(
-            `Page '${pageName}' in PAGE_MENU not found in special pages`,
-          );
-        }
-      });
-    });
-
-    return menuOrder.length > 0 ? menuOrder : null;
-  }
-
   continue(isFirstTime = false) {
     try {
       // Don't continue if viewing a special page
@@ -235,14 +90,12 @@ class StoryManager {
         this.display?.scrollToTop?.();
       }
 
-      // Generate story content
       const {
         content: storyContent,
         stoppedForUserInput,
         stateBeforeUserInput,
       } = this.generateContent();
 
-      // Render content if any was generated
       if (storyContent.length > 0) {
         this.display?.render?.(storyContent);
         document.dispatchEvent(
@@ -272,7 +125,6 @@ class StoryManager {
       }
 
       if (!stoppedForUserInput && this.hasEnded()) {
-        // Story has ended
         document.dispatchEvent(new CustomEvent("story:end"));
       }
 
@@ -288,15 +140,11 @@ class StoryManager {
       // Don't continue if viewing a special page
       if (this.currentPage) return;
 
-      // Generate story content without clearing display
-      const { content: storyContent } = this.generateContent(); // Destructure here
-
-      // Render content if any was generated
+      const { content: storyContent } = this.generateContent();
       if (storyContent.length > 0) {
         this.display?.render?.(storyContent);
       }
 
-      // Generate and render choices
       this.createChoices();
 
       // Update save point after generating new content
@@ -304,6 +152,88 @@ class StoryManager {
     } catch (error) {
       StoryManager._error("Failed to continue story without clearing", error);
     }
+  }
+
+  createChoices() {
+    try {
+      if (this.story.currentChoices?.length > 0) {
+        const choices = this.choices?.generate?.(this.story.currentChoices);
+        if (choices) {
+          // Always include hints in HTML - CSS handles visibility via container class
+          // TODO: Fix this to remove unused parameter
+          this.display?.renderChoices?.(choices, true);
+        }
+      }
+    } catch (error) {
+      StoryManager._error("Failed to create choices", error, "choices");
+    }
+  }
+
+  selectChoice(choiceIndex) {
+    try {
+      if (
+        typeof choiceIndex !== "number" ||
+        choiceIndex < 0 ||
+        choiceIndex >= this.story.currentChoices.length
+      ) {
+        throw new Error(`Invalid choice index: ${choiceIndex}`);
+      }
+
+      this.display?.container
+        ?.querySelectorAll?.(".choice")
+        .forEach((choice) => {
+          choice.remove();
+        });
+
+      this.story.ChooseChoiceIndex(choiceIndex);
+      document.dispatchEvent(
+        new CustomEvent("story:choice", {
+          detail: { index: choiceIndex },
+        }),
+      );
+
+      this.savePoint = this.story.state.ToJson();
+
+      this.continue();
+      this.saves?.autosave?.();
+    } catch (error) {
+      StoryManager._error("Failed to select choice", error, "navigation");
+    }
+  }
+
+  restart() {
+    try {
+      document.dispatchEvent(new CustomEvent("story:restart"));
+      this.story.ResetState();
+      this.currentPage = null;
+      this.display?.reset?.();
+      this.pages?.reset?.();
+      this.savePoint = this.story.state.ToJson();
+      this.continue(true);
+      this.display?.scrollToTop?.();
+
+      window.notificationManager?.success?.(
+        "Story restarted from the beginning",
+      );
+    } catch (error) {
+      StoryManager._error("Failed to restart story", error);
+    }
+  }
+
+  /**
+   * Show confirmation dialog before restarting
+   * Called by all restart entry points (keyboard, button, title, tag)
+   */
+  confirmRestart() {
+    BaseModal.confirm({
+      title: "Restart Story",
+      message:
+        "Are you sure you want to restart the story from the beginning? Any unsaved progress will be lost.",
+      confirmText: "Restart",
+      cancelText: "Cancel",
+      confirmVariant: "primary",
+      onConfirm: () => this.restart(),
+    });
   }
 
   generateContent() {
@@ -318,13 +248,10 @@ class StoryManager {
         const text = this.story.Continue();
         const tags = this.story.currentTags || [];
 
-        // Skip empty paragraphs
         if (text.trim().length === 0 && tags.length === 0) continue;
 
-        // Process normal content
         const processedContent = this.contentProcessor?.process?.(text, tags);
         if (processedContent) {
-          // Handle both single items and arrays
           if (Array.isArray(processedContent)) {
             content.push(...processedContent);
             if (processedContent.some((item) => item.type === "user-input")) {
@@ -340,7 +267,6 @@ class StoryManager {
           }
         }
 
-        // Handle other special actions
         if (processedContent?.hasSpecialAction) {
           const shouldContinue = this.handleSpecialAction(
             processedContent.action,
@@ -364,7 +290,6 @@ class StoryManager {
   handleSpecialAction(actionResult) {
     try {
       if (typeof actionResult === "string") {
-        // Handle existing string actions (CLEAR, RESTART)
         switch (actionResult) {
           case "CLEAR":
             this.display?.clear?.();
@@ -381,83 +306,6 @@ class StoryManager {
     } catch (error) {
       StoryManager._error("Failed to handle special action", error);
       return true;
-    }
-  }
-
-  createChoices() {
-    try {
-      if (this.story.currentChoices?.length > 0) {
-        const choices = this.choices?.generate?.(this.story.currentChoices);
-        if (choices) {
-          // Always include hints in HTML - CSS handles visibility via container class
-          // TODO: Fix this to remove unused parameter
-          this.display?.renderChoices?.(choices, true);
-        }
-      }
-    } catch (error) {
-      StoryManager._error("Failed to create choices", error, "choices");
-    }
-  }
-
-  selectChoice(choiceIndex) {
-    try {
-      // Validate choice index
-      if (
-        typeof choiceIndex !== "number" ||
-        choiceIndex < 0 ||
-        choiceIndex >= this.story.currentChoices.length
-      ) {
-        throw new Error(`Invalid choice index: ${choiceIndex}`);
-      }
-
-      // Remove existing choices from display
-      this.display?.container
-        ?.querySelectorAll?.(".choice")
-        .forEach((choice) => {
-          choice.remove();
-        });
-
-      // Tell the story where to go next
-      this.story.ChooseChoiceIndex(choiceIndex);
-      document.dispatchEvent(
-        new CustomEvent("story:choice", {
-          detail: { index: choiceIndex },
-        }),
-      );
-
-      // Update save point before continuing
-      this.savePoint = this.story.state.ToJson();
-
-      // Continue the story
-      this.continue();
-
-      // Auto-save if enabled
-      this.saves?.autosave?.();
-    } catch (error) {
-      StoryManager._error("Failed to select choice", error, "navigation");
-    }
-  }
-
-  restart() {
-    try {
-      document.dispatchEvent(new CustomEvent("story:restart"));
-      this.story.ResetState();
-      this.currentPage = null;
-      this.display?.reset?.();
-
-      // Reset page manager state
-      this.pages?.reset?.();
-
-      this.savePoint = this.story.state.ToJson();
-      this.continue(true);
-      this.display?.scrollToTop?.();
-
-      // Show restart notification
-      window.notificationManager?.success?.(
-        "Story restarted from the beginning",
-      );
-    } catch (error) {
-      StoryManager._error("Failed to restart story", error);
     }
   }
 
@@ -482,11 +330,9 @@ class StoryManager {
         throw new Error("Invalid save state");
       }
 
-      // Test the state first
       const testStory = this.createTempStory();
       testStory.state.LoadJson(state.gameState);
 
-      // Apply to real story
       this.story.state.LoadJson(state.gameState);
       this.currentPage = state.currentPage || null;
       this.savePoint = state.savePoint || this.story.state.ToJson();
@@ -539,6 +385,119 @@ class StoryManager {
     }
   }
 
+  detectSpecialPages() {
+    this.availablePages = {};
+
+    try {
+      const namedContent = this.story.mainContentContainer.namedContent;
+
+      for (let [knotName, knotContent] of namedContent) {
+        try {
+          const pageInfo = this.getSpecialPageInfo(knotName);
+          if (pageInfo) {
+            this.availablePages[knotName] = {
+              displayName: pageInfo.displayName,
+              knotName: knotName,
+              isSpecialPage: true,
+            };
+          }
+        } catch (error) {
+          StoryManager._warning(
+            `Failed to check if ${knotName} is special page`,
+            error,
+          );
+        }
+      }
+    } catch (error) {
+      StoryManager._error("Failed to detect special pages", error);
+    }
+  }
+
+  getSpecialPageInfo(knotName) {
+    const { TAGS, getTagDef } = window.TagRegistry || {};
+    if (!TAGS || !getTagDef) return null;
+
+    try {
+      const tempStory = this.createTempStory();
+      tempStory.ChoosePathString(knotName);
+
+      if (tempStory.canContinue) {
+        tempStory.Continue();
+
+        const tags = tempStory.currentTags || [];
+
+        for (const tag of tags) {
+          if (typeof tag !== "string") continue;
+
+          const { tagDef, tagValue } = TagRegistry.parseTag(tag);
+
+          if (tagDef === TAGS.SPECIAL_PAGE) {
+            return {
+              displayName:
+                tagValue?.trim() || window.Utils.formatKnotName(knotName),
+              isSpecialPage: true,
+            };
+          }
+        }
+      }
+      return null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  isSpecialPage(knotName) {
+    return this.getSpecialPageInfo(knotName) !== null;
+  }
+
+  processMenuOrderTag(globalTags) {
+    if (!Array.isArray(globalTags)) return;
+
+    for (const tag of globalTags) {
+      if (typeof tag !== "string") continue;
+
+      const colonIndex = tag.indexOf(":");
+      if (colonIndex === -1) continue;
+
+      const property = tag.substring(0, colonIndex).trim().toUpperCase();
+      const value = tag.substring(colonIndex + 1).trim();
+
+      if (TagRegistry.getTagDef(property) === TagRegistry.TAGS.PAGE_MENU) {
+        this.pageMenuOrder = this.parseMenuOrder(value);
+        break;
+      }
+    }
+  }
+
+  parseMenuOrder(menuString) {
+    // Parse format: "page1, page2,, page3, page4"
+    // Double commas (,,) separate sections, single commas separate items within sections
+    const sections = menuString.split(",,").map((s) => s.trim());
+    const menuOrder = [];
+
+    sections.forEach((section, sectionIndex) => {
+      const pages = section
+        .split(",")
+        .map((p) => p.trim())
+        .filter((p) => p);
+
+      pages.forEach((pageName) => {
+        if (this.availablePages[pageName]) {
+          menuOrder.push({
+            knotName: pageName,
+            section: sectionIndex,
+          });
+        } else {
+          console.warn(
+            `Page '${pageName}' in PAGE_MENU not found in special pages`,
+          );
+        }
+      });
+    });
+
+    return menuOrder.length > 0 ? menuOrder : null;
+  }
+
   canContinue() {
     try {
       return this.story.canContinue;
@@ -562,19 +521,13 @@ class StoryManager {
   }
 
   /**
-   * Show confirmation dialog before restarting
-   * Called by all restart entry points (keyboard, button, title, tag)
+   * Create a temporary story instance with external functions bound
+   * @returns {Story} A new story instance with functions bound
    */
-  confirmRestart() {
-    BaseModal.confirm({
-      title: "Restart Story",
-      message:
-        "Are you sure you want to restart the story from the beginning? Any unsaved progress will be lost.",
-      confirmText: "Restart",
-      cancelText: "Cancel",
-      confirmVariant: "primary",
-      onConfirm: () => this.restart(),
-    });
+  createTempStory() {
+    const tempStory = new Story(this.story.ToJson());
+    InkFunctions.bindAll(tempStory);
+    return tempStory;
   }
 
   getStats() {
@@ -611,6 +564,18 @@ class StoryManager {
     } catch (error) {
       StoryManager._warning("Failed to cleanup", error, "system");
     }
+  }
+
+  static _error(message, error = null) {
+    window.errorManager.error(message, error, StoryManager.errorSource);
+  }
+
+  static _warning(message, error = null) {
+    window.errorManager.warning(message, error, StoryManager.errorSource);
+  }
+
+  static _critical(message, error = null) {
+    window.errorManager.critical(message, error, StoryManager.errorSource);
   }
 }
 export { StoryManager };

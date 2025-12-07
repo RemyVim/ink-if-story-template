@@ -31,7 +31,7 @@
 }
 
 .save-slot.autosave-slot:hover {
-  background: var(--color-accent-primary);
+  background: var(--color-background);
   color: white;
 }
 

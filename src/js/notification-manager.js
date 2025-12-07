@@ -1,6 +1,6 @@
-// notification-manager.js
 class NotificationManager {
   // Uses console.warn directly to avoid circular dependency with ErrorManager
+
   constructor(options = {}) {
     this.config = {
       position: "bottom-right", // top-left, top-right, bottom-left, bottom-right, top-center, bottom-center
@@ -52,14 +52,12 @@ class NotificationManager {
     Object.assign(this.container.style, {
       position: "fixed",
       zIndex: this.config.zIndex,
-      pointerEvents: "none", // Allow clicks through container
+      pointerEvents: "none",
       ...pos,
     });
   }
 
   addStyles() {
-    // Styles are now in style.css - no need to inject them
-    // Just set the dynamic spacing value
     const root = document.documentElement;
     root.style.setProperty(
       "--notification-spacing",
@@ -85,7 +83,6 @@ class NotificationManager {
       ...options,
     };
 
-    // Auto-determine icon if not provided
     if (!config.icon) {
       const icons = {
         success: "✓",
@@ -97,23 +94,17 @@ class NotificationManager {
       config.icon = icons[config.type] || "ⓘ";
     }
 
-    // Create notification element
     const notification = this.createNotificationElement(message, config);
-
-    // Manage notification limit
     this.enforceMaxNotifications();
 
-    // Add to container and tracking
     this.container.appendChild(notification);
     const notificationObj = { element: notification, config };
     this.notifications.push(notificationObj);
 
-    // Show with animation
     requestAnimationFrame(() => {
       notification.classList.add("notification-visible");
     });
 
-    // Auto-remove after duration (if not critical and duration > 0)
     if (config.duration > 0 && config.type !== "critical") {
       setTimeout(() => {
         this.remove(notificationObj);
@@ -126,120 +117,6 @@ class NotificationManager {
     };
   }
 
-  createNotificationElement(message, config) {
-    const notification = document.createElement("div");
-    notification.className = `notification-item notification-${config.type}`;
-
-    // Error and critical notifications should interrupt immediately
-    if (config.type === "error" || config.type === "critical") {
-      notification.setAttribute("role", "alert");
-    }
-
-    // Create content
-    const content = document.createElement("div");
-    content.className = "notification-content";
-
-    const iconSpan = document.createElement("span");
-    iconSpan.className = "notification-icon";
-    iconSpan.textContent = config.icon;
-    iconSpan.setAttribute("aria-hidden", "true");
-
-    content.appendChild(iconSpan);
-
-    const messageSpan = document.createElement("span");
-    messageSpan.textContent = message;
-    content.appendChild(messageSpan);
-
-    notification.appendChild(content);
-
-    // Add close button if closable
-    if (config.closable) {
-      const closeBtn = document.createElement("button");
-      closeBtn.type = "button";
-      closeBtn.className = "notification-close";
-      closeBtn.innerHTML = "×";
-      closeBtn.setAttribute("aria-label", "Dismiss notification");
-      closeBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        this.remove({ element: notification, config });
-      });
-      notification.appendChild(closeBtn);
-    }
-
-    // Add progress bar if enabled
-    if (config.showProgress && config.duration > 0) {
-      const progress = document.createElement("div");
-      progress.className = "notification-progress";
-      progress.style.width = "100%";
-      notification.appendChild(progress);
-
-      // Animate progress
-      requestAnimationFrame(() => {
-        progress.style.width = "0%";
-        progress.style.transitionDuration = `${config.duration}ms`;
-      });
-    }
-
-    // Add click handler
-    if (config.onClick) {
-      notification.style.cursor = "pointer";
-      notification.addEventListener("click", config.onClick);
-    }
-
-    return notification;
-  }
-
-  remove(notificationObj) {
-    if (!notificationObj || !notificationObj.element) return;
-
-    const { element, config } = notificationObj;
-
-    // Call onClose callback
-    if (config.onClose) {
-      try {
-        config.onClose();
-      } catch (error) {
-        console.warn("Notification onClose callback failed:", error);
-      }
-    }
-
-    // Remove from tracking
-    const index = this.notifications.indexOf(notificationObj);
-    if (index > -1) {
-      this.notifications.splice(index, 1);
-    }
-
-    // Animate out
-    element.style.transform = this.getExitTransform();
-    element.style.opacity = "0";
-
-    // Remove from DOM after animation
-    setTimeout(() => {
-      if (element.parentNode) {
-        element.parentNode.removeChild(element);
-      }
-    }, 300);
-  }
-
-  getExitTransform() {
-    const isRight = this.config.position.includes("right");
-    const isLeft = this.config.position.includes("left");
-
-    if (isRight) return "translateX(100%)";
-    if (isLeft) return "translateX(-100%)";
-    return "translateY(-100%)"; // center positions
-  }
-
-  enforceMaxNotifications() {
-    while (this.notifications.length >= this.config.maxNotifications) {
-      const oldest = this.notifications[0];
-      this.remove(oldest);
-    }
-  }
-
-  /**
-   * Convenience methods for different notification types
-   */
   success(message, options = {}) {
     return this.show(message, { ...options, type: "success" });
   }
@@ -265,9 +142,34 @@ class NotificationManager {
     });
   }
 
-  /**
-   * Clear all notifications
-   */
+  remove(notificationObj) {
+    if (!notificationObj || !notificationObj.element) return;
+
+    const { element, config } = notificationObj;
+
+    if (config.onClose) {
+      try {
+        config.onClose();
+      } catch (error) {
+        console.warn("Notification onClose callback failed:", error);
+      }
+    }
+
+    const index = this.notifications.indexOf(notificationObj);
+    if (index > -1) {
+      this.notifications.splice(index, 1);
+    }
+
+    element.style.transform = this.getExitTransform();
+    element.style.opacity = "0";
+
+    setTimeout(() => {
+      if (element.parentNode) {
+        element.parentNode.removeChild(element);
+      }
+    }, 300);
+  }
+
   clearAll() {
     const notificationsToRemove = [...this.notifications];
     notificationsToRemove.forEach((notification) => {
@@ -275,22 +177,88 @@ class NotificationManager {
     });
   }
 
-  /**
-   * Update configuration
-   */
+  createNotificationElement(message, config) {
+    const notification = document.createElement("div");
+    notification.className = `notification-item notification-${config.type}`;
+
+    if (config.type === "error" || config.type === "critical") {
+      notification.setAttribute("role", "alert");
+    }
+
+    const content = document.createElement("div");
+    content.className = "notification-content";
+
+    const iconSpan = document.createElement("span");
+    iconSpan.className = "notification-icon";
+    iconSpan.textContent = config.icon;
+    iconSpan.setAttribute("aria-hidden", "true");
+
+    content.appendChild(iconSpan);
+
+    const messageSpan = document.createElement("span");
+    messageSpan.textContent = message;
+    content.appendChild(messageSpan);
+
+    notification.appendChild(content);
+
+    if (config.closable) {
+      const closeBtn = document.createElement("button");
+      closeBtn.type = "button";
+      closeBtn.className = "notification-close";
+      closeBtn.innerHTML = "×";
+      closeBtn.setAttribute("aria-label", "Dismiss notification");
+      closeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.remove({ element: notification, config });
+      });
+      notification.appendChild(closeBtn);
+    }
+
+    if (config.showProgress && config.duration > 0) {
+      const progress = document.createElement("div");
+      progress.className = "notification-progress";
+      progress.style.width = "100%";
+      notification.appendChild(progress);
+
+      requestAnimationFrame(() => {
+        progress.style.width = "0%";
+        progress.style.transitionDuration = `${config.duration}ms`;
+      });
+    }
+
+    if (config.onClick) {
+      notification.style.cursor = "pointer";
+      notification.addEventListener("click", config.onClick);
+    }
+
+    return notification;
+  }
+
+  getExitTransform() {
+    const isRight = this.config.position.includes("right");
+    const isLeft = this.config.position.includes("left");
+
+    if (isRight) return "translateX(100%)";
+    if (isLeft) return "translateX(-100%)";
+    return "translateY(-100%)"; // center positions
+  }
+
+  enforceMaxNotifications() {
+    while (this.notifications.length >= this.config.maxNotifications) {
+      const oldest = this.notifications[0];
+      this.remove(oldest);
+    }
+  }
+
   updateConfig(newConfig) {
     this.config = { ...this.config, ...newConfig };
 
-    // Update container position if changed
     if (newConfig.position) {
       this.setContainerPosition();
       this.container.setAttribute("data-position", this.config.position);
     }
   }
 
-  /**
-   * Get notification statistics
-   */
   getStats() {
     return {
       activeNotifications: this.notifications.length,
@@ -300,9 +268,6 @@ class NotificationManager {
     };
   }
 
-  /**
-   * Clean up the notification manager
-   */
   destroy() {
     this.clearAll();
 

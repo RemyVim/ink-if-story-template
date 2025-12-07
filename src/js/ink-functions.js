@@ -1,7 +1,3 @@
-// ink-functions.js
-// Utility functions for Ink stories - string and math operations
-// These must be declared with EXTERNAL in your .ink file before use
-
 class InkFunctions {
   /**
    * Bind all utility functions to an ink story
@@ -14,9 +10,6 @@ class InkFunctions {
     this.bindTimeFunctions(story);
   }
 
-  /**
-   * String manipulation functions
-   */
   static bindStringFunctions(story) {
     story.BindExternalFunction("UPPERCASE", (str) => String(str).toUpperCase());
     story.BindExternalFunction("LOWERCASE", (str) => String(str).toLowerCase());
@@ -86,25 +79,18 @@ class InkFunctions {
     });
   }
 
-  /**
-   * Time and date functions
-   */
   static bindTimeFunctions(story) {
-    // NOW() - Returns current Unix timestamp in seconds
     story.BindExternalFunction("NOW", () => Math.floor(Date.now() / 1000));
 
-    // SECONDS_SINCE(start) - Raw seconds elapsed since timestamp
     story.BindExternalFunction(
       "SECONDS_SINCE",
       (start) => Math.floor(Date.now() / 1000) - start,
     );
 
-    // MINUTES_SINCE(start) - Minutes elapsed (useful for gameplay checks)
     story.BindExternalFunction("MINUTES_SINCE", (start) =>
       Math.floor((Date.now() / 1000 - start) / 60),
     );
 
-    // TIME_SINCE(start) - Human-readable elapsed time
     story.BindExternalFunction("TIME_SINCE", (start) => {
       const seconds = Math.floor(Date.now() / 1000) - start;
 
@@ -126,7 +112,6 @@ class InkFunctions {
       return days === 1 ? "1 day" : `${days} days`;
     });
 
-    // FORMAT_DATE(timestamp, locale) - Returns "November 26, 2025"
     story.BindExternalFunction("FORMAT_DATE", (timestamp, locale) => {
       const date = new Date(timestamp * 1000);
       const options = {
@@ -142,7 +127,6 @@ class InkFunctions {
       }
     });
 
-    // FORMAT_TIME(timestamp, locale) - Returns "3:45 PM"
     story.BindExternalFunction("FORMAT_TIME", (timestamp, locale) => {
       const date = new Date(timestamp * 1000);
       const options = {
@@ -157,7 +141,6 @@ class InkFunctions {
       }
     });
 
-    // FORMAT_DATETIME(timestamp, locale) - Returns "November 26, 2025 at 3:45 PM"
     story.BindExternalFunction("FORMAT_DATETIME", (timestamp, locale) => {
       const date = new Date(timestamp * 1000);
       const options = {
@@ -175,7 +158,6 @@ class InkFunctions {
       }
     });
 
-    // OFFSET_DATE(timestamp, years, months, days, hours, minutes)
     story.BindExternalFunction(
       "OFFSET_DATE",
       (timestamp, years, months, days, hours, minutes) => {
@@ -190,4 +172,5 @@ class InkFunctions {
     );
   }
 }
+
 export { InkFunctions };

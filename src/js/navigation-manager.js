@@ -1,4 +1,3 @@
-// navigation-manager.js
 import { ErrorManager } from "./error-manager.js";
 
 class NavigationManager {
@@ -22,16 +21,72 @@ class NavigationManager {
     this.setupButtons();
   }
 
-  static _error(message, error = null) {
-    window.errorManager.error(message, error, NavigationManager.errorSource);
+  setupButtons() {
+    this.setupCoreButtons();
+    this.setupClickableTitle();
   }
 
-  static _warning(message, error = null) {
-    window.errorManager.warning(message, error, NavigationManager.errorSource);
+  setupCoreButtons() {
+    this.setupButton("rewind", () => {
+      this.storyManager.confirmRestart();
+    });
+
+    // Note: Saves and settings buttons are handled by their respective managers
   }
 
-  static _critical(message, error = null) {
-    window.errorManager.critical(message, error, NavigationManager.errorSource);
+  setupClickableTitle() {
+    this.setupButton("title-restart", () => {
+      this.storyManager.confirmRestart();
+    });
+  }
+
+  /**
+   * Setup a single button with event listener
+   * @param {string} buttonId - ID of the button element
+   * @param {Function} clickHandler - Function to call on click
+   */
+  setupButton(buttonId, clickHandler) {
+    if (!buttonId || typeof clickHandler !== "function") {
+      NavigationManager._warning(
+        `Invalid parameters for button ${buttonId}`,
+        null,
+        "navigation",
+      );
+      return;
+    }
+
+    const button = document.getElementById(buttonId);
+    if (!button) {
+      NavigationManager._warning(
+        `Button not found: ${buttonId}`,
+        null,
+        "navigation",
+      );
+      return;
+    }
+
+    try {
+      const newButton = button.cloneNode(true);
+      button.parentNode.replaceChild(newButton, button);
+
+      newButton.addEventListener("click", (e) => {
+        try {
+          clickHandler(e);
+        } catch (error) {
+          NavigationManager._error(
+            `Button click failed: ${buttonId}`,
+            error,
+            "navigation",
+          );
+        }
+      });
+    } catch (error) {
+      NavigationManager._warning(
+        `Failed to setup button ${buttonId}`,
+        error,
+        "navigation",
+      );
+    }
   }
 
   /**
@@ -49,22 +104,97 @@ class NavigationManager {
       return;
     }
 
-    // Remove existing dynamic buttons and panel
     this.clearDynamicButtons();
 
     const pageCount = Object.keys(availablePages).length;
-
     this.createSlidePanel(availablePages, pageMenuOrder);
   }
 
-  /**
-   * Create a slide-down panel for special pages
-   */
+  refresh() {
+    const availablePages = this.storyManager?.availablePages || {};
+    this.updateVisibility(availablePages);
+  }
+
+  reset() {
+    this.setButtonEnabled("rewind", true);
+    this.setButtonEnabled("saves-btn", true);
+    this.setButtonEnabled("settings-btn", true);
+    this.clearDynamicButtons();
+    this.highlightActivePage(null);
+  }
+
+  cleanup() {
+    this.clearDynamicButtons();
+  }
+
+  setButtonEnabled(buttonId, enabled) {
+    const button = document.getElementById(buttonId);
+    if (!button) return;
+
+    if (enabled) {
+      button.removeAttribute("disabled");
+      button.style.cursor = "pointer";
+      button.style.opacity = "";
+    } else {
+      button.setAttribute("disabled", "disabled");
+      button.style.cursor = "not-allowed";
+      button.style.opacity = "0.5";
+    }
+  }
+
+  setButtonVisible(buttonId, visible) {
+    const button = document.getElementById(buttonId);
+    if (button) {
+      button.style.display = visible ? "inline-block" : "none";
+    }
+  }
+
+  setSpecialPageButtonEnabled(knotName, enabled) {
+    const button = this.findPageButton(knotName);
+    if (button) {
+      if (enabled) {
+        button.removeAttribute("disabled");
+        button.style.cursor = "pointer";
+        button.style.opacity = "";
+      } else {
+        button.setAttribute("disabled", "disabled");
+        button.style.cursor = "not-allowed";
+        button.style.opacity = "0.5";
+      }
+    }
+  }
+
+  setSpecialPageButtonVisible(knotName, visible) {
+    const button = this.findPageButton(knotName);
+    if (button) {
+      button.style.display = visible ? "inline-block" : "none";
+    }
+  }
+
+  updateSaveLoadButtons(hasSaves) {
+    if (!this.storyManager.pages) return;
+
+    const isOnSpecialPage = this.storyManager.pages.isViewingSpecialPage();
+    this.setButtonEnabled("saves-btn", !isOnSpecialPage);
+  }
+
+  highlightActivePage(activeKnotName) {
+    for (let [buttonId, button] of this.dynamicButtons) {
+      button.classList.remove("active", "current-page");
+    }
+
+    if (activeKnotName) {
+      const activeButton = this.findPageButton(activeKnotName);
+      if (activeButton) {
+        activeButton.classList.add("active", "current-page");
+      }
+    }
+  }
+
   createSlidePanel(availablePages, pageMenuOrder) {
     const navControls = document.querySelector(".nav-controls");
     if (!navControls) return;
 
-    // Create menu button
     this.menuButton = document.createElement("button");
     this.menuButton.type = "button";
     this.menuButton.id = "pages-menu-btn";
@@ -72,17 +202,14 @@ class NavigationManager {
     this.menuButton.innerHTML =
       '<span class="material-icons-outlined nav-icon" aria-hidden="true">menu</span>';
 
-    // Create slide panel
     this.slidePanel = document.createElement("nav");
     this.slidePanel.className = "slide-panel";
     this.slidePanel.setAttribute("aria-label", "Pages");
     this.slidePanel.setAttribute("aria-hidden", "true");
 
-    // Create panel content
     const panelContent = document.createElement("div");
     panelContent.className = "panel-content";
 
-    // Add pages to panel based on order or default
     if (pageMenuOrder && pageMenuOrder.length > 0) {
       this.addOrderedPagesToPanel(panelContent, availablePages, pageMenuOrder);
     } else {
@@ -91,7 +218,6 @@ class NavigationManager {
 
     this.slidePanel.appendChild(panelContent);
 
-    // Add close button at bottom
     const closeButton = document.createElement("button");
     closeButton.type = "button";
     closeButton.className = "panel-close-bottom";
@@ -101,14 +227,11 @@ class NavigationManager {
     this.menuButton.setAttribute("aria-expanded", "false");
     this.slidePanel.appendChild(closeButton);
 
-    // Add panel to body
     document.body.appendChild(this.slidePanel);
 
-    // Insert menu button before settings
     const settingsBtn = document.getElementById("settings-btn");
     navControls.insertBefore(this.menuButton, settingsBtn);
 
-    // Event listeners
     this.menuButton.addEventListener("click", (e) => {
       e.stopPropagation();
       this.togglePanel();
@@ -118,7 +241,6 @@ class NavigationManager {
       this.hidePanel();
     });
 
-    // Close panel when clicking outside
     document.addEventListener("click", (e) => {
       if (
         this.slidePanel &&
@@ -130,13 +252,9 @@ class NavigationManager {
       }
     });
 
-    // Track the menu button
     this.dynamicButtons.set("pages-menu", this.menuButton);
   }
 
-  /**
-   * Add ordered pages to panel based on PAGE_MENU tag
-   */
   addOrderedPagesToPanel(panelContent, availablePages, pageMenuOrder) {
     let currentSection = -1;
     const addedPages = new Set();
@@ -145,7 +263,6 @@ class NavigationManager {
       const pageInfo = availablePages[item.knotName];
       if (!pageInfo || !pageInfo.isSpecialPage) return;
 
-      // Add section separator if section changed
       if (item.section !== currentSection && currentSection !== -1) {
         const separator = document.createElement("hr");
         separator.className = "panel-separator";
@@ -153,13 +270,11 @@ class NavigationManager {
       }
       currentSection = item.section;
 
-      // Add the page link
       const link = this.createPageLink(item.knotName, pageInfo);
       panelContent.appendChild(link);
       addedPages.add(item.knotName);
     });
 
-    // Add any pages not in the menu order at the end
     const unorderedPages = Object.keys(availablePages).filter(
       (knotName) =>
         !addedPages.has(knotName) && availablePages[knotName].isSpecialPage,
@@ -178,11 +293,7 @@ class NavigationManager {
     });
   }
 
-  /**
-   * Add pages to panel in default order (alphabetical)
-   */
   addDefaultPagesToPanel(panelContent, availablePages) {
-    // Sort pages alphabetically by display name
     const sortedPages = Object.keys(availablePages)
       .filter((knotName) => availablePages[knotName]?.isSpecialPage)
       .sort((a, b) => {
@@ -198,9 +309,6 @@ class NavigationManager {
     });
   }
 
-  /**
-   * Create a page link element
-   */
   createPageLink(knotName, pageInfo) {
     const link = document.createElement("a");
     link.href = "#";
@@ -233,7 +341,6 @@ class NavigationManager {
       this.menuButton?.classList.add("active");
       this.menuButton?.setAttribute("aria-expanded", "true");
 
-      // Focus the first link in the panel
       const firstLink = this.slidePanel.querySelector(".panel-link");
       if (firstLink) {
         firstLink.focus();
@@ -247,16 +354,11 @@ class NavigationManager {
       this.slidePanel.setAttribute("aria-hidden", "true");
       this.menuButton?.classList.remove("active");
       this.menuButton?.setAttribute("aria-expanded", "false");
-
-      // Return focus to the menu button
       this.menuButton?.focus();
     }
   }
-  /**
-   * Clear all dynamically created buttons
-   */
+
   clearDynamicButtons() {
-    // Remove slide panel if exists
     if (this.slidePanel && this.slidePanel.parentNode) {
       this.slidePanel.parentNode.removeChild(this.slidePanel);
     }
@@ -266,7 +368,6 @@ class NavigationManager {
     this.slidePanel = null;
     this.menuButton = null;
 
-    // Remove individual buttons
     for (let [buttonId, button] of this.dynamicButtons) {
       if (button && button.parentNode) {
         button.parentNode.removeChild(button);
@@ -275,182 +376,6 @@ class NavigationManager {
     this.dynamicButtons.clear();
   }
 
-  /**
-   * Setup clickable title functionality for restarting the game
-   */
-  setupClickableTitle() {
-    this.setupButton("title-restart", () => {
-      this.storyManager.confirmRestart();
-    });
-  }
-  /**
-   * Setup all navigation button event listeners
-   */
-  setupButtons() {
-    this.setupCoreButtons();
-    this.setupClickableTitle();
-  }
-
-  /**
-   * Setup core navigation buttons (restart, save, load, settings)
-   */
-  setupCoreButtons() {
-    this.setupButton("rewind", () => {
-      this.storyManager.confirmRestart();
-    });
-
-    // Note: Saves and settings buttons are handled by their respective managers
-  }
-
-  /**
-   * Setup a single button with event listener
-   * @param {string} buttonId - ID of the button element
-   * @param {Function} clickHandler - Function to call on click
-   */
-  setupButton(buttonId, clickHandler) {
-    if (!buttonId || typeof clickHandler !== "function") {
-      NavigationManager._warning(
-        `Invalid parameters for button ${buttonId}`,
-        null,
-        "navigation",
-      );
-      return;
-    }
-
-    const button = document.getElementById(buttonId);
-    if (!button) {
-      NavigationManager._warning(
-        `Button not found: ${buttonId}`,
-        null,
-        "navigation",
-      );
-      return;
-    }
-
-    try {
-      // Clone button to remove existing listeners
-      const newButton = button.cloneNode(true);
-      button.parentNode.replaceChild(newButton, button);
-
-      newButton.addEventListener("click", (e) => {
-        try {
-          clickHandler(e);
-        } catch (error) {
-          NavigationManager._error(
-            `Button click failed: ${buttonId}`,
-            error,
-            "navigation",
-          );
-        }
-      });
-    } catch (error) {
-      NavigationManager._warning(
-        `Failed to setup button ${buttonId}`,
-        error,
-        "navigation",
-      );
-    }
-  }
-
-  /**
-   * Enable or disable a navigation button
-   * @param {string} buttonId - ID of the button element
-   * @param {boolean} enabled - Whether the button should be enabled
-   */
-  setButtonEnabled(buttonId, enabled) {
-    const button = document.getElementById(buttonId);
-    if (!button) return;
-
-    if (enabled) {
-      button.removeAttribute("disabled");
-      button.style.cursor = "pointer";
-      button.style.opacity = "";
-    } else {
-      button.setAttribute("disabled", "disabled");
-      button.style.cursor = "not-allowed";
-      button.style.opacity = "0.5";
-    }
-  }
-
-  /**
-   * Show or hide a navigation button
-   * @param {string} buttonId - ID of the button element
-   * @param {boolean} visible - Whether the button should be visible
-   */
-  setButtonVisible(buttonId, visible) {
-    const button = document.getElementById(buttonId);
-    if (button) {
-      button.style.display = visible ? "inline-block" : "none";
-    }
-  }
-
-  /**
-   * Enable or disable a special page button by knot name
-   * @param {string} knotName - Knot name of the special page
-   * @param {boolean} enabled - Whether the button should be enabled
-   */
-  setSpecialPageButtonEnabled(knotName, enabled) {
-    const button = this.findPageButton(knotName);
-    if (button) {
-      if (enabled) {
-        button.removeAttribute("disabled");
-        button.style.cursor = "pointer";
-        button.style.opacity = "";
-      } else {
-        button.setAttribute("disabled", "disabled");
-        button.style.cursor = "not-allowed";
-        button.style.opacity = "0.5";
-      }
-    }
-  }
-
-  /**
-   * Show or hide a special page button by knot name
-   * @param {string} knotName - Knot name of the special page
-   * @param {boolean} visible - Whether the button should be visible
-   */
-  setSpecialPageButtonVisible(knotName, visible) {
-    const button = this.findPageButton(knotName);
-    if (button) {
-      button.style.display = visible ? "inline-block" : "none";
-    }
-  }
-
-  /**
-   * Update save/load button states based on save availability
-   * @param {boolean} hasSaves - Whether saves are available
-   */
-  updateSaveLoadButtons(hasSaves) {
-    if (!this.storyManager.pages) return;
-
-    // Saves button is always enabled when not on a special page
-    const isOnSpecialPage = this.storyManager.pages.isViewingSpecialPage();
-    this.setButtonEnabled("saves-btn", !isOnSpecialPage);
-  }
-
-  /**
-   * Highlight the currently active special page button
-   * @param {string} activeKnotName - Knot name of the currently active page
-   */
-  highlightActivePage(activeKnotName) {
-    // Remove highlight from all special page buttons
-    for (let [buttonId, button] of this.dynamicButtons) {
-      button.classList.remove("active", "current-page");
-    }
-
-    // Add highlight to active button
-    if (activeKnotName) {
-      const activeButton = this.findPageButton(activeKnotName);
-      if (activeButton) {
-        activeButton.classList.add("active", "current-page");
-      }
-    }
-  }
-
-  /**
-   * Get all special page buttons with their information
-   * @returns {Array} Array of button information objects
-   */
   getSpecialPageButtons() {
     const buttons = [];
     for (let [buttonId, buttonElement] of this.dynamicButtons) {
@@ -470,15 +395,10 @@ class NavigationManager {
     return buttons;
   }
 
-  /**
-   * Get the current state of all navigation buttons
-   * @returns {Object} Object with button states
-   */
   getButtonStates() {
     const states = {};
     const coreButtons = ["rewind", "saves-btn", "settings-btn"];
 
-    // Check core buttons
     coreButtons.forEach((buttonId) => {
       const button = document.getElementById(buttonId);
       if (button) {
@@ -498,7 +418,6 @@ class NavigationManager {
       }
     });
 
-    // Check dynamic buttons (special pages)
     for (let [buttonId, button] of this.dynamicButtons) {
       const knotName = buttonId.replace("special-page-", "");
       states[buttonId] = {
@@ -514,34 +433,31 @@ class NavigationManager {
     return states;
   }
 
-  /**
-   * Reset all navigation buttons to default state
-   */
-  reset() {
-    // Enable core buttons
-    this.setButtonEnabled("rewind", true);
-    this.setButtonEnabled("saves-btn", true);
-    this.setButtonEnabled("settings-btn", true);
+  findPageButton(knotName) {
+    // Panel links aren't stored in dynamicButtons, search the panel directly
+    if (!this.slidePanel) return null;
 
-    // Clear dynamic buttons
-    this.clearDynamicButtons();
-
-    // Remove any active highlights
-    this.highlightActivePage(null);
+    const links = this.slidePanel.querySelectorAll(".panel-link");
+    for (const link of links) {
+      // Match by the click handler's knotName (stored in closure)
+      // Since we can't access that, match by display name
+      const pageInfo = this.storyManager?.availablePages?.[knotName];
+      if (pageInfo && link.textContent === pageInfo.displayName) {
+        return link;
+      }
+    }
+    return null;
   }
 
-  /**
-   * Refresh special page buttons based on current available pages
-   */
-  refresh() {
-    const availablePages = this.storyManager?.availablePages || {};
-    this.updateVisibility(availablePages);
+  getPageDisplayName(knotName) {
+    const pageInfo = this.storyManager?.availablePages?.[knotName];
+    return pageInfo?.displayName || window.Utils.formatKnotName(knotName);
   }
 
-  /**
-   * Get navigation statistics for debugging
-   * @returns {Object} Navigation statistics
-   */
+  isReady() {
+    return !!(this.storyManager && document.getElementById("rewind"));
+  }
+
   getStats() {
     const buttonStates = this.getButtonStates();
     const specialPageButtons = this.getSpecialPageButtons();
@@ -568,18 +484,6 @@ class NavigationManager {
     };
   }
 
-  /**
-   * Validate that navigation manager is working
-   * @returns {boolean} True if navigation manager is ready
-   */
-  isReady() {
-    return !!(this.storyManager && document.getElementById("rewind"));
-  }
-
-  /**
-   * Get detailed information about navigation state
-   * @returns {Object} Detailed navigation information
-   */
   getNavigationInfo() {
     const currentPage = this.storyManager?.pages?.getCurrentPageKnotName();
     const availablePages = this.storyManager?.availablePages || {};
@@ -616,11 +520,16 @@ class NavigationManager {
     };
   }
 
-  /**
-   * Cleanup navigation manager resources
-   */
-  cleanup() {
-    this.clearDynamicButtons();
+  static _error(message, error = null) {
+    window.errorManager.error(message, error, NavigationManager.errorSource);
+  }
+
+  static _warning(message, error = null) {
+    window.errorManager.warning(message, error, NavigationManager.errorSource);
+  }
+
+  static _critical(message, error = null) {
+    window.errorManager.critical(message, error, NavigationManager.errorSource);
   }
 }
 export { NavigationManager };

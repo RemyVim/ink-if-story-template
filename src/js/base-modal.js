@@ -1,11 +1,23 @@
-// modal.js
 import { ErrorManager } from "./error-manager.js";
 
 class BaseModal {
   static errorSource = ErrorManager.SOURCES.MODAL;
-
   static instances = new Set();
 
+  /**
+   * @param {Object} options
+   * @param {string} [options.title='Modal'] - Modal title
+   * @param {string} [options.className='base-modal'] - CSS class prefix
+   * @param {string} [options.maxWidth='500px'] - Maximum width
+   * @param {string} [options.width='90%'] - Width
+   * @param {string} [options.maxHeight='80vh'] - Maximum height
+   * @param {boolean} [options.closeOnBackdrop=true] - Close when clicking backdrop
+   * @param {boolean} [options.closeOnEscape=true] - Close on Escape key
+   * @param {boolean} [options.showCloseButton=true] - Show X button
+   * @param {boolean} [options.showFooter=true] - Show footer section
+   * @param {Function} [options.onShow] - Callback when modal shows
+   * @param {Function} [options.onHide] - Callback when modal hides
+   */
   constructor(options = {}) {
     this.config = {
       maxWidth: "500px",
@@ -36,20 +48,7 @@ class BaseModal {
     BaseModal.instances.add(this);
   }
 
-  static _error(message, error = null) {
-    window.errorManager.error(message, error, BaseModal.errorSource);
-  }
-
-  static _warning(message, error = null) {
-    window.errorManager.warning(message, error, BaseModal.errorSource);
-  }
-
-  static _critical(message, error = null) {
-    window.errorManager.critical(message, error, BaseModal.errorSource);
-  }
-
   createModal() {
-    // Create modal backdrop
     const modalBackdrop = document.createElement("div");
     modalBackdrop.className = `${this.config.className}-backdrop`;
     modalBackdrop.setAttribute("role", "presentation");
@@ -59,7 +58,6 @@ class BaseModal {
       opacity: 0; transition: opacity 0.3s ease;
     `;
 
-    // Create modal content
     const modalContent = document.createElement("div");
     modalContent.className = `${this.config.className}-content`;
     modalContent.style.cssText = `
@@ -128,7 +126,7 @@ class BaseModal {
 
   setupEventListeners() {
     if (!this.modalElement) return;
-    // Focus trap
+
     this.focusTrapHandler = (e) => {
       if (e.key !== "Tab" || !this.isVisible) return;
 
@@ -153,13 +151,11 @@ class BaseModal {
     };
     document.addEventListener("keydown", this.focusTrapHandler);
 
-    // Close button
     const closeBtn = this.modalElement.querySelector(".modal-close");
     if (closeBtn) {
       closeBtn.addEventListener("click", () => this.hide());
     }
 
-    // Backdrop click
     if (this.config.closeOnBackdrop) {
       this.modalElement.addEventListener("click", (e) => {
         if (e.target === this.modalElement) {
@@ -168,7 +164,6 @@ class BaseModal {
       });
     }
 
-    // Escape key
     if (this.config.closeOnEscape) {
       this.escapeHandler = (e) => {
         if (e.key === "Escape" && this.isVisible) {
@@ -179,6 +174,9 @@ class BaseModal {
     }
   }
 
+  /**
+   * @param {Function} [contentCallback] - Called with modal instance to populate content before showing
+   */
   show(contentCallback = null) {
     BaseModal.closeAll(this);
     if (!this.modalElement) {
@@ -188,7 +186,6 @@ class BaseModal {
 
     this.previouslyFocusedElement = document.activeElement;
 
-    // Populate content if callback provided
     if (contentCallback && typeof contentCallback === "function") {
       try {
         contentCallback(this);
@@ -200,7 +197,6 @@ class BaseModal {
     this.modalElement.style.display = "block";
     this.isVisible = true;
 
-    // Trigger animation
     requestAnimationFrame(() => {
       if (this.modalElement) {
         this.modalElement.style.opacity = "1";
@@ -210,7 +206,6 @@ class BaseModal {
         if (content) {
           content.style.transform = "translate(-50%, -50%) scale(1)";
         }
-        // Focus first focusable element or the modal itself
         const focusable = content?.querySelectorAll(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
         );
@@ -222,7 +217,6 @@ class BaseModal {
       }
     });
 
-    // Call onShow callback
     if (this.onShow && typeof this.onShow === "function") {
       try {
         this.onShow();
@@ -252,7 +246,6 @@ class BaseModal {
       }
     }, 300);
 
-    // Call onHide callback
     if (this.onHide && typeof this.onHide === "function") {
       try {
         this.onHide();
@@ -270,105 +263,16 @@ class BaseModal {
     }
   }
 
-  setContent(html) {
-    const body = this.modalElement?.querySelector(".modal-body");
-    if (body) {
-      body.innerHTML = html;
-    }
-  }
-
-  setFooter(html) {
-    const footer = this.modalElement?.querySelector(".modal-footer");
-    if (footer) {
-      footer.innerHTML = html;
-    }
-  }
-
-  getBody() {
-    return this.modalElement?.querySelector(".modal-body");
-  }
-
-  getFooter() {
-    return this.modalElement?.querySelector(".modal-footer");
-  }
-
-  addBodyEventListener(selector, event, handler) {
-    if (!this.modalElement) return;
-
-    const elements = this.modalElement.querySelectorAll(selector);
-    elements.forEach((element) => {
-      element.addEventListener(event, handler);
-    });
-  }
-
-  showNotification(message, isError = false, duration = 4000) {
-    const type = isError ? "error" : "success";
-    window.notificationManager.show(message, { type, duration });
-  }
-
-  createButton(text, options = {}) {
-    const button = document.createElement("button");
-    button.textContent = text;
-
-    // Apply CSS classes instead of inline styles
-    button.className = `modal-button modal-button-${options.variant || "primary"}`;
-
-    if (options.onClick && typeof options.onClick === "function") {
-      button.addEventListener("click", options.onClick);
-    }
-
-    // Add custom styles if provided
-    if (options.styles) {
-      Object.entries(options.styles).forEach(([property, value]) => {
-        button.style[property] = value;
-      });
-    }
-
-    return button;
-  }
-
-  isReady() {
-    return !!(this.modalElement && document.body);
-  }
-
-  getStats() {
-    return {
-      hasModalElement: !!this.modalElement,
-      isVisible: this.isVisible,
-      className: this.config.className,
-      hasEscapeHandler: !!this.escapeHandler,
-      size: this.config.size,
-    };
-  }
-
-  destroy() {
-    try {
-      BaseModal.instances.delete(this);
-      if (this.escapeHandler) {
-        document.removeEventListener("keydown", this.escapeHandler);
-        this.escapeHandler = null;
-      }
-      if (this.focusTrapHandler) {
-        document.removeEventListener("keydown", this.focusTrapHandler);
-        this.focusTrapHandler = null;
-      }
-
-      if (this.modalElement && this.modalElement.parentNode) {
-        this.modalElement.parentNode.removeChild(this.modalElement);
-      }
-
-      this.modalElement = null;
-      this.isVisible = false;
-    } catch (error) {
-      BaseModal._warning("Failed to destroy modal", error);
-    }
-  }
   /**
-   * Show a confirmation dialog
-   * @param {string} message - The confirmation message
-   * @param {Function} onConfirm - Callback when user confirms
-   * @param {Function} onCancel - Optional callback when user cancels
-   * @param {Object} options - Optional customization options
+   * Display a confirmation dialog with customizable buttons
+   * @param {string} message - Confirmation message
+   * @param {Function} onConfirm - Called when confirmed
+   * @param {Function} [onCancel] - Called when cancelled
+   * @param {Object} [options]
+   * @param {string} [options.title] - Override modal title
+   * @param {string} [options.confirmText='Confirm'] - Confirm button text
+   * @param {string} [options.cancelText='Cancel'] - Cancel button text
+   * @param {string} [options.confirmVariant='danger'] - Confirm button style variant
    */
   showConfirmation(message, onConfirm, onCancel, options = {}) {
     const defaults = {
@@ -441,6 +345,114 @@ class BaseModal {
     document.addEventListener("keydown", this.escapeHandler);
   }
 
+  setContent(html) {
+    const body = this.modalElement?.querySelector(".modal-body");
+    if (body) {
+      body.innerHTML = html;
+    }
+  }
+
+  setFooter(html) {
+    const footer = this.modalElement?.querySelector(".modal-footer");
+    if (footer) {
+      footer.innerHTML = html;
+    }
+  }
+
+  getBody() {
+    return this.modalElement?.querySelector(".modal-body");
+  }
+
+  getFooter() {
+    return this.modalElement?.querySelector(".modal-footer");
+  }
+
+  /**
+   * Attach event listeners to elements within the modal body
+   * @param {string} selector - CSS selector for target elements
+   * @param {string} event - Event type (e.g., 'click')
+   * @param {Function} handler - Event handler
+   */
+  addBodyEventListener(selector, event, handler) {
+    if (!this.modalElement) return;
+
+    const elements = this.modalElement.querySelectorAll(selector);
+    elements.forEach((element) => {
+      element.addEventListener(event, handler);
+    });
+  }
+
+  /**
+   * @param {string} text - Button label
+   * @param {Object} [options]
+   * @param {string} [options.variant='primary'] - Style variant: 'primary', 'secondary', 'danger'
+   * @param {Function} [options.onClick] - Click handler
+   * @param {Object} [options.styles] - Additional inline styles
+   * @returns {HTMLButtonElement}
+   */
+  createButton(text, options = {}) {
+    const button = document.createElement("button");
+    button.textContent = text;
+
+    // Apply CSS classes instead of inline styles
+    button.className = `modal-button modal-button-${options.variant || "primary"}`;
+
+    if (options.onClick && typeof options.onClick === "function") {
+      button.addEventListener("click", options.onClick);
+    }
+
+    // Add custom styles if provided
+    if (options.styles) {
+      Object.entries(options.styles).forEach(([property, value]) => {
+        button.style[property] = value;
+      });
+    }
+
+    return button;
+  }
+
+  showNotification(message, isError = false, duration = 4000) {
+    const type = isError ? "error" : "success";
+    window.notificationManager.show(message, { type, duration });
+  }
+
+  isReady() {
+    return !!(this.modalElement && document.body);
+  }
+
+  getStats() {
+    return {
+      hasModalElement: !!this.modalElement,
+      isVisible: this.isVisible,
+      className: this.config.className,
+      hasEscapeHandler: !!this.escapeHandler,
+      size: this.config.size,
+    };
+  }
+
+  destroy() {
+    try {
+      BaseModal.instances.delete(this);
+      if (this.escapeHandler) {
+        document.removeEventListener("keydown", this.escapeHandler);
+        this.escapeHandler = null;
+      }
+      if (this.focusTrapHandler) {
+        document.removeEventListener("keydown", this.focusTrapHandler);
+        this.focusTrapHandler = null;
+      }
+
+      if (this.modalElement && this.modalElement.parentNode) {
+        this.modalElement.parentNode.removeChild(this.modalElement);
+      }
+
+      this.modalElement = null;
+      this.isVisible = false;
+    } catch (error) {
+      BaseModal._warning("Failed to destroy modal", error);
+    }
+  }
+
   /**
    * Close all currently visible modals
    * @param {BaseModal} except - Optional modal to skip (don't close this one)
@@ -453,9 +465,6 @@ class BaseModal {
     }
   }
 
-  /**
-   * Check if any modal is currently visible
-   */
   static hasVisibleModal() {
     for (const modal of BaseModal.instances) {
       if (modal.isVisible) return true;
@@ -464,8 +473,15 @@ class BaseModal {
   }
 
   /**
-   * Static helper for simple confirmation dialogs
-   * Closes any open modals first, creates temporary modal, then cleans up
+   * Static helper for one-off confirmation dialogs. Creates a temporary modal and cleans up after.
+   * @param {Object} options
+   * @param {string} options.title - Dialog title
+   * @param {string} options.message - Confirmation message
+   * @param {string} [options.confirmText='Yes'] - Confirm button text
+   * @param {string} [options.cancelText='Cancel'] - Cancel button text
+   * @param {string} [options.confirmVariant='danger'] - Confirm button style
+   * @param {Function} [options.onConfirm] - Called when confirmed
+   * @param {Function} [options.onCancel] - Called when cancelled
    */
   static confirm({
     title,
@@ -495,6 +511,18 @@ class BaseModal {
       },
       { title, confirmText, cancelText, confirmVariant },
     );
+  }
+
+  static _error(message, error = null) {
+    window.errorManager.error(message, error, BaseModal.errorSource);
+  }
+
+  static _warning(message, error = null) {
+    window.errorManager.warning(message, error, BaseModal.errorSource);
+  }
+
+  static _critical(message, error = null) {
+    window.errorManager.critical(message, error, BaseModal.errorSource);
   }
 }
 
