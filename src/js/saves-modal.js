@@ -15,7 +15,7 @@ class SavesModal {
     if (!this.gameSaveSystem) {
       log.critical(
         "SavesModal requires a save system",
-        new Error("Invalid save system"),
+        new Error("Invalid save system")
       );
       return;
     }
@@ -206,7 +206,7 @@ class SavesModal {
 
   handleDeleteSlot(slotNumber) {
     const slot = this.modal.modalElement.querySelector(
-      `[data-slot="${slotNumber}"]`,
+      `[data-slot="${slotNumber}"]`
     );
     const isAutosave = slot?.classList.contains("autosave-slot");
     this.gameSaveSystem.deleteSlot(slotNumber, isAutosave);

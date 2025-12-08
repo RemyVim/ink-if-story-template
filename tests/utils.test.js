@@ -62,7 +62,7 @@ describe("Utils", () => {
 
     test("handles mixed camelCase and snake_case", () => {
       expect(Utils.formatKnotName("myCharacter_info")).toBe(
-        "My Character Info",
+        "My Character Info"
       );
     });
 

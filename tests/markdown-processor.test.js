@@ -4,7 +4,7 @@ describe("MarkdownProcessor", () => {
   describe("bold and italic", () => {
     test("converts __text__ to bold", () => {
       expect(MarkdownProcessor.process("__bold__")).toBe(
-        "<strong>bold</strong>",
+        "<strong>bold</strong>"
       );
     });
 
@@ -14,7 +14,7 @@ describe("MarkdownProcessor", () => {
 
     test("converts ___text___ to bold italic", () => {
       expect(MarkdownProcessor.process("___both___")).toBe(
-        "<strong><em>both</em></strong>",
+        "<strong><em>both</em></strong>"
       );
     });
 
@@ -26,7 +26,7 @@ describe("MarkdownProcessor", () => {
 
     test("handles multiple words inside formatting", () => {
       expect(MarkdownProcessor.process("__multiple words here__")).toBe(
-        "<strong>multiple words here</strong>",
+        "<strong>multiple words here</strong>"
       );
     });
 
@@ -71,19 +71,19 @@ describe("MarkdownProcessor", () => {
 
     test("handles formatting at start of text", () => {
       expect(MarkdownProcessor.process("__bold__ rest")).toBe(
-        "<strong>bold</strong> rest",
+        "<strong>bold</strong> rest"
       );
     });
 
     test("handles formatting at end of text", () => {
       expect(MarkdownProcessor.process("start __bold__")).toBe(
-        "start <strong>bold</strong>",
+        "start <strong>bold</strong>"
       );
     });
 
     test("handles punctuation after formatting", () => {
       expect(MarkdownProcessor.process("__bold__!")).toBe(
-        "<strong>bold</strong>!",
+        "<strong>bold</strong>!"
       );
       expect(MarkdownProcessor.process("_italic_.")).toBe("<em>italic</em>.");
     });
@@ -164,13 +164,13 @@ describe("MarkdownProcessor", () => {
   describe("lists and quotes", () => {
     test("converts > to list item", () => {
       expect(MarkdownProcessor.process("> Item")).toBe(
-        "<ul><li>Item</li></ul>",
+        "<ul><li>Item</li></ul>"
       );
     });
 
     test("converts >> to blockquote", () => {
       expect(MarkdownProcessor.process(">> Quote")).toBe(
-        "<blockquote>Quote</blockquote>",
+        "<blockquote>Quote</blockquote>"
       );
     });
 
@@ -195,7 +195,7 @@ describe("MarkdownProcessor", () => {
     test("does not convert comparison operators", () => {
       expect(MarkdownProcessor.process("x > 5")).toBe("x > 5");
       expect(MarkdownProcessor.process("if score >> 100")).toBe(
-        "if score >> 100",
+        "if score >> 100"
       );
     });
 
@@ -215,7 +215,7 @@ describe("MarkdownProcessor", () => {
       expect(result).toContain("<blockquote>");
       expect(result).toContain("<em>italic</em>");
       expect(result).toContain(
-        "<blockquote><em>italic</em> quote</blockquote>",
+        "<blockquote><em>italic</em> quote</blockquote>"
       );
     });
 
@@ -279,13 +279,13 @@ describe("MarkdownProcessor", () => {
 
     test("handles code at start of text", () => {
       expect(MarkdownProcessor.process("`code` rest")).toBe(
-        "<code>code</code> rest",
+        "<code>code</code> rest"
       );
     });
 
     test("handles code at end of text", () => {
       expect(MarkdownProcessor.process("start `code`")).toBe(
-        "start <code>code</code>",
+        "start <code>code</code>"
       );
     });
 
@@ -380,7 +380,7 @@ describe("MarkdownProcessor", () => {
 
     test("skip processing ignores leading whitespace", () => {
       expect(MarkdownProcessor.process("  % __not bold__")).toBe(
-        " __not bold__",
+        " __not bold__"
       );
     });
   });
@@ -422,7 +422,7 @@ describe("MarkdownProcessor", () => {
 
     test("handles mixed formatting in one line", () => {
       const result = MarkdownProcessor.process(
-        "__bold__ and _italic_ and `code`",
+        "__bold__ and _italic_ and `code`"
       );
       expect(result).toContain("<strong>bold</strong>");
       expect(result).toContain("<em>italic</em>");
@@ -520,7 +520,7 @@ describe("MarkdownProcessor", () => {
     });
     test("returns true for mailto links", () => {
       expect(MarkdownProcessor.isExternalURL("mailto:test@example.com")).toBe(
-        true,
+        true
       );
     });
 
@@ -531,7 +531,7 @@ describe("MarkdownProcessor", () => {
     test("returns true for invalid/unparseable URLs", () => {
       // Falls back to true (external) when parsing fails
       expect(MarkdownProcessor.isExternalURL("not:a:valid:url:format")).toBe(
-        true,
+        true
       );
     });
   });
@@ -540,7 +540,7 @@ describe("MarkdownProcessor", () => {
     test("creates link for URL targets", () => {
       const result = MarkdownProcessor.processLinkOrClass(
         "Click",
-        "https://example.com",
+        "https://example.com"
       );
       expect(result).toContain('<a href="https://example.com"');
       expect(result).toContain("Click");
@@ -549,7 +549,7 @@ describe("MarkdownProcessor", () => {
     test("adds https to bare domains", () => {
       const result = MarkdownProcessor.processLinkOrClass(
         "Click",
-        "example.com",
+        "example.com"
       );
       expect(result).toContain('href="https://example.com"');
     });
@@ -557,7 +557,7 @@ describe("MarkdownProcessor", () => {
     test("adds https to www domains", () => {
       const result = MarkdownProcessor.processLinkOrClass(
         "Click",
-        "www.example.com",
+        "www.example.com"
       );
       expect(result).toContain('href="https://www.example.com"');
     });
@@ -565,7 +565,7 @@ describe("MarkdownProcessor", () => {
     test("adds external link attributes", () => {
       const result = MarkdownProcessor.processLinkOrClass(
         "Click",
-        "https://external.com",
+        "https://external.com"
       );
       expect(result).toContain('target="_blank"');
       expect(result).toContain('rel="noopener noreferrer"');
@@ -574,7 +574,7 @@ describe("MarkdownProcessor", () => {
     test("adds screen reader text for external links", () => {
       const result = MarkdownProcessor.processLinkOrClass(
         "Click",
-        "https://external.com",
+        "https://external.com"
       );
       expect(result).toContain("opens in new tab");
     });
@@ -595,7 +595,7 @@ describe("MarkdownProcessor", () => {
     test("empty text in link", () => {
       const result = MarkdownProcessor.processLinkOrClass(
         "",
-        "https://example.com",
+        "https://example.com"
       );
       expect(result).toContain('href="https://example.com"');
       expect(result).toContain("></a>"); // empty anchor text
@@ -609,7 +609,7 @@ describe("MarkdownProcessor", () => {
     test("mailto links are external", () => {
       const result = MarkdownProcessor.processLinkOrClass(
         "Email",
-        "mailto:test@example.com",
+        "mailto:test@example.com"
       );
       expect(result).toContain('href="mailto:test@example.com"');
       expect(result).toContain('target="_blank"');
@@ -618,7 +618,7 @@ describe("MarkdownProcessor", () => {
     test("tel links are external", () => {
       const result = MarkdownProcessor.processLinkOrClass(
         "Call",
-        "tel:+1234567890",
+        "tel:+1234567890"
       );
       expect(result).toContain('href="tel:+1234567890"');
       expect(result).toContain('target="_blank"');
@@ -642,7 +642,7 @@ describe("MarkdownProcessor", () => {
     test("class names with dashes", () => {
       const result = MarkdownProcessor.processLinkOrClass(
         "text",
-        "my-custom-class",
+        "my-custom-class"
       );
       expect(result).toBe('<span class="inline-my-custom-class">text</span>');
     });
@@ -721,7 +721,7 @@ describe("MarkdownProcessor", () => {
 
     test("multiple links in one line", () => {
       const result = MarkdownProcessor.process(
-        "[One](example.com) and [Two](other.com)",
+        "[One](example.com) and [Two](other.com)"
       );
       expect(result).toContain('href="https://example.com"');
       expect(result).toContain('href="https://other.com"');
@@ -730,7 +730,7 @@ describe("MarkdownProcessor", () => {
     test("link with surrounding text", () => {
       const result = MarkdownProcessor.process("Click [here](example.com) now");
       expect(result).toBe(
-        'Click <a href="https://example.com" target="_blank" rel="noopener noreferrer">here<span class="sr-only"> (opens in new tab)</span></a> now',
+        'Click <a href="https://example.com" target="_blank" rel="noopener noreferrer">here<span class="sr-only"> (opens in new tab)</span></a> now'
       );
     });
 
@@ -742,7 +742,7 @@ describe("MarkdownProcessor", () => {
 
     test("escaped brackets prevent link", () => {
       const result = MarkdownProcessor.process(
-        "This is %[not a link%](target)",
+        "This is %[not a link%](target)"
       );
       expect(result).not.toContain("<a ");
       expect(result).not.toContain("<span class");
@@ -751,7 +751,7 @@ describe("MarkdownProcessor", () => {
 
     test("link mixed with other formatting", () => {
       const result = MarkdownProcessor.process(
-        "__bold__ [link](example.com) _italic_",
+        "__bold__ [link](example.com) _italic_"
       );
       expect(result).toContain("<strong>bold</strong>");
       expect(result).toContain("<a href");

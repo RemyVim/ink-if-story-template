@@ -204,7 +204,7 @@ for (const key in TAGS) {
 
     if (TAG_LOOKUP[upper]) {
       console.warn(
-        `Duplicate tag alias "${upper}" used by both "${TAG_LOOKUP[upper]}" and "${key}"`,
+        `Duplicate tag alias "${upper}" used by both "${TAG_LOOKUP[upper]}" and "${key}"`
       );
     }
 
@@ -321,7 +321,7 @@ const TagRegistry = {
     if (!toneMap) return false;
 
     return Object.keys(toneMap).some(
-      (key) => key.toLowerCase() === tagName.toLowerCase(),
+      (key) => key.toLowerCase() === tagName.toLowerCase()
     );
   },
 };

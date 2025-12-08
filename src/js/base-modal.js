@@ -77,7 +77,7 @@ class BaseModal {
     modalContent.setAttribute("aria-modal", "true");
     modalContent.setAttribute(
       "aria-labelledby",
-      `${this.config.className}-title`,
+      `${this.config.className}-title`
     );
     modalContent.setAttribute("tabindex", "-1");
 
@@ -133,10 +133,10 @@ class BaseModal {
       if (e.key !== "Tab" || !this.isVisible) return;
 
       const content = this.modalElement.querySelector(
-        `.${this.config.className}-content`,
+        `.${this.config.className}-content`
       );
       const focusable = content?.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
       );
       if (!focusable?.length) return;
 
@@ -203,13 +203,13 @@ class BaseModal {
       if (this.modalElement) {
         this.modalElement.style.opacity = "1";
         const content = this.modalElement.querySelector(
-          `.${this.config.className}-content`,
+          `.${this.config.className}-content`
         );
         if (content) {
           content.style.transform = "translate(-50%, -50%) scale(1)";
         }
         const focusable = content?.querySelectorAll(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
         );
         if (focusable?.length) {
           focusable[0].focus();
@@ -233,7 +233,7 @@ class BaseModal {
 
     this.modalElement.style.opacity = "0";
     const content = this.modalElement.querySelector(
-      `.${this.config.className}-content`,
+      `.${this.config.className}-content`
     );
 
     if (content) {
@@ -297,7 +297,7 @@ class BaseModal {
     this.show((modal) => {
       // Set content
       modal.setContent(
-        `<p style="margin: 0; color: var(--color-text-primary);">${message}</p>`,
+        `<p style="margin: 0; color: var(--color-text-primary);">${message}</p>`
       );
 
       // Set footer with buttons
@@ -511,7 +511,7 @@ class BaseModal {
         onCancel?.();
         modal.destroy();
       },
-      { title, confirmText, cancelText, confirmVariant },
+      { title, confirmText, cancelText, confirmVariant }
     );
   }
 }

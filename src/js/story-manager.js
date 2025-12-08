@@ -51,7 +51,7 @@ class StoryManager {
 
     if (missing.length > 0) {
       throw new Error(
-        `StoryManager.start() called before wiring dependencies: ${missing.join(", ")}`,
+        `StoryManager.start() called before wiring dependencies: ${missing.join(", ")}`
       );
     }
 
@@ -91,7 +91,7 @@ class StoryManager {
         document.dispatchEvent(
           new CustomEvent("story:content", {
             detail: { content: storyContent },
-          }),
+          })
         );
       }
 
@@ -100,7 +100,7 @@ class StoryManager {
       if (isFirstTime) {
         setTimeout(
           () => document.dispatchEvent(new CustomEvent("story:start")),
-          0,
+          0
         );
       }
 
@@ -179,7 +179,7 @@ class StoryManager {
       document.dispatchEvent(
         new CustomEvent("story:choice", {
           detail: { index: choiceIndex },
-        }),
+        })
       );
 
       this.savePoint = this.story.state.ToJson();
@@ -257,7 +257,7 @@ class StoryManager {
 
         if (processedContent?.hasSpecialAction) {
           const shouldContinue = this.handleSpecialAction(
-            processedContent.action,
+            processedContent.action
           );
           if (!shouldContinue) {
             break;
@@ -337,7 +337,7 @@ class StoryManager {
 
         // Check if the restored state has a pending user-input
         hasUserInput = state.displayState.history?.some(
-          (item) => item.type === "user-input",
+          (item) => item.type === "user-input"
         );
       } else {
         this.display?.clear?.();
@@ -379,7 +379,7 @@ class StoryManager {
     try {
       const namedContent = this.story.mainContentContainer.namedContent;
 
-      for (let [knotName, knotContent] of namedContent) {
+      for (const knotName of namedContent) {
         try {
           const pageInfo = this.getSpecialPageInfo(knotName);
           if (pageInfo) {
@@ -424,7 +424,7 @@ class StoryManager {
         }
       }
       return null;
-    } catch (error) {
+    } catch {
       return null;
     }
   }
@@ -472,7 +472,7 @@ class StoryManager {
           });
         } else {
           console.warn(
-            `Page '${pageName}' in PAGE_MENU not found in special pages`,
+            `Page '${pageName}' in PAGE_MENU not found in special pages`
           );
         }
       });

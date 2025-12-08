@@ -1,4 +1,6 @@
 import { errorManager, ERROR_SOURCES } from "./error-manager.js";
+import { MarkdownProcessor } from "./markdown-processor.js";
+import { TagRegistry } from "./tag-registry.js";
 import { Utils } from "./utils.js";
 
 const log = errorManager.forSource(ERROR_SOURCES.PAGE_MANAGER);
@@ -13,7 +15,7 @@ class PageManager {
     if (!this.storyManager) {
       log.critical(
         "PageManager requires a story manager",
-        new Error("Invalid story manager"),
+        new Error("Invalid story manager")
       );
     }
   }
@@ -227,7 +229,7 @@ class PageManager {
       const tempStory = this.createPageStory(knotName);
       return this.extractPageContent(tempStory);
     } catch (error) {
-      log.error("Failed to generate page content");
+      log.error("Failed to generate page content", error);
       return [];
     }
   }

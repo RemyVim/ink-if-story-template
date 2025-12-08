@@ -192,7 +192,7 @@ describe("ChoiceManager", () => {
     test("returns error choice for invalid onClick", () => {
       const choice = choiceManager.createSpecialChoice(
         "Back",
-        "not-a-function",
+        "not-a-function"
       );
 
       expect(choice.classes).toContain("error-choice");

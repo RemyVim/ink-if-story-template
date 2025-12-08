@@ -8,7 +8,7 @@ class DisplayManager {
   constructor(settings) {
     if (!settings) {
       log.warning(
-        "DisplayManager created without settings: animations will default to on",
+        "DisplayManager created without settings: animations will default to on"
       );
     }
     this.settings = settings;
@@ -20,7 +20,7 @@ class DisplayManager {
     if (!this.container) {
       log.critical(
         "Story container element not found",
-        new Error("Missing #story element"),
+        new Error("Missing #story element")
       );
       return;
     }
@@ -87,7 +87,7 @@ class DisplayManager {
           choice.isClickable !== false,
           choice.keyHint,
           showNumbers,
-          choice.toneIndicators || [],
+          choice.toneIndicators || []
         );
         if (choice.isClickable !== false && choice.onClick) {
           if (typeof choice.onClick === "function") {
@@ -121,7 +121,7 @@ class DisplayManager {
       const processedText = MarkdownProcessor.process(content.text);
       const element = this.domHelpers.createParagraph(
         processedText,
-        content.classes || [],
+        content.classes || []
       );
 
       if (element && this.shouldAnimateContent()) {
@@ -241,11 +241,11 @@ class DisplayManager {
         // Restore state to before this content batch and re-set variable
         if (this.storyManager.stateBeforeUserInput) {
           this.storyManager.story.state.LoadJson(
-            this.storyManager.stateBeforeUserInput,
+            this.storyManager.stateBeforeUserInput
           );
           this.storyManager.story.variablesState.$(
             item.variableName,
-            userInput,
+            userInput
           );
           this.storyManager.stateBeforeUserInput = null;
         }
@@ -369,7 +369,7 @@ class DisplayManager {
       element.style.opacity = "0";
       element.offsetHeight; // Force reflow
       element.style.opacity = "1";
-    } catch (error) {
+    } catch {
       element.style.opacity = "1";
     }
   }

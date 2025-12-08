@@ -61,7 +61,7 @@ class NotificationManager {
     const root = document.documentElement;
     root.style.setProperty(
       "--notification-spacing",
-      `${this.config.spacing}px`,
+      `${this.config.spacing}px`
     );
   }
 

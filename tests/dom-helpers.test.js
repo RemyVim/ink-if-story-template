@@ -140,12 +140,12 @@ describe("DOMHelpers", () => {
         true,
         null,
         true,
-        tones,
+        tones
       );
 
       expect(element.querySelector(".tone-icon")).not.toBeNull();
       expect(element.querySelector(".sr-only").textContent).toContain(
-        "romantic",
+        "romantic"
       );
     });
 
@@ -160,17 +160,17 @@ describe("DOMHelpers", () => {
         true,
         null,
         true,
-        tones,
+        tones
       );
 
       expect(element.querySelectorAll(".tone-icon").length).toBe(2);
       expect(element.querySelector(".sr-only").textContent).toContain(
         "romantic",
-        "risky",
+        "risky"
       );
       expect(element.querySelector(".sr-only").textContent).toContain(
         "romantic",
-        "risky",
+        "risky"
       );
     });
 
@@ -229,7 +229,7 @@ describe("DOMHelpers", () => {
       domHelpers.setVisible(".target", false);
 
       expect(
-        container.querySelector(".target").classList.contains("invisible"),
+        container.querySelector(".target").classList.contains("invisible")
       ).toBe(true);
     });
 
@@ -239,7 +239,7 @@ describe("DOMHelpers", () => {
       domHelpers.setVisible(".target", true);
 
       expect(
-        container.querySelector(".target").classList.contains("invisible"),
+        container.querySelector(".target").classList.contains("invisible")
       ).toBe(false);
     });
 
@@ -264,7 +264,7 @@ describe("DOMHelpers", () => {
       domHelpers.setVisible(".nonexistent", false);
       // Should not throw, element unchanged
       expect(
-        container.querySelector(".other").classList.contains("invisible"),
+        container.querySelector(".other").classList.contains("invisible")
       ).toBe(false);
     });
   });

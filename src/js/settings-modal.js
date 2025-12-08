@@ -129,7 +129,7 @@ class SettingsModal {
 
     this.settingsManager.handleAudioSettingChange(
       prevAudioEnabled,
-      settings.audioEnabled,
+      settings.audioEnabled
     );
     this.settingsManager.storeSettings();
     this.settingsManager.applySettings();
@@ -172,22 +172,22 @@ class SettingsModal {
     const elements = {
       theme: this.modal.modalElement.querySelector('select[name="theme"]'),
       fontFamily: this.modal.modalElement.querySelector(
-        'select[name="fontFamily"]',
+        'select[name="fontFamily"]'
       ),
       textSize: this.modal.modalElement.querySelector(
-        'select[name="textSize"]',
+        'select[name="textSize"]'
       ),
       lineHeight: this.modal.modalElement.querySelector(
-        'select[name="lineHeight"]',
+        'select[name="lineHeight"]'
       ),
       toneIndicators: this.modal.modalElement.querySelector(
-        'input[name="toneIndicators"]',
+        'input[name="toneIndicators"]'
       ),
       choiceNumbering: this.modal.modalElement.querySelector(
-        'select[name="choiceNumbering"]',
+        'select[name="choiceNumbering"]'
       ),
       keyboardShortcuts: this.modal.modalElement.querySelector(
-        'input[name="keyboardShortcuts"]',
+        'input[name="keyboardShortcuts"]'
       ),
     };
 
@@ -332,7 +332,7 @@ class SettingsModal {
         { value: "tight", label: "Tight" },
         { value: "normal", label: "Normal" },
         { value: "loose", label: "Loose" },
-      ],
+      ]
     )}
       ${this.renderCheckboxSetting("autoSave", "Auto Save Progress")}
     </div>
@@ -347,7 +347,7 @@ class SettingsModal {
         this.settingsManager.toneIndicatorsAvailable
           ? this.renderCheckboxSetting(
               "toneIndicators",
-              "Show tone indicators on choices",
+              "Show tone indicators on choices"
             )
           : ""
       }
@@ -359,13 +359,13 @@ class SettingsModal {
           { value: "auto", label: "Auto (hide on mobile)" },
           { value: "on", label: "Always Show" },
           { value: "off", label: "Always Hide" },
-        ],
+        ]
       )}
       ${
         this.keyboardHelpModal?.isAvailable()
           ? this.renderCheckboxSetting(
               "keyboardShortcuts",
-              "Enable Keyboard Shortcuts",
+              "Enable Keyboard Shortcuts"
             )
           : ""
       }

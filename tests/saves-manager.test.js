@@ -17,7 +17,7 @@ describe("SavesManager", () => {
     localStorageMock.store = {};
 
     localStorageMock.getItem.mockImplementation(
-      (key) => localStorageMock.store[key] ?? null,
+      (key) => localStorageMock.store[key] ?? null
     );
     localStorageMock.setItem.mockImplementation((key, value) => {
       localStorageMock.store[key] = String(value);
@@ -41,40 +41,40 @@ describe("SavesManager", () => {
 
     test("throws for slot number exceeding max", () => {
       expect(() => saveSystem.validateSlotNumber(6)).toThrow(
-        "Invalid slot number",
+        "Invalid slot number"
       );
       expect(() => saveSystem.validateSlotNumber(100)).toThrow(
-        "Invalid slot number",
+        "Invalid slot number"
       );
     });
 
     test("throws for negative numbers", () => {
       expect(() => saveSystem.validateSlotNumber(-1)).toThrow(
-        "Invalid slot number",
+        "Invalid slot number"
       );
     });
 
     test("throws for non-integers", () => {
       expect(() => saveSystem.validateSlotNumber("1")).toThrow(
-        "Invalid slot number",
+        "Invalid slot number"
       );
       expect(() => saveSystem.validateSlotNumber(1.5)).toThrow(
-        "Invalid slot number",
+        "Invalid slot number"
       );
       expect(() => saveSystem.validateSlotNumber(null)).toThrow(
-        "Invalid slot number",
+        "Invalid slot number"
       );
       expect(() => saveSystem.validateSlotNumber(undefined)).toThrow(
-        "Invalid slot number",
+        "Invalid slot number"
       );
     });
 
     test("throws for special number values", () => {
       expect(() => saveSystem.validateSlotNumber(NaN)).toThrow(
-        "Invalid slot number",
+        "Invalid slot number"
       );
       expect(() => saveSystem.validateSlotNumber(Infinity)).toThrow(
-        "Invalid slot number",
+        "Invalid slot number"
       );
     });
   });
@@ -143,7 +143,7 @@ describe("SavesManager", () => {
 
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         "ink-save-slot-3",
-        JSON.stringify(saveData),
+        JSON.stringify(saveData)
       );
     });
 
@@ -179,7 +179,7 @@ describe("SavesManager", () => {
 
       // Should have removed the old save
       expect(localStorageMock.removeItem).toHaveBeenCalledWith(
-        "ink-save-slot-1",
+        "ink-save-slot-1"
       );
     });
 
@@ -199,7 +199,7 @@ describe("SavesManager", () => {
       });
 
       expect(() => saveSystem.writeSaveData(2, { timestamp: 2000 })).toThrow(
-        "Storage quota exceeded - please delete some saves manually",
+        "Storage quota exceeded - please delete some saves manually"
       );
     });
   });
@@ -307,7 +307,7 @@ describe("SavesManager", () => {
       saveSystem.attemptStorageCleanup();
 
       expect(localStorageMock.removeItem).toHaveBeenCalledWith(
-        "ink-save-slot-2",
+        "ink-save-slot-2"
       );
     });
 
@@ -316,7 +316,7 @@ describe("SavesManager", () => {
 
       // Filter out storage test key removals from isStorageAvailable() checks
       const saveSlotRemovals = localStorageMock.removeItem.mock.calls.filter(
-        ([key]) => key.startsWith("ink-save-slot-"),
+        ([key]) => key.startsWith("ink-save-slot-")
       );
       expect(saveSlotRemovals).toHaveLength(0);
     });
@@ -336,7 +336,7 @@ describe("SavesManager", () => {
 
       // Should remove slot 1 (oldest non-autosave), not slot 0
       expect(localStorageMock.removeItem).toHaveBeenCalledWith(
-        "ink-save-slot-1",
+        "ink-save-slot-1"
       );
       expect(localStorageMock.store["ink-save-slot-0"]).toBeDefined();
     });
@@ -349,7 +349,7 @@ describe("SavesManager", () => {
       saveSystem.attemptStorageCleanup();
 
       const saveSlotRemovals = localStorageMock.removeItem.mock.calls.filter(
-        ([key]) => key.startsWith("ink-save-slot-"),
+        ([key]) => key.startsWith("ink-save-slot-")
       );
       expect(saveSlotRemovals).toHaveLength(0);
     });

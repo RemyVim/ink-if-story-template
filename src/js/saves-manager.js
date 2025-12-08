@@ -87,7 +87,6 @@ class SavesManager {
 
   deleteSlot(slotNumber, isAutosave = false) {
     try {
-      const slotName = isAutosave ? "autosave" : `Slot ${slotNumber}`;
       const message = isAutosave
         ? "Are you sure you want to clear the autosave?"
         : `Are you sure you want to delete the save in Slot ${slotNumber}?`;
@@ -119,7 +118,7 @@ class SavesManager {
             title: "Delete Save",
             confirmText: "Delete",
             cancelText: "Cancel",
-          },
+          }
         );
         return true;
       } else {
@@ -199,7 +198,7 @@ class SavesManager {
         const maxSizeMB = MAX_IMPORT_SIZE_BYTES / (1024 * 1024);
         log.error(
           `Import file too large (>${maxSizeMB}MB)`,
-          new Error("File size exceeds limit"),
+          new Error("File size exceeds limit")
         );
         return;
       }
@@ -319,7 +318,7 @@ class SavesManager {
   shouldAutosave() {
     try {
       return this.storyManager.settings?.getSetting?.("autoSave") || false;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -330,7 +329,7 @@ class SavesManager {
       localStorage.setItem(test, test);
       localStorage.removeItem(test);
       return true;
-    } catch (e) {
+    } catch {
       return false;
     }
   }
@@ -400,9 +399,9 @@ class SavesManager {
         this.attemptStorageCleanup();
         try {
           localStorage.setItem(saveKey, dataStr);
-        } catch (retryError) {
+        } catch {
           throw new Error(
-            "Storage quota exceeded - please delete some saves manually",
+            "Storage quota exceeded - please delete some saves manually"
           );
         }
       } else {
@@ -479,7 +478,7 @@ class SavesManager {
         const saveKey = this.savePrefix + oldestSlot;
         localStorage.removeItem(saveKey);
         console.log(
-          `[STORAGE] Automatically removed oldest save from slot ${oldestSlot}`,
+          `[STORAGE] Automatically removed oldest save from slot ${oldestSlot}`
         );
       }
     } catch (error) {

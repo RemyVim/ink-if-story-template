@@ -7,7 +7,7 @@ class DOMHelpers {
     if (!storyContainer || !(storyContainer instanceof Element)) {
       log.critical(
         "Invalid story container provided to DOM helpers",
-        new Error("Invalid story container"),
+        new Error("Invalid story container")
       );
       return;
     }
@@ -24,7 +24,7 @@ class DOMHelpers {
 
     if (!Array.isArray(customClasses)) {
       log.warning(
-        "Invalid customClasses passed to createParagraph - using empty array",
+        "Invalid customClasses passed to createParagraph - using empty array"
       );
       customClasses = [];
     }
@@ -63,7 +63,7 @@ class DOMHelpers {
     isClickable = true,
     keyHint = null,
     showHint = true,
-    toneIndicators = [],
+    toneIndicators = []
   ) {
     if (!choiceText || typeof choiceText !== "string") {
       log.warning("Invalid choiceText passed to createChoice");
@@ -72,7 +72,7 @@ class DOMHelpers {
 
     if (!Array.isArray(customClasses)) {
       log.warning(
-        "Invalid customClasses passed to createChoice - using empty array",
+        "Invalid customClasses passed to createChoice - using empty array"
       );
       customClasses = [];
     }
@@ -207,7 +207,7 @@ class DOMHelpers {
       } catch (error) {
         log.warning(
           `Failed to set visibility for element at index ${i}`,
-          error,
+          error
         );
       }
     }

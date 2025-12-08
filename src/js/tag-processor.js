@@ -43,7 +43,7 @@ class TagProcessor {
         TAGS.ACHIEVEMENT,
         (value, ctx) => {
           ctx.specialActions?.push(() =>
-            this.showNotification(value, "success", 6000),
+            this.showNotification(value, "success", 6000)
           );
         },
       ],
@@ -51,7 +51,7 @@ class TagProcessor {
         TAGS.WARNING,
         (value, ctx) => {
           ctx.specialActions?.push(() =>
-            this.showNotification(value, "warning"),
+            this.showNotification(value, "warning")
           );
         },
       ],
@@ -326,7 +326,7 @@ class TagProcessor {
     }
 
     log.warning(
-      `Unknown tag "${tagName}" on ${context}: "# ${fullTag}".${suggestion}`,
+      `Unknown tag "${tagName}" on ${context}: "# ${fullTag}".${suggestion}`
     );
   }
 

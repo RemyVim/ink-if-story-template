@@ -15,24 +15,24 @@ class InkFunctions {
     story.BindExternalFunction("LOWERCASE", (str) => String(str).toLowerCase());
     story.BindExternalFunction(
       "CAPITALIZE",
-      (str) => String(str).charAt(0).toUpperCase() + String(str).slice(1),
+      (str) => String(str).charAt(0).toUpperCase() + String(str).slice(1)
     );
     story.BindExternalFunction("TRIM", (str) => String(str).trim());
     story.BindExternalFunction("LENGTH", (str) => String(str).length);
     story.BindExternalFunction("CONTAINS", (str, search) =>
-      String(str).includes(String(search)),
+      String(str).includes(String(search))
     );
     story.BindExternalFunction("STARTS_WITH", (str, search) =>
-      String(str).startsWith(String(search)),
+      String(str).startsWith(String(search))
     );
     story.BindExternalFunction("ENDS_WITH", (str, search) =>
-      String(str).endsWith(String(search)),
+      String(str).endsWith(String(search))
     );
     story.BindExternalFunction("REPLACE", (str, search, replacement) =>
-      String(str).replace(String(search), String(replacement)),
+      String(str).replace(String(search), String(replacement))
     );
     story.BindExternalFunction("REPLACE_ALL", (str, search, replacement) =>
-      String(str).replaceAll(String(search), String(replacement)),
+      String(str).replaceAll(String(search), String(replacement))
     );
   }
 
@@ -48,11 +48,11 @@ class InkFunctions {
   static bindMathFunctions(story) {
     story.BindExternalFunction("ROUND", (value) => Math.round(value));
     story.BindExternalFunction("CLAMP", (value, min, max) =>
-      Math.min(Math.max(value, min), max),
+      Math.min(Math.max(value, min), max)
     );
     story.BindExternalFunction("ABS", (value) => Math.abs(value));
     story.BindExternalFunction("PERCENT", (value, total) =>
-      total === 0 ? 0 : Math.round((value / total) * 100),
+      total === 0 ? 0 : Math.round((value / total) * 100)
     );
   }
 
@@ -84,11 +84,11 @@ class InkFunctions {
 
     story.BindExternalFunction(
       "SECONDS_SINCE",
-      (start) => Math.floor(Date.now() / 1000) - start,
+      (start) => Math.floor(Date.now() / 1000) - start
     );
 
     story.BindExternalFunction("MINUTES_SINCE", (start) =>
-      Math.floor((Date.now() / 1000 - start) / 60),
+      Math.floor((Date.now() / 1000 - start) / 60)
     );
 
     story.BindExternalFunction("TIME_SINCE", (start) => {
@@ -121,7 +121,7 @@ class InkFunctions {
       };
       try {
         return date.toLocaleDateString(locale || "en-US", options);
-      } catch (e) {
+      } catch {
         console.warn(`Invalid locale "${locale}", falling back to en-US`);
         return date.toLocaleDateString("en-US", options);
       }
@@ -135,7 +135,7 @@ class InkFunctions {
       };
       try {
         return date.toLocaleTimeString(locale || "en-US", options);
-      } catch (e) {
+      } catch {
         console.warn(`Invalid locale "${locale}", falling back to en-US`);
         return date.toLocaleTimeString("en-US", options);
       }
@@ -152,7 +152,7 @@ class InkFunctions {
       };
       try {
         return date.toLocaleString(locale || "en-US", options);
-      } catch (e) {
+      } catch {
         console.warn(`Invalid locale "${locale}", falling back to en-US`);
         return date.toLocaleString("en-US", options);
       }
@@ -168,7 +168,7 @@ class InkFunctions {
         date.setHours(date.getHours() + hours);
         date.setMinutes(date.getMinutes() + minutes);
         return Math.floor(date.getTime() / 1000);
-      },
+      }
     );
   }
 }

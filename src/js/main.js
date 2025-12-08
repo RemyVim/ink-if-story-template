@@ -29,7 +29,7 @@ fetch("story.json")
     if (!response.ok) {
       throw new Error(
         `story.json not found (${response.status}). ` +
-          `Make sure story.json is in the root folder alongside index.html.`,
+          `Make sure story.json is in the root folder alongside index.html.`
       );
     }
     return response.json();
@@ -116,7 +116,7 @@ fetch("story.json")
       errorManager.critical(
         "Failed to initialize story manager",
         error,
-        ERROR_SOURCES.SYSTEM,
+        ERROR_SOURCES.SYSTEM
       );
       showFallbackUI(error);
     }
@@ -125,7 +125,7 @@ fetch("story.json")
     errorManager.critical(
       "Failed to load story file",
       error,
-      ERROR_SOURCES.SYSTEM,
+      ERROR_SOURCES.SYSTEM
     );
     showFallbackUI(error);
   });

@@ -32,7 +32,7 @@ describe("ErrorManager", () => {
       expect(spy).toHaveBeenCalledWith(
         "test message",
         expect.any(Error),
-        ERROR_SOURCES.DISPLAY_MANAGER,
+        ERROR_SOURCES.DISPLAY_MANAGER
       );
     });
   });
@@ -94,7 +94,7 @@ describe("ErrorManager", () => {
     test("handles rejected promises", async () => {
       const result = await errorManager.safelyAsync(
         () => Promise.reject(new Error("rejected")),
-        "caught",
+        "caught"
       );
       expect(result).toBe("caught");
     });

@@ -29,7 +29,7 @@ class ErrorManager {
       this.handleError(
         "Uncaught Error",
         event.error,
-        ErrorManager.SOURCES.SYSTEM,
+        ErrorManager.SOURCES.SYSTEM
       );
     });
 
@@ -37,7 +37,7 @@ class ErrorManager {
       this.handleError(
         "Unhandled Promise",
         event.reason,
-        ErrorManager.SOURCES.SYSTEM,
+        ErrorManager.SOURCES.SYSTEM
       );
       event.preventDefault();
     });
@@ -82,7 +82,7 @@ class ErrorManager {
       this.handleError(
         "Safe execution failed",
         error,
-        ErrorManager.SOURCES.SYSTEM,
+        ErrorManager.SOURCES.SYSTEM
       );
       return fallback;
     }
@@ -101,7 +101,7 @@ class ErrorManager {
       this.handleError(
         "Safe async execution failed",
         error,
-        ErrorManager.SOURCES.SYSTEM,
+        ErrorManager.SOURCES.SYSTEM
       );
       return fallback;
     }
@@ -124,19 +124,19 @@ class ErrorManager {
       const errorDetails = error instanceof Error ? error.message : error;
       console[severity === "warning" ? "warn" : "error"](
         "Details:",
-        errorDetails,
+        errorDetails
       );
       if (error.stack) {
         console[severity === "warning" ? "warn" : "error"](
           "Stack:",
-          error.stack,
+          error.stack
         );
       }
     }
 
     console[severity === "warning" ? "warn" : "error"](
       "Time:",
-      new Date().toISOString(),
+      new Date().toISOString()
     );
     console.groupEnd();
 
@@ -186,12 +186,12 @@ class ErrorManager {
           try {
             storyManager.settings.setSetting("autoSave", false);
             console.log(
-              "[RECOVERY] Autosave disabled due to save system error",
+              "[RECOVERY] Autosave disabled due to save system error"
             );
           } catch (recoveryError) {
             console.error(
               "[RECOVERY] Failed to disable autosave:",
-              recoveryError,
+              recoveryError
             );
           }
         }

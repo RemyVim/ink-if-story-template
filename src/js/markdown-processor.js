@@ -56,7 +56,7 @@ class MarkdownProcessor {
 
       text = text.replace(
         /(<li>.*?<\/li>(?:\s*<li>.*?<\/li>)*)/gs,
-        "<ul>$1</ul>",
+        "<ul>$1</ul>"
       );
 
       text = this.processInlineWithCodeBlocks(text);
@@ -196,7 +196,7 @@ class MarkdownProcessor {
 
       const urlObj = new URL(url, window.location.origin);
       return urlObj.hostname !== window.location.hostname;
-    } catch (error) {
+    } catch {
       return true;
     }
   }

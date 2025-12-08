@@ -73,7 +73,7 @@ describe("ContentProcessor", () => {
 
     test("parses complex image tag with all options", () => {
       const result = processor.parseImageTag(
-        'hero.png center 40% caption "The Hero"',
+        'hero.png center 40% caption "The Hero"'
       );
       expect(result.src).toBe("hero.png");
       expect(result.alignment).toBe("center");
@@ -86,7 +86,7 @@ describe("ContentProcessor", () => {
       expect(processor.parseImageTag("img.png left").alignment).toBe("left");
       expect(processor.parseImageTag("img.png right").alignment).toBe("right");
       expect(processor.parseImageTag("img.png center").alignment).toBe(
-        "center",
+        "center"
       );
     });
 
@@ -114,7 +114,7 @@ describe("ContentProcessor", () => {
 
     test("handles URL as source", () => {
       const result = processor.parseImageTag(
-        "https://example.com/hero.png left",
+        "https://example.com/hero.png left"
       );
       expect(result.src).toBe("https://example.com/hero.png");
       expect(result.alignment).toBe("left");
@@ -123,7 +123,7 @@ describe("ContentProcessor", () => {
     test("alignment is case-insensitive", () => {
       expect(processor.parseImageTag("img.png LEFT").alignment).toBe("left");
       expect(processor.parseImageTag("img.png Center").alignment).toBe(
-        "center",
+        "center"
       );
     });
 
@@ -165,7 +165,7 @@ describe("ContentProcessor", () => {
 
     test("parses variable with placeholder", () => {
       const result = processor.parseUserInputTag(
-        'player_name "Enter your name"',
+        'player_name "Enter your name"'
       );
       expect(result.variableName).toBe("player_name");
       expect(result.placeholder).toBe("Enter your name");
@@ -235,7 +235,7 @@ describe("ContentProcessor", () => {
 
     test("parses complex stat bar", () => {
       const result = processor.parseStatBarTag(
-        'alignment -50 50 "Chaos" "Order" clamp',
+        'alignment -50 50 "Chaos" "Order" clamp'
       );
       expect(result.variableName).toBe("alignment");
       expect(result.min).toBe(-50);
@@ -274,7 +274,7 @@ describe("ContentProcessor", () => {
       expect(result.min).toBe(0);
       expect(result.max).toBe(100);
       expect(errorManager.warning).toHaveBeenCalledWith(
-        expect.stringContaining("only one number"),
+        expect.stringContaining("only one number")
       );
     });
 
@@ -283,7 +283,7 @@ describe("ContentProcessor", () => {
       expect(result.min).toBe(0);
       expect(result.max).toBe(100);
       expect(errorManager.warning).toHaveBeenCalledWith(
-        expect.stringContaining("too many numbers"),
+        expect.stringContaining("too many numbers")
       );
     });
 
@@ -292,13 +292,13 @@ describe("ContentProcessor", () => {
       expect(result.leftLabel).toBe("One");
       expect(result.rightLabel).toBe("Two");
       expect(errorManager.warning).toHaveBeenCalledWith(
-        expect.stringContaining("only first two are used"),
+        expect.stringContaining("only first two are used")
       );
     });
 
     test("handles labels with special characters", () => {
       const result = processor.parseStatBarTag(
-        'stat "Health (HP)" "Mana & Magic"',
+        'stat "Health (HP)" "Mana & Magic"'
       );
       expect(result.leftLabel).toBe("Health (HP)");
       expect(result.rightLabel).toBe("Mana & Magic");
@@ -306,7 +306,7 @@ describe("ContentProcessor", () => {
 
     test("handles range with labels and clamp in any order", () => {
       const result = processor.parseStatBarTag(
-        'stat clamp "Left" -1000 1000 "Right"',
+        'stat clamp "Left" -1000 1000 "Right"'
       );
       expect(result.variableName).toBe("stat");
       expect(result.min).toBe(-1000);
@@ -324,7 +324,7 @@ describe("ContentProcessor", () => {
       expect(result.leftLabel).toBeNull();
       expect(result.rightLabel).toBeNull();
       expect(errorManager.warning).toHaveBeenCalledWith(
-        expect.stringContaining("use quotes for labels"),
+        expect.stringContaining("use quotes for labels")
       );
     });
 
@@ -333,7 +333,7 @@ describe("ContentProcessor", () => {
       expect(result.min).toBe(100);
       expect(result.max).toBe(0);
       expect(errorManager.warning).toHaveBeenCalledWith(
-        expect.stringContaining("min (100) >= max (0)"),
+        expect.stringContaining("min (100) >= max (0)")
       );
     });
 
@@ -342,7 +342,7 @@ describe("ContentProcessor", () => {
       expect(result.min).toBe(50);
       expect(result.max).toBe(50);
       expect(errorManager.warning).toHaveBeenCalledWith(
-        expect.stringContaining("min (50) >= max (50)"),
+        expect.stringContaining("min (50) >= max (50)")
       );
     });
 
@@ -452,7 +452,7 @@ describe("ContentProcessor", () => {
     test("verifies warning is called for non-function", () => {
       processor.findSpecialAction(["not a function"]);
       expect(errorManager.warning).toHaveBeenCalledWith(
-        expect.stringContaining("Non-function"),
+        expect.stringContaining("Non-function")
       );
     });
   });

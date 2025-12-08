@@ -14,7 +14,7 @@ class NavigationManager {
       log.critical(
         "NavigationManager requires a story manager",
         new Error("Invalid story manager"),
-        "navigation",
+        "navigation"
       );
       return;
     }
@@ -51,7 +51,7 @@ class NavigationManager {
       log.warning(
         `Invalid parameters for button ${buttonId}`,
         null,
-        "navigation",
+        "navigation"
       );
       return;
     }
@@ -88,14 +88,13 @@ class NavigationManager {
       log.warning(
         "Invalid availablePages object passed to updateVisibility",
         null,
-        "navigation",
+        "navigation"
       );
       return;
     }
 
     this.clearDynamicButtons();
 
-    const pageCount = Object.keys(availablePages).length;
     this.createSlidePanel(availablePages, pageMenuOrder);
   }
 
@@ -160,15 +159,8 @@ class NavigationManager {
     }
   }
 
-  updateSaveLoadButtons(hasSaves) {
-    if (!this.storyManager.pages) return;
-
-    const isOnSpecialPage = this.storyManager.pages.isViewingSpecialPage();
-    this.setButtonEnabled("saves-btn", !isOnSpecialPage);
-  }
-
   highlightActivePage(activeKnotName) {
-    for (let [buttonId, button] of this.dynamicButtons) {
+    for (const button of this.dynamicButtons.values()) {
       button.classList.remove("active", "current-page");
     }
 
@@ -266,7 +258,7 @@ class NavigationManager {
 
     const unorderedPages = Object.keys(availablePages).filter(
       (knotName) =>
-        !addedPages.has(knotName) && availablePages[knotName].isSpecialPage,
+        !addedPages.has(knotName) && availablePages[knotName].isSpecialPage
     );
 
     if (unorderedPages.length > 0 && addedPages.size > 0) {
@@ -357,7 +349,7 @@ class NavigationManager {
     this.slidePanel = null;
     this.menuButton = null;
 
-    for (let [buttonId, button] of this.dynamicButtons) {
+    for (const button of this.dynamicButtons) {
       if (button && button.parentNode) {
         button.parentNode.removeChild(button);
       }
@@ -367,7 +359,7 @@ class NavigationManager {
 
   getSpecialPageButtons() {
     const buttons = [];
-    for (let [buttonId, buttonElement] of this.dynamicButtons) {
+    for (const [buttonId, buttonElement] of this.dynamicButtons) {
       const knotName = buttonId.replace("special-page-", "");
       const pageInfo = this.storyManager?.availablePages?.[knotName];
 
@@ -406,7 +398,7 @@ class NavigationManager {
       }
     });
 
-    for (let [buttonId, button] of this.dynamicButtons) {
+    for (const [buttonId, button] of this.dynamicButtons) {
       const knotName = buttonId.replace("special-page-", "");
       states[buttonId] = {
         visible: button.style.display !== "none",
@@ -451,13 +443,13 @@ class NavigationManager {
     const specialPageButtons = this.getSpecialPageButtons();
     const totalButtons = Object.keys(buttonStates).length;
     const dynamicButtons = Object.values(buttonStates).filter(
-      (s) => s.isDynamic,
+      (s) => s.isDynamic
     ).length;
     const existingButtons = Object.values(buttonStates).filter(
-      (s) => s.exists,
+      (s) => s.exists
     ).length;
     const visibleButtons = Object.values(buttonStates).filter(
-      (s) => s.visible,
+      (s) => s.visible
     ).length;
 
     return {

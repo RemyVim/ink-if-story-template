@@ -16,7 +16,7 @@ describe("TagRegistry", () => {
     });
 
     test("all TAGS have required properties", () => {
-      for (const [key, def] of Object.entries(TagRegistry.TAGS)) {
+      for (const def of Object.values(TagRegistry.TAGS)) {
         expect(def.names).toBeDefined();
         expect(Array.isArray(def.names)).toBe(true);
         expect(def.names.length).toBeGreaterThan(0);
@@ -422,10 +422,10 @@ describe("TagRegistry", () => {
       expect(TagRegistry.hasSpecialPageTag(["SPECIAL_PAGE"])).toBe(true);
       expect(TagRegistry.hasSpecialPageTag(["SPECIAL_PAGE: About"])).toBe(true);
       expect(TagRegistry.hasSpecialPageTag(["SPECIAL_PAGE", "About"])).toBe(
-        true,
+        true
       );
       expect(TagRegistry.hasSpecialPageTag(["About", "SPECIAL_PAGE"])).toBe(
-        true,
+        true
       );
     });
 
@@ -518,13 +518,13 @@ describe("TagRegistry", () => {
 
       test("detects audio aliases (SFX, MUSIC, BGM)", () => {
         expect(StoryFeatures.scan({ text: "^SFX: beep.mp3" }).hasAudio).toBe(
-          true,
+          true
         );
         expect(StoryFeatures.scan({ text: "^MUSIC: bg.mp3" }).hasAudio).toBe(
-          true,
+          true
         );
         expect(StoryFeatures.scan({ text: "^BGM: theme.mp3" }).hasAudio).toBe(
-          true,
+          true
         );
       });
 
@@ -539,7 +539,7 @@ describe("TagRegistry", () => {
 
       test("returns false when no audio tags present", () => {
         expect(StoryFeatures.scan({ text: "^IMAGE: hero.png" }).hasAudio).toBe(
-          false,
+          false
         );
         expect(StoryFeatures.scan({ text: "Some text" }).hasAudio).toBe(false);
       });

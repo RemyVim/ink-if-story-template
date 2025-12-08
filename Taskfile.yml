@@ -137,6 +137,13 @@ tasks:
     cmds:
       - npm run test:verbose
 
+  lint:
+    desc: Run linter
+    silent: true
+    deps: [setup:npm]
+    cmds:
+      - npm run lint
+
   serve:
     desc: Start web server for development
     silent: true

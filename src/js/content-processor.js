@@ -101,7 +101,7 @@ class ContentProcessor {
   handleStatBarContent(tags, text) {
     const parsedTags = tags.map((t) => TagRegistry.parseTag(t));
     const statBarTags = parsedTags.filter(
-      ({ tagDef, invalid }) => tagDef === TAGS.STATBAR && !invalid,
+      ({ tagDef, invalid }) => tagDef === TAGS.STATBAR && !invalid
     );
 
     const statBars = statBarTags.map(({ tagValue }) => ({
@@ -209,17 +209,17 @@ class ContentProcessor {
       max = numbers[1].value;
     } else if (numbers.length === 1) {
       log.warning(
-        `STATBAR "${variableName}" has only one number - provide both min and max (e.g., "0 100")`,
+        `STATBAR "${variableName}" has only one number - provide both min and max (e.g., "0 100")`
       );
     } else if (numbers.length > 2) {
       log.warning(
-        `STATBAR "${variableName}" has too many numbers - provide only min and max (e.g., "0 100")`,
+        `STATBAR "${variableName}" has too many numbers - provide only min and max (e.g., "0 100")`
       );
     }
 
     if (numbers.length === 2 && min >= max) {
       log.warning(
-        `STATBAR "${variableName}" has min (${min}) >= max (${max}) - bar will not display correctly`,
+        `STATBAR "${variableName}" has min (${min}) >= max (${max}) - bar will not display correctly`
       );
     }
 
@@ -236,7 +236,7 @@ class ContentProcessor {
     }
     if (quotedStrings.length > 2) {
       log.warning(
-        `STATBAR "${variableName}" has ${quotedStrings.length} labels - only first two are used`,
+        `STATBAR "${variableName}" has ${quotedStrings.length} labels - only first two are used`
       );
     }
 
@@ -248,7 +248,7 @@ class ContentProcessor {
 
       if (!isNumber && !isKeyword) {
         log.warning(
-          `STATBAR "${variableName}" has unquoted text "${parts[i]}" - use quotes for labels (e.g., "Label")`,
+          `STATBAR "${variableName}" has unquoted text "${parts[i]}" - use quotes for labels (e.g., "Label")`
         );
         break;
       }

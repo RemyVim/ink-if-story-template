@@ -40,7 +40,7 @@ class KeyboardShortcuts {
     }
 
     if (event.key === "Escape") {
-      this.handleEscape(event);
+      this.handleEsca();
       return;
     }
 
@@ -74,7 +74,7 @@ class KeyboardShortcuts {
     }
   }
 
-  handleEscape(event) {
+  handleEscape() {
     if (this.storyManager.pages?.isViewingSpecialPage?.()) {
       try {
         this.storyManager.pages.returnToStory();

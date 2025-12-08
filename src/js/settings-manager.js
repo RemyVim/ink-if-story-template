@@ -105,7 +105,7 @@ class SettingsManager {
     try {
       localStorage.setItem(
         "ink-template-settings",
-        JSON.stringify(this.settings),
+        JSON.stringify(this.settings)
       );
     } catch (error) {
       log.error("Failed to store settings", error);
@@ -116,7 +116,7 @@ class SettingsManager {
     try {
       const stored = localStorage.getItem("ink-template-settings");
       return stored ? JSON.parse(stored) : null;
-    } catch (error) {
+    } catch {
       return null;
     }
   }
@@ -170,7 +170,7 @@ class SettingsManager {
       html.classList.add("dark");
     } else if (this.settings.theme === "auto") {
       const prefersDark = window.matchMedia(
-        "(prefers-color-scheme: dark)",
+        "(prefers-color-scheme: dark)"
       ).matches;
       if (prefersDark) {
         body.classList.add("dark");
@@ -193,7 +193,7 @@ class SettingsManager {
 
     root.style.setProperty(
       "--font-main",
-      fonts[this.settings.fontFamily] || fonts.serif,
+      fonts[this.settings.fontFamily] || fonts.serif
     );
   }
 
@@ -210,7 +210,7 @@ class SettingsManager {
 
     root.style.setProperty(
       "--text-size-base",
-      sizes[this.settings.textSize] || sizes.medium,
+      sizes[this.settings.textSize] || sizes.medium
     );
   }
 
@@ -250,10 +250,10 @@ class SettingsManager {
     document.body?.classList.remove(
       "choice-numbers-on",
       "choice-numbers-off",
-      "choice-numbers-auto",
+      "choice-numbers-auto"
     );
     document.body?.classList.add(
-      `choice-numbers-${this.settings.choiceNumbering || "auto"}`,
+      `choice-numbers-${this.settings.choiceNumbering || "auto"}`
     );
   }
 
