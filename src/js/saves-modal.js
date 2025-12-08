@@ -5,7 +5,7 @@ const log = errorManager.forSource(ERROR_SOURCES.SAVES_MODAL);
 
 const REFRESH_DELAY_MS = 100;
 
-class SavesModalManager {
+class SavesModal {
   constructor(gameSaveSystem) {
     this.gameSaveSystem = gameSaveSystem;
     this.maxSaveSlots = gameSaveSystem.maxSaveSlots;
@@ -14,7 +14,7 @@ class SavesModalManager {
 
     if (!this.gameSaveSystem) {
       log.critical(
-        "SavesModalManager requires a save system",
+        "SavesModal requires a save system",
         new Error("Invalid save system"),
       );
       return;
@@ -242,4 +242,4 @@ class SavesModalManager {
   }
 }
 
-export { SavesModalManager };
+export { SavesModal };

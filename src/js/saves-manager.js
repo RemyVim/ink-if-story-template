@@ -1,4 +1,4 @@
-import { SavesModalManager } from "./saves-modal-manager.js";
+import { SavesModal } from "./saves-modal.js";
 import { errorManager, ERROR_SOURCES } from "./error-manager.js";
 
 const log = errorManager.forSource(ERROR_SOURCES.SAVE_SYSTEM);
@@ -12,7 +12,7 @@ class SavesManager {
     this.savePrefix = "ink-save-slot-";
     this.autosaveSlot = 0;
     this.maxSaveSlots = 5;
-    this.modal = new SavesModalManager(this);
+    this.modal = new SavesModal(this);
     this.setupEventListeners();
   }
 
