@@ -317,12 +317,26 @@ const TagRegistry = {
     });
   },
 
-  isRegisteredToneTag(tagName, toneMap = {}) {
-    if (!toneMap) return false;
+  // Tone indicator registry (populated from # TONE: tags)
+  toneMap: {},
 
-    return Object.keys(toneMap).some(
-      (key) => key.toLowerCase() === tagName.toLowerCase()
-    );
+  registerTone(label, icon) {
+    if (!label || typeof label !== "string") return;
+    this.toneMap[label.toLowerCase()] = icon;
+  },
+
+  getToneIcon(label) {
+    if (!label || typeof label !== "string") return null;
+    return this.toneMap[label.toLowerCase()] || null;
+  },
+
+  isRegisteredToneTag(tagName) {
+    if (!tagName || typeof tagName !== "string") return false;
+    return tagName.toLowerCase() in this.toneMap;
+  },
+
+  clearTones() {
+    this.toneMap = {};
   },
 };
 

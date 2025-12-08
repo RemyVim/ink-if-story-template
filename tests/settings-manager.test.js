@@ -1,18 +1,23 @@
 import { SettingsManager } from "../src/js/settings-manager.js";
+import { TagRegistry } from "../src/js/tag-registry.js";
 
 describe("SettingsManager", () => {
   describe("getToneIndicators", () => {
     let settings;
 
     beforeEach(() => {
+      TagRegistry.clearTones();
+      TagRegistry.registerTone("flirty", "😏");
+      TagRegistry.registerTone("angry", "whatshot");
+      TagRegistry.registerTone("sarcastic", "🙄");
+
       settings = Object.create(SettingsManager.prototype);
       settings.settings = { toneIndicators: true };
       settings.toneIndicatorsAvailable = true;
-      settings.toneMap = {
-        flirty: "😏",
-        angry: "whatshot", // material icon
-        sarcastic: "🙄",
-      };
+    });
+
+    afterEach(() => {
+      TagRegistry.clearTones();
     });
 
     test("returns matching indicators for tags", () => {

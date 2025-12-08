@@ -465,42 +465,87 @@ describe("TagRegistry", () => {
   });
 
   describe("isRegisteredToneTag", () => {
-    const toneMap = {
-      flirty: "🔥",
-      angry: "😠",
-      Sarcastic: "🙄",
-    };
+    beforeEach(() => {
+      TagRegistry.clearTones();
+      TagRegistry.registerTone("flirty", "🔥");
+      TagRegistry.registerTone("angry", "😠");
+      TagRegistry.registerTone("Sarcastic", "🙄");
+    });
+
+    afterEach(() => {
+      TagRegistry.clearTones();
+    });
 
     test("returns true for registered tone (exact case)", () => {
-      expect(TagRegistry.isRegisteredToneTag("flirty", toneMap)).toBe(true);
+      expect(TagRegistry.isRegisteredToneTag("flirty")).toBe(true);
     });
 
     test("returns true for registered tone (case-insensitive)", () => {
-      expect(TagRegistry.isRegisteredToneTag("FLIRTY", toneMap)).toBe(true);
-      expect(TagRegistry.isRegisteredToneTag("Flirty", toneMap)).toBe(true);
-      expect(TagRegistry.isRegisteredToneTag("sarcastic", toneMap)).toBe(true);
+      expect(TagRegistry.isRegisteredToneTag("FLIRTY")).toBe(true);
+      expect(TagRegistry.isRegisteredToneTag("Flirty")).toBe(true);
+      expect(TagRegistry.isRegisteredToneTag("sarcastic")).toBe(true);
     });
 
     test("returns false for unregistered tone", () => {
-      expect(TagRegistry.isRegisteredToneTag("happy", toneMap)).toBe(false);
-      expect(TagRegistry.isRegisteredToneTag("unknown", toneMap)).toBe(false);
+      expect(TagRegistry.isRegisteredToneTag("happy")).toBe(false);
+      expect(TagRegistry.isRegisteredToneTag("unknown")).toBe(false);
     });
 
     test("returns false for regular tag", () => {
-      expect(TagRegistry.isRegisteredToneTag("TITLE", toneMap)).toBe(false);
-      expect(TagRegistry.isRegisteredToneTag("IMAGE", toneMap)).toBe(false);
+      expect(TagRegistry.isRegisteredToneTag("TITLE")).toBe(false);
+      expect(TagRegistry.isRegisteredToneTag("IMAGE")).toBe(false);
     });
 
-    test("returns false when toneMap is empty", () => {
-      expect(TagRegistry.isRegisteredToneTag("flirty", {})).toBe(false);
+    test("returns false when no tones registered", () => {
+      TagRegistry.clearTones();
+      expect(TagRegistry.isRegisteredToneTag("flirty")).toBe(false);
     });
 
-    test("returns false when storyManager is undefined", () => {
-      expect(TagRegistry.isRegisteredToneTag("flirty", undefined)).toBe(false);
+    test("returns false for invalid input", () => {
+      expect(TagRegistry.isRegisteredToneTag(null)).toBe(false);
+      expect(TagRegistry.isRegisteredToneTag("")).toBe(false);
+    });
+  });
+
+  describe("registerTone and getToneIcon", () => {
+    beforeEach(() => {
+      TagRegistry.clearTones();
     });
 
-    test("returns false when storyManager is null", () => {
-      expect(TagRegistry.isRegisteredToneTag("flirty", null)).toBe(false);
+    afterEach(() => {
+      TagRegistry.clearTones();
+    });
+
+    test("registerTone adds tone to registry", () => {
+      TagRegistry.registerTone("happy", "😊");
+      expect(TagRegistry.isRegisteredToneTag("happy")).toBe(true);
+    });
+
+    test("registerTone normalizes label to lowercase", () => {
+      TagRegistry.registerTone("EXCITED", "🎉");
+      expect(TagRegistry.isRegisteredToneTag("excited")).toBe(true);
+      expect(TagRegistry.getToneIcon("excited")).toBe("🎉");
+    });
+
+    test("getToneIcon returns icon for registered tone", () => {
+      TagRegistry.registerTone("sad", "😢");
+      expect(TagRegistry.getToneIcon("sad")).toBe("😢");
+    });
+
+    test("getToneIcon is case-insensitive", () => {
+      TagRegistry.registerTone("angry", "😠");
+      expect(TagRegistry.getToneIcon("ANGRY")).toBe("😠");
+    });
+
+    test("getToneIcon returns null for unregistered tone", () => {
+      expect(TagRegistry.getToneIcon("unknown")).toBe(null);
+    });
+
+    test("clearTones removes all tones", () => {
+      TagRegistry.registerTone("test", "🧪");
+      expect(TagRegistry.isRegisteredToneTag("test")).toBe(true);
+      TagRegistry.clearTones();
+      expect(TagRegistry.isRegisteredToneTag("test")).toBe(false);
     });
   });
 

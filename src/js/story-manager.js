@@ -150,7 +150,6 @@ class StoryManager {
         const choices = this.choices?.generate?.(this.story.currentChoices);
         if (choices) {
           // Always include hints in HTML - CSS handles visibility via container class
-          // TODO: Fix this to remove unused parameter
           this.display?.renderChoices?.(choices, true);
         }
       }

@@ -15,9 +15,6 @@ class SettingsManager {
     this.toneIndicatorsAvailable = false;
     this.authorToneIndicators = true;
     this.toneIndicatorsTrailing = false;
-
-    // TODO: Move toneMap to tagRegistry where it makes more sense
-    this.toneMap = {}; // Will be populated from global tags
     this.authorChoiceNumbering = "auto";
 
     this.init();
@@ -335,12 +332,10 @@ class SettingsManager {
         case TAGS.TONE: // TONE: label icon
           const spaceIndex = tagValue.indexOf(" ");
           if (spaceIndex !== -1) {
-            const label = tagValue
-              .substring(0, spaceIndex)
-              .trim()
-              .toLowerCase();
+            const label = tagValue.substring(0, spaceIndex).trim();
             const icon = tagValue.substring(spaceIndex + 1).trim();
-            this.toneMap[label] = icon;
+            TagRegistry.registerTone(label, icon);
+            this.toneIndicatorsAvailable = true;
           }
           break;
       }
@@ -398,10 +393,11 @@ class SettingsManager {
     for (const tag of tags) {
       if (typeof tag !== "string") continue;
       const normalizedTag = tag.trim().toLowerCase();
-      if (this.toneMap[normalizedTag]) {
+      const icon = TagRegistry.getToneIcon(normalizedTag);
+      if (icon) {
         indicators.push({
           label: normalizedTag,
-          icon: this.toneMap[normalizedTag],
+          icon: icon,
         });
       }
     }

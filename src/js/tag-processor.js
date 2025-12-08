@@ -165,7 +165,7 @@ class TagProcessor {
       if (
         allowTones &&
         !isPropertyTag &&
-        TagRegistry.isRegisteredToneTag(tagName, this.settings?.toneMap)
+        TagRegistry.isRegisteredToneTag(tagName)
       ) {
         ctx.customClasses.push(tagName.toLowerCase());
         continue;
