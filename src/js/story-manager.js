@@ -1,9 +1,7 @@
 import { Story } from "inkjs";
-import { TagRegistry, TAGS } from "./tag-registry.js";
 import { notificationManager } from "./notification-manager.js";
 import { InkFunctions } from "./ink-functions.js";
 import { BaseModal } from "./base-modal.js";
-import { Utils } from "./utils.js";
 import { errorManager, ERROR_SOURCES } from "./error-manager.js";
 
 const log = errorManager.forSource(ERROR_SOURCES.STORY_MANAGER);
@@ -28,10 +26,6 @@ class StoryManager {
       InkFunctions.bindAll(this.story);
 
       this.savePoint = "";
-      this.currentPage = null;
-      this.availablePages = {};
-      this.pageMenuOrder = null;
-
       this.display = display;
       this.settings = settings;
       this.contentProcessor = contentProcessor;
@@ -73,13 +67,16 @@ class StoryManager {
       );
     }
 
-    this.detectSpecialPages();
+    this.pages.detectSpecialPages();
 
     try {
       // Process global tags for theme, metadata, and menu order
       this.settings.processGlobalTags(this.story.globalTags);
-      this.processMenuOrderTag(this.story.globalTags);
-      this.navigation.updateVisibility(this.availablePages, this.pageMenuOrder);
+      this.pages.processMenuOrderTag(this.story.globalTags);
+      this.navigation.updateVisibility(
+        this.pages.availablePages,
+        this.pages.pageMenuOrder
+      );
       // Set initial save point and start
       this.savePoint = this.story.state.ToJson();
       this.continue(true);
@@ -95,8 +92,7 @@ class StoryManager {
    */
   continue(isFirstTime = false) {
     try {
-      // Don't continue if viewing a special page
-      if (this.currentPage) return;
+      if (this.pages?.isViewingSpecialPage()) return;
 
       if (!isFirstTime) {
         this.display?.clear?.();
@@ -154,8 +150,7 @@ class StoryManager {
    */
   continueWithoutClearing() {
     try {
-      // Don't continue if viewing a special page
-      if (this.currentPage) return;
+      if (this.pages?.isViewingSpecialPage()) return;
 
       const { content: storyContent } = this.generateContent();
       if (storyContent.length > 0) {
@@ -234,7 +229,6 @@ class StoryManager {
     try {
       document.dispatchEvent(new CustomEvent("story:restart"));
       this.story.ResetState();
-      this.currentPage = null;
       this.display?.reset?.();
       this.pages?.reset?.();
       this.savePoint = this.story.state.ToJson();
@@ -356,7 +350,7 @@ class StoryManager {
       return {
         gameState: this.story.state.ToJson(),
         displayState: this.display?.getState?.() || null,
-        currentPage: this.currentPage,
+        currentPage: this.pages?.currentPage,
         savePoint: this.savePoint,
         timestamp: Date.now(),
       };
@@ -385,7 +379,7 @@ class StoryManager {
       testStory.state.LoadJson(state.gameState);
 
       this.story.state.LoadJson(state.gameState);
-      this.currentPage = state.currentPage || null;
+      this.pages.currentPage = state.currentPage || null;
       this.savePoint = state.savePoint || this.story.state.ToJson();
 
       this.pages?.reset?.();
@@ -438,140 +432,6 @@ class StoryManager {
     } catch (error) {
       log.error("Failed to regenerate display", error, "display");
     }
-  }
-
-  /**
-   * Scans all ink story knots to find those marked as special pages.
-   * Populates this.availablePages with page info.
-   * @private
-   */
-  detectSpecialPages() {
-    this.availablePages = {};
-
-    try {
-      const namedContent = this.story.mainContentContainer.namedContent;
-
-      for (const knotName of namedContent) {
-        try {
-          const pageInfo = this.getSpecialPageInfo(knotName);
-          if (pageInfo) {
-            this.availablePages[knotName] = {
-              displayName: pageInfo.displayName,
-              knotName: knotName,
-              isSpecialPage: true,
-            };
-          }
-        } catch (error) {
-          log.warning(`Failed to check if ${knotName} is special page`, error);
-        }
-      }
-    } catch (error) {
-      log.error("Failed to detect special pages", error);
-    }
-  }
-
-  /**
-   * Checks if a knot is a special page and returns its info.
-   * @param {string} knotName - The ink knot name to check
-   * @returns {{displayName: string, isSpecialPage: boolean}|null} Page info or null
-   * @private
-   */
-  getSpecialPageInfo(knotName) {
-    if (!TAGS || !TagRegistry.getTagDef) return null;
-
-    try {
-      const tempStory = this.createTempStory();
-      tempStory.ChoosePathString(knotName);
-
-      if (tempStory.canContinue) {
-        tempStory.Continue();
-
-        const tags = tempStory.currentTags || [];
-
-        for (const tag of tags) {
-          if (typeof tag !== "string") continue;
-
-          const { tagDef, tagValue } = TagRegistry.parseTag(tag);
-
-          if (tagDef === TAGS.SPECIAL_PAGE) {
-            return {
-              displayName: tagValue?.trim() || Utils.formatKnotName(knotName),
-              isSpecialPage: true,
-            };
-          }
-        }
-      }
-      return null;
-    } catch {
-      return null;
-    }
-  }
-
-  /**
-   * Checks if a knot is marked as a special page.
-   * @param {string} knotName - The ink knot name
-   * @returns {boolean} True if the knot is a special page
-   */
-  isSpecialPage(knotName) {
-    return this.getSpecialPageInfo(knotName) !== null;
-  }
-
-  /**
-   * Processes the PAGE_MENU global tag to set page ordering.
-   * @param {string[]} globalTags - Array of global tags from the story
-   * @private
-   */
-  processMenuOrderTag(globalTags) {
-    if (!Array.isArray(globalTags)) return;
-
-    for (const tag of globalTags) {
-      if (typeof tag !== "string") continue;
-
-      const colonIndex = tag.indexOf(":");
-      if (colonIndex === -1) continue;
-
-      const property = tag.substring(0, colonIndex).trim().toUpperCase();
-      const value = tag.substring(colonIndex + 1).trim();
-
-      if (TagRegistry.getTagDef(property) === TAGS.PAGE_MENU) {
-        this.pageMenuOrder = this.parseMenuOrder(value);
-        break;
-      }
-    }
-  }
-
-  /**
-   * Parses a menu order string into structured page order data.
-   * Format: "page1, page2,, page3" where ",," separates sections.
-   * @param {string} menuString - The menu order string
-   * @returns {Array<{knotName: string, section: number}>|null} Parsed order or null
-   * @private
-   */
-  parseMenuOrder(menuString) {
-    const sections = menuString.split(",,").map((s) => s.trim());
-    const menuOrder = [];
-
-    sections.forEach((section, sectionIndex) => {
-      const pages = section
-        .split(",")
-        .map((p) => p.trim())
-        .filter((p) => p);
-
-      pages.forEach((pageName) => {
-        if (this.availablePages[pageName]) {
-          menuOrder.push({
-            knotName: pageName,
-            section: sectionIndex,
-          });
-        } else {
-          console.warn(
-            `Page '${pageName}' in PAGE_MENU not found in special pages`
-          );
-        }
-      });
-    });
-
-    return menuOrder.length > 0 ? menuOrder : null;
   }
 
   /**
@@ -629,9 +489,9 @@ class StoryManager {
         hasEnded: this.hasEnded(),
         canContinue: this.canContinue(),
         hasChoices: this.hasChoices(),
-        currentPage: this.currentPage,
+        currentPage: this.pages?.currentPage,
         displayLength: this.display?.getHistoryLength?.() || 0,
-        specialPagesFound: Object.keys(this.availablePages).length,
+        specialPagesFound: Object.keys(this.pages?.availablePages || {}).length,
       };
     } catch (error) {
       log.warning("Failed to get stats", error);
@@ -645,10 +505,10 @@ class StoryManager {
    */
   getFeatureInfo() {
     return {
-      availablePages: { ...this.availablePages },
+      availablePages: { ...this.pages?.availablePages },
       hasGlobalTags: this.story.globalTags?.length > 0,
       hasCurrentTags: this.story.currentTags?.length > 0,
-      specialPageCount: Object.keys(this.availablePages).length,
+      specialPageCount: Object.keys(this.pages?.availablePages || {}).length,
     };
   }
 

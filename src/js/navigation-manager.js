@@ -122,7 +122,7 @@ class NavigationManager {
    * Refreshes the navigation to reflect current available pages.
    */
   refresh() {
-    const availablePages = this.storyManager?.availablePages || {};
+    const availablePages = this.storyManager?.pages?.availablePages || {};
     this.updateVisibility(availablePages);
   }
 
@@ -461,7 +461,7 @@ class NavigationManager {
     const buttons = [];
     for (const [buttonId, buttonElement] of this.dynamicButtons) {
       const knotName = buttonId.replace("special-page-", "");
-      const pageInfo = this.storyManager?.availablePages?.[knotName];
+      const pageInfo = this.storyManager?.pages?.availablePages?.[knotName];
 
       buttons.push({
         buttonId,
@@ -531,7 +531,7 @@ class NavigationManager {
     for (const link of links) {
       // Match by the click handler's knotName (stored in closure)
       // Since we can't access that, match by display name
-      const pageInfo = this.storyManager?.availablePages?.[knotName];
+      const pageInfo = this.storyManager?.pages?.availablePages?.[knotName];
       if (pageInfo && link.textContent === pageInfo.displayName) {
         return link;
       }
@@ -545,7 +545,7 @@ class NavigationManager {
    * @returns {string} The display name
    */
   getPageDisplayName(knotName) {
-    const pageInfo = this.storyManager?.availablePages?.[knotName];
+    const pageInfo = this.storyManager?.pages?.availablePages?.[knotName];
     return pageInfo?.displayName || Utils.formatKnotName(knotName);
   }
 
@@ -594,7 +594,7 @@ class NavigationManager {
    */
   getNavigationInfo() {
     const currentPage = this.storyManager?.pages?.getCurrentPageKnotName();
-    const availablePages = this.storyManager?.availablePages || {};
+    const availablePages = this.storyManager?.pages?.availablePages || {};
 
     return {
       currentPage: {

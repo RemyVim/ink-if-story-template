@@ -1,6 +1,6 @@
 import { errorManager, ERROR_SOURCES } from "./error-manager.js";
 import { MarkdownProcessor } from "./markdown-processor.js";
-import { TagRegistry } from "./tag-registry.js";
+import { TagRegistry, TAGS } from "./tag-registry.js";
 import { Utils } from "./utils.js";
 
 const log = errorManager.forSource(ERROR_SOURCES.PAGE_MANAGER);
@@ -20,6 +20,9 @@ class PageManager {
     this.tagProcessor = storyManager.TagProcessor;
     this.savedDisplayState = null;
     this.savedStoryState = null;
+    this.currentPage = null;
+    this.availablePages = {};
+    this.pageMenuOrder = null;
 
     if (!this.storyManager) {
       log.critical(
@@ -50,7 +53,7 @@ class PageManager {
       this.saveCurrentState();
     }
 
-    this.storyManager.currentPage = knotName;
+    this.currentPage = knotName;
 
     if (this.storyManager.display) {
       this.storyManager.display.clear();
@@ -69,10 +72,10 @@ class PageManager {
    * Returns from a special page to the main story, restoring the previous state.
    */
   returnToStory() {
-    if (!this.storyManager.currentPage) return;
+    if (!this.currentPage) return;
 
     try {
-      this.storyManager.currentPage = null;
+      this.currentPage = null;
 
       if (!this.storyManager.display) {
         log.error("Display manager not available for return");
@@ -120,9 +123,7 @@ class PageManager {
   reset() {
     this.savedDisplayState = null;
     this.savedStoryState = null;
-    if (this.storyManager) {
-      this.storyManager.currentPage = null;
-    }
+    this.currentPage = null;
   }
 
   /**
@@ -130,7 +131,7 @@ class PageManager {
    * @returns {boolean} True if viewing a special page
    */
   isViewingSpecialPage() {
-    return this.storyManager?.currentPage !== null;
+    return this.currentPage !== null;
   }
 
   /**
@@ -139,7 +140,7 @@ class PageManager {
    * @returns {boolean} True if the knot is a special page
    */
   isSpecialPage(knotName) {
-    const pageInfo = this.storyManager?.availablePages?.[knotName];
+    const pageInfo = this.availablePages?.[knotName];
     return pageInfo && pageInfo.isSpecialPage;
   }
 
@@ -157,7 +158,7 @@ class PageManager {
    * @returns {string|null} The knot name, or null if not viewing a special page
    */
   getCurrentPageKnotName() {
-    return this.storyManager?.currentPage || null;
+    return this.currentPage || null;
   }
 
   /**
@@ -175,7 +176,7 @@ class PageManager {
    * @returns {string} The display name
    */
   getPageDisplayName(knotName) {
-    const pageInfo = this.storyManager?.availablePages?.[knotName];
+    const pageInfo = this.availablePages?.[knotName];
     if (pageInfo && pageInfo.displayName) {
       return pageInfo.displayName;
     }
@@ -188,7 +189,7 @@ class PageManager {
    * @returns {Object.<string, {displayName: string, knotName: string, isSpecialPage: boolean}>}
    */
   getAvailablePages() {
-    return { ...this.storyManager?.availablePages } || {};
+    return { ...this.availablePages } || {};
   }
 
   /**
@@ -224,7 +225,7 @@ class PageManager {
    * @returns {{knotName: string, displayName: string, isSpecialPage: boolean, content: string}|null}
    */
   getPageInfo(knotName) {
-    const pageInfo = this.storyManager?.availablePages?.[knotName];
+    const pageInfo = this.availablePages?.[knotName];
     if (!pageInfo) return null;
 
     return {
@@ -415,6 +416,132 @@ class PageManager {
     } catch (error) {
       log.error("Failed to add return button", error);
     }
+  }
+
+  /**
+   * Scans all ink story knots to find those marked as special pages.
+   * Populates this.availablePages with page info.
+   * @private
+   */
+  detectSpecialPages() {
+    this.availablePages = {};
+
+    try {
+      const namedContent =
+        this.storyManager.story.mainContentContainer.namedContent;
+
+      for (const knotName of namedContent.keys()) {
+        try {
+          const pageInfo = this.getSpecialPageInfo(knotName);
+          if (pageInfo) {
+            this.availablePages[knotName] = {
+              displayName: pageInfo.displayName,
+              knotName: knotName,
+              isSpecialPage: true,
+            };
+          }
+        } catch (error) {
+          log.warning(`Failed to check if ${knotName} is special page`, error);
+        }
+      }
+    } catch (error) {
+      log.error("Failed to detect special pages", error);
+    }
+  }
+
+  /**
+   * Checks if a knot is a special page and returns its info.
+   * @param {string} knotName - The ink knot name to check
+   * @returns {{displayName: string, isSpecialPage: boolean}|null} Page info or null
+   * @private
+   */
+  getSpecialPageInfo(knotName) {
+    if (!TAGS || !TagRegistry.getTagDef) return null;
+
+    try {
+      const tempStory = this.storyManager.createTempStory();
+      tempStory.ChoosePathString(knotName);
+
+      if (tempStory.canContinue) {
+        tempStory.Continue();
+
+        const tags = tempStory.currentTags || [];
+
+        for (const tag of tags) {
+          if (typeof tag !== "string") continue;
+
+          const { tagDef, tagValue } = TagRegistry.parseTag(tag);
+
+          if (tagDef === TAGS.SPECIAL_PAGE) {
+            return {
+              displayName: tagValue?.trim() || Utils.formatKnotName(knotName),
+              isSpecialPage: true,
+            };
+          }
+        }
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Processes the PAGE_MENU global tag to set page ordering.
+   * @param {string[]} globalTags - Array of global tags from the story
+   * @private
+   */
+  processMenuOrderTag(globalTags) {
+    if (!Array.isArray(globalTags)) return;
+
+    for (const tag of globalTags) {
+      if (typeof tag !== "string") continue;
+
+      const colonIndex = tag.indexOf(":");
+      if (colonIndex === -1) continue;
+
+      const property = tag.substring(0, colonIndex).trim().toUpperCase();
+      const value = tag.substring(colonIndex + 1).trim();
+
+      if (TagRegistry.getTagDef(property) === TAGS.PAGE_MENU) {
+        this.pageMenuOrder = this.parseMenuOrder(value);
+        break;
+      }
+    }
+  }
+
+  /**
+   * Parses a menu order string into structured page order data.
+   * Format: "page1, page2,, page3" where ",," separates sections.
+   * @param {string} menuString - The menu order string
+   * @returns {Array<{knotName: string, section: number}>|null} Parsed order or null
+   * @private
+   */
+  parseMenuOrder(menuString) {
+    const sections = menuString.split(",,").map((s) => s.trim());
+    const menuOrder = [];
+
+    sections.forEach((section, sectionIndex) => {
+      const pages = section
+        .split(",")
+        .map((p) => p.trim())
+        .filter((p) => p);
+
+      pages.forEach((pageName) => {
+        if (this.availablePages[pageName]) {
+          menuOrder.push({
+            knotName: pageName,
+            section: sectionIndex,
+          });
+        } else {
+          console.warn(
+            `Page '${pageName}' in PAGE_MENU not found in special pages`
+          );
+        }
+      });
+    });
+
+    return menuOrder.length > 0 ? menuOrder : null;
   }
 
   /**
