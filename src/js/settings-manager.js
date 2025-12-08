@@ -1,10 +1,8 @@
-import { BaseModal } from "./base-modal.js";
-import { TagRegistry, TAGS, StoryFeatures } from "./tag-registry.js";
+import { TagRegistry, TAGS } from "./tag-registry.js";
 import { errorManager, ERROR_SOURCES } from "./error-manager.js";
 
 const log = errorManager.forSource(ERROR_SOURCES.SETTINGS_MANAGER);
 
-// TODO: Split class into SettingsManager / SettingsModalManager
 class SettingsManager {
   constructor() {
     this.settings = this.getDefaults();
@@ -12,11 +10,12 @@ class SettingsManager {
     // Wired by main.js after construction
     this.storyManager = null;
     this.keyboardShortcuts = null;
-    this.keyboardHelpModal = null;
+    this.settingsModal = null;
 
     this.toneIndicatorsAvailable = false;
     this.authorToneIndicators = true;
     this.toneIndicatorsTrailing = false;
+
     // TODO: Move toneMap to tagRegistry where it makes more sense
     this.toneMap = {}; // Will be populated from global tags
     this.authorChoiceNumbering = "auto";
@@ -26,10 +25,12 @@ class SettingsManager {
 
   init() {
     this.loadSettings();
-    this.createSettingsModal();
-    this.setupEventListeners();
     this.setupThemeDetection();
     this.applySettings();
+  }
+
+  showSettings() {
+    this.settingsModal?.show?.();
   }
 
   getDefaults() {
@@ -47,26 +48,6 @@ class SettingsManager {
     };
   }
 
-  createSettingsModal() {
-    this.modal = new BaseModal({
-      title: "Settings",
-      className: "settings-modal",
-      maxWidth: "500px",
-      onShow: () => this.populateSettings(),
-      onHide: () => this.saveSettings(),
-    });
-  }
-
-  setupEventListeners() {
-    const settingsBtn = document.getElementById("settings-btn");
-    if (settingsBtn) {
-      settingsBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        this.showSettings();
-      });
-    }
-  }
-
   setupThemeDetection() {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     mediaQuery.addEventListener("change", () => {
@@ -74,54 +55,6 @@ class SettingsManager {
         this.applyTheme();
       }
     });
-  }
-
-  showSettings() {
-    if (!this.modal?.isReady()) {
-      log.error("Cannot show settings - modal not available");
-      return;
-    }
-
-    this.modal.show((modal) => {
-      modal.setContent(this.getSettingsHTML());
-
-      const footer = modal.getFooter();
-      if (footer) {
-        footer.innerHTML = "";
-        footer.style.display = "flex";
-        footer.style.justifyContent = "space-between";
-
-        const resetBtn = modal.createButton("Reset to Defaults", {
-          variant: "secondary",
-          onClick: () => this.resetSettings(),
-        });
-
-        const doneBtn = modal.createButton("Done", {
-          variant: "primary",
-          onClick: () => this.hideSettings(),
-        });
-
-        footer.appendChild(resetBtn);
-        footer.appendChild(doneBtn);
-      }
-
-      this.setupTabSwitching();
-      this.setupRealtimePreview();
-      this.updateKeyboardHelpButtonVisibility();
-
-      const helpBtn =
-        this.modal.modalElement.querySelector(".keyboard-help-btn");
-      if (helpBtn) {
-        helpBtn.addEventListener("click", () => {
-          this.hideSettings();
-          this.keyboardHelpModal?.show?.();
-        });
-      }
-    });
-  }
-
-  hideSettings() {
-    this.modal?.hide();
   }
 
   getSetting(key) {
@@ -136,12 +69,9 @@ class SettingsManager {
     }
   }
 
-  resetSettings() {
+  resetToDefaults() {
     this.settings = this.getDefaults();
-
-    this.populateSettings();
     this.applySettings();
-    this.modal.showNotification("Settings reset to defaults");
   }
 
   toggleTheme() {
@@ -180,42 +110,6 @@ class SettingsManager {
     } catch (error) {
       log.error("Failed to store settings", error);
     }
-  }
-
-  saveSettings() {
-    if (!this.modal?.modalElement) return;
-
-    const getValue = (name, isCheckbox = false) => {
-      const element = this.modal.modalElement.querySelector(`[name="${name}"]`);
-      return element ? (isCheckbox ? element.checked : element.value) : null;
-    };
-
-    const prevAudioEnabled = this.settings.audioEnabled;
-
-    this.settings.theme = getValue("theme") || this.settings.theme;
-    this.settings.fontFamily =
-      getValue("fontFamily") || this.settings.fontFamily;
-    this.settings.textSize = getValue("textSize") || this.settings.textSize;
-    this.settings.lineHeight =
-      getValue("lineHeight") || this.settings.lineHeight;
-    this.settings.audioEnabled =
-      getValue("audioEnabled", true) ?? this.settings.audioEnabled;
-    this.settings.autoSave =
-      getValue("autoSave", true) ?? this.settings.autoSave;
-    this.settings.animations =
-      getValue("animations", true) ?? this.settings.animations;
-    this.settings.choiceNumbering =
-      getValue("choiceNumbering") || this.settings.choiceNumbering;
-    this.settings.toneIndicators =
-      getValue("toneIndicators", true) ?? this.settings.toneIndicators;
-    this.settings.keyboardShortcuts =
-      getValue("keyboardShortcuts", true) ?? this.settings.keyboardShortcuts;
-
-    this.handleAudioSettingChange(prevAudioEnabled, this.settings.audioEnabled);
-    this.storeSettings();
-    this.applySettings();
-
-    this.modal.showNotification("Settings saved successfully!");
   }
 
   getStoredSettings() {
@@ -370,7 +264,7 @@ class SettingsManager {
       this.keyboardShortcuts?.disable?.();
     }
 
-    this.updateKeyboardHelpButtonVisibility();
+    this.settingsModal?.updateKeyboardHelpButtonVisibility?.();
   }
 
   /**
@@ -453,289 +347,6 @@ class SettingsManager {
     }
   }
 
-  getSettingsHTML() {
-    const audioAvailable = StoryFeatures?.hasAudio;
-
-    return `
-      ${this.renderSettingsTabs()}
-      <div class="settings-panels">
-        ${this.renderReadingPanel()}
-        ${this.renderAccessibilityPanel()}
-        ${this.renderAudioPanel()}
-      </div>
-  `;
-  }
-
-  renderSettingsTabs() {
-    const audioAvailable = StoryFeatures.hasAudio;
-    return `
-    <div class="settings-tabs" role="tablist" aria-label="Settings categories">
-      ${this.renderSettingsTab("reading", "auto_stories", "Reading", true)}
-      ${this.renderSettingsTab("accessibility", "accessibility_new", "Accessibility")}
-      ${audioAvailable ? this.renderSettingsTab("audio", "volume_up", "Audio") : ""}
-    </div>
-    `;
-  }
-
-  renderSettingsTab(id, icon, label, isActive = false) {
-    return `
-      <button role="tab" class="settings-tab ${isActive ? "active" : ""}" 
-              id="tab-${id}"
-              data-tab="${id}" 
-              aria-selected="${isActive}" 
-              aria-controls="panel-${id}"
-              tabindex="${isActive ? "0" : "-1"}">
-        <span class="material-icons" aria-hidden="true">${icon}</span>
-        <span class="sr-only">${label}</span>
-      </button>
-    `;
-  }
-
-  renderReadingPanel() {
-    return `
-    <div role="tabpanel" class="settings-panel active" id="panel-reading" aria-labelledby="tab-reading">
-    ${this.renderDropdownSetting("theme", "setting-theme", "Theme", [
-      { value: "auto", label: "Auto (System)" },
-      { value: "light", label: "Light" },
-      { value: "dark", label: "Dark" },
-    ])}
-    ${this.renderDropdownSetting("fontFamily", "setting-font", "Font Family", [
-      { value: "serif", label: "Serif" },
-      { value: "sans", label: "Sans-serif" },
-      { value: "dyslexic", label: "OpenDyslexic" },
-    ])}
-    ${this.renderDropdownSetting("textSize", "setting-size", "Text Size", [
-      { value: "small", label: "Small" },
-      { value: "medium", label: "Medium" },
-      { value: "large", label: "Large" },
-      { value: "xl", label: "Extra Large" },
-    ])}
-    ${this.renderDropdownSetting(
-      "lineHeight",
-      "setting-lineheight",
-      "Line Height",
-      [
-        { value: "tight", label: "Tight" },
-        { value: "normal", label: "Normal" },
-        { value: "loose", label: "Loose" },
-      ],
-    )}
-      ${this.renderCheckboxSetting("autoSave", "Auto Save Progress")}
-    </div>
-    `;
-  }
-
-  renderAccessibilityPanel() {
-    return `
-    <div role="tabpanel" class="settings-panel" id="panel-accessibility" aria-labelledby="tab-accessibility">
-
-      ${this.renderCheckboxSetting("animations", "Enable Animations")}
-      ${
-        this.toneIndicatorsAvailable
-          ? this.renderCheckboxSetting(
-              "toneIndicators",
-              "Show tone indicators on choices",
-            )
-          : ""
-      }
-      ${this.renderDropdownSetting(
-        "choiceNumbering",
-        "setting-choicenumbering",
-        "Choice Number Hints",
-        [
-          { value: "auto", label: "Auto (hide on mobile)" },
-          { value: "on", label: "Always Show" },
-          { value: "off", label: "Always Hide" },
-        ],
-      )}
-      ${
-        this.keyboardHelpModal?.isAvailable()
-          ? this.renderCheckboxSetting(
-              "keyboardShortcuts",
-              "Enable Keyboard Shortcuts",
-            )
-          : ""
-      }
-      ${
-        this.keyboardHelpModal?.isAvailable()
-          ? this.renderButtonSetting("keyboard-help-btn", "Keyboard Shortcuts")
-          : ""
-      }
-    </div>
-  `;
-  }
-
-  renderAudioPanel() {
-    if (!StoryFeatures.hasAudio) return "";
-
-    return `
-    <div role="tabpanel" class="settings-panel" id="panel-audio" aria-labelledby="tab-audio">
-      ${this.renderCheckboxSetting("audioEnabled", "Enable Audio")}
-    </div>`;
-  }
-
-  renderCheckboxSetting(name, label) {
-    return `
-      <div class="setting-item">
-        <label class="setting-checkbox-label">
-          <input type="checkbox" name="${name}" class="setting-checkbox">
-          <span>${label}</span>
-        </label>
-      </div>`;
-  }
-
-  renderDropdownSetting(name, id, label, options) {
-    const optionsHtml = options
-      .map((opt) => `<option value="${opt.value}">${opt.label}</option>`)
-      .join("\n          ");
-
-    return `
-      <div class="setting-item">
-        <label class="setting-label" for="${id}">${label}</label>
-        <select name="${name}" id="${id}" class="setting-select">
-          ${optionsHtml}
-        </select>
-      </div>`;
-  }
-
-  renderButtonSetting(className, label) {
-    return `
-      <div class="setting-item">
-        <button type="button" class="${className}">${label}</button>
-      </div>`;
-  }
-
-  populateSettings() {
-    if (!this.modal?.modalElement) return;
-
-    const elements = [
-      { name: "theme", value: this.settings.theme },
-      { name: "fontFamily", value: this.settings.fontFamily },
-      { name: "textSize", value: this.settings.textSize },
-      { name: "lineHeight", value: this.settings.lineHeight },
-      { name: "audioEnabled", checked: this.settings.audioEnabled },
-      { name: "autoSave", checked: this.settings.autoSave },
-      { name: "animations", checked: this.settings.animations },
-      { name: "choiceNumbering", value: this.settings.choiceNumbering },
-      { name: "toneIndicators", checked: this.settings.toneIndicators },
-      { name: "keyboardShortcuts", checked: this.settings.keyboardShortcuts },
-    ];
-
-    elements.forEach(({ name, value, checked }) => {
-      const element = this.modal.modalElement.querySelector(`[name="${name}"]`);
-      if (element) {
-        if (typeof checked !== "undefined") {
-          element.checked = checked;
-        } else {
-          element.value = value;
-        }
-      }
-    });
-  }
-
-  setupRealtimePreview() {
-    if (!this.modal?.modalElement) return;
-
-    const elements = {
-      theme: this.modal.modalElement.querySelector('select[name="theme"]'),
-      fontFamily: this.modal.modalElement.querySelector(
-        'select[name="fontFamily"]',
-      ),
-      textSize: this.modal.modalElement.querySelector(
-        'select[name="textSize"]',
-      ),
-      lineHeight: this.modal.modalElement.querySelector(
-        'select[name="lineHeight"]',
-      ),
-      toneIndicators: this.modal.modalElement.querySelector(
-        'input[name="toneIndicators"]',
-      ),
-      choiceNumbering: this.modal.modalElement.querySelector(
-        'select[name="choiceNumbering"]',
-      ),
-      keyboardShortcuts: this.modal.modalElement.querySelector(
-        'input[name="keyboardShortcuts"]',
-      ),
-    };
-
-    Object.entries(elements).forEach(([setting, element]) => {
-      if (element) {
-        element.addEventListener("change", () => {
-          if (element.type === "checkbox") {
-            this.settings[setting] = element.checked;
-          } else {
-            this.settings[setting] = element.value;
-          }
-          this.applyIndividualSetting(setting);
-        });
-      }
-    });
-  }
-
-  setupTabSwitching() {
-    if (!this.modal?.modalElement) return;
-
-    const tabs = this.modal.modalElement.querySelectorAll(".settings-tab");
-    tabs.forEach((tab) => {
-      tab.addEventListener("click", () => this.switchTab(tab.dataset.tab));
-      tab.addEventListener("keydown", (e) => this.handleTabKeydown(e, tabs));
-    });
-  }
-
-  switchTab(tabId) {
-    if (!this.modal?.modalElement) return;
-
-    const tabs = this.modal.modalElement.querySelectorAll(".settings-tab");
-    tabs.forEach((tab) => {
-      const isActive = tab.dataset.tab === tabId;
-      tab.classList.toggle("active", isActive);
-      tab.setAttribute("aria-selected", isActive);
-      tab.setAttribute("tabindex", isActive ? "0" : "-1");
-    });
-
-    const panels = this.modal.modalElement.querySelectorAll(".settings-panel");
-    panels.forEach((panel) => {
-      panel.classList.toggle("active", panel.id === `panel-${tabId}`);
-    });
-  }
-
-  /**
-   * Handle keyboard navigation within tabs
-   * @param {KeyboardEvent} e - The keyboard event
-   * @param {NodeList} tabs - All tab elements
-   */
-  handleTabKeydown(e, tabs) {
-    const tabArray = Array.from(tabs);
-    const currentIndex = tabArray.findIndex((tab) => tab === e.target);
-
-    let newIndex;
-    switch (e.key) {
-      case "ArrowRight":
-      case "ArrowDown":
-        e.preventDefault();
-        newIndex = (currentIndex + 1) % tabArray.length;
-        break;
-      case "ArrowLeft":
-      case "ArrowUp":
-        e.preventDefault();
-        newIndex = (currentIndex - 1 + tabArray.length) % tabArray.length;
-        break;
-      case "Home":
-        e.preventDefault();
-        newIndex = 0;
-        break;
-      case "End":
-        e.preventDefault();
-        newIndex = tabArray.length - 1;
-        break;
-      default:
-        return;
-    }
-
-    tabArray[newIndex].focus();
-    this.switchTab(tabArray[newIndex].dataset.tab);
-  }
-
   /**
    * Handle changes to the audio setting
    * @param {boolean} wasEnabled - Previous audio enabled state
@@ -755,17 +366,6 @@ class SettingsManager {
       }
     } catch (error) {
       log.warning("Failed to handle audio setting change", error);
-    }
-  }
-
-  updateKeyboardHelpButtonVisibility() {
-    const helpBtn =
-      this.modal?.modalElement?.querySelector(".keyboard-help-btn");
-    if (helpBtn) {
-      helpBtn.closest(".setting-item").style.display = this.settings
-        .keyboardShortcuts
-        ? ""
-        : "none";
     }
   }
 
@@ -809,12 +409,11 @@ class SettingsManager {
   }
 
   isReady() {
-    return !!(this.modal?.isReady() && document.documentElement);
+    return !!document.documentElement;
   }
 
   getStats() {
     return {
-      hasModal: !!this.modal,
       currentTheme: this.settings.theme,
       settingsCount: Object.keys(this.settings).length,
     };

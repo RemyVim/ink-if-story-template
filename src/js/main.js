@@ -9,6 +9,7 @@ import { DisplayManager } from "./display-manager.js";
 import { ContentProcessor } from "./content-processor.js";
 import { TagProcessor } from "./tag-processor.js";
 import { SettingsManager } from "./settings-manager.js";
+import { SettingsModal } from "./settings-modal.js";
 import { PageManager } from "./page-manager.js";
 import { ChoiceManager } from "./choice-manager.js";
 import { NavigationManager } from "./navigation-manager.js";
@@ -38,6 +39,7 @@ fetch("story.json")
       StoryFeatures.scan(storyContent);
 
       const settings = new SettingsManager();
+      const settingsModal = new SettingsModal(settings);
       const tagProcessor = new TagProcessor(settings);
       const contentProcessor = new ContentProcessor(tagProcessor);
       const display = new DisplayManager(settings);
@@ -72,7 +74,8 @@ fetch("story.json")
       // Wire settings dependencies
       settings.storyManager = storyManager;
       settings.keyboardShortcuts = keyboardShortcuts;
-      settings.keyboardHelpModal = keyboardHelpModal;
+      settings.settingsModal = settingsModal;
+      settingsModal.keyboardHelpModal = keyboardHelpModal;
 
       // Start the story
       storyManager.start();
