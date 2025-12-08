@@ -2,7 +2,7 @@
   "name": "ink-if-html-template",
   "version": "1.0.0",
   "type": "module",
-  "description": "A web template for [Ink](https://www.inklestudios.com/ink/) interactive stories. I built this because existing Ink templates weren't as polished as what's available for Twine.",
+  "description": "A web template for [Ink](https://www.inklestudios.com/ink/) interactive stories.",
   "directories": {
     "doc": "doc"
   },

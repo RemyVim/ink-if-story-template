@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Screen reader support: ARIA landmarks, skip link, modal focus management, live regions for notifications, and accessible choice markup
 - Loading screen and dark mode flash prevention for smoother initial page load
 - Stat bars: `# STATBAR: variable` tag for visual progress bars with support for custom ranges, labels, opposed pairs, and optional value clamping
+- `custom.js` and `custom.css` files for author customization without modifying core files
 
 ### Changed
 
@@ -32,6 +33,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Saves made while viewing a special page now correctly restore to the main story
 - Unknown tags now warn in the console (F12) instead of silently becoming CSS classes
+
+### Technical
+
+- Migrated to ES modules with esbuild bundling
+- Reorganized repository structure
+- Added unit testing (Vitest) and end-to-end testing (Playwright)
 
 ## [1.2.2] - 2025-11-24
 
