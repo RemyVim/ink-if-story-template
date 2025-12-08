@@ -3,7 +3,15 @@ import { Utils } from "./utils.js";
 
 const log = errorManager.forSource(ERROR_SOURCES.NAVIGATION_MANAGER);
 
+/**
+ * Manages the navigation bar UI including core buttons (restart, saves, settings)
+ * and dynamically generated special page buttons in a slide-out panel.
+ */
 class NavigationManager {
+  /**
+   * Creates the navigation manager and sets up core button handlers.
+   * @param {Object} storyManager - The StoryManager instance
+   */
   constructor(storyManager) {
     this.storyManager = storyManager;
     this.dynamicButtons = new Map();
@@ -22,11 +30,19 @@ class NavigationManager {
     this.setupButtons();
   }
 
+  /**
+   * Sets up all navigation buttons (core and title).
+   * @private
+   */
   setupButtons() {
     this.setupCoreButtons();
     this.setupClickableTitle();
   }
 
+  /**
+   * Sets up the core navigation buttons (restart, etc.).
+   * @private
+   */
   setupCoreButtons() {
     this.setupButton("rewind", () => {
       this.storyManager.confirmRestart();
@@ -35,6 +51,10 @@ class NavigationManager {
     // Note: Saves and settings buttons are handled by their respective managers
   }
 
+  /**
+   * Sets up the title as a clickable restart button.
+   * @private
+   */
   setupClickableTitle() {
     this.setupButton("title-restart", () => {
       this.storyManager.confirmRestart();
@@ -98,11 +118,17 @@ class NavigationManager {
     this.createSlidePanel(availablePages, pageMenuOrder);
   }
 
+  /**
+   * Refreshes the navigation to reflect current available pages.
+   */
   refresh() {
     const availablePages = this.storyManager?.availablePages || {};
     this.updateVisibility(availablePages);
   }
 
+  /**
+   * Resets all navigation buttons to their default enabled state.
+   */
   reset() {
     this.setButtonEnabled("rewind", true);
     this.setButtonEnabled("saves-btn", true);
@@ -111,10 +137,18 @@ class NavigationManager {
     this.highlightActivePage(null);
   }
 
+  /**
+   * Cleans up dynamic buttons when the manager is disposed.
+   */
   cleanup() {
     this.clearDynamicButtons();
   }
 
+  /**
+   * Enables or disables a navigation button.
+   * @param {string} buttonId - The button's DOM ID
+   * @param {boolean} enabled - Whether the button should be enabled
+   */
   setButtonEnabled(buttonId, enabled) {
     const button = document.getElementById(buttonId);
     if (!button) return;
@@ -130,6 +164,11 @@ class NavigationManager {
     }
   }
 
+  /**
+   * Shows or hides a navigation button.
+   * @param {string} buttonId - The button's DOM ID
+   * @param {boolean} visible - Whether the button should be visible
+   */
   setButtonVisible(buttonId, visible) {
     const button = document.getElementById(buttonId);
     if (button) {
@@ -137,6 +176,11 @@ class NavigationManager {
     }
   }
 
+  /**
+   * Enables or disables a special page button by knot name.
+   * @param {string} knotName - The ink knot name for the special page
+   * @param {boolean} enabled - Whether the button should be enabled
+   */
   setSpecialPageButtonEnabled(knotName, enabled) {
     const button = this.findPageButton(knotName);
     if (button) {
@@ -152,6 +196,11 @@ class NavigationManager {
     }
   }
 
+  /**
+   * Shows or hides a special page button by knot name.
+   * @param {string} knotName - The ink knot name for the special page
+   * @param {boolean} visible - Whether the button should be visible
+   */
   setSpecialPageButtonVisible(knotName, visible) {
     const button = this.findPageButton(knotName);
     if (button) {
@@ -159,6 +208,10 @@ class NavigationManager {
     }
   }
 
+  /**
+   * Highlights the currently active special page in the navigation.
+   * @param {string|null} activeKnotName - The knot name to highlight, or null to clear
+   */
   highlightActivePage(activeKnotName) {
     for (const button of this.dynamicButtons.values()) {
       button.classList.remove("active", "current-page");
@@ -172,6 +225,12 @@ class NavigationManager {
     }
   }
 
+  /**
+   * Creates the slide-out panel containing special page links.
+   * @param {Object} availablePages - Object mapping knot names to page info
+   * @param {Array} pageMenuOrder - Optional array defining page order and sections
+   * @private
+   */
   createSlidePanel(availablePages, pageMenuOrder) {
     const navControls = document.querySelector(".nav-controls");
     if (!navControls) return;
@@ -236,6 +295,14 @@ class NavigationManager {
     this.dynamicButtons.set("pages-menu", this.menuButton);
   }
 
+  /**
+   * Adds pages to the panel in the order specified by pageMenuOrder.
+   * Inserts separators between different sections.
+   * @param {HTMLElement} panelContent - The panel content container
+   * @param {Object} availablePages - Object mapping knot names to page info
+   * @param {Array} pageMenuOrder - Array defining page order and sections
+   * @private
+   */
   addOrderedPagesToPanel(panelContent, availablePages, pageMenuOrder) {
     let currentSection = -1;
     const addedPages = new Set();
@@ -274,6 +341,12 @@ class NavigationManager {
     });
   }
 
+  /**
+   * Adds pages to the panel in alphabetical order (fallback when no order specified).
+   * @param {HTMLElement} panelContent - The panel content container
+   * @param {Object} availablePages - Object mapping knot names to page info
+   * @private
+   */
   addDefaultPagesToPanel(panelContent, availablePages) {
     const sortedPages = Object.keys(availablePages)
       .filter((knotName) => availablePages[knotName]?.isSpecialPage)
@@ -290,6 +363,13 @@ class NavigationManager {
     });
   }
 
+  /**
+   * Creates a link element for a special page.
+   * @param {string} knotName - The ink knot name
+   * @param {Object} pageInfo - Page info with displayName
+   * @returns {HTMLAnchorElement} The link element
+   * @private
+   */
   createPageLink(knotName, pageInfo) {
     const link = document.createElement("a");
     link.href = "#";
@@ -305,6 +385,10 @@ class NavigationManager {
     return link;
   }
 
+  /**
+   * Toggles the slide panel open/closed.
+   * @private
+   */
   togglePanel() {
     if (this.slidePanel) {
       if (this.slidePanel.classList.contains("show")) {
@@ -315,6 +399,10 @@ class NavigationManager {
     }
   }
 
+  /**
+   * Opens the slide panel and focuses the first link.
+   * @private
+   */
   showPanel() {
     if (this.slidePanel) {
       this.slidePanel.classList.add("show");
@@ -329,6 +417,10 @@ class NavigationManager {
     }
   }
 
+  /**
+   * Closes the slide panel and returns focus to the menu button.
+   * @private
+   */
   hidePanel() {
     if (this.slidePanel) {
       this.slidePanel.classList.remove("show");
@@ -339,6 +431,10 @@ class NavigationManager {
     }
   }
 
+  /**
+   * Removes all dynamically created buttons and the slide panel from the DOM.
+   * @private
+   */
   clearDynamicButtons() {
     if (this.slidePanel && this.slidePanel.parentNode) {
       this.slidePanel.parentNode.removeChild(this.slidePanel);
@@ -357,6 +453,10 @@ class NavigationManager {
     this.dynamicButtons.clear();
   }
 
+  /**
+   * Returns information about all special page buttons.
+   * @returns {Array<{knotName: string, element: HTMLElement, pageInfo: Object}>}
+   */
   getSpecialPageButtons() {
     const buttons = [];
     for (const [buttonId, buttonElement] of this.dynamicButtons) {
@@ -375,6 +475,10 @@ class NavigationManager {
     return buttons;
   }
 
+  /**
+   * Returns the current state of all navigation buttons (core and dynamic).
+   * @returns {Object.<string, {visible: boolean, enabled: boolean, exists: boolean, isDynamic: boolean, knotName?: string, displayName?: string}>}
+   */
   getButtonStates() {
     const states = {};
     const coreButtons = ["rewind", "saves-btn", "settings-btn"];
@@ -413,6 +517,12 @@ class NavigationManager {
     return states;
   }
 
+  /**
+   * Finds a special page button element by knot name.
+   * @param {string} knotName - The ink knot name
+   * @returns {HTMLElement|null} The button element, or null if not found
+   * @private
+   */
   findPageButton(knotName) {
     // Panel links aren't stored in dynamicButtons, search the panel directly
     if (!this.slidePanel) return null;
@@ -429,15 +539,28 @@ class NavigationManager {
     return null;
   }
 
+  /**
+   * Gets the display name for a special page, falling back to formatted knot name.
+   * @param {string} knotName - The ink knot name
+   * @returns {string} The display name
+   */
   getPageDisplayName(knotName) {
     const pageInfo = this.storyManager?.availablePages?.[knotName];
     return pageInfo?.displayName || Utils.formatKnotName(knotName);
   }
 
+  /**
+   * Checks whether the navigation manager is ready for use.
+   * @returns {boolean} True if storyManager exists and rewind button is present
+   */
   isReady() {
     return !!(this.storyManager && document.getElementById("rewind"));
   }
 
+  /**
+   * Returns diagnostic information about the navigation state.
+   * @returns {{hasStoryManager: boolean, totalButtons: number, dynamicButtons: number, existingButtons: number, visibleButtons: number, trackedDynamicButtons: number, specialPageButtons: number, specialPageButtonDetails: Array}}
+   */
   getStats() {
     const buttonStates = this.getButtonStates();
     const specialPageButtons = this.getSpecialPageButtons();
@@ -464,6 +587,11 @@ class NavigationManager {
     };
   }
 
+  /**
+   * Returns detailed information about the current navigation state.
+   * Useful for debugging and external integrations.
+   * @returns {{currentPage: {knotName: string|null, displayName: string|null, isSpecialPage: boolean}, availablePages: Array<{knotName: string, displayName: string, hasButton: boolean}>, coreButtons: Object}}
+   */
   getNavigationInfo() {
     const currentPage = this.storyManager?.pages?.getCurrentPageKnotName();
     const availablePages = this.storyManager?.availablePages || {};

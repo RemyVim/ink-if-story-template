@@ -1,4 +1,12 @@
+/**
+ * Static utility functions for platform detection, string formatting, and algorithms.
+ */
 const Utils = {
+  /**
+   * Detects if the device is mobile based on pointer capabilities.
+   * Returns true for touch-only devices, false for devices with fine pointers (mouse).
+   * @returns {boolean} True if device appears to be mobile
+   */
   isMobile() {
     return (
       window.matchMedia("(pointer: coarse)").matches &&
@@ -6,6 +14,11 @@ const Utils = {
     );
   },
 
+  /**
+   * Detects if the operating system is macOS.
+   * Used to show correct modifier key labels (Cmd vs Ctrl).
+   * @returns {boolean} True if running on macOS
+   */
   isMac() {
     return (
       navigator.userAgentData?.platform === "macOS" ||
@@ -30,8 +43,11 @@ const Utils = {
   },
 
   /**
-   * Calculate Levenshtein distance between two strings
-   * (used for suggesting tags when unknown tags appear in Ink story)
+   * Calculates the Levenshtein (edit) distance between two strings.
+   * Used for suggesting similar tag names when unknown tags are encountered.
+   * @param {string} a - First string
+   * @param {string} b - Second string
+   * @returns {number} The minimum number of single-character edits needed
    */
   levenshteinDistance(a, b) {
     if (a.length === 0) return b.length;

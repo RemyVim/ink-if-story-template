@@ -4,7 +4,14 @@ import { errorManager, ERROR_SOURCES } from "./error-manager.js";
 
 const log = errorManager.forSource(ERROR_SOURCES.KEYBOARD_HELP);
 
+/**
+ * Displays a modal with keyboard shortcut documentation.
+ * Automatically disabled on mobile devices where keyboard shortcuts aren't available.
+ */
 class KeyboardHelpModal {
+  /**
+   * Creates the keyboard help modal (skipped on mobile devices).
+   */
   constructor() {
     this.modal = null;
     this.isMac = Utils.isMac();
@@ -12,11 +19,19 @@ class KeyboardHelpModal {
     this.init();
   }
 
+  /**
+   * Initializes the modal if not on a mobile device.
+   * @private
+   */
   init() {
     if (this.isMobile) return;
     this.createModal();
   }
 
+  /**
+   * Creates the underlying BaseModal instance.
+   * @private
+   */
   createModal() {
     this.modal = new BaseModal({
       title: "Keyboard Shortcuts",
@@ -26,6 +41,10 @@ class KeyboardHelpModal {
     });
   }
 
+  /**
+   * Displays the keyboard shortcuts help modal.
+   * Does nothing on mobile devices.
+   */
   show() {
     if (this.isMobile) return;
 
@@ -52,22 +71,43 @@ class KeyboardHelpModal {
     });
   }
 
+  /**
+   * Hides the keyboard shortcuts help modal.
+   */
   hide() {
     this.modal?.hide();
   }
 
+  /**
+   * Checks if keyboard help is available (not on mobile).
+   * @returns {boolean} True if keyboard shortcuts are supported on this device
+   */
   isAvailable() {
     return !this.isMobile;
   }
 
+  /**
+   * Checks if the modal is ready to be shown.
+   * @returns {boolean} True if not on mobile and modal is initialized
+   */
   isReady() {
     return !this.isMobile && this.modal?.isReady();
   }
 
+  /**
+   * Returns the platform-appropriate modifier key name.
+   * @returns {string} "Cmd" on Mac, "Ctrl" on other platforms
+   * @private
+   */
   getModifierKey() {
     return this.isMac ? "Cmd" : "Ctrl";
   }
 
+  /**
+   * Generates the HTML content for the keyboard shortcuts reference.
+   * @returns {string} HTML string with shortcut tables
+   * @private
+   */
   getHelpHTML() {
     const mod = this.getModifierKey();
 

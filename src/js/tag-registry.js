@@ -1,5 +1,6 @@
 /**
- * Tag processing phases - determines WHEN a tag is processed
+ * Phases when tags are processed.
+ * @enum {string}
  */
 const TAG_PHASE = {
   GLOBAL: "global", // Processed once at story init (settings.js)
@@ -9,7 +10,8 @@ const TAG_PHASE = {
 };
 
 /**
- * Tag value requirements
+ * Whether a tag requires, optionally accepts, or rejects a value.
+ * @enum {string}
  */
 const TAG_VALUE = {
   REQUIRED: "required", // Must have value: `TAG: value`
@@ -18,12 +20,9 @@ const TAG_VALUE = {
 };
 
 /**
- * Complete tag definitions
- *
- * Each tag has:
- * - phase: When it's processed
- * - value: Whether it requires/accepts a value
- * - description: What the tag does (for documentation)
+ * Registry of all known ink tags with their aliases, phases, value requirements, and descriptions.
+ * Each tag definition has: names (array of aliases), phase, value requirement, and description.
+ * @type {Object.<string, {names: string[], phase: string, value: string, description: string}>}
  */
 const TAGS = {
   // ============================================
@@ -195,7 +194,11 @@ for (const key in TAGS) {
   }
 }
 
-// Build reverse lookup with duplicate detection.
+/**
+ * Reverse lookup map from tag name/alias (uppercase) to canonical TAGS key.
+ * Built automatically from TAGS definitions.
+ * @type {Object.<string, string>}
+ */
 const TAG_LOOKUP = {};
 
 for (const key in TAGS) {
@@ -213,7 +216,7 @@ for (const key in TAGS) {
 }
 
 /**
- * Helper: Get all tags for a specific phase
+ * Gets all tags for a specific phase
  * @param {string} phase - TAG_PHASE value
  * @returns {string[]} Array of tag names
  */
@@ -221,13 +224,18 @@ function getTagsByPhase(phase) {
   return Object.keys(TAGS).filter((tag) => TAGS[tag].phase === phase);
 }
 
+/**
+ * Checks if a tag name is a known registered tag.
+ * @param {string} tagName - Tag name to check (case-insensitive)
+ * @returns {boolean} True if tag is known
+ */
 function isKnownTag(tagName) {
   if (!tagName || typeof tagName !== "string") return false;
   return TAG_LOOKUP[tagName.toUpperCase()] !== undefined;
 }
 
 /**
- * Helper: Get tag definition
+ * Gets a tag definition
  * @param {string} tagName - Tag name (case-insensitive)
  * @returns {Object|null} Tag definition or null
  */
@@ -264,7 +272,10 @@ function validateTagValue(tagDef, tagValue) {
   return { valid: true, error: null };
 }
 
-// Make available globally
+/**
+ * Central registry for ink tag definitions and utilities.
+ * Provides tag parsing, validation, tone indicator management, and lookup functions.
+ */
 const TagRegistry = {
   TAG_PHASE,
   TAG_VALUE,
@@ -275,6 +286,12 @@ const TagRegistry = {
   getTagDef,
   validateTagValue,
 
+  /**
+   * Parses a tag string into its definition and value.
+   * Validates that required tags have values and none-value tags don't.
+   * @param {string} tag - The raw tag string (e.g., "IMAGE: hero.png" or "CLEAR")
+   * @returns {{tagDef: Object|null, tagValue: string, invalid: boolean, error: string|null}}
+   */
   parseTag(tag) {
     if (!tag || typeof tag !== "string") {
       return { tagDef: null, tagValue: "", invalid: false, error: null };
@@ -295,6 +312,11 @@ const TagRegistry = {
     return { tagDef, tagValue, invalid: false, error: null };
   },
 
+  /**
+   * Splits a property-style tag into property name and value.
+   * @param {string} tag - Tag string to split
+   * @returns {{property: string, val: string}|null} Split result, or null if no colon
+   */
   splitPropertyTag(tag) {
     if (!tag || typeof tag !== "string") return null;
 
@@ -307,6 +329,11 @@ const TagRegistry = {
     };
   },
 
+  /**
+   * Checks if an array of tags contains the SPECIAL_PAGE tag.
+   * @param {string[]} tags - Array of tag strings
+   * @returns {boolean} True if SPECIAL_PAGE tag is present
+   */
   hasSpecialPageTag(tags) {
     if (!Array.isArray(tags)) return false;
 
@@ -320,29 +347,59 @@ const TagRegistry = {
   // Tone indicator registry (populated from # TONE: tags)
   toneMap: {},
 
+  /**
+   * Registers a tone indicator with its icon.
+   * Called when processing global # TONE: tags.
+   * @param {string} label - The tone label (e.g., "flirty")
+   * @param {string} icon - The icon (emoji or material icon name)
+   */
   registerTone(label, icon) {
     if (!label || typeof label !== "string") return;
     this.toneMap[label.toLowerCase()] = icon;
   },
 
+  /**
+   * Gets the icon for a registered tone.
+   * @param {string} label - The tone label (case-insensitive)
+   * @returns {string|null} The icon, or null if not registered
+   */
   getToneIcon(label) {
     if (!label || typeof label !== "string") return null;
     return this.toneMap[label.toLowerCase()] || null;
   },
 
+  /**
+   * Checks if a tag name is a registered tone indicator.
+   * @param {string} tagName - The tag name to check (case-insensitive)
+   * @returns {boolean} True if this is a registered tone
+   */
   isRegisteredToneTag(tagName) {
     if (!tagName || typeof tagName !== "string") return false;
     return tagName.toLowerCase() in this.toneMap;
   },
 
+  /**
+   * Clears all registered tone indicators.
+   * Used primarily for testing.
+   */
   clearTones() {
     this.toneMap = {};
   },
 };
 
+/**
+ * Detects which optional features a story uses by scanning the compiled JSON.
+ * Used to conditionally show UI elements (e.g., audio settings tab).
+ */
 const StoryFeatures = {
   hasAudio: false,
 
+  /**
+   * Scans compiled story JSON to detect feature usage.
+   * Sets feature flags like hasAudio based on tag presence.
+   * @param {Object} storyContent - The compiled ink story JSON
+   * @returns {StoryFeatures} Returns this for chaining
+   */
   scan(storyContent) {
     const content = JSON.stringify(storyContent);
 

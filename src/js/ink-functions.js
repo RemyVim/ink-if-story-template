@@ -1,3 +1,8 @@
+/**
+ * Provides external functions that extend Ink's built-in capabilities.
+ * Includes string manipulation, math utilities, fairmath operations, and time formatting.
+ * All methods are static - call InkFunctions.bindAll(story) to register all functions.
+ */
 class InkFunctions {
   /**
    * Bind all utility functions to an ink story
@@ -10,6 +15,13 @@ class InkFunctions {
     this.bindTimeFunctions(story);
   }
 
+  /**
+   * Binds string manipulation functions to the story.
+   * Functions: UPPERCASE, LOWERCASE, CAPITALIZE, TRIM, LENGTH,
+   * CONTAINS, STARTS_WITH, ENDS_WITH, REPLACE, REPLACE_ALL
+   * @param {Story} story - The inkjs Story instance
+   * @private
+   */
   static bindStringFunctions(story) {
     story.BindExternalFunction("UPPERCASE", (str) => String(str).toUpperCase());
     story.BindExternalFunction("LOWERCASE", (str) => String(str).toLowerCase());
@@ -37,13 +49,13 @@ class InkFunctions {
   }
 
   /**
-   * Math utility functions
+   * Binds math utility functions to the story.
+   * Functions: ROUND, CLAMP, ABS, PERCENT
    *
-   * NOTE: Ink has these built-in, so we don't duplicate them:
-   * - MIN(a, b), MAX(a, b)
-   * - FLOOR(x), CEILING(x), INT(x), FLOAT(x), POW(x,y)
-   * - RANDOM(min, max), SEED_RANDOM(x)
-   * - Basic operators: +, -, *, /, % (mod)
+   * Note: Ink has these built-in, so we don't duplicate them:
+   * MIN, MAX, FLOOR, CEILING, INT, FLOAT, POW, RANDOM, SEED_RANDOM
+   * @param {Story} story - The inkjs Story instance
+   * @private
    */
   static bindMathFunctions(story) {
     story.BindExternalFunction("ROUND", (value) => Math.round(value));
@@ -57,15 +69,12 @@ class InkFunctions {
   }
 
   /**
-   * Fairmath utility functions (ChoiceScript-style)
-   *
-   * FAIRADD: Gains diminish as you approach 100
-   * Example: FAIRADD(50, 20) = 50 + (50 * 0.20) = 60
-   * Example: FAIRADD(80, 20) = 80 + (20 * 0.20) = 84
-   *
-   * FAIRSUB: Losses diminish as you approach 0
-   * Example: FAIRSUB(50, 20) = 50 - (50 * 0.20) = 40
-   * Example: FAIRSUB(20, 20) = 20 - (20 * 0.20) = 16
+   * Binds fairmath functions for balanced stat progression.
+   * FAIRADD increases stats with diminishing returns near 100.
+   * FAIRSUB decreases stats with diminishing returns near 0.
+   * Useful for RPG-style stats that shouldn't easily hit extremes.
+   * @param {Story} story - The inkjs Story instance
+   * @private
    */
   static bindFairMathFunctions(story) {
     story.BindExternalFunction("FAIRADD", (stat, percent) => {
@@ -79,6 +88,14 @@ class InkFunctions {
     });
   }
 
+  /**
+   * Binds time and date formatting functions to the story.
+   * Functions: NOW, TIME_AGO, FORMAT_DATE, FORMAT_TIME, FORMAT_DATETIME, OFFSET_DATE
+   * All timestamps are Unix timestamps (seconds since epoch).
+   * Formatting functions support locale strings (e.g., "en-US", "fr-FR").
+   * @param {Story} story - The inkjs Story instance
+   * @private
+   */
   static bindTimeFunctions(story) {
     story.BindExternalFunction("NOW", () => Math.floor(Date.now() / 1000));
 

@@ -6,7 +6,15 @@ const log = errorManager.forSource(ERROR_SOURCES.SAVE_SYSTEM);
 const MAX_IMPORT_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 const IMPORT_TIMEOUT_MS = 30000; // 30 seconds
 
+/**
+ * Manages save/load functionality using localStorage and ink.js state serialization.
+ * Supports multiple save slots, autosave, and import/export to files.
+ */
 class SavesManager {
+  /**
+   * Creates the saves manager with a modal UI for save/load operations.
+   * @param {Object} storyManager - The StoryManager instance
+   */
   constructor(storyManager) {
     this.storyManager = storyManager;
     this.savePrefix = "ink-save-slot-";
@@ -16,6 +24,10 @@ class SavesManager {
     this.setupEventListeners();
   }
 
+  /**
+   * Sets up the saves button click handler.
+   * @private
+   */
   setupEventListeners() {
     const savesBtn = document.getElementById("saves-btn");
     if (savesBtn) {
@@ -26,10 +38,16 @@ class SavesManager {
     }
   }
 
+  /**
+   * Opens the save/load dialog modal.
+   */
   showSaveDialog() {
     this.modal?.show?.();
   }
 
+  /**
+   * Closes the save/load dialog modal.
+   */
   hideSaveDialog() {
     this.modal?.hide?.();
   }
@@ -85,6 +103,11 @@ class SavesManager {
     }
   }
 
+  /**
+   * Deletes a save slot after user confirmation.
+   * @param {number} slotNumber - Slot number to delete
+   * @param {boolean} [isAutosave=false] - Whether this is the autosave slot
+   */
   deleteSlot(slotNumber, isAutosave = false) {
     try {
       const message = isAutosave
@@ -147,8 +170,8 @@ class SavesManager {
   }
 
   /**
-   * Import save to a specific slot
-   * @param {number} slotNumber - Slot number to import to
+   * Exports a save slot to a downloadable JSON file.
+   * @param {number} slotNumber - Slot number to export
    */
   exportFromSlot(slotNumber) {
     try {
@@ -184,6 +207,11 @@ class SavesManager {
     }
   }
 
+  /**
+   * Opens a file picker to import a save file into a slot.
+   * Validates file size and format before importing.
+   * @param {number} slotNumber - Slot number to import into
+   */
   importToSlot(slotNumber) {
     const fileInput = document.createElement("input");
     fileInput.type = "file";
@@ -249,6 +277,9 @@ class SavesManager {
     fileInput.click();
   }
 
+  /**
+   * Performs an autosave if enabled in settings and not viewing a special page.
+   */
   autosave() {
     if (
       !this.shouldAutosave() ||
@@ -265,6 +296,10 @@ class SavesManager {
     }
   }
 
+  /**
+   * Checks if any save data exists (autosave or manual slots).
+   * @returns {boolean} True if at least one save exists
+   */
   hasSaves() {
     if (this.getSaveData(this.autosaveSlot)) return true;
 
@@ -274,6 +309,11 @@ class SavesManager {
     return false;
   }
 
+  /**
+   * Retrieves save data from a specific slot.
+   * @param {number} slotNumber - Slot number to read
+   * @returns {Object|null} The save data object, or null if empty/error
+   */
   getSaveData(slotNumber) {
     try {
       if (!this.isStorageAvailable()) return null;
@@ -287,6 +327,10 @@ class SavesManager {
     }
   }
 
+  /**
+   * Returns statistics about all save slots.
+   * @returns {{totalSaves: number, hasAutosave: boolean, oldestSave: Object|null, newestSave: Object|null}}
+   */
   getSaveStats() {
     let totalSaves = 0;
     let oldestSave = null;
@@ -315,6 +359,11 @@ class SavesManager {
     };
   }
 
+  /**
+   * Checks if autosave is enabled in settings.
+   * @returns {boolean} True if autosave is enabled
+   * @private
+   */
   shouldAutosave() {
     try {
       return this.storyManager.settings?.getSetting?.("autoSave") || false;
@@ -323,6 +372,11 @@ class SavesManager {
     }
   }
 
+  /**
+   * Tests whether localStorage is available and functional.
+   * @returns {boolean} True if localStorage can be used
+   * @private
+   */
   isStorageAvailable() {
     try {
       const test = "__storage_test__";
@@ -334,6 +388,12 @@ class SavesManager {
     }
   }
 
+  /**
+   * Validates that a slot number is within the allowed range.
+   * @param {number} slotNumber - Slot number to validate
+   * @throws {Error} If slot number is invalid
+   * @private
+   */
   validateSlotNumber(slotNumber) {
     if (
       typeof slotNumber !== "number" ||
@@ -345,12 +405,24 @@ class SavesManager {
     }
   }
 
+  /**
+   * Throws an error if localStorage is not available.
+   * @throws {Error} If localStorage is not available
+   * @private
+   */
   requireStorage() {
     if (!this.isStorageAvailable()) {
       throw new Error("localStorage not available");
     }
   }
 
+  /**
+   * Builds the complete save data object for a slot.
+   * Handles special page state correctly by using saved state instead of current.
+   * @param {number} slotNumber - Slot number being saved to
+   * @returns {Object} Complete save data object
+   * @private
+   */
   buildSaveData(slotNumber) {
     const isOnSpecialPage = this.storyManager.pages?.isViewingSpecialPage?.();
 
@@ -367,12 +439,24 @@ class SavesManager {
     };
   }
 
+  /**
+   * Gets the appropriate game state JSON based on whether viewing a special page.
+   * @param {boolean} isOnSpecialPage - Whether currently viewing a special page
+   * @returns {string} Serialized ink story state
+   * @private
+   */
   getGameState(isOnSpecialPage) {
     return isOnSpecialPage
       ? this.storyManager.pages.savedStoryState
       : this.storyManager.story.state.ToJson();
   }
 
+  /**
+   * Gets the appropriate display state based on whether viewing a special page.
+   * @param {boolean} isOnSpecialPage - Whether currently viewing a special page
+   * @returns {Object} Display state object
+   * @private
+   */
   getDisplayState(isOnSpecialPage) {
     return isOnSpecialPage
       ? this.storyManager.pages.savedDisplayState
@@ -410,6 +494,12 @@ class SavesManager {
     }
   }
 
+  /**
+   * Generates a human-readable name for a save based on current story location.
+   * @param {number} slotNumber - Slot number (affects "(Auto)" suffix)
+   * @returns {string} Generated save name
+   * @private
+   */
   generateSaveName(slotNumber) {
     let baseName;
 
@@ -438,6 +528,11 @@ class SavesManager {
     return baseName;
   }
 
+  /**
+   * Generates a description from the current story text (first sentence, max 100 chars).
+   * @returns {string} Generated description or empty string
+   * @private
+   */
   generateDescription() {
     const currentText = this.storyManager.story.state.currentText;
     if (currentText?.length > 0) {
@@ -450,16 +545,32 @@ class SavesManager {
     return "";
   }
 
+  /**
+   * Shows a success notification for manual saves (not autosaves).
+   * @param {number} slotNumber - Slot number that was saved
+   * @private
+   */
   notifySaveSuccess(slotNumber) {
     if (slotNumber !== this.autosaveSlot) {
       this.showNotification(`Game saved to Slot ${slotNumber}!`);
     }
   }
 
+  /**
+   * Shows a notification in the save modal.
+   * @param {string} message - Message to display
+   * @param {number} [duration=4000] - Duration in milliseconds
+   * @private
+   */
   showNotification(message, duration = 4000) {
     this.modal?.showNotification?.(message, false, duration);
   }
 
+  /**
+   * Attempts to free localStorage space by removing the oldest save.
+   * Called when a QuotaExceededError occurs.
+   * @private
+   */
   attemptStorageCleanup() {
     try {
       const saves = [];
@@ -486,6 +597,9 @@ class SavesManager {
     }
   }
 
+  /**
+   * Cleans up the modal when the manager is disposed.
+   */
   cleanup() {
     this.modal?.modalElement?.remove?.();
   }

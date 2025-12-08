@@ -2,8 +2,20 @@ import { errorManager, ERROR_SOURCES } from "./error-manager.js";
 
 const log = errorManager.forSource(ERROR_SOURCES.MARKDOWN);
 
+/**
+ * Converts custom markdown-like syntax to HTML.
+ * Supports headings, bold, italic, links, inline classes, code blocks,
+ * blockquotes, lists, horizontal rules, and escape sequences.
+ * All methods are static.
+ */
 class MarkdownProcessor {
-  // Regex patterns: escape sequences, block elements, inline formatting
+  /**
+   * Regex patterns for markdown conversion, organized by processing stage.
+   * - escape: Convert %x escape sequences to HTML entities
+   * - block: Convert block-level elements (headings, hr, blockquotes, lists)
+   * - inline: Convert inline formatting (bold, italic, links, line breaks)
+   * @type {{escape: Array, block: Array, inline: Array}}
+   */
   static patterns = {
     escape: [
       [/%\*/g, "&#42;"],
@@ -38,6 +50,12 @@ class MarkdownProcessor {
     ],
   };
 
+  /**
+   * Converts markdown-like syntax to HTML.
+   * Lines starting with % skip all processing (raw output).
+   * @param {string} text - Text to process
+   * @returns {string} HTML string
+   */
   static process(text) {
     if (!text || typeof text !== "string") return "";
 
@@ -68,6 +86,12 @@ class MarkdownProcessor {
     }
   }
 
+  /**
+   * Processes inline markdown while protecting code blocks from transformation.
+   * @param {string} text - Text to process
+   * @returns {string} Processed HTML string
+   * @private
+   */
   static processInlineWithCodeBlocks(text) {
     const tokens = this.tokenize(text);
     let result = "";
@@ -83,6 +107,12 @@ class MarkdownProcessor {
     return result;
   }
 
+  /**
+   * Splits text into tokens, separating code blocks from regular text.
+   * @param {string} text - Text to tokenize
+   * @returns {Array<{type: 'code'|'text', content: string}>} Array of tokens
+   * @private
+   */
   static tokenize(text) {
     const tokens = [];
     let current = "";
@@ -118,6 +148,12 @@ class MarkdownProcessor {
     return tokens;
   }
 
+  /**
+   * Applies inline markdown patterns (bold, italic, links, etc.) to text.
+   * @param {string} text - Text to process (should not contain code blocks)
+   * @returns {string} Processed HTML string
+   * @private
+   */
   static processInlineMarkdown(text) {
     try {
       for (const [pattern, replacement] of this.patterns.inline) {
@@ -131,7 +167,20 @@ class MarkdownProcessor {
   }
 
   /**
-   * Process [text](target) - detect if target is URL or class name
+   * Processes [text](target) syntax, converting to either a link or styled span.
+   *
+   * If target looks like a URL (http://, domain.com, /path, #anchor, mailto:, tel:):
+   * - Creates an `<a>` tag
+   * - Adds https:// to bare domains (e.g., "example.com" → "https://example.com")
+   * - External links get target="_blank", rel="noopener noreferrer", and SR text
+   * - Internal links (starting with / or #) open in same tab
+   *
+   * If target is not a URL (e.g., "highlight", "warning"):
+   * - Creates a `<span class="inline-{target}">` for custom styling
+   *
+   * @param {string} text - The link/span text content
+   * @param {string} target - URL or class name
+   * @returns {string} HTML string for either an anchor or span element
    */
   static processLinkOrClass(text, target) {
     if (this.isURL(target)) {
@@ -157,7 +206,10 @@ class MarkdownProcessor {
   }
 
   /**
-   * Check if a string looks like a URL
+   * Checks if a string looks like a URL (http, mailto, tel, relative paths, domains).
+   * @param {string} str - String to check
+   * @returns {boolean} True if string appears to be a URL
+   * @private
    */
   static isURL(str) {
     const urlPatterns = [
@@ -175,7 +227,11 @@ class MarkdownProcessor {
   }
 
   /**
-   * Check if URL is external (different domain)
+   * Checks if a URL points to an external site (should open in new tab).
+   * Internal URLs start with / or #. Mailto and tel links are treated as external.
+   * @param {string} href - URL to check
+   * @returns {boolean} True if URL is external
+   * @private
    */
   static isExternalURL(url) {
     try {
@@ -201,6 +257,10 @@ class MarkdownProcessor {
     }
   }
 
+  /**
+   * Returns diagnostic information about the processor's configuration.
+   * @returns {{patternCount: {escape: number, block: number, inline: number}, supportsLinks: boolean, supportsInlineClasses: boolean, timestamp: string}}
+   */
   static getStats() {
     return {
       patternCount: {

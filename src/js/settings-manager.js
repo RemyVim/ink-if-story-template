@@ -3,7 +3,15 @@ import { errorManager, ERROR_SOURCES } from "./error-manager.js";
 
 const log = errorManager.forSource(ERROR_SOURCES.SETTINGS_MANAGER);
 
+/**
+ * Manages user preferences including theme, font, text size, animations,
+ * and accessibility options. Persists settings to localStorage and applies
+ * them to the DOM via CSS custom properties and classes.
+ */
 class SettingsManager {
+  /**
+   * Creates the settings manager and loads any saved user preferences.
+   */
   constructor() {
     this.settings = this.getDefaults();
 
@@ -20,16 +28,28 @@ class SettingsManager {
     this.init();
   }
 
+  /**
+   * Initializes settings by loading stored values, setting up theme detection, and applying.
+   * @private
+   */
   init() {
     this.loadSettings();
     this.setupThemeDetection();
     this.applySettings();
   }
 
+  /**
+   * Opens the settings modal dialog.
+   */
   showSettings() {
     this.settingsModal?.show?.();
   }
 
+  /**
+   * Returns the default settings object.
+   * @returns {Object} Default settings values
+   * @private
+   */
   getDefaults() {
     return {
       theme: "auto",
@@ -45,6 +65,10 @@ class SettingsManager {
     };
   }
 
+  /**
+   * Sets up a listener for system theme changes (prefers-color-scheme).
+   * @private
+   */
   setupThemeDetection() {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     mediaQuery.addEventListener("change", () => {
@@ -54,10 +78,20 @@ class SettingsManager {
     });
   }
 
+  /**
+   * Gets a single setting value by key.
+   * @param {string} key - The setting key
+   * @returns {*} The setting value
+   */
   getSetting(key) {
     return this.settings[key];
   }
 
+  /**
+   * Sets a single setting value, stores it, and applies all settings.
+   * @param {string} key - The setting key
+   * @param {*} value - The new value
+   */
   setSetting(key, value) {
     if (key in this.settings) {
       this.settings[key] = value;
@@ -66,11 +100,17 @@ class SettingsManager {
     }
   }
 
+  /**
+   * Resets all settings to their default values and applies them.
+   */
   resetToDefaults() {
     this.settings = this.getDefaults();
     this.applySettings();
   }
 
+  /**
+   * Cycles through theme options (auto → light/dark → opposite).
+   */
   toggleTheme() {
     const currentIsDark = document.body?.classList.contains("dark");
 
@@ -87,6 +127,10 @@ class SettingsManager {
     this.applyTheme();
   }
 
+  /**
+   * Loads settings from localStorage, merging with defaults.
+   * @private
+   */
   loadSettings() {
     try {
       const parsed = this.getStoredSettings();
@@ -98,6 +142,10 @@ class SettingsManager {
     }
   }
 
+  /**
+   * Saves current settings to localStorage.
+   * @private
+   */
   storeSettings() {
     try {
       localStorage.setItem(
@@ -109,6 +157,11 @@ class SettingsManager {
     }
   }
 
+  /**
+   * Retrieves stored settings from localStorage.
+   * @returns {Object|null} Parsed settings object, or null if not found/invalid
+   * @private
+   */
   getStoredSettings() {
     try {
       const stored = localStorage.getItem("ink-template-settings");
@@ -118,6 +171,9 @@ class SettingsManager {
     }
   }
 
+  /**
+   * Applies all settings to the DOM (theme, fonts, animations, etc.).
+   */
   applySettings() {
     this.applyTheme();
     this.applyFontFamily();
@@ -128,6 +184,10 @@ class SettingsManager {
     this.applyKeyboardShortcuts();
   }
 
+  /**
+   * Applies a single setting by name (used for real-time preview).
+   * @param {string} setting - The setting key to apply
+   */
   applyIndividualSetting(setting) {
     switch (setting) {
       case "theme":
@@ -154,6 +214,11 @@ class SettingsManager {
     }
   }
 
+  /**
+   * Applies the current theme setting to the document.
+   * Handles 'auto', 'light', and 'dark' modes.
+   * @private
+   */
   applyTheme() {
     const body = document.body;
     const html = document.documentElement;
@@ -178,6 +243,10 @@ class SettingsManager {
     body.classList.add("switched");
   }
 
+  /**
+   * Applies the font family setting via CSS custom property.
+   * @private
+   */
   applyFontFamily() {
     const root = document.documentElement;
     if (!root) return;
@@ -194,6 +263,10 @@ class SettingsManager {
     );
   }
 
+  /**
+   * Applies the text size setting via CSS custom property.
+   * @private
+   */
   applyTextSize() {
     const root = document.documentElement;
     if (!root) return;
@@ -211,6 +284,10 @@ class SettingsManager {
     );
   }
 
+  /**
+   * Applies the line height setting via CSS custom properties.
+   * @private
+   */
   applyLineHeight() {
     const root = document.documentElement;
     if (!root) return;
@@ -226,6 +303,10 @@ class SettingsManager {
     root.style.setProperty("--line-height-choice", height);
   }
 
+  /**
+   * Applies or disables CSS transitions based on the animations setting.
+   * @private
+   */
   applyAnimations() {
     const root = document.documentElement;
     if (!root) return;
@@ -243,6 +324,10 @@ class SettingsManager {
     }
   }
 
+  /**
+   * Applies the choice numbering mode via body class.
+   * @private
+   */
   applyChoiceNumbering() {
     document.body?.classList.remove(
       "choice-numbers-on",
@@ -254,6 +339,10 @@ class SettingsManager {
     );
   }
 
+  /**
+   * Enables or disables keyboard shortcuts based on the setting.
+   * @private
+   */
   applyKeyboardShortcuts() {
     if (this.settings.keyboardShortcuts) {
       this.keyboardShortcuts?.enable?.();
@@ -343,7 +432,7 @@ class SettingsManager {
   }
 
   /**
-   * Handle changes to the audio setting
+   * Handles changes to the audio setting, stopping or resuming audio as needed.
    * @param {boolean} wasEnabled - Previous audio enabled state
    * @param {boolean} isEnabled - New audio enabled state
    */
@@ -364,6 +453,10 @@ class SettingsManager {
     }
   }
 
+  /**
+   * Re-renders choices to reflect updated settings (e.g., tone indicators).
+   * @private
+   */
   refreshChoices() {
     if (
       this.storyManager?.display?.domHelpers &&
@@ -375,6 +468,10 @@ class SettingsManager {
     }
   }
 
+  /**
+   * Checks if animations are currently enabled.
+   * @returns {boolean} True if animations are enabled
+   */
   isAnimationEnabled() {
     return this.settings.animations;
   }
@@ -404,10 +501,18 @@ class SettingsManager {
     return indicators;
   }
 
+  /**
+   * Checks whether the settings manager is ready for use.
+   * @returns {boolean} True if document is available
+   */
   isReady() {
     return !!document.documentElement;
   }
 
+  /**
+   * Returns diagnostic information about the settings state.
+   * @returns {{currentTheme: string, settingsCount: number}}
+   */
   getStats() {
     return {
       currentTheme: this.settings.theme,

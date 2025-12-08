@@ -5,7 +5,16 @@ import { errorManager, ERROR_SOURCES } from "./error-manager.js";
 
 const log = errorManager.forSource(ERROR_SOURCES.TAG_PROCESSOR);
 
+/**
+ * Processes ink tags into actions, CSS classes, and side effects.
+ * Handles audio playback, background images, notifications, and custom styling.
+ * Uses a handler map pattern for extensible tag processing.
+ */
 class TagProcessor {
+  /**
+   * Creates the tag processor with optional settings for audio control.
+   * @param {Object} [settings=null] - SettingsManager instance for audio enabled state
+   */
   constructor(settings = null) {
     this.settings = settings;
     this.storyContainer = document.querySelector("#story");
@@ -91,6 +100,12 @@ class TagProcessor {
     ]);
   }
 
+  /**
+   * Processes tags attached to a story line (paragraph).
+   * Extracts CSS classes and queues special actions (audio, notifications, etc.).
+   * @param {string[]} tags - Array of tag strings from the story
+   * @returns {{customClasses: string[], specialActions: Array}} Processed tag results
+   */
   processLineTags(tags) {
     try {
       if (!Array.isArray(tags)) {
@@ -107,6 +122,12 @@ class TagProcessor {
     }
   }
 
+  /**
+   * Processes tags attached to a choice.
+   * Extracts CSS classes and determines if choice is clickable.
+   * @param {string[]} choiceTags - Array of tag strings from the choice
+   * @returns {{customClasses: string[], isClickable: boolean}} Processed tag results
+   */
   processChoiceTags(choiceTags) {
     try {
       if (!Array.isArray(choiceTags)) {
@@ -175,6 +196,11 @@ class TagProcessor {
     }
   }
 
+  /**
+   * Plays a one-shot audio file.
+   * Respects the audioEnabled setting. Stops any currently playing one-shot audio.
+   * @param {string} src - Path to the audio file
+   */
   playAudio(src) {
     try {
       if (this.settings && !this.settings.getSetting("audioEnabled")) {
@@ -201,6 +227,11 @@ class TagProcessor {
     }
   }
 
+  /**
+   * Plays a looping audio file (background music).
+   * Pass "none" or "stop" to stop the loop. Remembers last source for resume.
+   * @param {string} src - Path to the audio file, or "none"/"stop" to stop
+   */
   playAudioLoop(src) {
     try {
       if (!src || typeof src !== "string") {
@@ -242,6 +273,9 @@ class TagProcessor {
     }
   }
 
+  /**
+   * Stops all currently playing audio (both one-shot and looping).
+   */
   stopAllAudio() {
     try {
       if (this.audio) {
@@ -262,6 +296,10 @@ class TagProcessor {
     }
   }
 
+  /**
+   * Resumes the last audio loop if audio is enabled.
+   * Called when audio setting is re-enabled.
+   */
   resumeAudioLoop() {
     try {
       if (this.lastAudioLoopSrc && this.settings?.getSetting("audioEnabled")) {
@@ -272,6 +310,11 @@ class TagProcessor {
     }
   }
 
+  /**
+   * Sets the background image on the outer scroll container.
+   * Pass "none" or empty string to remove the background.
+   * @param {string} src - Path to the image file, or "none" to remove
+   */
   setBackground(src) {
     try {
       if (!this.outerScrollContainer) {
@@ -294,6 +337,12 @@ class TagProcessor {
     }
   }
 
+  /**
+   * Shows a notification via the notification manager.
+   * @param {string} message - The notification message
+   * @param {string} [type='info'] - Notification type (info, success, warning, error)
+   * @param {number} [duration=4000] - Duration in milliseconds
+   */
   showNotification(message, type = "info", duration = 4000) {
     if (notificationManager) {
       notificationManager.show(message, { type, duration });
@@ -331,9 +380,10 @@ class TagProcessor {
   }
 
   /**
-   * Find similar known tags for typo suggestions
-   * @param {string} tagName - The unknown tag
+   * Finds similar known tags for typo suggestions using prefix matching and Levenshtein distance.
+   * @param {string} tagName - The unknown tag name
    * @returns {string[]} Up to 3 similar tag names
+   * @private
    */
   getSimilarTags(tagName) {
     if (!TAGS) return [];
@@ -352,6 +402,10 @@ class TagProcessor {
       .slice(0, 3);
   }
 
+  /**
+   * Checks whether the tag processor is ready for use.
+   * @returns {boolean} True if story container or outer container is available
+   */
   isReady() {
     try {
       return !!(this.storyContainer || this.outerScrollContainer);
@@ -361,6 +415,10 @@ class TagProcessor {
     }
   }
 
+  /**
+   * Returns diagnostic information about the tag processor state.
+   * @returns {{hasStoryContainer: boolean, hasOuterScrollContainer: boolean, hasActiveAudio: boolean, hasActiveAudioLoop: boolean}}
+   */
   getStats() {
     try {
       return {
@@ -375,6 +433,9 @@ class TagProcessor {
     }
   }
 
+  /**
+   * Cleans up audio resources when the processor is distroyed.
+   */
   cleanup() {
     try {
       if (this.audio) {

@@ -6,7 +6,14 @@ const log = errorManager.forSource(ERROR_SOURCES.KEYBOARD_SHORTCUTS);
 const SMALL_SCROLL_PERCENT = 0.15; // ~15% of viewport
 const LARGE_SCROLL_PERCENT = 0.8; // ~80% of viewport
 
+/**
+ * Handles keyboard input for story navigation, choice selection, and scrolling.
+ * Automatically disabled on mobile devices. Can be toggled via settings.
+ */
 class KeyboardShortcuts {
+  /**
+   * Creates the keyboard shortcuts handler (disabled by default on mobile).
+   */
   constructor() {
     this.enabled = !Utils.isMobile();
     this.storyManager = null; // Wired by main.js
@@ -14,18 +21,33 @@ class KeyboardShortcuts {
     this.init();
   }
 
+  /**
+   * Registers the global keydown event listener.
+   * @private
+   */
   init() {
     document.addEventListener("keydown", (event) => this.handleKeyDown(event));
   }
 
+  /**
+   * Enables keyboard shortcut handling.
+   */
   enable() {
     this.enabled = true;
   }
 
+  /**
+   * Disables keyboard shortcut handling.
+   */
   disable() {
     this.enabled = false;
   }
 
+  /**
+   * Main keydown event handler. Routes to appropriate sub-handlers based on key pressed.
+   * @param {KeyboardEvent} event - The keyboard event
+   * @private
+   */
   handleKeyDown(event) {
     if (!this.storyManager || !this.enabled) return;
 
@@ -40,7 +62,7 @@ class KeyboardShortcuts {
     }
 
     if (event.key === "Escape") {
-      this.handleEsca();
+      this.handleEscape();
       return;
     }
 
@@ -49,6 +71,12 @@ class KeyboardShortcuts {
     this.handleChoiceSelection(event);
   }
 
+  /**
+   * Handles Ctrl/Cmd shortcuts for menus and actions.
+   * Ctrl+S: saves, Ctrl+R: restart, Ctrl+,: settings, Ctrl+H: help
+   * @param {KeyboardEvent} event - The keyboard event
+   * @private
+   */
   handleModifierShortcuts(event) {
     try {
       switch (event.key) {
@@ -74,6 +102,10 @@ class KeyboardShortcuts {
     }
   }
 
+  /**
+   * Handles Escape key to return from special pages.
+   * @private
+   */
   handleEscape() {
     if (this.storyManager.pages?.isViewingSpecialPage?.()) {
       try {
@@ -84,6 +116,12 @@ class KeyboardShortcuts {
     }
   }
 
+  /**
+   * Handles arrow keys, Page Up/Down, Home/End for scrolling.
+   * @param {KeyboardEvent} event - The keyboard event
+   * @returns {boolean} True if the event was handled, false otherwise
+   * @private
+   */
   handleScrolling(event) {
     if (!this.isInStoryArea()) return false;
     const scrollContainer = document.querySelector(".outerContainer");
@@ -125,6 +163,12 @@ class KeyboardShortcuts {
     return false;
   }
 
+  /**
+   * Handles 1-9 and A-Z keys for selecting story choices.
+   * 1-9 select choices 1-9, A-Z select choices 10-35.
+   * @param {KeyboardEvent} event - The keyboard event
+   * @private
+   */
   handleChoiceSelection(event) {
     if (!this.isInStoryArea()) return;
 
@@ -147,12 +191,23 @@ class KeyboardShortcuts {
     }
   }
 
+  /**
+   * Checks if the user is currently typing in an input or textarea.
+   * @param {KeyboardEvent} event - The keyboard event
+   * @returns {boolean} True if focus is on an input element
+   * @private
+   */
   isTypingInInput(event) {
     return (
       event.target.tagName === "INPUT" || event.target.tagName === "TEXTAREA"
     );
   }
 
+  /**
+   * Checks if focus is within the story area (not in a modal or other UI).
+   * @returns {boolean} True if the story area is active
+   * @private
+   */
   isInStoryArea() {
     const active = document.activeElement;
     const outerContainer = document.querySelector(".outerContainer");

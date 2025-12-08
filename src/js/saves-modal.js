@@ -5,7 +5,15 @@ const log = errorManager.forSource(ERROR_SOURCES.SAVES_MODAL);
 
 const REFRESH_DELAY_MS = 100;
 
+/**
+ * Modal UI for save/load game functionality.
+ * Displays save slots with options to save, load, export, import, and delete.
+ */
 class SavesModal {
+  /**
+   * Creates the saves modal UI.
+   * @param {Object} gameSaveSystem - The SavesManager instance that handles save operations
+   */
   constructor(gameSaveSystem) {
     this.gameSaveSystem = gameSaveSystem;
     this.maxSaveSlots = gameSaveSystem.maxSaveSlots;
@@ -23,11 +31,19 @@ class SavesModal {
     this.init();
   }
 
+  /**
+   * Initializes the modal and confirmation dialog.
+   * @private
+   */
   init() {
     this.createModal();
     this.createConfirmModal();
   }
 
+  /**
+   * Creates the main save/load modal using BaseModal.
+   * @private
+   */
   createModal() {
     this.modal = new BaseModal({
       title: "Save & Load Game",
@@ -37,6 +53,10 @@ class SavesModal {
     });
   }
 
+  /**
+   * Creates a secondary modal for delete confirmations.
+   * @private
+   */
   createConfirmModal() {
     this.confirmModal = new BaseModal({
       title: "Confirm",
@@ -46,14 +66,24 @@ class SavesModal {
     });
   }
 
+  /**
+   * Opens the save/load modal.
+   */
   show() {
     this.modal?.show();
   }
 
+  /**
+   * Closes the save/load modal.
+   */
   hide() {
     this.modal?.hide();
   }
 
+  /**
+   * Populates the modal content with current save slot states.
+   * Called automatically when the modal is shown.
+   */
   populateSaveSlots() {
     if (!this.modal?.modalElement) return;
 
@@ -87,10 +117,21 @@ class SavesModal {
     this.setupSlotEventListeners();
   }
 
+  /**
+   * Shows a notification within the modal.
+   * @param {string} message - Message to display
+   * @param {boolean} [isError=false] - Whether this is an error notification
+   * @param {number} [duration=4000] - Duration in milliseconds
+   */
   showNotification(message, isError = false, duration = 4000) {
     this.modal?.showNotification(message, isError, duration);
   }
 
+  /**
+   * Generates HTML for all save slots (autosave + manual slots).
+   * @returns {string} HTML string for all slots
+   * @private
+   */
   generateSaveSlotsHTML() {
     let html = "";
 
@@ -104,8 +145,11 @@ class SavesModal {
   }
 
   /**
+   * Creates HTML for a single save slot (empty or filled).
    * @param {number} slotNumber - Slot number (0 = autosave)
-   * @param {boolean} isAutosave - Whether this is the autosave slot
+   * @param {boolean} [isAutosave=false] - Whether this is the autosave slot
+   * @returns {string} HTML string for the slot
+   * @private
    */
   createSaveSlotHTML(slotNumber, isAutosave = false) {
     try {
@@ -127,6 +171,13 @@ class SavesModal {
     }
   }
 
+  /**
+   * Creates HTML for an empty save slot.
+   * @param {number} slotNumber - The slot number
+   * @param {boolean} isAutosave - Whether this is the autosave slot
+   * @returns {string} HTML string for the empty slot
+   * @private
+   */
   createEmptySlotHTML(slotNumber, isAutosave) {
     const slotName = isAutosave ? "Autosave" : `Slot ${slotNumber}`;
     const emptyText = isAutosave ? "No autosave available" : "Empty";
@@ -149,6 +200,14 @@ class SavesModal {
     `;
   }
 
+  /**
+   * Creates HTML for a filled save slot with save data.
+   * @param {number} slotNumber - The slot number
+   * @param {Object} saveData - The save data object
+   * @param {boolean} isAutosave - Whether this is the autosave slot
+   * @returns {string} HTML string for the filled slot
+   * @private
+   */
   createFilledSlotHTML(slotNumber, saveData, isAutosave) {
     const slotName = isAutosave ? "Autosave" : `Slot ${slotNumber}`;
     const timestamp = new Date(saveData.timestamp).toLocaleString();
@@ -179,16 +238,32 @@ class SavesModal {
     `;
   }
 
+  /**
+   * Creates an action button HTML string.
+   * @param {string} text - Button label
+   * @param {string} action - CSS class for the action (e.g., 'load-from-slot')
+   * @param {string} variant - Button style variant (primary, secondary, warning, danger)
+   * @returns {string} HTML string for the button
+   * @private
+   */
   createActionButton(text, action, variant) {
     return `<button class="${action} save-action-button save-action-${variant}">${text}</button>`;
   }
 
+  /**
+   * Sets up event listeners for save slot actions.
+   * @private
+   */
   setupSlotEventListeners() {
     if (!this.modal?.modalElement) return;
 
     this.setupSlotActionHandlers();
   }
 
+  /**
+   * Binds action handlers for all slot button types.
+   * @private
+   */
   setupSlotActionHandlers() {
     const actions = {
       "save-to-slot": (n) => this.gameSaveSystem.saveToSlot(n),
@@ -204,6 +279,11 @@ class SavesModal {
     });
   }
 
+  /**
+   * Handles delete button click, determining if it's autosave or manual slot.
+   * @param {number} slotNumber - The slot number to delete
+   * @private
+   */
   handleDeleteSlot(slotNumber) {
     const slot = this.modal.modalElement.querySelector(
       `[data-slot="${slotNumber}"]`
@@ -212,6 +292,12 @@ class SavesModal {
     this.gameSaveSystem.deleteSlot(slotNumber, isAutosave);
   }
 
+  /**
+   * Binds a click handler for a specific action class using event delegation.
+   * @param {string} className - The CSS class to bind to
+   * @param {Function} handler - Handler function that receives the slot number
+   * @private
+   */
   bindSlotAction(className, handler) {
     this.modal.addBodyEventListener(`.${className}`, "click", (e) => {
       try {
@@ -227,10 +313,18 @@ class SavesModal {
     });
   }
 
+  /**
+   * Checks whether the modal is ready for use.
+   * @returns {boolean} True if modal and save system are available
+   */
   isReady() {
     return !!(this.modal?.isReady() && this.gameSaveSystem);
   }
 
+  /**
+   * Returns diagnostic information about the modal state.
+   * @returns {{hasModal: boolean, hasGameSaveSystem: boolean, maxSaveSlots: number, autosaveSlot: number, modalVisible: boolean}}
+   */
   getStats() {
     return {
       hasModal: !!this.modal,

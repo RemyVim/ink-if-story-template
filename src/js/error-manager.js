@@ -1,6 +1,15 @@
 import { notificationManager } from "./notification-manager.js";
 
+/**
+ * Centralized error handling with logging, notifications, and automatic recovery.
+ * Provides source-bound loggers for consistent error reporting across modules.
+ */
 class ErrorManager {
+  /**
+   * Predefined source identifiers for error categorization.
+   * Use these constants when logging errors to ensure consistent source names.
+   * @type {Object.<string, string>}
+   */
   static SOURCES = {
     CHOICE_MANAGER: "Choice Manager",
     CONTENT_PROCESSOR: "Content Processor",
@@ -20,10 +29,17 @@ class ErrorManager {
     TAG_PROCESSOR: "Tag Processor",
   };
 
+  /**
+   * Creates the ErrorManager and sets up global error handlers.
+   */
   constructor() {
     this.setupGlobalHandlers();
   }
 
+  /**
+   * Registers global handlers for uncaught errors and unhandled promise rejections.
+   * @private
+   */
   setupGlobalHandlers() {
     window.addEventListener("error", (event) => {
       this.handleError(
@@ -57,14 +73,32 @@ class ErrorManager {
     };
   }
 
+  /**
+   * Logs a critical error that may trigger recovery attempts.
+   * @param {string} message - Error description
+   * @param {Error|*} error - Error object or details
+   * @param {string} source - Error source (use ErrorManager.SOURCES)
+   */
   critical(message, error, source) {
     this.handleError(message, error, source, "critical");
   }
 
+  /**
+   * Logs an error and shows a notification to the user.
+   * @param {string} message - Error description
+   * @param {Error|*} error - Error object or details
+   * @param {string} source - Error source (use ErrorManager.SOURCES)
+   */
   error(message, error, source) {
     this.handleError(message, error, source, "error");
   }
 
+  /**
+   * Logs a warning without showing a notification.
+   * @param {string} message - Warning description
+   * @param {Error|*} error - Error object or details
+   * @param {string} source - Warning source (use ErrorManager.SOURCES)
+   */
   warning(message, error, source) {
     this.handleError(message, error, source, "warning");
   }
@@ -149,11 +183,23 @@ class ErrorManager {
     }
   }
 
+  /**
+   * Displays an error notification to the user.
+   * @param {string} message - Message to display
+   * @param {string} severity - 'error' or 'critical'
+   * @private
+   */
   showNotification(message, severity) {
     const type = severity === "critical" ? "critical" : "error";
     notificationManager.show(message, { type });
   }
 
+  /**
+   * Attempts automatic recovery based on the error source.
+   * Recovery actions include restarting the story, clearing display, or disabling autosave.
+   * @param {string} source - The error source that triggered recovery
+   * @private
+   */
   attemptRecovery(source) {
     console.log(`[RECOVERY] Attempting recovery for ${source} error`);
     const storyManager = window.InkTemplate?.storyManager;

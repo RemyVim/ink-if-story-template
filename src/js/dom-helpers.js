@@ -2,7 +2,17 @@ import { errorManager, ERROR_SOURCES } from "./error-manager.js";
 
 const log = errorManager.forSource(ERROR_SOURCES.DOM_HELPERS);
 
+/**
+ * DOM manipulation utilities scoped to a container element.
+ * Provides methods for creating, querying, and removing elements
+ * with consistent patterns used throughout the UI.
+ */
 class DOMHelpers {
+  /**
+   * Creates the DOMHelpers with dependencies
+   * @param {HTMLElement} storyContainer - The container element for story content
+   * @param {Object} [settings=null] - Settings object for configuration (e.g., tone indicator placement)
+   */
   constructor(storyContainer, settings = null) {
     if (!storyContainer || !(storyContainer instanceof Element)) {
       log.critical(
@@ -16,6 +26,12 @@ class DOMHelpers {
     this.storyContainer = storyContainer;
   }
 
+  /**
+   * Creates and appends a paragraph element to the story container.
+   * @param {string} text - HTML content for the paragraph
+   * @param {string[]} [customClasses=[]] - CSS classes to apply
+   * @returns {HTMLElement|null} The created paragraph element, or null on failure
+   */
   createParagraph(text, customClasses = []) {
     if (!text || typeof text !== "string") {
       log.warning("Invalid text passed to createParagraph");
@@ -140,6 +156,11 @@ class DOMHelpers {
     }
   }
 
+  /**
+   * Attaches a click event handler to a choice element's anchor.
+   * @param {HTMLElement} choiceElement - The choice paragraph element containing an anchor
+   * @param {Function} callback - Function to call when the choice is clicked
+   */
   addChoiceClickHandler(choiceElement, callback) {
     if (!choiceElement || !(choiceElement instanceof Element)) {
       log.warning("Invalid choiceElement passed to addChoiceClickHandler");
@@ -166,6 +187,10 @@ class DOMHelpers {
     }
   }
 
+  /**
+   * Removes all elements matching a selector from the story container.
+   * @param {string} selector - CSS selector for elements to remove
+   */
   removeAll(selector) {
     if (!selector || typeof selector !== "string") {
       log.warning("Invalid selector passed to removeAll");
@@ -186,6 +211,11 @@ class DOMHelpers {
     }
   }
 
+  /**
+   * Sets visibility of elements by adding/removing the 'invisible' class.
+   * @param {string} selector - CSS selector for target elements
+   * @param {boolean} visible - Whether elements should be visible
+   */
   setVisible(selector, visible) {
     if (!selector || typeof selector !== "string") {
       log.warning("Invalid selector passed to setVisible");
@@ -213,6 +243,9 @@ class DOMHelpers {
     }
   }
 
+  /**
+   * Removes all story content elements (paragraphs, images, figures, stat bars, inputs).
+   */
   clearStoryContent() {
     this.removeAll("p");
     this.removeAll("img");
@@ -221,6 +254,10 @@ class DOMHelpers {
     this.removeAll(".user-input-inline-container");
   }
 
+  /**
+   * Scrolls a container element to the top.
+   * @param {HTMLElement} container - The scrollable container element
+   */
   scrollToTop(container) {
     if (!container || !(container instanceof Element)) {
       log.warning("Invalid container passed to scrollToTop");
@@ -241,6 +278,10 @@ class DOMHelpers {
     }
   }
 
+  /**
+   * Attempts to recover the story container reference if it was lost.
+   * Useful after dynamic DOM changes or errors.
+   */
   recover() {
     if (!this.storyContainer?.parentNode) {
       const newContainer = document.querySelector("#story");
@@ -253,10 +294,18 @@ class DOMHelpers {
     }
   }
 
+  /**
+   * Checks whether the DOM helper is ready for use.
+   * @returns {boolean} True if the story container exists and is attached to the DOM
+   */
   isReady() {
     return !!this.storyContainer?.parentNode;
   }
 
+  /**
+   * Returns diagnostic information about the story container's state.
+   * @returns {{hasContainer: boolean, containerTagName?: string, containerChildren?: number, containerText?: number, paragraphCount?: number, choiceCount?: number, imageCount?: number}}
+   */
   getStats() {
     if (!this.storyContainer) {
       return { hasContainer: false };

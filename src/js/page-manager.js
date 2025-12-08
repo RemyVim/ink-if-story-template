@@ -5,7 +5,16 @@ import { Utils } from "./utils.js";
 
 const log = errorManager.forSource(ERROR_SOURCES.PAGE_MANAGER);
 
+/**
+ * Manages special pages (reference content like help, credits, etc.)
+ * that can be viewed without advancing the main story state.
+ * Handles saving/restoring story state when entering/exiting special pages.
+ */
 class PageManager {
+  /**
+   * Creates the page manager.
+   * @param {Object} storyManager - The StoryManager instance
+   */
   constructor(storyManager) {
     this.storyManager = storyManager;
     this.tagProcessor = storyManager.TagProcessor;
@@ -56,6 +65,9 @@ class PageManager {
     }
   }
 
+  /**
+   * Returns from a special page to the main story, restoring the previous state.
+   */
   returnToStory() {
     if (!this.storyManager.currentPage) return;
 
@@ -102,6 +114,9 @@ class PageManager {
     }
   }
 
+  /**
+   * Resets the page manager state (clears saved state and current page).
+   */
   reset() {
     this.savedDisplayState = null;
     this.savedStoryState = null;
@@ -110,28 +125,55 @@ class PageManager {
     }
   }
 
+  /**
+   * Checks if a special page is currently being viewed.
+   * @returns {boolean} True if viewing a special page
+   */
   isViewingSpecialPage() {
     return this.storyManager?.currentPage !== null;
   }
 
+  /**
+   * Checks if a knot is marked as a special page.
+   * @param {string} knotName - The ink knot name
+   * @returns {boolean} True if the knot is a special page
+   */
   isSpecialPage(knotName) {
     const pageInfo = this.storyManager?.availablePages?.[knotName];
     return pageInfo && pageInfo.isSpecialPage;
   }
 
+  /**
+   * Checks if a special page exists by knot name.
+   * @param {string} knotName - The ink knot name
+   * @returns {boolean} True if the page exists
+   */
   pageExists(knotName) {
     return this.isSpecialPage(knotName);
   }
 
+  /**
+   * Gets the knot name of the currently viewed special page.
+   * @returns {string|null} The knot name, or null if not viewing a special page
+   */
   getCurrentPageKnotName() {
     return this.storyManager?.currentPage || null;
   }
 
+  /**
+   * Gets the display name of the currently viewed special page.
+   * @returns {string|null} The display name, or null if not viewing a special page
+   */
   getCurrentPageDisplayName() {
     const knotName = this.getCurrentPageKnotName();
     return knotName ? this.getPageDisplayName(knotName) : null;
   }
 
+  /**
+   * Gets the display name for a special page, falling back to formatted knot name.
+   * @param {string} knotName - The ink knot name
+   * @returns {string} The display name
+   */
   getPageDisplayName(knotName) {
     const pageInfo = this.storyManager?.availablePages?.[knotName];
     if (pageInfo && pageInfo.displayName) {
@@ -141,10 +183,18 @@ class PageManager {
     return Utils.formatKnotName(knotName);
   }
 
+  /**
+   * Returns a copy of all available special pages.
+   * @returns {Object.<string, {displayName: string, knotName: string, isSpecialPage: boolean}>}
+   */
   getAvailablePages() {
     return { ...this.storyManager?.availablePages } || {};
   }
 
+  /**
+   * Returns display names for all available special pages.
+   * @returns {Array<{knotName: string, displayName: string}>}
+   */
   getAvailablePageDisplayNames() {
     const pages = this.getAvailablePages();
     return Object.keys(pages).map((knotName) => ({
@@ -153,6 +203,11 @@ class PageManager {
     }));
   }
 
+  /**
+   * Finds a knot name by its display name.
+   * @param {string} displayName - The display name to search for
+   * @returns {string|null} The knot name, or null if not found
+   */
   findKnotByDisplayName(displayName) {
     const pages = this.getAvailablePages();
     for (const [knotName, pageInfo] of Object.entries(pages)) {
@@ -163,6 +218,11 @@ class PageManager {
     return null;
   }
 
+  /**
+   * Gets detailed information about a special page including its content.
+   * @param {string} knotName - The ink knot name
+   * @returns {{knotName: string, displayName: string, isSpecialPage: boolean, content: string}|null}
+   */
   getPageInfo(knotName) {
     const pageInfo = this.storyManager?.availablePages?.[knotName];
     if (!pageInfo) return null;
@@ -175,6 +235,12 @@ class PageManager {
     };
   }
 
+  /**
+   * Evaluates a special page's content by running through its knot in a temporary story.
+   * @param {string} knotName - The ink knot name
+   * @returns {string} The page's text content
+   * @private
+   */
   evaluatePageContent(knotName) {
     if (!this.pageExists(knotName)) return "";
 
@@ -205,17 +271,23 @@ class PageManager {
     }
   }
 
+  /**
+   * Saves the current display and story state before viewing a special page.
+   * @private
+   */
   saveCurrentState() {
-    // Save current display state
     if (this.storyManager.display) {
       this.savedDisplayState = this.storyManager.display.getState();
     }
 
-    // Save current story state
     this.savedStoryState =
       this.storyManager.savePoint || this.storyManager.story.state.ToJson();
   }
 
+  /**
+   * Regenerates display content from the current story state (fallback recovery).
+   * @private
+   */
   regenerateDisplayFromStoryState() {
     const currentText = this.storyManager.story?.state?.currentText;
     if (currentText?.trim()) {
@@ -224,6 +296,12 @@ class PageManager {
     }
   }
 
+  /**
+   * Generates processed content objects for a special page.
+   * @param {string} knotName - The ink knot name
+   * @returns {Array} Array of content objects ready for rendering
+   * @private
+   */
   generatePageContent(knotName) {
     try {
       const tempStory = this.createPageStory(knotName);
@@ -234,6 +312,12 @@ class PageManager {
     }
   }
 
+  /**
+   * Creates a temporary story instance positioned at a special page knot.
+   * @param {string} knotName - The ink knot name
+   * @returns {Story} Temporary story instance
+   * @private
+   */
   createPageStory(knotName) {
     const tempStory = this.storyManager.createTempStory();
     const currentState = this.storyManager.story.state.ToJson();
@@ -242,6 +326,12 @@ class PageManager {
     return tempStory;
   }
 
+  /**
+   * Extracts and processes all content from a temporary story.
+   * @param {Story} tempStory - The temporary story instance
+   * @returns {Array} Array of processed content objects
+   * @private
+   */
   extractPageContent(tempStory) {
     const content = [];
     let isFirstLine = true;
@@ -261,6 +351,14 @@ class PageManager {
     return content;
   }
 
+  /**
+   * Processes a single line of page content into content objects.
+   * @param {string} text - The line text
+   * @param {string[]} tags - The line's tags
+   * @param {boolean} isFirstLine - Whether this is the first line (may contain only SPECIAL_PAGE tag)
+   * @returns {Array|null} Array of content objects, or null if line should be skipped
+   * @private
+   */
   processPageLine(text, tags, isFirstLine) {
     // Skip first line if only SPECIAL_PAGE tag
     if (isFirstLine && this.containsOnlySpecialPageTag(text, tags)) {
@@ -298,6 +396,10 @@ class PageManager {
     return TagRegistry.hasSpecialPageTag(tags);
   }
 
+  /**
+   * Adds a "Return to Story" button at the bottom of the special page.
+   * @private
+   */
   addReturnButton() {
     if (!this.storyManager.choices || !this.storyManager.display) {
       log.error("Required managers not available for return button");
@@ -315,10 +417,18 @@ class PageManager {
     }
   }
 
+  /**
+   * Checks whether the page manager is ready for use.
+   * @returns {boolean} True if story and display are available
+   */
   isReady() {
     return !!(this.storyManager?.story && this.storyManager?.display);
   }
 
+  /**
+   * Returns diagnostic information about the page manager's state.
+   * @returns {{hasStoryManager: boolean, hasTagProcessor: boolean, currentPageKnotName: string|null, currentPageDisplayName: string|null, isViewingSpecialPage: boolean, availablePageCount: number, hasSavedState: boolean, pageDisplayNames: Array}}
+   */
   getStats() {
     const availablePages = this.getAvailablePages();
     const currentKnotName = this.getCurrentPageKnotName();
@@ -336,6 +446,11 @@ class PageManager {
     };
   }
 
+  /**
+   * Validates all special pages by attempting to generate their content.
+   * Useful for debugging and ensuring all pages are properly configured.
+   * @returns {{valid: Array, invalid: Array, errors: Array}}
+   */
   validatePages() {
     const results = {
       valid: [],

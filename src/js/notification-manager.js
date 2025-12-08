@@ -1,6 +1,20 @@
+/**
+ * Manages toast-style notifications with support for multiple types,
+ * positioning, auto-dismiss, and accessibility features.
+ * Uses console.warn directly to avoid circular dependency with ErrorManager.
+ */
 class NotificationManager {
-  // Uses console.warn directly to avoid circular dependency with ErrorManager
+  // Note: Uses console.warn directly to avoid circular dependency with ErrorManager
 
+  /**
+   * Creates the notification manager with optional configuration.
+   * @param {Object} [options={}]
+   * @param {string} [options.position='bottom-right'] - Position: top-left, top-right, bottom-left, bottom-right, top-center, bottom-center
+   * @param {number} [options.maxNotifications=5] - Maximum visible notifications
+   * @param {number} [options.defaultDuration=4000] - Default auto-dismiss time in ms
+   * @param {number} [options.spacing=10] - Gap between notifications in px
+   * @param {number} [options.zIndex=2000] - CSS z-index for container
+   */
   constructor(options = {}) {
     this.config = {
       position: "bottom-right", // top-left, top-right, bottom-left, bottom-right, top-center, bottom-center
@@ -16,11 +30,19 @@ class NotificationManager {
     this.init();
   }
 
+  /**
+   * Initializes the notification system by creating the container and adding styles.
+   * @private
+   */
   init() {
     this.createContainer();
     this.addStyles();
   }
 
+  /**
+   * Creates the notification container element and appends it to the document body.
+   * @private
+   */
   createContainer() {
     this.container = document.createElement("div");
     this.container.className = "notification-container";
@@ -34,6 +56,10 @@ class NotificationManager {
     document.body.appendChild(this.container);
   }
 
+  /**
+   * Applies CSS positioning to the container based on config.position.
+   * @private
+   */
   setContainerPosition() {
     const positions = {
       "top-left": { top: "20px", left: "20px" },
@@ -57,6 +83,10 @@ class NotificationManager {
     });
   }
 
+  /**
+   * Sets CSS custom properties for notification styling.
+   * @private
+   */
   addStyles() {
     const root = document.documentElement;
     root.style.setProperty(
@@ -117,22 +147,52 @@ class NotificationManager {
     };
   }
 
+  /**
+   * Shows a success notification (green/checkmark style).
+   * @param {string} message - The message to display
+   * @param {Object} [options={}] - Additional notification options
+   * @returns {Object} Notification object with remove method
+   */
   success(message, options = {}) {
     return this.show(message, { ...options, type: "success" });
   }
 
+  /**
+   * Shows an error notification (red/X style).
+   * @param {string} message - The message to display
+   * @param {Object} [options={}] - Additional notification options
+   * @returns {Object} Notification object with remove method
+   */
   error(message, options = {}) {
     return this.show(message, { ...options, type: "error" });
   }
 
+  /**
+   * Shows a warning notification (yellow/warning style).
+   * @param {string} message - The message to display
+   * @param {Object} [options={}] - Additional notification options
+   * @returns {Object} Notification object with remove method
+   */
   warning(message, options = {}) {
     return this.show(message, { ...options, type: "warning" });
   }
 
+  /**
+   * Shows an info notification (neutral/info style).
+   * @param {string} message - The message to display
+   * @param {Object} [options={}] - Additional notification options
+   * @returns {Object} Notification object with remove method
+   */
   info(message, options = {}) {
     return this.show(message, { ...options, type: "info" });
   }
 
+  /**
+   * Shows a critical notification (solid red background, no auto-dismiss).
+   * @param {string} message - The message to display
+   * @param {Object} [options={}] - Additional notification options
+   * @returns {Object} Notification object with remove method
+   */
   critical(message, options = {}) {
     return this.show(message, {
       ...options,
@@ -142,6 +202,12 @@ class NotificationManager {
     });
   }
 
+  /**
+   * Removes a notification with exit animation.
+   * @param {Object} notificationObj - The notification object returned by show()
+   * @param {HTMLElement} notificationObj.element - The notification DOM element
+   * @param {Object} notificationObj.config - The notification configuration
+   */
   remove(notificationObj) {
     if (!notificationObj || !notificationObj.element) return;
 
@@ -170,6 +236,9 @@ class NotificationManager {
     }, 300);
   }
 
+  /**
+   * Removes all active notifications.
+   */
   clearAll() {
     const notificationsToRemove = [...this.notifications];
     notificationsToRemove.forEach((notification) => {
@@ -177,6 +246,13 @@ class NotificationManager {
     });
   }
 
+  /**
+   * Creates the DOM element for a notification.
+   * @param {string} message - The message to display
+   * @param {Object} config - Notification configuration
+   * @returns {HTMLElement} The notification element
+   * @private
+   */
   createNotificationElement(message, config) {
     const notification = document.createElement("div");
     notification.className = `notification-item notification-${config.type}`;
@@ -234,6 +310,11 @@ class NotificationManager {
     return notification;
   }
 
+  /**
+   * Returns the CSS transform for the exit animation based on position.
+   * @returns {string} CSS transform value (e.g., 'translateX(100%)')
+   * @private
+   */
   getExitTransform() {
     const isRight = this.config.position.includes("right");
     const isLeft = this.config.position.includes("left");
@@ -243,6 +324,10 @@ class NotificationManager {
     return "translateY(-100%)"; // center positions
   }
 
+  /**
+   * Removes oldest notifications if count exceeds maxNotifications.
+   * @private
+   */
   enforceMaxNotifications() {
     while (this.notifications.length >= this.config.maxNotifications) {
       const oldest = this.notifications[0];
@@ -250,6 +335,10 @@ class NotificationManager {
     }
   }
 
+  /**
+   * Updates the notification manager configuration.
+   * @param {Object} newConfig - Configuration options to merge
+   */
   updateConfig(newConfig) {
     this.config = { ...this.config, ...newConfig };
 
@@ -259,6 +348,10 @@ class NotificationManager {
     }
   }
 
+  /**
+   * Returns diagnostic information about the notification system.
+   * @returns {{activeNotifications: number, maxNotifications: number, position: string, hasContainer: boolean}}
+   */
   getStats() {
     return {
       activeNotifications: this.notifications.length,
@@ -268,6 +361,9 @@ class NotificationManager {
     };
   }
 
+  /**
+   * Cleans up the notification system, removing all notifications and the container.
+   */
   destroy() {
     this.clearAll();
 

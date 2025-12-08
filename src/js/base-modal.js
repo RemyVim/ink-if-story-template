@@ -3,10 +3,16 @@ import { notificationManager } from "./notification-manager.js";
 
 const log = errorManager.forSource(ERROR_SOURCES.MODAL);
 
+/**
+ * Reusable modal dialog component with accessibility support.
+ * Handles backdrop, keyboard navigation, focus trapping, and animations.
+ * Used as the foundation for SavesModal, SettingsModal, and confirmation dialogs.
+ */
 class BaseModal {
   static instances = new Set();
 
   /**
+   * Creates the BaseModal with defaults
    * @param {Object} options
    * @param {string} [options.title='Modal'] - Modal title
    * @param {string} [options.className='base-modal'] - CSS class prefix
@@ -44,12 +50,22 @@ class BaseModal {
     this.init();
   }
 
+  /**
+   * Initializes the modal by creating DOM elements and setting up event listeners.
+   * Called automatically by the constructor.
+   * @private
+   */
   init() {
     this.createModal();
     this.setupEventListeners();
     BaseModal.instances.add(this);
   }
 
+  /**
+   * Creates the modal DOM structure (backdrop and content container)
+   * and appends it to the document body.
+   * @private
+   */
   createModal() {
     const modalBackdrop = document.createElement("div");
     modalBackdrop.className = `${this.config.className}-backdrop`;
@@ -93,6 +109,11 @@ class BaseModal {
     this.modalElement = modalBackdrop;
   }
 
+  /**
+   * Generates the inner HTML structure for the modal (header, body, footer).
+   * @returns {string} HTML string for modal contents
+   * @private
+   */
   getModalHTML() {
     return `
       <div class="modal-header">
@@ -126,6 +147,11 @@ class BaseModal {
     `;
   }
 
+  /**
+   * Sets up keyboard and click event listeners for modal interactions
+   * including focus trapping, backdrop clicks, and escape key handling.
+   * @private
+   */
   setupEventListeners() {
     if (!this.modalElement) return;
 
@@ -177,6 +203,9 @@ class BaseModal {
   }
 
   /**
+   * Displays the modal with animation. Closes any other open modals first.
+   * Manages focus by storing the previously focused element and trapping
+   * focus within the modal while visible.
    * @param {Function} [contentCallback] - Called with modal instance to populate content before showing
    */
   show(contentCallback = null) {
@@ -228,6 +257,10 @@ class BaseModal {
     }
   }
 
+  /**
+   * Hides the modal with a fade-out animation.
+   * Restores focus to the previously focused element.
+   */
   hide() {
     if (!this.modalElement) return;
 
@@ -257,6 +290,9 @@ class BaseModal {
     }
   }
 
+  /**
+   * Toggles the modal visibility (shows if hidden, hides if visible).
+   */
   toggle() {
     if (this.isVisible) {
       this.hide();
@@ -285,22 +321,17 @@ class BaseModal {
     };
 
     const settings = { ...defaults, ...options };
-
-    // Temporarily store original config
     const originalConfig = { ...this.config };
 
-    // Update config for confirmation dialog
     this.config.title = settings.title;
     this.config.closeOnBackdrop = false;
     this.config.closeOnEscape = true;
 
     this.show((modal) => {
-      // Set content
       modal.setContent(
         `<p style="margin: 0; color: var(--color-text-primary);">${message}</p>`
       );
 
-      // Set footer with buttons
       const footer = modal.getFooter();
       if (footer) {
         footer.innerHTML = "";
@@ -313,7 +344,6 @@ class BaseModal {
           onClick: () => {
             modal.hide();
             if (onCancel) onCancel();
-            // Restore original config
             Object.assign(this.config, originalConfig);
           },
         });
@@ -323,7 +353,6 @@ class BaseModal {
           onClick: () => {
             modal.hide();
             if (onConfirm) onConfirm();
-            // Restore original config
             Object.assign(this.config, originalConfig);
           },
         });
@@ -333,7 +362,6 @@ class BaseModal {
       }
     });
 
-    // Override escape handler for this dialog
     if (this.escapeHandler) {
       document.removeEventListener("keydown", this.escapeHandler);
     }
@@ -347,6 +375,10 @@ class BaseModal {
     document.addEventListener("keydown", this.escapeHandler);
   }
 
+  /**
+   * Sets the HTML content of the modal body.
+   * @param {string} html - HTML string to insert into the modal body
+   */
   setContent(html) {
     const body = this.modalElement?.querySelector(".modal-body");
     if (body) {
@@ -354,6 +386,10 @@ class BaseModal {
     }
   }
 
+  /**
+   * Sets the HTML content of the modal footer.
+   * @param {string} html - HTML string to insert into the modal footer
+   */
   setFooter(html) {
     const footer = this.modalElement?.querySelector(".modal-footer");
     if (footer) {
@@ -361,10 +397,18 @@ class BaseModal {
     }
   }
 
+  /**
+   * Returns the modal body element for direct manipulation.
+   * @returns {HTMLElement|null} The modal body element, or null if not found
+   */
   getBody() {
     return this.modalElement?.querySelector(".modal-body");
   }
 
+  /**
+   * Returns the modal footer element for direct manipulation.
+   * @returns {HTMLElement|null} The modal footer element, or null if not found
+   */
   getFooter() {
     return this.modalElement?.querySelector(".modal-footer");
   }
@@ -396,14 +440,12 @@ class BaseModal {
     const button = document.createElement("button");
     button.textContent = text;
 
-    // Apply CSS classes instead of inline styles
     button.className = `modal-button modal-button-${options.variant || "primary"}`;
 
     if (options.onClick && typeof options.onClick === "function") {
       button.addEventListener("click", options.onClick);
     }
 
-    // Add custom styles if provided
     if (options.styles) {
       Object.entries(options.styles).forEach(([property, value]) => {
         button.style[property] = value;
@@ -413,15 +455,30 @@ class BaseModal {
     return button;
   }
 
+  /**
+   * Displays a toast notification using the global notification manager.
+   * @param {string} message - The message to display
+   * @param {boolean} [isError=false] - Whether this is an error notification
+   * @param {number} [duration=4000] - How long to show the notification in milliseconds
+   */
   showNotification(message, isError = false, duration = 4000) {
     const type = isError ? "error" : "success";
     notificationManager.show(message, { type, duration });
   }
 
+  /**
+   * Checks whether the modal is ready to be shown.
+   * @returns {boolean} True if the modal element exists and document.body is available
+   */
   isReady() {
     return !!(this.modalElement && document.body);
   }
 
+  /**
+   * Returns diagnostic information about the modal's current state.
+   * Useful for debugging.
+   * @returns {{hasModalElement: boolean, isVisible: boolean, className: string, hasEscapeHandler: boolean, size: string}}
+   */
   getStats() {
     return {
       hasModalElement: !!this.modalElement,
@@ -432,6 +489,11 @@ class BaseModal {
     };
   }
 
+  /**
+   * Cleans up the modal by removing event listeners, removing the DOM element,
+   * and unregistering from the static instances set. Call this when you're done
+   * with a modal to prevent memory leaks.
+   */
   destroy() {
     try {
       BaseModal.instances.delete(this);
@@ -467,6 +529,10 @@ class BaseModal {
     }
   }
 
+  /**
+   * Checks if any modal instance is currently visible.
+   * @returns {boolean} True if at least one modal is visible
+   */
   static hasVisibleModal() {
     for (const modal of BaseModal.instances) {
       if (modal.isVisible) return true;

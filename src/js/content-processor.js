@@ -3,7 +3,16 @@ import { errorManager, ERROR_SOURCES } from "./error-manager.js";
 
 const log = errorManager.forSource(ERROR_SOURCES.CONTENT_PROCESSOR);
 
+/**
+ * Processes raw ink story output into renderable content objects.
+ * Handles text paragraphs, images, user input fields, and special content types.
+ * Coordinates with TagProcessor for tag-based effects and styling.
+ */
 class ContentProcessor {
+  /**
+   * Creates the ContentProcessor with dependencies
+   * @param {Object} tagProcessor - TagProcessor instance for parsing ink tags
+   */
   constructor(tagProcessor) {
     if (!tagProcessor) {
       log.warning("ContentProcessor created without tagProcessor");
@@ -27,6 +36,13 @@ class ContentProcessor {
     return this.createParagraph(text, tags);
   }
 
+  /**
+   * Creates a paragraph content object from text and tags.
+   * @param {string} text - The paragraph text
+   * @param {string[]} tags - Array of ink tags associated with this line
+   * @returns {{type: string, text: string, classes: string[], tags: string[], hasSpecialAction: boolean, action: *}}
+   * @private
+   */
   createParagraph(text, tags) {
     if (!Array.isArray(tags)) {
       log.warning("Invalid tags array provided to createParagraph");
@@ -59,6 +75,14 @@ class ContentProcessor {
     };
   }
 
+  /**
+   * Checks tags for content-type overrides (STATBAR, USER_INPUT, IMAGE).
+   * If found, returns specialized content object(s) instead of a paragraph.
+   * @param {string[]} tags - Array of ink tags to check
+   * @param {string} text - The accompanying text (may be included with the content)
+   * @returns {Object|Array|null} Content object(s) if override found, null otherwise
+   * @private
+   */
   checkContentTypeTags(tags, text) {
     for (const tag of tags) {
       if (typeof tag !== "string") continue;
@@ -79,6 +103,15 @@ class ContentProcessor {
     return null; // No content-type override found
   }
 
+  /**
+   * Creates image content object(s) from an IMAGE tag.
+   * Returns both image and paragraph if text accompanies the tag.
+   * @param {string} tagValue - The IMAGE tag value (e.g., "hero.png left 50%")
+   * @param {string} text - Any text on the same line
+   * @param {string[]} tags - All tags for this line
+   * @returns {Object|Array} Image content object, or array with image and paragraph
+   * @private
+   */
   handleImageContent(tagValue, text, tags) {
     const imageData = this.parseImageTag(tagValue);
 
@@ -98,6 +131,14 @@ class ContentProcessor {
     ];
   }
 
+  /**
+   * Creates stat bar content object(s) from STATBAR tag(s).
+   * Supports multiple stat bars on the same line.
+   * @param {string[]} tags - All tags for this line (may contain multiple STATBAR tags)
+   * @param {string} text - Any text on the same line
+   * @returns {Object|Array} Stat bar content object(s), optionally with paragraph
+   * @private
+   */
   handleStatBarContent(tags, text) {
     const parsedTags = tags.map((t) => TagRegistry.parseTag(t));
     const statBarTags = parsedTags.filter(
@@ -116,6 +157,13 @@ class ContentProcessor {
     return statBars.length === 1 ? statBars[0] : statBars;
   }
 
+  /**
+   * Creates user input content object from USER_INPUT tag.
+   * Returns null if the variable already has a value (after input submission).
+   * @param {string} tagValue - The USER_INPUT tag value (e.g., "player_name \"Enter name\"")
+   * @returns {Object|null} User input content object, or null if already submitted
+   * @private
+   */
   handleUserInputContent(tagValue) {
     const userInputData = this.parseUserInputTag(tagValue);
 
@@ -290,6 +338,13 @@ class ContentProcessor {
     };
   }
 
+  /**
+   * Finds the first valid special action from an array of action functions.
+   * Special actions include RESTART, CLEAR, or page navigation objects.
+   * @param {Function[]} specialActions - Array of action functions to check
+   * @returns {Function|null} The first valid action function, or null if none found
+   * @private
+   */
   findSpecialAction(specialActions) {
     if (!Array.isArray(specialActions) || specialActions.length === 0) {
       return null;
@@ -315,10 +370,18 @@ class ContentProcessor {
     });
   }
 
+  /**
+   * Checks whether the processor is ready to process content.
+   * @returns {boolean} True if tagProcessor is available and functional
+   */
   isReady() {
     return !!this.tagProcessor?.processLineTags;
   }
 
+  /**
+   * Returns diagnostic information about the processor's state.
+   * @returns {{hasTagProcessor: boolean, processorType: string, timestamp: string}}
+   */
   getStats() {
     return {
       hasTagProcessor: !!this.tagProcessor,

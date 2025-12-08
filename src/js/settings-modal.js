@@ -4,7 +4,17 @@ import { errorManager, ERROR_SOURCES } from "./error-manager.js";
 
 const log = errorManager.forSource(ERROR_SOURCES.SETTINGS_MANAGER);
 
+/**
+ * Modal UI for user settings with tabbed interface.
+ * Handles reading preferences, accessibility options, and audio settings.
+ * Provides real-time preview of setting changes.
+ */
 class SettingsModal {
+  /**
+   * Creates the settings modal UI.
+   * @param {Object} settingsManager - The SettingsManager instance that handles settings logic
+   * @throws {Error} If settingsManager is not provided
+   */
   constructor(settingsManager) {
     if (!settingsManager) {
       throw new Error("SettingsModal requires a SettingsManager instance");
@@ -18,11 +28,19 @@ class SettingsModal {
     this.init();
   }
 
+  /**
+   * Initializes the modal and event listeners.
+   * @private
+   */
   init() {
     this.createModal();
     this.setupEventListeners();
   }
 
+  /**
+   * Creates the settings modal using BaseModal.
+   * @private
+   */
   createModal() {
     this.modal = new BaseModal({
       title: "Settings",
@@ -33,6 +51,10 @@ class SettingsModal {
     });
   }
 
+  /**
+   * Sets up the settings button click handler.
+   * @private
+   */
   setupEventListeners() {
     const settingsBtn = document.getElementById("settings-btn");
     if (settingsBtn) {
@@ -43,6 +65,9 @@ class SettingsModal {
     }
   }
 
+  /**
+   * Opens the settings modal and populates it with current values.
+   */
   show() {
     if (!this.modal?.isReady()) {
       log.error("Cannot show settings - modal not available");
@@ -87,20 +112,35 @@ class SettingsModal {
     });
   }
 
+  /**
+   * Closes the settings modal.
+   */
   hide() {
     this.modal?.hide();
   }
 
+  /**
+   * Checks whether the modal is ready for use.
+   * @returns {boolean} True if modal is initialized
+   */
   isReady() {
     return !!this.modal?.isReady();
   }
 
+  /**
+   * Resets all settings to defaults and updates the form.
+   */
   resetSettings() {
     this.settingsManager.resetToDefaults();
     this.populateSettings();
     this.modal.showNotification("Settings reset to defaults");
   }
 
+  /**
+   * Reads values from the form and saves them to the settings manager.
+   * Called automatically when the modal is closed.
+   * @private
+   */
   saveSettings() {
     if (!this.modal?.modalElement) return;
 
@@ -137,6 +177,11 @@ class SettingsModal {
     this.modal.showNotification("Settings saved successfully!");
   }
 
+  /**
+   * Populates form elements with current setting values.
+   * Called automatically when the modal is shown.
+   * @private
+   */
   populateSettings() {
     if (!this.modal?.modalElement) return;
 
@@ -166,6 +211,11 @@ class SettingsModal {
     });
   }
 
+  /**
+   * Sets up change listeners for real-time preview of settings.
+   * Changes are applied immediately as the user adjusts values.
+   * @private
+   */
   setupRealtimePreview() {
     if (!this.modal?.modalElement) return;
 
@@ -205,6 +255,10 @@ class SettingsModal {
     });
   }
 
+  /**
+   * Sets up click and keyboard handlers for tab navigation.
+   * @private
+   */
   setupTabSwitching() {
     if (!this.modal?.modalElement) return;
 
@@ -215,6 +269,11 @@ class SettingsModal {
     });
   }
 
+  /**
+   * Switches to the specified settings tab.
+   * @param {string} tabId - The tab ID to switch to (reading, accessibility, audio)
+   * @private
+   */
   switchTab(tabId) {
     if (!this.modal?.modalElement) return;
 
@@ -232,6 +291,12 @@ class SettingsModal {
     });
   }
 
+  /**
+   * Handles keyboard navigation between tabs (arrow keys, Home, End).
+   * @param {KeyboardEvent} event - The keyboard event
+   * @param {NodeList} tabs - The list of tab elements
+   * @private
+   */
   handleTabKeydown(event, tabs) {
     const tabsArray = Array.from(tabs);
     const currentIndex = tabsArray.findIndex((tab) => tab === event.target);
@@ -259,6 +324,9 @@ class SettingsModal {
     this.switchTab(tabsArray[newIndex].dataset.tab);
   }
 
+  /**
+   * Shows or hides the keyboard shortcuts help button based on availability and settings.
+   */
   updateKeyboardHelpButtonVisibility() {
     if (!this.modal?.modalElement) return;
     const helpBtn = this.modal.modalElement.querySelector(".keyboard-help-btn");
@@ -270,6 +338,11 @@ class SettingsModal {
     }
   }
 
+  /**
+   * Generates the complete settings modal HTML content.
+   * @returns {string} HTML string for the settings interface
+   * @private
+   */
   getSettingsHTML() {
     return `
       ${this.renderSettingsTabs()}
@@ -281,6 +354,11 @@ class SettingsModal {
     `;
   }
 
+  /**
+   * Generates HTML for the settings tab bar.
+   * @returns {string} HTML string for the tabs
+   * @private
+   */
   renderSettingsTabs() {
     return `
     <div role="tablist" class="settings-tabs" aria-label="Settings categories">
@@ -291,6 +369,15 @@ class SettingsModal {
     `;
   }
 
+  /**
+   * Generates HTML for a single settings tab button.
+   * @param {string} id - Tab ID
+   * @param {string} icon - Material icon name
+   * @param {string} label - Accessible label for screen readers
+   * @param {boolean} [isActive=false] - Whether this tab is initially active
+   * @returns {string} HTML string for the tab button
+   * @private
+   */
   renderSettingsTab(id, icon, label, isActive = false) {
     return `
       <button role="tab" class="settings-tab ${isActive ? "active" : ""}" 
@@ -305,6 +392,12 @@ class SettingsModal {
     `;
   }
 
+  /**
+   * Generates HTML for the Reading settings panel.
+   * Includes theme, font, text size, line height, and autosave options.
+   * @returns {string} HTML string for the panel
+   * @private
+   */
   renderReadingPanel() {
     return `
     <div role="tabpanel" class="settings-panel active" id="panel-reading" aria-labelledby="tab-reading">
@@ -339,6 +432,12 @@ class SettingsModal {
     `;
   }
 
+  /**
+   * Generates HTML for the Accessibility settings panel.
+   * Includes animations, tone indicators, choice numbering, and keyboard shortcuts.
+   * @returns {string} HTML string for the panel
+   * @private
+   */
   renderAccessibilityPanel() {
     return `
     <div role="tabpanel" class="settings-panel" id="panel-accessibility" aria-labelledby="tab-accessibility">
@@ -378,6 +477,12 @@ class SettingsModal {
     `;
   }
 
+  /**
+   * Generates HTML for the Audio settings panel.
+   * Only rendered if the story uses audio features.
+   * @returns {string} HTML string for the panel, or empty string if no audio
+   * @private
+   */
   renderAudioPanel() {
     if (!StoryFeatures.hasAudio) return "";
 
@@ -387,6 +492,13 @@ class SettingsModal {
     </div>`;
   }
 
+  /**
+   * Generates HTML for a checkbox setting item.
+   * @param {string} name - The setting name (used as input name attribute)
+   * @param {string} label - The display label
+   * @returns {string} HTML string for the checkbox setting
+   * @private
+   */
   renderCheckboxSetting(name, label) {
     return `
       <div class="setting-item">
@@ -397,6 +509,15 @@ class SettingsModal {
       </div>`;
   }
 
+  /**
+   * Generates HTML for a dropdown setting item.
+   * @param {string} name - The setting name (used as select name attribute)
+   * @param {string} id - The element ID
+   * @param {string} label - The display label
+   * @param {Array<{value: string, label: string}>} options - Dropdown options
+   * @returns {string} HTML string for the dropdown setting
+   * @private
+   */
   renderDropdownSetting(name, id, label, options) {
     const optionsHtml = options
       .map((opt) => `<option value="${opt.value}">${opt.label}</option>`)
@@ -411,6 +532,13 @@ class SettingsModal {
       </div>`;
   }
 
+  /**
+   * Generates HTML for a button setting item (e.g., keyboard help button).
+   * @param {string} className - CSS class for the button
+   * @param {string} label - Button text
+   * @returns {string} HTML string for the button setting
+   * @private
+   */
   renderButtonSetting(className, label) {
     return `
       <div class="setting-item">

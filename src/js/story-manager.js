@@ -8,7 +8,20 @@ import { errorManager, ERROR_SOURCES } from "./error-manager.js";
 
 const log = errorManager.forSource(ERROR_SOURCES.STORY_MANAGER);
 
+/**
+ * Central coordinator for the ink story engine.
+ * Manages story state, content generation, choices, saves, and special pages.
+ * Dependencies are injected via constructor and wired by main.js.
+ */
 class StoryManager {
+  /**
+   * Creates the story manager with injected dependencies.
+   * @param {Object} storyContent - Compiled ink story JSON
+   * @param {Object} options - Injected dependencies
+   * @param {Object} options.display - DisplayManager instance
+   * @param {Object} options.settings - SettingsManager instance
+   * @param {Object} options.contentProcessor - ContentProcessor instance
+   */
   constructor(storyContent, { display, settings, contentProcessor }) {
     try {
       this.story = new Story(storyContent);
@@ -34,6 +47,11 @@ class StoryManager {
     }
   }
 
+  /**
+   * Starts the story after all dependencies have been wired.
+   * Detects special pages, processes global tags, and begins content generation.
+   * @throws {Error} If required dependencies are not wired
+   */
   start() {
     const required = {
       display: this.display,
@@ -70,6 +88,11 @@ class StoryManager {
     }
   }
 
+  /**
+   * Continues the story, generating and rendering new content.
+   * Clears display (unless first time), processes content, and creates choices.
+   * @param {boolean} [isFirstTime=false] - Whether this is the initial story load
+   */
   continue(isFirstTime = false) {
     try {
       // Don't continue if viewing a special page
@@ -125,6 +148,10 @@ class StoryManager {
     }
   }
 
+  /**
+   * Continues the story without clearing the display.
+   * Used after user input submission to append new content.
+   */
   continueWithoutClearing() {
     try {
       // Don't continue if viewing a special page
@@ -144,6 +171,10 @@ class StoryManager {
     }
   }
 
+  /**
+   * Generates and renders the current story choices.
+   * @private
+   */
   createChoices() {
     try {
       if (this.story.currentChoices?.length > 0) {
@@ -158,6 +189,11 @@ class StoryManager {
     }
   }
 
+  /**
+   * Selects a choice by index and continues the story.
+   * Removes existing choices, advances the story, triggers autosave.
+   * @param {number} choiceIndex - Index of the choice to select
+   */
   selectChoice(choiceIndex) {
     try {
       if (
@@ -190,6 +226,10 @@ class StoryManager {
     }
   }
 
+  /**
+   * Restarts the story from the beginning.
+   * Resets story state, display, and page manager.
+   */
   restart() {
     try {
       document.dispatchEvent(new CustomEvent("story:restart"));
@@ -223,6 +263,11 @@ class StoryManager {
     });
   }
 
+  /**
+   * Generates content by advancing the story until choices or user input.
+   * @returns {{content: Array, stoppedForUserInput: boolean, stateBeforeUserInput: string|null}}
+   * @private
+   */
   generateContent() {
     const content = [];
     let stoppedForUserInput = false;
@@ -274,6 +319,12 @@ class StoryManager {
     };
   }
 
+  /**
+   * Handles special actions like CLEAR and RESTART from content tags.
+   * @param {string} actionResult - The action to handle
+   * @returns {boolean} True if story should continue processing, false to stop
+   * @private
+   */
   handleSpecialAction(actionResult) {
     try {
       if (typeof actionResult === "string") {
@@ -296,6 +347,10 @@ class StoryManager {
     }
   }
 
+  /**
+   * Gets the complete current state for saving.
+   * @returns {{gameState: string, displayState: Object|null, currentPage: string|null, savePoint: string, timestamp: number}}
+   */
   getCurrentState() {
     try {
       return {
@@ -311,6 +366,15 @@ class StoryManager {
     }
   }
 
+  /**
+   * Loads a previously saved state.
+   * Restores story state, display, and recreates choices.
+   * @param {Object} state - The saved state object
+   * @param {string} state.gameState - Serialized ink story state
+   * @param {Object} [state.displayState] - Saved display history
+   * @param {string} [state.currentPage] - Current special page knot name
+   * @param {string} [state.savePoint] - Serialized save point state
+   */
   loadState(state) {
     try {
       if (!state?.gameState) {
@@ -354,6 +418,10 @@ class StoryManager {
     }
   }
 
+  /**
+   * Regenerates display from current story text (fallback recovery).
+   * @private
+   */
   regenerateCurrentDisplay() {
     try {
       const currentText = this.story.state.currentText;
@@ -372,6 +440,11 @@ class StoryManager {
     }
   }
 
+  /**
+   * Scans all ink story knots to find those marked as special pages.
+   * Populates this.availablePages with page info.
+   * @private
+   */
   detectSpecialPages() {
     this.availablePages = {};
 
@@ -397,6 +470,12 @@ class StoryManager {
     }
   }
 
+  /**
+   * Checks if a knot is a special page and returns its info.
+   * @param {string} knotName - The ink knot name to check
+   * @returns {{displayName: string, isSpecialPage: boolean}|null} Page info or null
+   * @private
+   */
   getSpecialPageInfo(knotName) {
     if (!TAGS || !TagRegistry.getTagDef) return null;
 
@@ -428,10 +507,20 @@ class StoryManager {
     }
   }
 
+  /**
+   * Checks if a knot is marked as a special page.
+   * @param {string} knotName - The ink knot name
+   * @returns {boolean} True if the knot is a special page
+   */
   isSpecialPage(knotName) {
     return this.getSpecialPageInfo(knotName) !== null;
   }
 
+  /**
+   * Processes the PAGE_MENU global tag to set page ordering.
+   * @param {string[]} globalTags - Array of global tags from the story
+   * @private
+   */
   processMenuOrderTag(globalTags) {
     if (!Array.isArray(globalTags)) return;
 
@@ -451,9 +540,14 @@ class StoryManager {
     }
   }
 
+  /**
+   * Parses a menu order string into structured page order data.
+   * Format: "page1, page2,, page3" where ",," separates sections.
+   * @param {string} menuString - The menu order string
+   * @returns {Array<{knotName: string, section: number}>|null} Parsed order or null
+   * @private
+   */
   parseMenuOrder(menuString) {
-    // Parse format: "page1, page2,, page3, page4"
-    // Double commas (,,) separate sections, single commas separate items within sections
     const sections = menuString.split(",,").map((s) => s.trim());
     const menuOrder = [];
 
@@ -480,6 +574,10 @@ class StoryManager {
     return menuOrder.length > 0 ? menuOrder : null;
   }
 
+  /**
+   * Checks if the story can continue (has more content to generate).
+   * @returns {boolean} True if story.canContinue is true
+   */
   canContinue() {
     try {
       return this.story.canContinue;
@@ -489,6 +587,10 @@ class StoryManager {
     }
   }
 
+  /**
+   * Checks if the story currently has choices available.
+   * @returns {boolean} True if there are current choices
+   */
   hasChoices() {
     try {
       return this.story.currentChoices?.length > 0;
@@ -498,6 +600,10 @@ class StoryManager {
     }
   }
 
+  /**
+   * Checks if the story has ended (no more content or choices).
+   * @returns {boolean} True if story cannot continue and has no choices
+   */
   hasEnded() {
     return !this.canContinue() && !this.hasChoices();
   }
@@ -512,6 +618,10 @@ class StoryManager {
     return tempStory;
   }
 
+  /**
+   * Returns diagnostic information about the story state.
+   * @returns {{currentTurnIndex: number, hasEnded: boolean, canContinue: boolean, hasChoices: boolean, currentPage: string|null, displayLength: number, specialPagesFound: number}}
+   */
   getStats() {
     try {
       return {
@@ -529,6 +639,10 @@ class StoryManager {
     }
   }
 
+  /**
+   * Returns information about available story features.
+   * @returns {{availablePages: Object, hasGlobalTags: boolean, hasCurrentTags: boolean, specialPageCount: number}}
+   */
   getFeatureInfo() {
     return {
       availablePages: { ...this.availablePages },
@@ -538,6 +652,9 @@ class StoryManager {
     };
   }
 
+  /**
+   * Cleans up resources when the story manager is disposed.
+   */
   cleanup() {
     try {
       this.saves?.cleanup?.();

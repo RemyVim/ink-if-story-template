@@ -4,7 +4,16 @@ import { errorManager, ERROR_SOURCES } from "./error-manager.js";
 
 const log = errorManager.forSource(ERROR_SOURCES.DISPLAY_MANAGER);
 
+/**
+ * Manages the story display area including content rendering,
+ * choice presentation, animations, and scroll behavior.
+ * Maintains display history for save/restore functionality.
+ */
 class DisplayManager {
+  /**
+   * Creates the DisplayManager with dependencies
+   * @param {Object} settings - SettingsManager instance for animation preferences
+   */
   constructor(settings) {
     if (!settings) {
       log.warning(
@@ -106,6 +115,15 @@ class DisplayManager {
     });
   }
 
+  /**
+   * Creates and appends a paragraph element from content data.
+   * Processes markdown and applies CSS classes from tags.
+   * @param {Object} content - Content object with text and classes
+   * @param {string} content.text - The paragraph text (may contain markdown)
+   * @param {string[]} [content.classes] - CSS classes to apply
+   * @returns {HTMLElement|null} The created paragraph element, or null on failure
+   * @private
+   */
   createElement(content) {
     if (!content?.text || typeof content.text !== "string") {
       log.warning("createElement called with invalid content");
@@ -135,6 +153,17 @@ class DisplayManager {
     }
   }
 
+  /**
+   * Creates and appends an image element, optionally wrapped in a figure with caption.
+   * @param {Object} item - Image content object
+   * @param {string} item.src - Image source URL
+   * @param {string} [item.altText] - Alt text for accessibility
+   * @param {string} [item.alignment] - 'left', 'right', or 'center'
+   * @param {string} [item.width] - CSS width value (e.g., '50%', '200px')
+   * @param {boolean} [item.showCaption] - Whether to display altText as a caption
+   * @returns {HTMLElement} The created image or figure element
+   * @private
+   */
   createImage(item) {
     const imageElement = document.createElement("img");
     imageElement.src = item.src;
@@ -190,6 +219,19 @@ class DisplayManager {
     return elementToInsert;
   }
 
+  /**
+   * Creates and appends a stat bar element (simple or opposed).
+   * @param {Object} item - Stat bar content object
+   * @param {string} item.variableName - Ink variable name to display
+   * @param {number} item.min - Minimum value for the bar
+   * @param {number} item.max - Maximum value for the bar
+   * @param {boolean} [item.isOpposed] - Whether to render as opposed bar (two labels)
+   * @param {string} [item.leftLabel] - Label for left side / bar name
+   * @param {string} [item.rightLabel] - Label for right side (opposed bars only)
+   * @param {boolean} [item.clamp] - Whether to clamp displayed value to min/max
+   * @returns {HTMLElement} The created stat bar container element
+   * @private
+   */
   createStatBar(item) {
     const value = this.getStatValue(item.variableName);
     const calculations = this.calculateStatBarMetrics(item, value);
@@ -202,6 +244,15 @@ class DisplayManager {
     return element;
   }
 
+  /**
+   * Creates and appends a user text input field with submit button.
+   * Handles input submission and updates the ink variable.
+   * @param {Object} item - User input content object
+   * @param {string} item.variableName - Ink variable name to set with user's input
+   * @param {string} [item.placeholder] - Placeholder text for the input field
+   * @returns {HTMLElement} The created input container element
+   * @private
+   */
   createUserInput(item) {
     const container = document.createElement("div");
     container.className = "user-input-inline-container";
@@ -274,6 +325,12 @@ class DisplayManager {
     return container;
   }
 
+  /**
+   * Retrieves the current value of an ink variable for stat bar display.
+   * @param {string} variableName - Name of the ink variable
+   * @returns {number} The variable's value, or 0 if not found
+   * @private
+   */
   getStatValue(variableName) {
     try {
       return this.storyManager?.story?.variablesState?.[variableName] ?? 0;
@@ -307,6 +364,13 @@ class DisplayManager {
     };
   }
 
+  /**
+   * Renders a simple (non-opposed) stat bar with label, value, and fill.
+   * @param {Object} item - Stat bar config
+   * @param {Object} metrics - Calculated metrics from calculateStatBarMetrics
+   * @returns {HTMLElement} The stat bar container element
+   * @private
+   */
   renderSimpleStatBar(item, metrics) {
     const container = document.createElement("div");
     container.className = "stat-bar-container";
@@ -334,6 +398,13 @@ class DisplayManager {
     return container;
   }
 
+  /**
+   * Renders an opposed stat bar with left/right labels and split values.
+   * @param {Object} item - Stat bar config with leftLabel and rightLabel
+   * @param {Object} metrics - Calculated metrics from calculateStatBarMetrics
+   * @returns {HTMLElement} The stat bar container element
+   * @private
+   */
   renderOpposedStatBar(item, metrics) {
     const container = document.createElement("div");
     container.className = "stat-bar-container stat-bar-opposed";
@@ -359,10 +430,20 @@ class DisplayManager {
     return container;
   }
 
+  /**
+   * Checks whether content animations are enabled in settings.
+   * @returns {boolean} True if animations should play (defaults to true)
+   * @private
+   */
   shouldAnimateContent() {
     return this.settings?.getSetting("animations") !== false;
   }
 
+  /**
+   * Applies a fade-in animation to an element.
+   * @param {HTMLElement} element - Element to animate
+   * @private
+   */
   fadeInElement(element) {
     if (!element) return;
     try {
@@ -374,6 +455,9 @@ class DisplayManager {
     }
   }
 
+  /**
+   * Clears all story content from the display and resets history.
+   */
   clear() {
     if (!this.domHelpers) {
       log.error("Cannot clear - DOM helpers not available");
@@ -384,6 +468,9 @@ class DisplayManager {
     this.history = [];
   }
 
+  /**
+   * Clears story content from the display without resetting history.
+   */
   clearContent() {
     if (!this.domHelpers) {
       log.error("Cannot clear content - DOM helpers not available");
@@ -393,6 +480,9 @@ class DisplayManager {
     this.domHelpers.clearStoryContent();
   }
 
+  /**
+   * Scrolls the story container to the top.
+   */
   scrollToTop() {
     if (!this.scrollContainer) {
       log.warning("Cannot scroll - scroll container not available");
@@ -407,14 +497,23 @@ class DisplayManager {
     this.domHelpers.scrollToTop(this.scrollContainer);
   }
 
+  /**
+   * Hides the page header element.
+   */
   hideHeader() {
     this.domHelpers?.setVisible?.(".header", false);
   }
 
+  /**
+   * Shows the page header element.
+   */
   showHeader() {
     this.domHelpers?.setVisible?.(".header", true);
   }
 
+  /**
+   * Resets the display to initial state (clears content and shows header).
+   */
   reset() {
     this.clear();
     this.showHeader();
@@ -451,6 +550,11 @@ class DisplayManager {
     }
   }
 
+  /**
+   * Adds a content item to the display history with a timestamp.
+   * @param {Object} item - Content item to track
+   * @private
+   */
   trackInHistory(item) {
     if (!item || typeof item !== "object") {
       log.warning("Invalid item passed to trackInHistory");
@@ -463,14 +567,26 @@ class DisplayManager {
     });
   }
 
+  /**
+   * Returns the number of items in display history.
+   * @returns {number} History length
+   */
   getHistoryLength() {
     return this.history.length;
   }
 
+  /**
+   * Checks whether any content has been rendered.
+   * @returns {boolean} True if history contains items
+   */
   hasContent() {
     return this.history.length > 0;
   }
 
+  /**
+   * Attempts to recover DOM references if they were lost.
+   * Useful after dynamic page changes or errors.
+   */
   recover() {
     if (!this.container) {
       this.container = document.querySelector("#story");
@@ -489,10 +605,18 @@ class DisplayManager {
     }
   }
 
+  /**
+   * Checks whether the display manager is ready to render.
+   * @returns {boolean} True if container and DOM helpers are available
+   */
   isReady() {
     return !!(this.container && this.domHelpers);
   }
 
+  /**
+   * Returns diagnostic information about the display manager's state.
+   * @returns {{historyLength: number, hasContainer: boolean, hasScrollContainer: boolean, hasDomHelpers: boolean, containerElementCount: number}}
+   */
   getStats() {
     return {
       historyLength: this.history.length,

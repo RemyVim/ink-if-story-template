@@ -15,7 +15,26 @@ import { ChoiceManager } from "./choice-manager.js";
 import { NavigationManager } from "./navigation-manager.js";
 import { SavesManager } from "./saves-manager.js";
 
-// Initialize the public API namespace
+/**
+ * Application entry point. Initializes all managers and starts the story.
+ *
+ * Initialization order:
+ * 1. Fetch and parse story.json
+ * 2. Create core services (settings, processors)
+ * 3. Create display and story manager
+ * 4. Create feature managers (pages, choices, navigation, saves)
+ * 5. Wire circular dependencies
+ * 6. Initialize keyboard features (desktop only)
+ * 7. Start the story
+ * 8. Expose public API on window.InkTemplate
+ *
+ * @module main
+ */
+
+/**
+ * Public API namespace for debugging and external access.
+ * @type {{storyManager: StoryManager|null, errorManager: ErrorManager, notificationManager: NotificationManager, keyboardShortcuts: KeyboardShortcuts|null, keyboardHelpModal: KeyboardHelpModal|null}}
+ */
 window.InkTemplate = {
   storyManager: null,
   errorManager,

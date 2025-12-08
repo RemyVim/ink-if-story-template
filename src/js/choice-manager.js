@@ -2,7 +2,18 @@ import { errorManager, ERROR_SOURCES } from "./error-manager.js";
 
 const log = errorManager.forSource(ERROR_SOURCES.CHOICE_MANAGER);
 
+/**
+ * Generates choice objects from ink story choices.
+ * Processes choice tags for styling and clickability,
+ * adds keyboard hints, and creates special navigation choices.
+ */
 class ChoiceManager {
+  /**
+   * Creates the ChoiceManager with dependencies
+   * @param {Object} storyManager - The StoryManager instance
+   * @param {Object} storyManager.tagProcessor - Tag processor for parsing choice tags
+   * @param {Object} storyManager.settings - Settings manager for tone indicators
+   */
   constructor(storyManager) {
     this.storyManager = storyManager;
     this.tagProcessor = storyManager.tagProcessor;
@@ -57,6 +68,10 @@ class ChoiceManager {
     });
   }
 
+  /**
+   * Selects a choice by index and advances the story.
+   * @param {number} choiceIndex - Zero-based index of the choice to select
+   */
   selectChoice(choiceIndex) {
     if (typeof choiceIndex !== "number" || choiceIndex < 0) {
       log.error(`Invalid choice index: ${choiceIndex}`);
@@ -111,6 +126,11 @@ class ChoiceManager {
     };
   }
 
+  /**
+   * Creates a "Return to Story" navigation choice.
+   * @param {Function} onReturn - Callback when the return button is clicked
+   * @returns {Object} Special choice object with return-button styling
+   */
   createReturnChoice(onReturn) {
     if (typeof onReturn !== "function") {
       log.error("onReturn must be a function");
@@ -125,6 +145,11 @@ class ChoiceManager {
     ]);
   }
 
+  /**
+   * Processes ink tags attached to a choice to extract styling and behavior.
+   * @param {string[]} tags - Array of ink tags from the choice
+   * @returns {{customClasses: string[], isClickable: boolean}} Processed tag results
+   */
   processChoiceTags(tags) {
     if (!this.tagProcessor?.processChoiceTags) {
       log.warning("TagProcessor not available, using default choice behavior");
@@ -153,22 +178,43 @@ class ChoiceManager {
     }
   }
 
+  /**
+   * Checks if at least one choice in the array is clickable.
+   * @param {Array} choices - Array of choice objects
+   * @returns {boolean} True if any choice is clickable (or has undefined isClickable)
+   */
   hasClickableChoices(choices) {
     if (!Array.isArray(choices)) return false;
     return choices.some((choice) => choice?.isClickable !== false);
   }
 
+  /**
+   * Filters choices, optionally returning only clickable ones.
+   * @param {Array} choices - Array of choice objects
+   * @param {boolean} [clickableOnly=false] - If true, exclude non-clickable choices
+   * @returns {Array} Filtered array of choices
+   */
   filterChoices(choices, clickableOnly = false) {
     if (!Array.isArray(choices)) return [];
     if (!clickableOnly) return choices;
     return choices.filter((choice) => choice?.isClickable !== false);
   }
 
+  /**
+   * Validates that a choice object has the required properties.
+   * @param {Object} choice - Choice object to validate
+   * @returns {boolean} True if choice has both 'text' and 'onClick' properties
+   */
   validateChoice(choice) {
     if (!choice || typeof choice !== "object") return false;
     return ["text", "onClick"].every((prop) => prop in choice);
   }
 
+  /**
+   * Returns statistics about an array of choices.
+   * @param {Array} choices - Array of choice objects
+   * @returns {{total: number, clickable: number, special: number, withClasses: number}} Choice statistics
+   */
   getChoiceStats(choices) {
     if (!Array.isArray(choices)) {
       return { total: 0, clickable: 0, special: 0, withClasses: 0 };
