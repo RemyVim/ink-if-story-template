@@ -1,4 +1,4 @@
-import { Utils } from "../src/js/utils.js";
+import { Utils } from "../../src/js/utils.js";
 
 describe("Utils", () => {
   describe("levenshteinDistance", () => {

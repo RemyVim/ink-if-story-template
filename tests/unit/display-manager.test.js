@@ -1,4 +1,4 @@
-import { DisplayManager } from "../src/js/display-manager.js";
+import { DisplayManager } from "../../src/js/display-manager.js";
 
 describe("DisplayManager", () => {
   let displayManager;

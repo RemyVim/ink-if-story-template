@@ -1,4 +1,4 @@
-import { MarkdownProcessor } from "../src/js/markdown-processor.js";
+import { MarkdownProcessor } from "../../src/js/markdown-processor.js";
 
 describe("MarkdownProcessor", () => {
   describe("bold and italic", () => {

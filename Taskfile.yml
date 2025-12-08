@@ -124,18 +124,33 @@ tasks:
     deps: [watch, serve]
 
   test:
+    desc: Run all tests (unit & E2E)
+    silent: true
+    deps: [setup:npm]
+    cmds:
+      - task test:unit
+      - task test:e2e
+
+  test:unit:
     desc: Run unit tests
     silent: true
     deps: [setup:npm]
     cmds:
       - npm test
 
-  test:verbose:
+  test:unit:verbose:
     desc: Run unit tests
     silent: true
     deps: [setup:npm]
     cmds:
       - npm run test:verbose
+
+  test:e2e:
+    desc: Run E2E tests
+    silent: true
+    deps: [setup:npm]
+    cmds:
+      - npx playwright test {{.CLI_ARGS}}
 
   lint:
     desc: Run linter

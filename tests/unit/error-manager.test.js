@@ -1,5 +1,5 @@
-vi.unmock("../src/js/error-manager.js");
-import { errorManager, ERROR_SOURCES } from "../src/js/error-manager.js";
+vi.unmock("../../src/js/error-manager.js");
+import { errorManager, ERROR_SOURCES } from "../../src/js/error-manager.js";
 
 describe("ErrorManager", () => {
   beforeEach(() => {

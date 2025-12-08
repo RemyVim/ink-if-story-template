@@ -1,6 +1,6 @@
-import { SavesManager } from "../src/js/saves-manager.js";
+import { SavesManager } from "../../src/js/saves-manager.js";
 import { localStorageMock } from "./setup.js";
-import { errorManager } from "../src/js/error-manager.js";
+import { errorManager } from "../../src/js/error-manager.js";
 
 describe("SavesManager", () => {
   let saveSystem;

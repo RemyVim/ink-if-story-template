@@ -1,5 +1,5 @@
-import { DOMHelpers } from "../src/js/dom-helpers.js";
-import { errorManager } from "../src/js/error-manager.js";
+import { DOMHelpers } from "../../src/js/dom-helpers.js";
+import { errorManager } from "../../src/js/error-manager.js";
 
 describe("DOMHelpers", () => {
   let domHelpers;

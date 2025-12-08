@@ -1,5 +1,5 @@
-import { SettingsManager } from "../src/js/settings-manager.js";
-import { TagRegistry } from "../src/js/tag-registry.js";
+import { SettingsManager } from "../../src/js/settings-manager.js";
+import { TagRegistry } from "../../src/js/tag-registry.js";
 
 describe("SettingsManager", () => {
   describe("getToneIndicators", () => {

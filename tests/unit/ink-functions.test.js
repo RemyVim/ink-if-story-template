@@ -1,4 +1,4 @@
-import { InkFunctions } from "../src/js/ink-functions.js";
+import { InkFunctions } from "../../src/js/ink-functions.js";
 
 describe("InkFunctions", () => {
   let boundFunctions;

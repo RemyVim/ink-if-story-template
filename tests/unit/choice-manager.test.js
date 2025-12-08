@@ -1,4 +1,4 @@
-import { ChoiceManager } from "../src/js/choice-manager.js";
+import { ChoiceManager } from "../../src/js/choice-manager.js";
 
 describe("ChoiceManager", () => {
   let choiceManager;

@@ -1,4 +1,4 @@
-import { TagRegistry, StoryFeatures } from "../src/js/tag-registry.js";
+import { TagRegistry, StoryFeatures } from "../../src/js/tag-registry.js";
 
 describe("TagRegistry", () => {
   describe("Constants", () => {

@@ -1,5 +1,5 @@
-import { ContentProcessor } from "../src/js/content-processor.js";
-import { errorManager } from "../src/js/error-manager.js";
+import { ContentProcessor } from "../../src/js/content-processor.js";
+import { errorManager } from "../../src/js/error-manager.js";
 
 describe("ContentProcessor", () => {
   let processor;

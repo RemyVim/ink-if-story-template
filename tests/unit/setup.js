@@ -2,7 +2,7 @@
 import { JSDOM } from "jsdom";
 
 // Mock error-manager module
-vi.mock("../src/js/error-manager.js", () => {
+vi.mock("../../src/js/error-manager.js", () => {
   const SOURCES = {
     CHOICE_MANAGER: "Choice Manager",
     CONTENT_PROCESSOR: "Content Processor",

@@ -1,6 +1,8 @@
 bin/
 node_modules/
 build/js/template.min.js.map
+playwright-report/
+test-results/
 
 # Generated files (tracked for convenience)
 # build/js/template.min.js
