@@ -409,6 +409,7 @@ class SettingsModal {
     ${this.renderDropdownSetting("fontFamily", "setting-font", "Font Family", [
       { value: "serif", label: "Serif" },
       { value: "sans", label: "Sans-serif" },
+      { value: "mono", label: "Monospace" },
       { value: "dyslexic", label: "OpenDyslexic" },
     ])}
     ${this.renderDropdownSetting("textSize", "setting-size", "Text Size", [

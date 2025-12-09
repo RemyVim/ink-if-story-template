@@ -254,6 +254,7 @@ class SettingsManager {
     const fonts = {
       serif: "var(--font-serif)",
       sans: "var(--font-sans)",
+      mono: "var(--font-monospace)",
       dyslexic: "var(--font-dyslexic)",
     };
 

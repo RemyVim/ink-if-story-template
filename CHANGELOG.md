@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Keyboard shortcut help reference panel (`ctrl-h` or available through settings)
   - Screen reader support: ARIA landmarks, skip link, modal focus management, live regions for notifications, and accessible choice markup
   - Loading screen and dark mode flash prevention for smoother initial page load
+  - Monospace font option now in settings menu
 - Ink Tags:
   - `# CHOICE_NUMBERS:` tag to configure choice numbering display (`auto`, `on`, `off`)
   - `# IMAGE:` now supports alignment, width, alt text, and caption options
