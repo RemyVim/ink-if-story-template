@@ -3,6 +3,11 @@ node_modules/
 build/js/template.min.js.map
 playwright-report/
 test-results/
+docs/.jekyll-cache/
+docs/_site/
+docs/.bundle
+docs/vendor/
+notes/
 
 # Generated files (tracked for convenience)
 # build/js/template.min.js

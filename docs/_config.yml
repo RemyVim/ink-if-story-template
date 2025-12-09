@@ -1,0 +1,25 @@
+title: Ink Story Template Docs
+description: "Documentation for the Ink Story Template: a ready-to-use web template for Ink interactive fiction."
+url: https://RemyVim.github.io
+baseurl: /ink-if-story-template
+
+permalink: pretty
+
+plugins:
+  - jekyll-relative-links
+
+relative_links:
+  enabled: true
+  collections: true
+
+# Exclude from build
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+
+# Disable default syntax highlighting (using custom prism.js for Ink syntax)
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: none

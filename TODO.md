@@ -458,6 +458,7 @@ Tool (local, offline) for authors to analyse playthrough stats shared by readers
 - [x] Main README
 - [x] Changelog
 - [x] TODO features list (this one!)
+- [x] Documentation companion website (Jekyll)
 - [x] Quick start guide
 - [x] Story & template configuration guide
 - [x] Text formatting guide
@@ -472,5 +473,9 @@ Tool (local, offline) for authors to analyse playthrough stats shared by readers
 - [x] Special tags reference
 - [x] Keyboard shortcuts reference
 - [x] Stat bar guide
+
+## Fixes Needed
+
+None known. Spotted something? [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues)!
 
 ---

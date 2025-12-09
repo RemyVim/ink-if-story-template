@@ -7,6 +7,7 @@ tasks:
       - task: setup:inklecate
       - task: setup:watch
       - task: setup:npm
+      - task: setup:jekyll
 
   setup:inklecate:
     desc: Install inklecate compiler
@@ -63,6 +64,24 @@ tasks:
           echo "✅ npm dependencies already installed"
         fi
 
+  setup:jekyll:
+    desc: Install Jekyll dependencies for docs site
+    silent: true
+    dir: docs
+    cmds:
+      - |
+        if ! command -v bundle >/dev/null 2>&1; then
+          echo "❌ Bundler not found. Install Ruby and run: gem install bundler jekyll"
+          exit 1
+        fi
+        if [ ! -d "vendor/bundle" ] || [ "Gemfile" -nt "Gemfile.lock" ]; then
+          echo "📦 Installing Jekyll dependencies..."
+          bundle config set --local path 'vendor/bundle'
+          bundle install
+          echo "✅ Jekyll dependencies installed"
+        else
+          echo "✅ Jekyll dependencies already installed"
+        fi
 
   build:
     desc: Build everything for production
@@ -187,6 +206,27 @@ tasks:
         fi
     interactive: true
 
+  docs:
+    desc: Serve documentation site locally
+    silent: true
+    dir: docs
+    deps: [setup:jekyll]
+    cmds:
+      - |
+        echo "---- Starting docs site"
+        echo "http://localhost:4000/ink-if-story-template/"
+        echo "Press Ctrl+C to stop"
+        bundle exec jekyll serve
+    interactive: true
+
+  docs:strip-exif:
+    desc: Strip all metadata from documentation images
+    silent: true
+    cmds:
+      - |
+        echo "---- Stripping EXIF data from docs/assets/images..."
+        exiftool -all= -overwrite_original -r docs/assets/images/
+        echo "✅ Done"
 
   clean:
     desc: Clean generated build files (preserves author files)
