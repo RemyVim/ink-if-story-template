@@ -93,11 +93,11 @@
 
 .modal-button-primary {
   background: var(--color-accent-primary);
-  color: white;
+  color: var(--color-background);
 }
 
 .modal-button-primary:hover {
-  background: var(--color-accent-dark);
+  background: var(--color-accent-secondary);
 }
 
 .modal-button-secondary {
@@ -111,21 +111,21 @@
 }
 
 .modal-button-danger {
-  background: var(--color-important);
-  color: white;
+  background: var(--color-danger-primary);
+  color: var(--color-background);
 }
 
 .modal-button-danger:hover {
-  background: #c0392b;
+  background: var(--color-danger-secondary);
 }
 
 .modal-button-warning {
-  background: var(--color-accent-warning);
-  color: white;
+  background: var(--color-warning-primary);
+  color: var(--color-background);
 }
 
 .modal-button-warning:hover {
-  background: #b7850f;
+  background: var(--color-warning-secondary);
 }
 
 /* Size Variants */

@@ -13,6 +13,7 @@
 .choice a,
 .choice span {
   font-size: var(--text-size-base);
+  text-decoration: none;
 }
 
 .choice-key-hint {

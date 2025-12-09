@@ -150,28 +150,6 @@
    ============================================================================= */
 
 :root {
-  /* === COLORS - LIGHT THEME === */
-  --color-background: #ddd;
-  --color-text-primary: #222;
-  --color-text-secondary: #444;
-  --color-text-tertiary: #aaa;
-  --color-text-strong: black;
-  --color-accent-primary: #b97c2c;
-  --color-accent-dark: #4f3411;
-  --color-accent-warning: #cc8f1a;
-  --color-border-light: #eee;
-  --color-border-medium: #ccc;
-  --color-disabled: #ccc;
-  --color-hover-bg: rgba(185, 124, 44, 0.1);
-  --color-highlight: yellow;
-  --color-important: #e74c3c;
-  --color-quiet: #7f8c8d;
-  --color-code-bg: #222;
-  --color-blockquote-bg: #f9f9f9;
-  --color-blockquote-border: #ccc;
-  --color-blockquote-text: #666;
-  --color-separator-line: #666;
-
   --container-bg-opacity: 98%;
 
   /* === FONTS === */
@@ -235,11 +213,7 @@
   --line-height-list: 1.6em;
   --line-height-tight: 1;
 
-  --navigation-text-transform: capitalize;
-
   /* === STAT BARS === */
   --stat-bar-height: 10px;
-  --stat-bar-track-bg: #ccc;
-  --stat-bar-fill-bg: var(--color-accent-primary);
   --stat-bar-border-radius: 5px;
 }

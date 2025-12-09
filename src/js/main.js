@@ -170,7 +170,7 @@ function showFallbackUI(error) {
       <div style="margin: 2rem 0;">
         <button onclick="window.location.reload()" style="
           background: var(--color-accent-primary);
-          color: white;
+          color: var(--color-background);
           border: none;
           padding: 0.75rem 1.5rem;
           border-radius: 4px;
@@ -179,7 +179,6 @@ function showFallbackUI(error) {
           font-size: 1rem;
         ">Reload Page</button>
         <button onclick="showConsoleHelp()" style="
-          background: var(--color-border-medium);
           color: var(--color-text-primary);
           border: 1px solid var(--color-border-medium);
           padding: 0.75rem 1.5rem;
@@ -190,7 +189,7 @@ function showFallbackUI(error) {
       </div>
       <details style="margin-top: 1rem; text-align: left; max-width: 500px; margin-left: auto; margin-right: auto;">
         <summary style="cursor: pointer; font-weight: 600;">Technical Details</summary>
-        <div style="background: var(--color-code-bg); padding: 1rem; border-radius: 4px; margin-top: 0.5rem; font-family: monospace; font-size: 0.8rem; overflow-x: auto;">
+        <div style="background: var(--color-background); color: var(--color-text-primary); padding: 1rem; border-radius: 4px; margin-top: 0.5rem; font-family: monospace; font-size: 0.8rem; overflow-x: auto;">
           Error: ${error.message}<br>
           Time: ${new Date().toLocaleString()}<br>
           ${error.stack ? `Stack: ${error.stack}` : ""}

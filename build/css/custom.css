@@ -19,94 +19,192 @@
    
    The template has both light and dark themes. Customize each separately below.
    Users can switch themes in Settings, or it follows their system preference.
+
+   TIP: Use a contrast checker to ensure your colors meet WCAG AA
+   standards (4.5:1 ratio for text). The monochrome default is accessible
+   out of the box.
    
    ============================================================================= */
 
-/* --- Light Theme Colors --- */
+/* =============================================================================
+   PALETTE OVERRIDES
+   =============================================================================
+   
+   Modify or add your own to these to change the fundamental colors available 
+   to the theme.
+   
+   ============================================================================= */
+
 :root {
-  /* Main background color of the page */
-  /* --color-background: #ddd; */
+  /* --- Grayscale Palette --- */
+  /* --palette-black: #0a0a0a; */
+  /* --palette-gray-950: #0a0a0a; */
+  /* --palette-gray-900: #171717; */
+  /* --palette-gray-800: #262626; */
+  /* --palette-gray-700: #404040; */
+  /* --palette-gray-600: #525252; */
+  /* --palette-gray-500: #737373; */
+  /* --palette-gray-400: #a3a3a3; */
+  /* --palette-gray-300: #d4d4d4; */
+  /* --palette-gray-200: #e5e5e5; */
+  /* --palette-gray-100: #f5f5f5; */
+  /* --palette-gray-50: #fafafa; */
+  /* --palette-white: #fafafa; */
 
-  /* Primary text color */
-  /* --color-text-primary: #222; */
+  /* --- Accent Palette (unused by default) --- */
+  /* Uncomment and customize these to add color to your theme */
+  /* --palette-accent: #0d9488; */
+  /* --palette-accent-light: #5eead4; */
+  /* --palette-accent-dark: #115e59; */
 
-  /* Secondary text (less prominent) */
-  /* --color-text-secondary: #444; */
+  /* --- Semantic Colors --- */
+  /* --palette-danger: #991b1b; */
+  /* --palette-danger-light: #f87171; */
+  /* --palette-warning: #b45309; */
+  /* --palette-warning-light: #fcd34d; */
+  /* --palette-success: #166534; */
+  /* --palette-success-light: #86efac; */
+}
 
-  /* Tertiary text (even less prominent, hints) */
-  /* --color-text-tertiary: #aaa; */
+/* =============================================================================
+   LIGHT THEME
+   ============================================================================= */
 
-  /* Bold/strong text color */
-  /* --color-text-strong: black; */
+:root {
+  /* --- Backgrounds --- */
+  /* --color-background: var(--palette-gray-200); */
+  /* --color-hover-bg: var(--palette-gray-300); */
 
-  /* Accent color - used for links, buttons, highlights */
-  /* --color-accent-primary: #b97c2c; */
+  /* --- Text --- */
+  /* --color-text-primary: var(--palette-gray-900); */
+  /* --color-text-secondary: var(--palette-gray-700); */
+  /* --color-text-strong: var(--palette-black); */
 
-  /* Darker accent - used for visited/inactive links */
-  /* --color-accent-dark: #4f3411; */
+  /* --- Accents (links, buttons, interactive elements) --- */
+  /* Default is monochrome black: */
+  /* --color-accent-primary: var(--palette-black); */
+  /* --color-accent-secondary: var(--palette-gray-500); */
+  /* To use color accents: */
+  /* --color-accent-primary: var(--palette-accent-dark); */
+  /* --color-accent-secondary: var(--palette-accent); */
 
-  /* Warning accent color */
-  /* --color-accent-warning: #cc8f1a; */
+  /* --- Semantic Colors --- */
+  /* --color-warning-primary: var(--palette-warning); */
+  /* --color-warning-secondary: var(--palette-warning-light); */
+  /* --color-danger-primary: var(--palette-danger); */
+  /* --color-danger-secondary: var(--palette-danger-light); */
+  /* --color-success-primary: var(--palette-success); */
+  /* --color-success-secondary: var(--palette-success-light); */
 
-  /* Light border color */
-  /* --color-border-light: #eee; */
+  /* --- Borders --- */
+  /* --color-border-light: var(--palette-gray-300); */
+  /* --color-border-medium: var(--palette-gray-500); */
 
-  /* Medium border color */
-  /* --color-border-medium: #ccc; */
+  /* --- Text Formatting --- */
+  /* --color-code-bg: var(--palette-gray-700); */
+  /* --color-blockquote-bg: var(--palette-gray-300); */
+  /* --color-blockquote-border: var(--palette-gray-700); */
+  /* --color-blockquote-text: var(--color-text-primary); */
+  /* --color-separator-line: var(--palette-gray-500); */
 
-  /* Disabled element color */
-  /* --color-disabled: #ccc; */
-
-  /* Hover background color */
-  /* --color-hover-bg: rgba(185, 124, 44, 0.1); */
-
-  /* Text highlight color (for [text](highlight) syntax) */
+  /* --- Inline Styles --- */
   /* --color-highlight: yellow; */
+  /* --color-important: var(--color-danger-primary); */
+  /* --color-quiet: var(--color-text-secondary); */
 
-  /* Important text color (for [text](important) syntax) */
-  /* --color-important: #e74c3c; */
+  /* --- Stat Bars --- */
+  /* --stat-bar-track-bg: var(--palette-gray-300); */
+  /* --stat-bar-fill-bg: var(--color-accent-primary); */
 
-  /* Quiet text color (for [text](quiet) syntax) */
-  /* --color-quiet: #7f8c8d; */
-
-  /* Code block background */
-  /* --color-code-bg: #222; */
-
-  /* Blockquote styling */
-  /* --color-blockquote-bg: #f9f9f9; */
-  /* --color-blockquote-border: #ccc; */
-  /* --color-blockquote-text: #666; */
-
-  /* Horizontal separator line color */
-  /* --color-separator-line: #666; */
-
-  /* Container background opacity (0-100%) */
+  /* --- Container --- */
   /* --container-bg-opacity: 98%; */
 }
 
-/* --- Dark Theme Colors --- */
-/* These override the light theme when dark mode is active */
+/* =============================================================================
+   DARK THEME
+   ============================================================================= */
+
 html.dark body,
 body.dark {
-  /* --color-background: #222; */
-  /* --color-text-primary: #ddd; */
-  /* --color-text-secondary: #888; */
-  /* --color-text-tertiary: #666; */
-  /* --color-text-strong: white; */
-  /* --color-accent-primary: #cc8f1a; */
-  /* --color-accent-dark: #c4af87; */
-  /* --color-accent-warning: #cc8f1a; */
-  /* --color-border-light: #333; */
-  /* --color-border-medium: #444; */
-  /* --color-disabled: #444; */
-  /* --color-hover-bg: rgba(204, 143, 26, 0.1); */
-  /* --color-code-bg: #ddd; */
-  /* --color-blockquote-bg: #2d3748; */
-  /* --color-blockquote-border: #555; */
-  /* --color-blockquote-text: #bbb; */
-  /* --color-separator-line: #bbb; */
-  /* --stat-bar-track-bg: #444; */
+  /* --- Backgrounds --- */
+  /* --color-background: var(--palette-gray-800); */
+  /* --color-hover-bg: var(--palette-gray-700); */
+
+  /* --- Text --- */
+  /* --color-text-primary: var(--palette-gray-100); */
+  /* --color-text-secondary: var(--palette-gray-300); */
+  /* --color-text-strong: var(--palette-white); */
+
+  /* --- Accents (links, buttons, interactive elements) --- */
+  /* Default is monochrome white: */
+  /* --color-accent-primary: var(--palette-white); */
+  /* --color-accent-secondary: var(--palette-gray-500); */
+  /* To use color accents: */
+  /* --color-accent-primary: var(--palette-accent-light); */
+  /* --color-accent-secondary: var(--palette-accent); */
+
+  /* --- Semantic Colors --- */
+  /* Note: light variants are primary in dark mode for contrast */
+  /* --color-warning-primary: var(--palette-warning-light); */
+  /* --color-warning-secondary: var(--palette-warning); */
+  /* --color-danger-primary: var(--palette-danger-light); */
+  /* --color-danger-secondary: var(--palette-danger); */
+  /* --color-success-primary: var(--palette-success-light); */
+  /* --color-success-secondary: var(--palette-success); */
+
+  /* --- Borders --- */
+  /* --color-border-light: var(--palette-gray-700); */
+  /* --color-border-medium: var(--palette-gray-500); */
+
+  /* --- Text Formatting --- */
+  /* --color-code-bg: var(--palette-gray-300); */
+  /* --color-blockquote-bg: var(--palette-gray-700); */
+  /* --color-blockquote-border: var(--palette-gray-300); */
+  /* --color-blockquote-text: var(--color-text-primary); */
+  /* --color-separator-line: var(--palette-gray-500); */
+
+  /* --- Inline Styles --- */
+  /* --color-highlight: yellow; */
+  /* --color-important: var(--color-danger-primary); */
+  /* --color-quiet: var(--color-text-secondary); */
+
+  /* --- Stat Bars --- */
+  /* --stat-bar-track-bg: var(--palette-gray-700); */
+  /* --stat-bar-fill-bg: var(--color-accent-primary); */
 }
+
+/* =============================================================================
+   ADDING AN ACCENT COLOR
+   =============================================================================
+   
+   The default theme is monochrome, but also set up to handle an accent color.
+   To add a splash of color:
+   
+   1. Choose your accent color and define the palette:
+   
+      :root {
+        --palette-accent: #0d9488;
+        --palette-accent-light: #5eead4;
+        --palette-accent-dark: #115e59;
+      }
+   
+   2. Wire it up to the accent variables:
+   
+      :root {
+        --color-accent-primary: var(--palette-accent-dark);
+        --color-accent-secondary: var(--palette-accent);
+      }
+      
+      html.dark body,
+      body.dark {
+        --color-accent-primary: var(--palette-accent-light);
+        --color-accent-secondary: var(--palette-accent);
+      }
+
+   3. Check it out!
+      Links, navigation, buttons will automatically light up with your color!
+   
+   ============================================================================= */
 
 /* =============================================================================
    FONTS
@@ -129,17 +227,13 @@ body.dark {
 /* @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&display=swap'); */
 
 :root {
-  /* Main serif font stack */
+  /* Font families */
   /* --font-serif: "Merriweather", Georgia, "Times New Roman", Times, serif; */
-
-  /* Sans-serif font stack */
   /* --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; */
-
-  /* Heading font (defaults to serif) */
-  /* --font-heading: "Merriweather", Georgia, "Times New Roman", Times, serif; */
-
-  /* Monospace font for code */
   /* --font-monospace: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace; */
+  /* --font-dyslexic: "OpenDyslexic", Arial, sans-serif; */
+
+  /* --font-heading: "Merriweather", Georgia, "Times New Roman", Times, serif; */
 
   /* Font weights */
   /* --font-weight-light: 300; */
@@ -250,23 +344,13 @@ body.dark {
    =============================================================================
    
    If your story uses stat bars (# STATBAR: variable), customize them here.
+   (Tip: Customize the color in the color scheme section above)
    
    ============================================================================= */
 
 :root {
   /* --stat-bar-height: 10px; */
-  /* --stat-bar-track-bg: #ccc; */
-  /* --stat-bar-fill-bg: var(--color-accent-primary); */
   /* --stat-bar-border-radius: 5px; */
-}
-
-/* =============================================================================
-   NAVIGATION
-   ============================================================================= */
-
-:root {
-  /* Text transform for navigation items (capitalize, uppercase, lowercase, none) */
-  /* --navigation-text-transform: capitalize; */
 }
 
 /* =============================================================================

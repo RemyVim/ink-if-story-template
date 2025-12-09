@@ -25,6 +25,7 @@
 .keyboard-help-table .shortcut-key {
   width: 45%;
   text-align: left;
+  font-weight: normal;
 }
 
 .keyboard-help-table kbd {

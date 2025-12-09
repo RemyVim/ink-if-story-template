@@ -67,7 +67,6 @@
   gap: var(--spacing-xl);
   font-size: var(--text-size-medium);
   align-items: center;
-  text-transform: var(--navigation-text-transform);
 }
 
 .nav-controls button {

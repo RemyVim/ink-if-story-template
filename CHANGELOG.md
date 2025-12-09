@@ -8,26 +8,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- String functions: `UPPERCASE`, `LOWERCASE`, `CAPITALIZE`, `TRIM`, `LENGTH`, `CONTAINS`, `STARTS_WITH`, `ENDS_WITH`, `REPLACE`, `REPLACE_ALL`
-- Math functions: `ROUND`, `CLAMP`, `ABS`, `PERCENT`
-- Fairmath functions: `FAIRADD`, `FAIRSUB`
-- Time functions: `NOW`, `SECONDS_SINCE`, `MINUTES_SINCE`, `TIME_SINCE`, `FORMAT_DATE`, `FORMAT_TIME`, `FORMAT_DATETIME`, `OFFSET_DATE`
-- Functions documentation page (`doc/functions.md`)
-- Keyboard shortcuts for choice selection (1-9, A-Z) and page scrolling (arrows, Page Up/Down, Home/End)
-- Keyboard shortcut help reference panel (`ctrl-h` or available through settings)
-- Keyboard shortcuts documentation page (`doc/keyboard-shortcuts.md`)
-- `# CHOICE_NUMBERS:` tag to configure choice numbering display (`auto`, `on`, `off`)
-- Image alignment, width, alt text, and caption options for `# IMAGE:` tag
-- Tone indicators on choices: define markers with `# TONE: tagname icon` and tag choices with `# tagname`. Players can toggle in Settings.
-- Screen reader support: ARIA landmarks, skip link, modal focus management, live regions for notifications, and accessible choice markup
-- Loading screen and dark mode flash prevention for smoother initial page load
-- Stat bars: `# STATBAR: variable` tag for visual progress bars with support for custom ranges, labels, opposed pairs, and optional value clamping
-- `custom.js` and `custom.css` files for author customization without modifying core files
+- External functions (callable from Ink script):
+  - String functions: `UPPERCASE`, `LOWERCASE`, `CAPITALIZE`, `TRIM`, `LENGTH`, `CONTAINS`, `STARTS_WITH`, `ENDS_WITH`, `REPLACE`, `REPLACE_ALL`
+  - Math functions: `ROUND`, `CLAMP`, `ABS`, `PERCENT`
+  - Fairmath functions: `FAIRADD`, `FAIRSUB`
+  - Time functions: `NOW`, `SECONDS_SINCE`, `MINUTES_SINCE`, `TIME_SINCE`, `FORMAT_DATE`, `FORMAT_TIME`, `FORMAT_DATETIME`, `OFFSET_DATE`
+- Accessibility:
+  - Keyboard shortcuts for choice selection (1-9, A-Z) and page scrolling (arrows, Page Up/Down, Home/End)
+  - Keyboard shortcut help reference panel (`ctrl-h` or available through settings)
+  - Screen reader support: ARIA landmarks, skip link, modal focus management, live regions for notifications, and accessible choice markup
+  - Loading screen and dark mode flash prevention for smoother initial page load
+- Ink Tags:
+  - `# CHOICE_NUMBERS:` tag to configure choice numbering display (`auto`, `on`, `off`)
+  - `# IMAGE:` now supports alignment, width, alt text, and caption options
+  - `# TONE:` tag enables tone indicators on choices: define markers with `# TONE: tagname icon` and tag choices with `# tagname`. Players can toggle in Settings.
+  - `# STATBAR: variable` tag for visual progress bars with support for custom ranges, labels, opposed pairs, and optional value clamping
+- Customization:
+  - `custom.js` and `custom.css` files for author customization without modifying core files
+- Documentation:
+  - Functions documentation page (`doc/functions.md`)
+  - Keyboard shortcuts documentation page (`doc/keyboard-shortcuts.md`)
 
 ### Changed
 
 - Audio setting in settings menu now only appears if the story contains `# AUDIO` or `# AUDIOLOOP` tags
 - Optimized font loading for faster page loads (LCP improved from 16s to 0.6s)
+- Monochrome color palette for better accessibility and WCAG AA contrast compliance (accent colors can be added via `custom.css`)
+- Inline links now display with underlines for accessibility
 
 ### Fixed
 

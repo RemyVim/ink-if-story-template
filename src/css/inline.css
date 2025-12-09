@@ -23,6 +23,11 @@ code {
   padding: 0.1em 0.3em;
 }
 
+html.dark .inline-highlight,
+body.dark .inline-highlight {
+  color: var(--color-background);
+}
+
 .inline-important {
   color: var(--color-important);
   font-weight: bold;
