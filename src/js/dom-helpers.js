@@ -33,7 +33,7 @@ class DOMHelpers {
    * @returns {HTMLElement|null} The created paragraph element, or null on failure
    */
   createParagraph(text, customClasses = []) {
-    if (!text || typeof text !== "string") {
+    if (!text || typeof text !== "string" || !text.trim()) {
       log.warning("Invalid text passed to createParagraph");
       return null;
     }
@@ -79,7 +79,10 @@ class DOMHelpers {
     isClickable = true,
     keyHint = null,
     showHint = true,
-    toneIndicators = []
+    toneIndicators = [],
+    choiceIndex = null,
+    totalChoices = null,
+    container = null
   ) {
     if (!choiceText || typeof choiceText !== "string") {
       log.warning("Invalid choiceText passed to createChoice");
@@ -94,13 +97,21 @@ class DOMHelpers {
     }
 
     try {
-      const choiceParagraphElement = document.createElement("p");
-      choiceParagraphElement.classList.add("choice");
+      const choiceElement = document.createElement("button");
+      choiceElement.type = "button";
+      choiceElement.classList.add("choice");
 
       for (const className of customClasses) {
         if (className && typeof className === "string") {
-          choiceParagraphElement.classList.add(className);
+          choiceElement.classList.add(className);
         }
+      }
+
+      if (!isClickable) {
+        choiceElement.classList.add("unclickable");
+        choiceElement.setAttribute("aria-disabled", "true");
+        // Don't set the button as disabled otherwise screen readers skip over it
+        // choiceElement.disabled = true;
       }
 
       let leadingToneHTML = "";
@@ -139,17 +150,23 @@ class DOMHelpers {
 
       const hintPrefix =
         keyHint && showHint
-          ? `<span class="choice-key-hint">${keyHint}.</span> `
+          ? `<span class="choice-key-hint" aria-hidden="true">${keyHint}.</span> `
           : "";
 
-      if (isClickable) {
-        choiceParagraphElement.innerHTML = `<a href="#" role="button" aria-roledescription="choice">${leadingToneHTML}${hintPrefix}${choiceText}${trailingToneHTML}${srOnlyLabels}</a>`;
-      } else {
-        choiceParagraphElement.innerHTML = `<span class="unclickable" aria-roledescription="unavailable choice">${leadingToneHTML}${hintPrefix}${choiceText}${trailingToneHTML}${srOnlyLabels}</span>`;
-      }
+      const choicePosition =
+        choiceIndex !== null && totalChoices !== null
+          ? ` ${choiceIndex} of ${totalChoices}: `
+          : ": ";
 
-      this.storyContainer.appendChild(choiceParagraphElement);
-      return choiceParagraphElement;
+      const srChoicePrefix = isClickable
+        ? `<span class="sr-only">Choice${choicePosition}</span>`
+        : `<span class="sr-only">Unavailable choice${choicePosition}</span>`;
+
+      choiceElement.innerHTML = `${srChoicePrefix}${leadingToneHTML}${hintPrefix}${choiceText}${trailingToneHTML}${srOnlyLabels}`;
+
+      const targetContainer = container || this.storyContainer;
+      targetContainer.appendChild(choiceElement);
+      return choiceElement;
     } catch (error) {
       log.error("Failed to create choice", error);
       return null;
@@ -172,18 +189,44 @@ class DOMHelpers {
       return;
     }
 
-    const choiceAnchor = choiceElement.querySelector("a");
-    if (choiceAnchor) {
-      choiceAnchor.addEventListener("click", function (event) {
-        try {
-          event.preventDefault();
-          callback();
-        } catch (error) {
-          log.error("Choice click handler failed", error);
+    choiceElement.addEventListener("click", function (event) {
+      try {
+        event.preventDefault();
+        callback();
+      } catch (error) {
+        log.error("Choice click handler failed", error);
+      }
+    });
+  }
+
+  /**
+   * Merges consecutive elements of the same type (ul, blockquote) into single elements.
+   * Called after rendering to fix lists/quotes that were processed line-by-line.
+   */
+  mergeConsecutiveElements() {
+    this.mergeElementsByTag("ul");
+    this.mergeElementsByTag("blockquote");
+  }
+
+  /**
+   * Merges consecutive elements of a given tag into the first one.
+   * @param {string} tagName - The tag name to merge (e.g., 'ul', 'blockquote')
+   * @private
+   */
+  mergeElementsByTag(tagName) {
+    const elements = this.storyContainer.querySelectorAll(tagName);
+
+    for (let i = elements.length - 1; i >= 0; i--) {
+      const current = elements[i];
+      const next = current.nextElementSibling;
+
+      if (next && next.tagName.toLowerCase() === tagName.toLowerCase()) {
+        // Move all children from next into current
+        while (next.firstChild) {
+          current.appendChild(next.firstChild);
         }
-      });
-    } else {
-      log.warning("No anchor element found in choice for click handler");
+        next.remove();
+      }
     }
   }
 
@@ -248,10 +291,17 @@ class DOMHelpers {
    */
   clearStoryContent() {
     this.removeAll("p");
+    this.removeAll("h2");
+    this.removeAll("h3");
+    this.removeAll("h4");
+    this.removeAll("ul");
+    this.removeAll("blockquote");
+    this.removeAll("hr");
     this.removeAll("img");
     this.removeAll("figure");
     this.removeAll(".stat-bar-container");
     this.removeAll(".user-input-inline-container");
+    this.removeAll(".choices-container");
   }
 
   /**

@@ -125,7 +125,7 @@ class BaseModal {
             position: absolute; top: 1rem; right: 1rem; background: none; border: none;
             font-size: 1.5rem; color: var(--color-text-secondary); cursor: pointer;
             padding: 0.5rem; border-radius: var(--border-radius);
-          ">&times;</button>
+          "><span aria-hidden="true">&times;</span></button>
         `
             : ""
         }
@@ -217,6 +217,14 @@ class BaseModal {
 
     this.previouslyFocusedElement = document.activeElement;
 
+    // Hide background content from screen readers so they don't go off script!
+    const mainContent = document.getElementById("main-content");
+    const topNav = document.querySelector(".top-nav");
+    const skipLink = document.querySelector(".skip-link");
+    if (mainContent) mainContent.setAttribute("aria-hidden", "true");
+    if (topNav) topNav.setAttribute("aria-hidden", "true");
+    if (skipLink) skipLink.setAttribute("aria-hidden", "true");
+
     if (contentCallback && typeof contentCallback === "function") {
       try {
         contentCallback(this);
@@ -237,11 +245,11 @@ class BaseModal {
         if (content) {
           content.style.transform = "translate(-50%, -50%) scale(1)";
         }
-        const focusable = content?.querySelectorAll(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        if (focusable?.length) {
-          focusable[0].focus();
+        // Focus the heading first, or fall back to the dialog itself
+        const heading = content?.querySelector("h2");
+        if (heading) {
+          heading.setAttribute("tabindex", "-1");
+          heading.focus();
         } else {
           content?.focus();
         }
@@ -277,6 +285,15 @@ class BaseModal {
       if (this.modalElement) {
         this.modalElement.style.display = "none";
         this.isVisible = false;
+
+        // Restore background content to screen readers
+        const mainContent = document.getElementById("main-content");
+        const topNav = document.querySelector(".top-nav");
+        const skipLink = document.querySelector(".skip-link");
+        if (mainContent) mainContent.removeAttribute("aria-hidden");
+        if (topNav) topNav.removeAttribute("aria-hidden");
+        if (skipLink) skipLink.removeAttribute("aria-hidden");
+
         this.previouslyFocusedElement?.focus();
       }
     }, 300);
@@ -505,6 +522,17 @@ class BaseModal {
         document.removeEventListener("keydown", this.focusTrapHandler);
         this.focusTrapHandler = null;
       }
+
+      // Restore background content to screen readers
+      const mainContent = document.getElementById("main-content");
+      const topNav = document.querySelector(".top-nav");
+      const skipLink = document.querySelector(".skip-link");
+      if (mainContent) mainContent.removeAttribute("aria-hidden");
+      if (topNav) topNav.removeAttribute("aria-hidden");
+      if (skipLink) skipLink.removeAttribute("aria-hidden");
+
+      // Restore focus before removing element
+      this.previouslyFocusedElement?.focus();
 
       if (this.modalElement && this.modalElement.parentNode) {
         this.modalElement.parentNode.removeChild(this.modalElement);

@@ -76,6 +76,9 @@ class DisplayManager {
         log.error(`Failed to render content item at index ${index}`, error);
       }
     });
+
+    // Merge consecutive lists and blockquotes that were processed separately
+    this.domHelpers?.mergeConsecutiveElements?.();
   }
 
   /**
@@ -88,6 +91,17 @@ class DisplayManager {
       return;
     }
 
+    const totalChoices = choices.length;
+
+    const choicesContainer = document.createElement("div");
+    choicesContainer.className = "choices-container";
+    choicesContainer.setAttribute("role", "region");
+    choicesContainer.setAttribute(
+      "aria-label",
+      `${totalChoices} choices available`
+    );
+    this.container.appendChild(choicesContainer);
+
     choices.forEach((choice, index) => {
       try {
         const element = this.domHelpers.createChoice(
@@ -96,8 +110,12 @@ class DisplayManager {
           choice.isClickable !== false,
           choice.keyHint,
           showNumbers,
-          choice.toneIndicators || []
+          choice.toneIndicators || [],
+          index + 1,
+          totalChoices,
+          choicesContainer
         );
+
         if (choice.isClickable !== false && choice.onClick) {
           if (typeof choice.onClick === "function") {
             this.domHelpers.addChoiceClickHandler(element, choice.onClick);
@@ -116,12 +134,13 @@ class DisplayManager {
   }
 
   /**
-   * Creates and appends a paragraph element from content data.
+   * Creates and appends an element from content data.
    * Processes markdown and applies CSS classes from tags.
+   * Handles block elements (headers, lists, etc.) without wrapping in <p>.
    * @param {Object} content - Content object with text and classes
    * @param {string} content.text - The paragraph text (may contain markdown)
    * @param {string[]} [content.classes] - CSS classes to apply
-   * @returns {HTMLElement|null} The created paragraph element, or null on failure
+   * @returns {HTMLElement|null} The created element, or null on failure
    * @private
    */
   createElement(content) {
@@ -137,10 +156,35 @@ class DisplayManager {
 
     try {
       const processedText = MarkdownProcessor.process(content.text);
-      const element = this.domHelpers.createParagraph(
-        processedText,
-        content.classes || []
-      );
+
+      // Check if the processed text starts with a block-level element
+      const blockElementPattern = /^<(h[2-4]|ul|blockquote|hr)/i;
+      const isBlockElement = blockElementPattern.test(processedText.trim());
+
+      let element;
+      if (isBlockElement) {
+        // Insert block elements directly without <p> wrapper
+        const wrapper = document.createElement("div");
+        wrapper.innerHTML = processedText;
+        element = wrapper.firstElementChild;
+
+        // Apply custom classes if any
+        if (content.classes?.length) {
+          for (const className of content.classes) {
+            if (className && typeof className === "string") {
+              element.classList.add(className);
+            }
+          }
+        }
+
+        this.domHelpers.storyContainer.appendChild(element);
+      } else {
+        // Regular paragraph content
+        element = this.domHelpers.createParagraph(
+          processedText,
+          content.classes || []
+        );
+      }
 
       if (element && this.shouldAnimateContent()) {
         this.fadeInElement(element);
@@ -274,7 +318,9 @@ class DisplayManager {
     const inputField = container.querySelector(".user-input-inline-field");
     const submitBtn = container.querySelector(".user-input-submit-btn");
 
-    setTimeout(() => inputField.focus(), 100);
+    // Don't auto-focus - let users Tab to input after reading prompt
+    // This improves screen reader experience
+    // setTimeout(() => inputField.focus(), 100);
 
     const submitInput = () => {
       const userInput = inputField.value.trim();
@@ -387,11 +433,11 @@ class DisplayManager {
       </span>
     </div>
     <div class="stat-bar-track" role="progressbar"
-         aria-valuenow="${metrics.displayValue}"
-         aria-valuemin="${item.min}"
-         aria-valuemax="${item.max}"
-         aria-label="${displayName}: ${metrics.displayValue} out of ${item.max}">
-      <div class="stat-bar-fill" style="width: ${metrics.fillPercent}%"></div>
+       aria-valuenow="${metrics.displayValue}"
+       aria-valuemin="${item.min}"
+       aria-valuemax="${item.max}"
+       aria-valuetext="${displayName}: ${metrics.displayValue} out of ${item.max}">
+        <div class="stat-bar-fill" style="width: ${metrics.fillPercent}%"></div>
     </div>
   `;
 
@@ -419,11 +465,11 @@ class DisplayManager {
       <span class="stat-bar-label stat-bar-label-right">${item.rightLabel || ""}</span>
     </div>
     <div class="stat-bar-track" role="progressbar"
-         aria-valuenow="${metrics.displayValue}"
-         aria-valuemin="${item.min}"
-         aria-valuemax="${item.max}"
-         aria-label="${item.leftLabel || item.variableName} versus ${item.rightLabel || ""}">
-      <div class="stat-bar-fill" style="width: ${metrics.fillPercent}%"></div>
+       aria-valuenow="${metrics.displayValue}"
+       aria-valuemin="${item.min}"
+       aria-valuemax="${item.max}"
+       aria-valuetext="${item.leftLabel || item.variableName}: ${metrics.displayLeft} versus ${item.rightLabel || ""}: ${metrics.displayRight}">
+        <div class="stat-bar-fill" style="width: ${metrics.fillPercent}%"></div>
     </div>
   `;
 

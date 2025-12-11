@@ -186,7 +186,8 @@ tasks:
         echo "---- Starting web server for development."
         echo "http://localhost:8000"
         echo "Press Ctrl+C to stop"
-        cd build && python3 -m http.server 8000
+        # cd build && python3 -m http.server 8000
+        cd build && python3 -m http.server 8000 --bind 0.0.0.0
     interactive: true
 
   watch:

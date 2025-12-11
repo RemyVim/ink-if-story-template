@@ -110,6 +110,9 @@ class PageManager {
       this.storyManager.createChoices?.();
       this.storyManager.display.scrollToTop();
 
+      // Focus story container for screen readers
+      this.storyManager.display?.container?.focus();
+
       this.savedDisplayState = null;
       this.savedStoryState = null;
     } catch (error) {

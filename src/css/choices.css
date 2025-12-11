@@ -2,30 +2,77 @@
    CHOICES
    ============================================================================= */
 
+.choices-container {
+  margin-top: 1em;
+}
+
 .choice {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: var(--text-size-base);
+  font-weight: bold;
+  color: inherit;
   line-height: var(--line-height-choice);
-  margin: 0;
+  position: relative;
+  padding: 0.5em 0 0.5em 1.5em;
+  min-height: 44px;
+}
+
+.choice::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  background-color: var(--color-accent-primary);
+  transition: width var(--transition-medium, 0.2s) ease-out;
+}
+
+.choice:hover {
+  color: var(--color-accent-primary);
+}
+
+.choice:hover::after {
+  width: 100%;
+}
+
+.choice:focus-visible {
+  outline: 2px solid var(--color-accent-primary);
+  outline-offset: 2px;
+}
+
+.choice:focus-visible::after {
+  width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .choice::after {
+    transition: none;
+  }
+}
+
+.choice.unclickable {
+  cursor: not-allowed;
+  opacity: 0.6;
+  color: var(--color-text-secondary);
+}
+
+.choice.unclickable:hover::after,
+.choice:disabled:hover::after {
+  width: 100%;
+  background-color: transparent;
+  border-bottom: 2px dashed var(--color-text-secondary);
+  height: 0;
 }
 
 :not(.choice) + .choice {
   padding-top: 0.75em;
-}
-
-.choice a,
-.choice span {
-  font-size: var(--text-size-base);
-  text-decoration: none;
-}
-
-.choice a,
-.choice .unclickable {
-  position: relative;
-  padding-left: 1.5em;
-  display: flex;
-  align-items: center;
-  min-height: 44px;
-  padding-top: 0.25em;
-  padding-bottom: 0.25em;
 }
 
 .choice-key-hint {
@@ -63,8 +110,8 @@
 .tone-indicator-leading {
   position: absolute;
   left: 0;
-  top: 0;
-  transform: translateY(-0.3em);
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .tone-indicator-trailing {

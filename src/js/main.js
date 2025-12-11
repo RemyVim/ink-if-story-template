@@ -115,6 +115,18 @@ fetch("story.json")
         mainContent.removeAttribute("aria-busy");
       }
 
+      // Handle skip link without adding hash to URL
+      const skipLink = document.querySelector(".skip-link");
+      if (skipLink) {
+        skipLink.addEventListener("click", (e) => {
+          e.preventDefault();
+          const target = document.querySelector(skipLink.getAttribute("href"));
+          if (target) {
+            target.focus();
+          }
+        });
+      }
+
       // Debug tools (localhost only)
       if (
         window.location.hostname === "localhost" ||

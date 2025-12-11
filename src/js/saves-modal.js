@@ -193,10 +193,10 @@ class SavesModal {
           ${helpText ? `<div class="save-slot-detail">${helpText}</div>` : ""}
         </div>
         <div class="save-slot-actions">
-          ${!isAutosave ? this.createActionButton("Save Here", "save-to-slot", "primary") : ""}
-          ${!isAutosave ? this.createActionButton("Import Here", "import-to-slot", "secondary") : ""}
-        </div>
+        ${!isAutosave ? this.createActionButton("Save", "save-to-slot", "primary", slotName) : ""}
+        ${!isAutosave ? this.createActionButton("Import", "import-to-slot", "secondary", slotName) : ""}
       </div>
+    </div>
     `;
   }
 
@@ -229,10 +229,10 @@ class SavesModal {
           }
         </div>
         <div class="save-slot-actions">
-          ${this.createActionButton("Load", "load-from-slot", "secondary")}
-          ${this.createActionButton("Export", "export-from-slot", "primary")}
-          ${!isAutosave ? this.createActionButton("Overwrite", "overwrite-slot", "warning") : ""}
-          ${this.createActionButton(isAutosave ? "Clear" : "Delete", "delete-slot", "danger")}
+          ${this.createActionButton("Load", "load-from-slot", "secondary", slotName)}
+          ${this.createActionButton("Export", "export-from-slot", "primary", slotName)}
+          ${!isAutosave ? this.createActionButton("Overwrite", "overwrite-slot", "warning", slotName) : ""}
+          ${this.createActionButton(isAutosave ? "Clear" : "Delete", "delete-slot", "danger", slotName)}
         </div>
       </div>
     `;
@@ -246,8 +246,9 @@ class SavesModal {
    * @returns {string} HTML string for the button
    * @private
    */
-  createActionButton(text, action, variant) {
-    return `<button class="${action} save-action-button save-action-${variant}">${text}</button>`;
+  createActionButton(text, action, variant, slotName) {
+    const ariaLabel = `${text} ${slotName}`;
+    return `<button class="${action} save-action-button save-action-${variant}" aria-label="${ariaLabel}">${text}</button>`;
   }
 
   /**

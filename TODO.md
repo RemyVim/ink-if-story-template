@@ -474,6 +474,11 @@ Tool (local, offline) for authors to analyse playthrough stats shared by readers
 - [x] Keyboard shortcuts reference
 - [x] Stat bar guide
 
+## Dev
+
+- [ ] Refactor the restart confirmation modal to hide/show instead of create/destroy
+- [ ] Focus for screen readers on following paragraph after user input submit
+
 ## Fixes Needed
 
 None known. Spotted something? [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues)!

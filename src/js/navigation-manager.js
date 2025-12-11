@@ -378,10 +378,11 @@ class NavigationManager {
 
     link.addEventListener("click", (e) => {
       e.preventDefault();
-      this.hidePanel();
+      this.hidePanel(false);
       this.storyManager.pages.show(knotName);
+      // Focus story container for screen readers
+      this.storyManager.display?.container?.focus();
     });
-
     return link;
   }
 
@@ -418,16 +419,19 @@ class NavigationManager {
   }
 
   /**
-   * Closes the slide panel and returns focus to the menu button.
+   * Closes the slide panel and optionally returns focus to the menu button.
+   * @param {boolean} [restoreFocus=true] - Whether to focus the menu button after closing
    * @private
    */
-  hidePanel() {
+  hidePanel(restoreFocus = true) {
     if (this.slidePanel) {
       this.slidePanel.classList.remove("show");
       this.slidePanel.setAttribute("aria-hidden", "true");
       this.menuButton?.classList.remove("active");
       this.menuButton?.setAttribute("aria-expanded", "false");
-      this.menuButton?.focus();
+      if (restoreFocus) {
+        this.menuButton?.focus();
+      }
     }
   }
 

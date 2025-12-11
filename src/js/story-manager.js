@@ -112,6 +112,11 @@ class StoryManager {
             detail: { content: storyContent },
           })
         );
+
+        // Focus story container for screen readers (not on initial load)
+        if (!isFirstTime) {
+          this.display?.container?.focus();
+        }
       }
 
       // Fire start event on first load

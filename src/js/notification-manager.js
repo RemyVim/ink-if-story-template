@@ -281,7 +281,7 @@ class NotificationManager {
       const closeBtn = document.createElement("button");
       closeBtn.type = "button";
       closeBtn.className = "notification-close";
-      closeBtn.innerHTML = "×";
+      closeBtn.innerHTML = '<span aria-hidden="true">×</span>';
       closeBtn.setAttribute("aria-label", "Dismiss notification");
       closeBtn.addEventListener("click", (e) => {
         e.stopPropagation();

@@ -140,9 +140,11 @@ class ChoiceManager {
       ]);
     }
 
-    return this.createSpecialChoice("← Return to Story", onReturn, [
-      "return-button",
-    ]);
+    return this.createSpecialChoice(
+      '<span aria-hidden="true">←</span> Return to Story',
+      onReturn,
+      ["return-button"]
+    );
   }
 
   /**

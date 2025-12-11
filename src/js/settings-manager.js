@@ -363,6 +363,9 @@ class SettingsManager {
 
     if (!TAGS || !TagRegistry.getTagDef) return;
 
+    let storyTitle = null;
+    let storyAuthor = null;
+
     for (const tag of globalTags) {
       if (typeof tag !== "string") continue;
 
@@ -378,11 +381,13 @@ class SettingsManager {
           break;
 
         case TAGS.TITLE:
+          storyTitle = tagValue;
           const titleElements = document.querySelectorAll(".title");
           titleElements.forEach((el) => (el.textContent = tagValue));
           break;
 
         case TAGS.AUTHOR:
+          storyAuthor = tagValue;
           const bylineElement = document.querySelector(".byline");
           if (bylineElement) {
             bylineElement.textContent = `by ${tagValue}`;
@@ -429,6 +434,16 @@ class SettingsManager {
           }
           break;
       }
+    }
+
+    // Update document title with both title and author (order-independent)
+    if (storyTitle || storyAuthor) {
+      let fullTitle = storyTitle || "Untitled";
+      if (storyAuthor) {
+        fullTitle += `, by ${storyAuthor}`;
+      }
+      fullTitle += " - Interactive Fiction";
+      document.title = fullTitle;
     }
   }
 
