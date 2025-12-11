@@ -21,7 +21,7 @@ Show messages to players without interrupting the story flow. Notifications appe
 | Type | Use For | Duration | Aliases |
 |------|---------|----------|---------|
 | `NOTIFICATION` | General info, discoveries, hints | Short | `NOTIFY`, `MESSAGE`, `INFO` |
-| `ACHIEVEMENT` | Milestones, unlocks, successes | Longer (more celebratory) | `SUCCESS`, `UNLOCK` |
+| `ACHIEVEMENT` | Milestones, unlocks, successes | Longer (more celebratory) | `SUCCESS` |
 | `WARNING` | Low resources, danger ahead, caution | Short | `WARN` |
 | `ERROR` | Something went wrong (rare in stories) | Short | `ERR` |
 

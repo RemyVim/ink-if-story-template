@@ -49,7 +49,7 @@ Quick reference for all template features. For detailed explanations and example
 | `# TONE:` | Define tone icon | — | [Choices](reference/choices.md) |
 | `# TONE_INDICATORS:` | Enable tone icons | `SHOW_TONES` | [Choices](reference/choices.md) |
 | `# TONE_TRAILING` | Icons after text | `TRAILING_TONES` | [Choices](reference/choices.md) |
-| `# LOCKED` | Disable choice | `UNCLICKABLE`, `DISABLED`, `DISABLE`, `LOCK` | [Choices](reference/choices.md) |
+| `# UNCLICKABLE` | Disable choice | `UNCLICKABLE`, `DISABLED`, `DISABLE` | [Choices](reference/choices.md) |
 
 ### Content
 
@@ -72,7 +72,7 @@ Quick reference for all template features. For detailed explanations and example
 | Tag | Purpose | Aliases | Reference |
 |-----|---------|---------|-----------|
 | `# NOTIFICATION:` | Info message | `NOTIFY`, `MESSAGE`, `INFO` | [Notifications](reference/notifications.md) |
-| `# ACHIEVEMENT:` | Success message | `SUCCESS`, `UNLOCK` | [Notifications](reference/notifications.md) |
+| `# ACHIEVEMENT:` | Success message | `SUCCESS` | [Notifications](reference/notifications.md) |
 | `# WARNING:` | Warning message | `WARN` | [Notifications](reference/notifications.md) |
 | `# ERROR:` | Error message | `ERR` | [Notifications](reference/notifications.md) |
 

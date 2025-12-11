@@ -142,19 +142,19 @@ How do you respond?
 Show a choice that readers can see but can't select. Useful for showing locked options or requirements not yet met.
 
 ```ink
-+ [Enter the castle # LOCKED]
++ [Enter the castle # UNCLICKABLE]
 + [Take the forest path]
 ```
 
 The disabled choice appears greyed out and can't be clicked.
 
-**Aliases:** `# UNCLICKABLE`, `# DISABLED`, `# DISABLE`, `# LOCKED`, `# LOCK`
+**Aliases:** `# UNCLICKABLE`, `# DISABLED`, `# DISABLE`
 
 **Tip:** Combine with conditional text to explain why:
 
 ```ink
 + {has_key} [Enter the castle]
-+ {not has_key} [Enter the castle (need key) # LOCKED]
++ {not has_key} [Enter the castle (need key) # DISABLED]
 ```
 
 ---

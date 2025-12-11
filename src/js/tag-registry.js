@@ -143,7 +143,7 @@ const TAGS = {
     description: "Show info notification",
   },
   ACHIEVEMENT: {
-    names: ["ACHIEVEMENT", "SUCCESS", "UNLOCK"],
+    names: ["ACHIEVEMENT", "SUCCESS"],
     phase: TAG_PHASE.EFFECT,
     value: TAG_VALUE.REQUIRED,
     description: "Show success notification (6s duration)",
@@ -179,7 +179,7 @@ const TAGS = {
     description: "Restart story from beginning",
   },
   UNCLICKABLE: {
-    names: ["UNCLICKABLE", "DISABLED", "DISABLE", "LOCKED", "LOCK"],
+    names: ["UNCLICKABLE", "DISABLED", "DISABLE"],
     phase: TAG_PHASE.EFFECT,
     value: TAG_VALUE.NONE,
     description: "Make choice visible but not clickable",
