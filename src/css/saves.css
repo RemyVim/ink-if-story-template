@@ -76,6 +76,8 @@
 
 .save-action-button {
   padding: 0.4rem 0.8rem;
+  min-height: 44px;
+  min-width: 44px;
   border: none;
   border-radius: var(--border-radius);
   cursor: pointer;

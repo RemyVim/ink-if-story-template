@@ -74,15 +74,15 @@
 
 .notification-close {
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+  top: 0;
+  right: 0;
   background: none;
   border: none;
   font-size: 1.2rem;
   cursor: pointer;
   color: var(--color-text-secondary);
-  width: 20px;
-  height: 20px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;

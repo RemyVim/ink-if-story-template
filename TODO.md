@@ -309,8 +309,8 @@ ChoiceScript-style stat displays.
 - [x] Font size controls
 - [x] Line height controls
 - [x] Dyslexia-friendly font option (OpenDyslexic)
-- [ ] Color contrast verification (4.5:1 for text)
-- [ ] Touch target size minimum (44x44px)
+- [x] Color contrast verification (4.5:1 for text)
+- [x] Touch target size minimum (44x44px)
 - [ ] High contrast mode toggle
 - [ ] `prefers-contrast` CSS support
 - [ ] Color blind mode options (protanopia, deuteranopia, tritanopia)

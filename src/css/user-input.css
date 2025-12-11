@@ -14,7 +14,8 @@
 
 .user-input-inline-field {
   flex: 1;
-  padding: 0.75rem;
+  padding: 0.5rem;
+  min-height: 44px;
   border: 2px solid var(--color-border-medium);
   border-radius: var(--border-radius);
   background: var(--color-background);
@@ -30,6 +31,7 @@
 
 .user-input-submit-btn {
   padding: 0.75rem 1.5rem;
+  min-height: 44px;
   background: var(--color-accent-primary);
   color: var(--color-background);
   border: none;

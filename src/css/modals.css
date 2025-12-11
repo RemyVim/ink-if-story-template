@@ -36,29 +36,37 @@
 }
 
 .modal-header {
-  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 1.5rem;
 }
 
 .modal-header h2 {
-  margin: 0 0 1.5rem 0;
+  margin: 0;
   color: var(--color-text-strong);
   font-size: 1.5rem;
   text-align: left;
 }
 
 .modal-close {
-  position: absolute;
-  top: -0.5rem;
-  right: -0.5rem;
   background: none;
   border: none;
   font-size: 1.5rem;
   color: var(--color-text-secondary);
   cursor: pointer;
-  padding: 0.5rem;
   border-radius: var(--border-radius);
   transition: background-color var(--transition-medium);
+  padding: 0.5rem;
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 1rem;
+  margin-top: -0.5rem;
+  margin-right: -0.5rem;
 }
 
 .modal-close:hover {
@@ -82,6 +90,8 @@
 /* Modal Button Base Styles */
 .modal-button {
   padding: 0.5rem 1rem;
+  min-height: 44px;
+  min-width: 44px;
   border: none;
   border-radius: var(--border-radius);
   cursor: pointer;

@@ -4,16 +4,28 @@
 
 .choice {
   line-height: var(--line-height-choice);
+  margin: 0;
 }
 
 :not(.choice) + .choice {
-  padding-top: 1em;
+  padding-top: 0.75em;
 }
 
 .choice a,
 .choice span {
   font-size: var(--text-size-base);
   text-decoration: none;
+}
+
+.choice a,
+.choice .unclickable {
+  position: relative;
+  padding-left: 1.5em;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding-top: 0.25em;
+  padding-bottom: 0.25em;
 }
 
 .choice-key-hint {
@@ -47,12 +59,6 @@
 /* =============================================================================
      TONE INDICATORS
      ============================================================================= */
-
-.choice a,
-.choice .unclickable {
-  position: relative;
-  padding-left: 1.5em;
-}
 
 .tone-indicator-leading {
   position: absolute;
