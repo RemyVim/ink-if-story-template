@@ -19,6 +19,7 @@
 @import "choices.css";
 @import "images.css";
 @import "inline.css";
+@import "custom-classes.css";
 
 /* Components */
 @import "stat-bars.css";

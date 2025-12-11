@@ -27,7 +27,7 @@ Apply CSS classes to specific paragraphs using the `CLASS` tag:
 The door slammed shut behind you.
 ```
 
-**Aliases:** `# CSS_CLASS:`, `# STYLE:`
+**Aliases:** `# CSS:`, `# CSS_CLASS:`, `# STYLE:`
 
 This adds the `dramatic` class to that paragraph. Define the style in `css/custom.css`:
 

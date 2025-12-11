@@ -87,7 +87,7 @@ Quick reference for all template features. For detailed explanations and example
 
 | Tag | Purpose | Aliases | Reference |
 |-----|---------|---------|-----------|
-| `# CLASS:` | Add CSS class | `CSS_CLASS`, `STYLE` | [Styling](reference/styling.md) |
+| `# CLASS:` | Add CSS class | `CSS`, `CSS_CLASS`, `STYLE` | [Styling](reference/styling.md) |
 | `# CLEAR` | Clear screen | — | [Styling](reference/styling.md) |
 | `# RESTART` | Restart story | `RESET`, `NEW_GAME` | [Styling](reference/styling.md) |
 

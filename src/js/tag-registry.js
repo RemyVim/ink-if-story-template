@@ -161,7 +161,7 @@ const TAGS = {
     description: "Show error notification",
   },
   CLASS: {
-    names: ["CLASS", "CSS_CLASS", "STYLE"],
+    names: ["CLASS", "CSS", "CSS_CLASS", "STYLE"],
     phase: TAG_PHASE.EFFECT,
     value: TAG_VALUE.REQUIRED,
     description: "Add CSS class to element",
