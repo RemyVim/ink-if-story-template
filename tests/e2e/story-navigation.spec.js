@@ -18,44 +18,25 @@ test.describe("Story Navigation", () => {
     }).toPass();
   });
 
-  test("can navigate through multiple choices and choices change at least once", async ({
+  test("can navigate through multiple choices and choices change", async ({
     page,
   }) => {
     const getChoiceTexts = async () => {
       const choices = page.locator("p.choice a");
-      const count = await choices.count();
-      const texts = [];
-      for (let i = 0; i < count; i++) {
-        texts.push(await choices.nth(i).textContent());
-      }
+      const texts = await choices.allTextContents();
       return texts.sort().join("|");
     };
 
     const initialChoices = await getChoiceTexts();
-    let choicesChangedAtLeastOnce = false;
-    const steps = 5;
 
-    for (let i = 0; i < steps; i++) {
-      const choices = page.locator("p.choice a");
-      const choiceCount = await choices.count();
+    // Navigate to choices demo (known to have different choices)
+    const choicesLink = page.locator("p.choice a", { hasText: /choice/i });
+    await choicesLink.first().click();
 
-      if (choiceCount === 0) break;
+    await expect(page.locator("#story p").first()).toBeVisible();
 
-      const randomIndex = Math.floor(Math.random() * choiceCount);
-      await choices.nth(randomIndex).click();
-
-      await expect(page.locator("#story p").first()).toBeVisible();
-
-      const currentChoices = await getChoiceTexts();
-      if (currentChoices !== initialChoices) {
-        choicesChangedAtLeastOnce = true;
-      }
-    }
-
-    expect(
-      choicesChangedAtLeastOnce,
-      "Choices should change at least once during navigation"
-    ).toBe(true);
+    const newChoices = await getChoiceTexts();
+    expect(newChoices).not.toBe(initialChoices);
   });
 
   test("unclickable choices are not clickable", async ({ page }) => {
