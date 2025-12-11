@@ -3,6 +3,22 @@
 
 This template gives you control over how choices appear to readers.
 
+:: Choice Numbering
+
+By default, choices show keyboard hints (1, 2, 3...) on devices with keyboards. You can control this with:
+
+`\# CHOICE_NUMBERS: auto` — Show on keyboard devices only (default)
+`\# CHOICE_NUMBERS: on` — Always show
+`\# CHOICE_NUMBERS: off` — Never show
+
+__Note:__ Players can override this in the Settings menu.
+
+:: Display Disabled Choices
+
+You can mark a choice as disabled with the `\# UNCLICKABLE` tag:
+
+`\+ \# UNCLICKABLE [You're not brave enough...]`
+
 :: Tone Indicators
 
 Tone indicators are small icons that appear before choices, hinting at the tone or consequence of a choice.
@@ -52,8 +68,11 @@ A mysterious stranger conveniently materializes for this demo. Your move.
 + [Keep your distance # danger]
   Better safe than sorry.
   -> choices_submenu
-+ [Say nothing]
-  Sometimes silence speaks loudest.
++ # UNCLICKABLE [You're not brave enough to say anything... (Locked choice)]
+  Sometimes silence speaks loudest. (You should not have gotten here... If you see this, please submit a bug report!)
+  -> choices_submenu
++ [You're not brave enough to walk away either... (Locked choice) # DISABLED]
+  Sometimes silence speaks loudest. (You should not have gotten here... If you see this, please submit a bug report!)
   -> choices_submenu
 + [Return to choice customization] 
   -> choices_demo
@@ -64,13 +83,7 @@ A mysterious stranger conveniently materializes for this demo. Your move.
 
 Try toggling tone indicators off in the __Settings__ menu above — the icons will disappear in real-time!
 
-:: Choice Numbering
-
-By default, choices show keyboard hints (1, 2, 3...) on devices with keyboards. You can control this with:
-
-`\# CHOICE_NUMBERS: auto` — Show on keyboard devices only (default)
-`\# CHOICE_NUMBERS: on` — Always show
-`\# CHOICE_NUMBERS: off` — Never show
+You can also try turning choice numbering on and off in the __Settings__ menu.
 
 -> tone_indicator_menu
 

@@ -68,7 +68,7 @@ fetch("story.json")
         contentProcessor,
       });
       const pages = new PageManager(storyManager);
-      const choices = new ChoiceManager(storyManager);
+      const choices = new ChoiceManager(storyManager, tagProcessor);
       const navigation = new NavigationManager(storyManager);
       const saves = new SavesManager(storyManager);
 

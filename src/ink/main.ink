@@ -15,7 +15,8 @@ INCLUDE pages/credits.ink
 INCLUDE pages/content-warnings.ink
 INCLUDE pages/dummy-pages.ink
 INCLUDE features/choices.ink
-INCLUDE features/ink_tags.ink
+INCLUDE features/media.ink
+INCLUDE features/input.ink
 INCLUDE features/formatting.ink
 INCLUDE features/functions.ink
 INCLUDE features/getting_started.ink
@@ -24,6 +25,7 @@ INCLUDE features/saves.ink
 INCLUDE features/settings.ink
 INCLUDE features/special_pages.ink
 INCLUDE features/statbars.ink
+INCLUDE features/styling.ink
 
 // Include functions provided by the template
 EXTERNAL UPPERCASE(string)
@@ -80,11 +82,13 @@ What would you like to explore in more detail?
 + [Save & Load] -> saves_demo  
 + [Settings] -> settings_demo  
 + [Text Formatting] -> formatting_demo
-+ [Choice Customization] -> choices_demo
++ [Choices] -> choices_demo
 + [Special Pages] -> special_pages_demo
-+ [Ink Tags (Media & User Input)] -> tags_demo
-+ [Notifications] -> notifications_demo  
-+ [Functions] -> functions  
++ [User Input] -> input_demo
 + [Stat Bars] -> statbars_demo
++ [Media (Images & Audio)] -> media_demo
++ [Functions] -> functions  
++ [Notifications] -> notifications_demo  
++ [Styling] -> styling_demo  
 + [Getting Started] -> getting_started
 

@@ -11,12 +11,12 @@ class ChoiceManager {
   /**
    * Creates the ChoiceManager with dependencies
    * @param {Object} storyManager - The StoryManager instance
-   * @param {Object} storyManager.tagProcessor - Tag processor for parsing choice tags
+   * @param {Object} tagProcessor - Tag processor for parsing choice tags
    * @param {Object} storyManager.settings - Settings manager for tone indicators
    */
-  constructor(storyManager) {
+  constructor(storyManager, tagProcessor) {
     this.storyManager = storyManager;
-    this.tagProcessor = storyManager.tagProcessor;
+    this.tagProcessor = tagProcessor;
   }
 
   /**

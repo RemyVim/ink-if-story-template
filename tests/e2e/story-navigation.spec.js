@@ -57,4 +57,15 @@ test.describe("Story Navigation", () => {
       "Choices should change at least once during navigation"
     ).toBe(true);
   });
+
+  test("unclickable choices are not clickable", async ({ page }) => {
+    const choicesLink = page.locator("p.choice a", { hasText: /choice/i });
+    await choicesLink.first().click();
+
+    const unclickableChoice = page.locator("p.choice span.unclickable");
+    await expect(unclickableChoice.first()).toBeVisible();
+
+    const parentChoice = unclickableChoice.first().locator("..");
+    await expect(parentChoice.locator("a")).toHaveCount(0);
+  });
 });
