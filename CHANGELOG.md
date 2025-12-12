@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## In progress
 
+### Breaking
+
+- Saves from previous versions are not compatible with v1.3.0 due to internal save format changes. Start a new game after updating.
+
 ### Added
 
 - External functions (callable from Ink script):
