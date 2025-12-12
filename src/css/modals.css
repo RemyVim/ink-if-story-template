@@ -81,6 +81,8 @@
   overflow-y: auto;
   min-height: 0;
   -webkit-overflow-scrolling: touch;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
 }
 
 /* Modal footer layouts */

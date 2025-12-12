@@ -137,6 +137,20 @@
   font-feature-settings: "liga";
 }
 
+/* Hide icon text until font loads */
+.material-icons,
+.material-icons-outlined {
+  overflow: hidden;
+  width: 1em;
+  height: 1em;
+}
+
+/* Settings tabs need slightly larger icons */
+.settings-tab .material-icons-outlined {
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
 .material-icons {
   font-family: "Material Icons";
 }
@@ -196,7 +210,7 @@
   /* === LAYOUT === */
   --content-max-width: 700px;
   --nav-height-desktop: 60px;
-  --nav-height-mobile: 80px;
+  --nav-height-mobile: 115px;
   --border-radius: 3px;
   --border-radius-lg: 8px;
 

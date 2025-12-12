@@ -84,12 +84,6 @@
     transform: none;
   }
 
-  /* /1* Ensure backdrop is shown but modal covers it anyway *1/ */
-  /* .base-modal-backdrop.show + .base-modal-content, */
-  /* .base-modal-content { */
-  /*   transform: none; */
-  /* } */
-
   /* Tighter modal header */
   .modal-header {
     margin-bottom: 1rem;

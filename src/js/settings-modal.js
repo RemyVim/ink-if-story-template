@@ -385,7 +385,7 @@ class SettingsModal {
               aria-selected="${isActive}" 
               aria-controls="panel-${id}"
               tabindex="${isActive ? "0" : "-1"}">
-        <span class="material-icons" aria-hidden="true">${icon}</span>
+        <span class="material-icons-outlined" aria-hidden="true">${icon}</span>
         <span class="sr-only">${label}</span>
       </button>
     `;

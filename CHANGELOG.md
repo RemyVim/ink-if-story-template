@@ -41,6 +41,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Saves made while viewing a special page now correctly restore to the main story
 - Unknown tags now warn in the console (F12) instead of silently becoming CSS classes
+- Modals display in full screen on small screens, with close buttons accessible without scrolling
 
 ### Technical
 
