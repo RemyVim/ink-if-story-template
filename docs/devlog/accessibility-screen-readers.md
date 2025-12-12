@@ -15,19 +15,19 @@ I thought so too.
 
 ## The Horrible Noise
 
-I should mention: my background is in backend systems programming. When I started building this template, I knew almost nothing about web development. I was learning as I went, figured things out through trial and error, and eventually got something that looked good and worked well on desktop and mobile. I was pretty happy with it.
+I'm a developer by trade. But not the web kind.  When I started building this template, I knew almost nothing about web development. I was learning as I went, figured things out through trial and error, and eventually got something that looked good and worked well on desktop and mobile. I was pretty happy with it.
 
 Then one day I thought, "Hey, I should test this with a screen reader, just for fun."
 
 It was *not* fun.
 
-At first I couldn't even figure out how to use the screen reader. Turns out you're supposed to navigate with the keyboard, not the mouse. I didn't know that.
+At first I couldn't even figure out how to use the screen reader. Turns out you're supposed to navigate with the keyboard, not the mouse. I didn't know that. Makes sense when you think about it for two seconds, but I didn't know.
 
 So I started pressing `Tab` to move through the interface, and immediately discovered my first problem: the menu buttons in the navigation bar? `Tab` skipped right over them. They didn't exist as far as keyboard navigation was concerned.
 
 ## The Impostor Buttons
 
-The issue was that I'd built those menu buttons as styled `<a>` elements—they *looked* like buttons, but they weren't actually real `<button>` elements. (And they weren't even real links without an `href`, either!)
+The issue was that I'd built those menu buttons as styled `<a>` elements—they *looked* like buttons, but they weren't actually real `<button>` elements. (And they weren't even considered real links without an `href`, either!)
 
 The browser had no idea they were interactive. A sighted mouse user would never notice, but for anyone navigating by keyboard, those controls simply weren't there.
 
@@ -43,7 +43,7 @@ The browser had no idea they were interactive. A sighted mouse user would never 
 </button>
 ```
 
-Okay, easy fix. I made them real buttons, added proper `aria-label` attributes so screen readers would announce "Settings" instead of... nothing helpful at all. Problem solved!
+Okay, easy fix. I made them real buttons, added proper `aria-label` attributes so screen readers would announce "Settings" instead of something weird like the icon name or "button button". Problem solved!
 
 Except no.
 
@@ -76,7 +76,7 @@ It's one of those things that seems minor until you realize someone has to sit t
 
 ## Choices, Choices
 
-Then there were choices. Choices are the whole point of interactive fiction, and I'd given them no thought whatsoever from an accessibility perspective. After all, they're just links, right?
+Then there were choices. Choices are the whole point of interactive fiction, and I'd given them no thought whatsoever from an accessibility perspective. After all, they're just links, right ?
 
 Yup. A screen reader user would hear a list of links with no context that these were, in fact, *choices*, no indication of how many options existed, no sense that this was a decision point in a story rather than a navigation menu.
 
@@ -84,41 +84,43 @@ Choices in IF carry more weight than regular links—they're often irreversible,
 
 And then came... the tone indicators.
 
-## "local_fire_department Greet Them With a Smirk"
+## "Local_fire_department Greet Them With a Smirk"
 
-One of the features I'd added recently were tone indicators—little icons next to choices that hint at the emotional flavor of a response. Pretty common in IF. A fire emoji for flirty, a heart for romance, a warning icon for risky choices, that kind of thing. Visually, they worked great. Little icons, nice and subtle, helpful for readers who wanted the extra context and writers who wanted to provide it.
+One of the features I'd added recently were the [tone indicators](../reference/choices.md)—little icons next to choices that hint at the emotional flavor of a response. Pretty common in IF. A fire emoji for flirty, a heart for romance, a warning icon for risky choices, that kind of thing. Visually, they worked great. Little icons, nice and subtle, helpful for readers who wanted the extra context and writers who wanted to provide it.
 
 With a screen reader? Absolute chaos.
 
 The screen reader would just announce the icon name. So instead of hearing "choice: Greet them with a smirk," a user would hear "choice: local_fire_department Greet them with a smirk." That's the Material Icons name for [a fire symbol](https://materialui.co/icon/local-fire-department), by the way.
 
-Completely meaningless. Totally immersion-breaking. If you used emoji instead of Material Icons, it wasn't much better—"choice: fire emoji Greet them with a smirk" is not *that* much of an improvement.
+Completely meaningless. Totally immersion-breaking. If you used emoji instead of Material Icons, it wasn't *that* much better—"choice: fire Greet them with a smirk".
 
 The fix was to hide the visual icon from screen readers entirely (`aria-hidden="true"`) and provide a separate text label that only screen readers can see (using the common `.sr-only` CSS pattern).
 
 ```html
-<a href="#" role="button" aria-roledescription="choice">
+<button type="button" class="choice flirty">
+    <span class="sr-only">Choice 1 of 8: </span>
     <span class="tone-indicator-leading" aria-hidden="true">
         <span class="material-icons tone-icon">local_fire_department</span>
     </span>
-    <span class="choice-key-hint">1.</span> Wink and smile
+    <span class="choice-key-hint" aria-hidden="true">1.</span> 
+    Greet them with a smirk
     <span class="sr-only"> (flirty)</span>
-</a>
+</button>
 ```
 
-Now instead of "local_fire_department", users hear "flirty." It's not perfect, but at least it communicates something useful.
+Now instead of "local_fire_department", users hear "flirty": "Choice 1 of 8: Greet them with a smirk (flirty)". It's not perfect, but at least it communicates something useful.
 
 ## A Lot of Little Thoughts
 
 This is when I started to realize: accessibility is just a lot of little thoughts. Not one big thing you bolt on at the end, but dozens of small considerations—each one pretty simple on its own.
 
-The long winding journey I just described—buttons that weren't buttons, focus escaping modals, missing skip links, choices without context, icons announcing gibberish—each fix was pretty simple once I heard the problem. The hard part was knowing to listen for it.
+The long winding journey I just described—buttons that weren't buttons, focus escaping modals, missing skip links, choices without context, icons announcing gibberish—each fix was pretty simple once I heard the problem. The hard part was knowing to listen for it to begin with.
 
 ## TL;DR for the Next Person Making an IF Template
 
 If you're building something similar and want to skip the part where you turn on a screen reader out of the blue one day and despair, here's what I wish I'd known from the start:
 
-- **Use real HTML elements.** A `<button>` is a button. A `<nav>` is navigation. Don't make clickable `<div>`s or `<span>`s and expect the browser to figure it out.
+- **Use real HTML elements.** A `<button>` is a button. A `<nav>` is navigation. Don't make clickable `<div>`s or `<span>`s or even `<a>`s and expect the browser to figure it out.
 - **Pay attention to keyboard navigation** and focus trap in modals. When a dialog opens, `Tab` should cycle through its contents, not wander off into the background.
 - **Add a skip link.** One hidden link that jumps past your nav. It's like five lines of HTML and CSS combined.
 - **Mark dynamic content.** When new content appears, add `aria-live="polite"` to the container so screen readers notice.
@@ -131,7 +133,7 @@ The journey to figure all this out was long and circuitous. But the actual imple
 
 ---
 
-One last thing: I'm not a screen reader user myself—that much is clear if you got to this point. I learned all this through testing and reading documentation, not lived experience. If you do use a screen reader regularly and if you try [this template](https://remy-vim.itch.io/ink-template) and something's annoying or broken or just weird—please let me know. Now that I've got my bearings with how this stuff works, I can probably fix it.
+One last thing: I'm not a screen reader user myself—that much is clear if you got to this point. I learned all this through testing and reading documentation, not lived experience. If you do use a screen reader regularly and if you try [this template](https://remy-vim.itch.io/ink-template) and you find something annoying, broken, weird, counter-intuitive—please let me know. Now that I've got my bearings with how this stuff works, I can probably fix it.
 
 [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues) or reach out however works for you.
 
@@ -139,6 +141,6 @@ One last thing: I'm not a screen reader user myself—that much is clear if you 
 
 If you want to learn more about web accessibility:
 
-- Turn on your system's screen reader (VoiceOver on Mac, Narrator on Windows, Orca on Linux) and try navigating some websites. It's eye-opening.
+- Turn on your system's screen reader (VoiceOver on Mac, Narrator on Windows, Orca on Linux—although I couldn't figure that last one out...) and try navigating some websites. It's eye-opening.
 - [WebAIM](https://webaim.org/) has excellent practical guides.
 - The [A11y Project checklist](https://www.a11yproject.com/checklist/) is a good starting point for auditing your own work.

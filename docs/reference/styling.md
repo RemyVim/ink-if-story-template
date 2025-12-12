@@ -51,8 +51,8 @@ The world trembled around you.
 
 The template uses CSS custom properties (variables) for theming. It has a two-tier variable system:
 
-1. **Palette variables** — raw colors (`--palette-gray-200`, `--palette-accent`, etc.)
-2. **Semantic variables** — what things look like (`--color-background`, `--color-text-primary`, etc.)
+1. **Palette variables**: raw colors (`--palette-gray-200`, `--palette-accent`, etc.)
+2. **Semantic variables**: what things look like (`--color-background`, `--color-text-primary`, etc.)
 
 Override these in `css/custom.css`. The file includes all available variables as commented examples.
 
@@ -88,8 +88,8 @@ The template's default colors meet WCAG AA contrast standards (4.5:1 ratio for t
 
 Helpful tools:
 
-- [WAVE Browser Extension](https://wave.webaim.org/extension/) — checks contrast and other accessibility issues directly on your page
-- [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/) — test specific color pairs
+- [WAVE Browser Extension](https://wave.webaim.org/extension/): checks contrast and other accessibility issues directly on your page
+- [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/): test specific color pairs
 
 **Tip:** Test both light and dark themes. A color that works well on a light background may not have enough contrast on dark (and vice versa).
 
@@ -105,7 +105,7 @@ These tags control the display:
 ## Tips
 
 - For inline text styling (bold, italic, highlights), see [Text Formatting](text-formatting.md).
-- Changes to `custom.css` take effect immediately on page refresh — no build step needed.
+- Changes to `custom.css` take effect immediately on page refresh—no build step needed.
 
 ---
 

@@ -63,7 +63,7 @@ You can combine this with custom ranges:
 
 ## Value Clamping
 
-By default, stat bars display the actual variable value — even if it goes below the minimum or above the maximum. This is useful during development to spot logic errors.
+By default, stat bars display the actual variable value, even if it goes below the minimum or above the maximum. This is useful during development to spot logic errors.
 
 For a polished release, add `clamp` to keep displayed values within range—regardless whether the true value overflows:
 
@@ -92,7 +92,7 @@ Stat bars work great on special pages for character sheets:
 -> DONE
 ```
 
-You can display multiple stat bars in a row — they'll each appear on their own line.
+You can display multiple stat bars in a row; they'll each appear on their own line.
 
 ## Quick Reference
 

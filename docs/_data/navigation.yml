@@ -39,13 +39,13 @@
   items:
     - title: A Complete Beginner's Guide (Inky)
       url: /guides/beginner-guide/
-    - title: Intermediary Guide (VS Code)
+    - title: "WIP: Intermediary Guide (VS Code)"
       url: /guides/intermediary-guide/
-    - title: Advanced Guide (Git Workflows)
+    - title: "WIP: Advanced Guide (Git Workflows)"
       url: /guides/advanced-guide/
-    - title: Local Testing
+    - title: "WIP: Local Testing"
       url: /guides/local-testing/
-    - title: Developer's Guide
+    - title: "WIP: Developer's Guide"
       url: /guides/dev-guide/
 
 - title: Devlog

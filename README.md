@@ -1,10 +1,10 @@
 # Ink Story Template
 
-A web template for [Ink](https://www.inklestudios.com/ink/) interactive stories. I built this because existing Ink templates weren't as polished as what's available for Twine.
+A web template for [Ink](https://www.inklestudios.com/ink/) interactive fiction. I built this because existing Ink templates weren't as feature-rich as what's available for Twine.
 
 ---
 
-**[→ Try the live demo on itch.io](https://remy-vim.itch.io/ink-template)**
+**[Live Demo](https://remy-vim.itch.io/ink-template)** | **[Documentation](https://remyvim.github.io/ink-if-story-template/)**
 
 ---
 
@@ -13,146 +13,152 @@ You don't even have to touch a line of HTML, CSS, or JavaScript to use it (unles
 ## Features
 
 - **Save System**: 5 slots + autosave, export/import saves, keyboard shortcuts
-- **Rich Formatting**: Markdown-style text, custom styles, automatic links
-- **User Input**: Populate an Ink story variable with user input
-- **Media Support**: Images, audio, background music via simple Ink tags
-- **Special Pages**: Character sheets, credits, maps outside story flow
-- **Responsive Design**: Beautiful on all devices with light/dark themes
-- **Accessibility**: Dyslexia-friendly fonts, font sizing options in settings
-- **Settings**: Theme, font, text size, audio controls
-- **Functions**: String manipulation, math, fairmath, and real-time date/time
+- **Rich Text**: Markdown-style formatting, headers, lists, inline styles, automatic links
+- **User Input**: Populate Ink variables with text input fields
+- **Media Support**: Images, background images, audio, looping music
+- **Stat Bars**: Visual progress bars for health, skills, relationships, or any variable
+- **Tone Indicators**: Mark choices with mood icons (friendly, aggressive, cautious, etc.)
+- **Special Pages**: Character sheets, credits, maps, reference pages outside story flow
+- **Notifications**: Achievements, warnings, and alerts
+- **Settings**: Theme (light/dark/auto), font selection, text size, audio controls
+- **Functions**: String manipulation, math, fairmath, and real-time date/time functions
+- **Responsive**: Works beautifully on desktop, tablet, and mobile
+- **Accessible**: Full screen reader support, WCAG AA contrast (4.5:1), accessible touch targets, keyboard navigation (1-9, A-Z for choices), dyslexia-friendly font option
+- **Extensible**: Add custom code via `custom.js` and `custom.css` without touching core files
 
-See [TODO.md](TODO.md) for the full list of completed and planned features.
+See [TODO.md](TODO.md) for the full roadmap. Want something bumped up the list or have a new idea? [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues).
 
 ## Quick Start
 
-1. **Get the template**
+1. **Download** the template from [itch.io](https://remy-vim.itch.io/ink-template) or [GitHub Releases](https://github.com/RemyVim/ink-if-story-template/releases)
+2. **Export** your Ink story to JSON using [Inky](https://github.com/inkle/inky/releases) (File > Export to JSON)
+3. **Replace** `story.json` in the template folder with your exported file
+4. **Upload** to [itch.io](https://itch.io), [Neocities](https://neocities.org), or any static host
 
-   ```bash
-   git clone https://github.com/RemyVim/ink-if-story-template.git
-   cd ink-if-story-template
-   ```
+That's it. No programming required. (BYO Ink story though!)
 
-2. **Compile your Ink story** to JSON and replace `build/story.json`
+For more details, see the [Quick Start guide](https://remyvim.github.io/ink-if-story-template/quickstart/) or the [Complete Beginner's Guide](https://remyvim.github.io/ink-if-story-template/guides/beginner-guide/) with screenshots.
 
-3. **Test locally**
+## Documentation
 
-   ```bash
-   cd build && python3 -m http.server 8000
-   ```
+The [documentation site](https://remyvim.github.io/ink-if-story-template/) covers everything:
 
-4. **Deploy** the `build` folder to any static host (GitHub Pages, Netlify, itch.io)
+- [Text Formatting](https://remyvim.github.io/ink-if-story-template/reference/text-formatting/) — bold, italics, headers, lists, links
+- [Images](https://remyvim.github.io/ink-if-story-template/reference/images/) and [Audio](https://remyvim.github.io/ink-if-story-template/reference/audio/)
+- [Special Pages](https://remyvim.github.io/ink-if-story-template/reference/special-pages/) — character sheets, maps, credits
+- [Functions](https://remyvim.github.io/ink-if-story-template/reference/functions/) — string, math, fairmath, and time utilities
+- [Styling](https://remyvim.github.io/ink-if-story-template/reference/styling/) — customizing colors and themes
+- [Quick Reference](https://remyvim.github.io/ink-if-story-template/quick-reference/) — all tags and syntax at a glance
+- ...and more
 
-See [doc/quickstart.md](doc/quickstart.md) for more info.
+## For Developers
 
-## Writing for the Template
+This section is for contributing to the template or customizing its core code. If you just want to publish your story, skip this-the Quick Start above has everything you need.
 
-### Text Formatting
+So, you're still here. Great! Here's how to get the repo running locally.
 
-```ink
-This is __bold__ and _italic_ text.
-Use `code` and [highlighted text](highlight).
-Link to [external sites](example.com).
+### Prerequisites
 
-:: This is a header
-> Bullet points
->> Block quotes
-```
+- [Task](https://taskfile.dev/): task runner
+- [Node.js](https://nodejs.org/): for bundling and automated tests
+- Ruby and Bundler: only for working on the docs site
 
-See [doc/text-formatting.md](doc/text-formatting.md) for more info.
-
-### Media & Effects
-
-```ink
-# IMAGE: path/to/image.jpg
-# AUDIO: sound.mp3
-# AUDIOLOOP: music.mp3
-# BACKGROUND: background.jpg
-# ACHIEVEMENT: You found a secret!
-```
-
-See [doc/images.md](doc/images.md), [doc/audio.md](doc/audio.md) or [doc/notifications.md](doc/notifications.md) for more info.
-
-### Special Pages
-
-Create reference pages outside your main story:
-
-```ink
-=== character_sheet ===
-# SPECIAL_PAGE: Character Info
-Your character details here...
--> DONE
-```
-
-See [doc/special-pages.md](doc/special-pages.md) for more info.
-
-### Functions
-
-Extend Ink built-in functions with string manipulation, math, and time functions:
-
-```ink
-// Declare once at the top of your story
-EXTERNAL CAPITALIZE(str)
-EXTERNAL CLAMP(x, min, max)
-EXTERNAL NOW()
-EXTERNAL FORMAT_DATE(timestamp, locale)
-
-// Use anywhere
-Hello, {CAPITALIZE(player_name)}!
-Health: {CLAMP(health, 0, 100)}
-Today is {FORMAT_DATE(NOW(), "en-US")}.
-```
-
-Includes string functions (`TRIM`, `REPLACE`, `CONTAINS`...), math (`ROUND`, `ABS`, `PERCENT`), fairmath for balanced stats (`FAIRADD`, `FAIRSUB`), and time functions (`NOW`, `TIME_SINCE`, `FORMAT_DATE`...).
-
-See [doc/functions.md](doc/functions.md) for more info.
-
-## File Structure
-
-```
-build/                # Deploy this folder
-├── story.json        # Your compiled Ink story
-├── index.html
-├── css/style.css     # Customize appearance here
-└── js/               # Template functionality
-
-src/                  # Your Ink source (optional)
-└── main.ink
-```
-
-## Customization
-
-- **Colors/Themes**: Edit `build/css/style.css`
-- **Fonts**: Three included (serif, sans-serif, dyslexic-friendly)
-- **Advanced**: Modular JavaScript in `build/js/`
-
-## Development (Optional)
-
-Install [Task](https://taskfile.dev/) for convenience commands:
+### Setup
 
 ```bash
-task setup    # Install dependencies
-task dev      # Auto-compile on change in src files + serve
-task compile  # Just compile
+git clone https://github.com/RemyVim/ink-if-story-template.git
+cd ink-if-story-template
+task setup
 ```
+
+This task installs [inklecate](https://github.com/inkle/ink/releases) (Ink compiler), npm dependencies, file watcher tool, and Jekyll for the docs site.
+
+Alternatively if you prefer to install the dependencies separately:
+
+```
+task setup:inklecate
+task setup:watch
+task setup:npm
+task setup:jekyll
+```
+
+**Note:** The Taskfile has only been tested on Linux. MacOS should mostly work but may need minor adjustments. Windows users will likely need WSL or manual equivalents. PRs to improve cross-platform support are welcome!
+
+### Project Structure
+
+```
+src/                  # Source files (edit these)
+├── ink/              # Demo story source
+├── js/               # JavaScript modules
+├── css/              # Stylesheets
+└── index.html
+
+build/                # Production output (generated by task build)
+├── story.json        # Compiled demo story
+├── index.html
+├── js/
+│   ├── template.min.js
+│   └── custom.js     # Author customizations
+├── css/
+│   ├── template.min.css
+│   └── custom.css    # Author customizations
+└── assets/           # Fonts, images, audio
+
+docs/                 # Jekyll documentation site
+```
+
+The `build/` folder is what gets distributed to users and deployed. The `src/` folder contains the source code that gets bundled.
+
+### Development Workflow
+
+```bash
+task dev
+```
+
+This watches `src/` for changes, auto-rebuilds, and serves the template locally. Visit `http://localhost:8000` in your browser to test.
+
+### Other Commands
+
+```bash
+task setup            # Install all dependencies (inklecate, npm, Jekyll)
+task build            # Production build (clean + bundle + minify + compile)
+task compile          # Compile Ink story only
+task serve            # Start local server without file watching
+task watch            # Watch for changes without serving
+task clean            # Remove generated files from build/
+task help             # List all available tasks
+```
+
+### Automated Tests
+
+```bash
+task test             # Run all tests (unit + E2E)
+task test:unit        # Unit tests only (Vitest)
+task test:e2e         # E2E tests only (Playwright)
+task lint             # Run linter
+```
+
+### Docs Site
+
+```bash
+task docs
+```
+
+Then visit `http://localhost:4000/ink-if-story-template/`
+
+### Contributing
+
+Contributions welcome. Fork the repo, create a feature branch, add tests whenever possible, and submit a PR.
+
+Bug reports and feature requests: [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues)
 
 ## Browser Support
 
-Modern browsers (Chrome 80+, Firefox 75+, Safari 13+). Works offline (fonts and images bundled).
+Modern browsers (2020+). Works offline once loaded.
 
-## License & Contributing
+## License
 
-MIT License—use for any purpose, including commercial projects.
-
-Contributions welcome! Fork, create feature branch, test, and submit PR.
-
-Bug reports and feature requests also welcome! Open an issue.
-
-## Community Resources
-
-- [Ink Documentation](https://github.com/inkle/ink)
-- [Ink Web Tutorial](https://www.inklestudios.com/ink/web-tutorial/)
-- [Interactive Fiction Community](https://intfiction.org/)
+[MIT License](LICENSE): use and modify for any purpose, including commercial projects.
 
 ## Screenshots
 

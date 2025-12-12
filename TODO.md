@@ -3,6 +3,8 @@
 This document tracks all planned features for the Ink Story Template.
 Features are organized by feature domain.
 
+Want something bumped up the list or have a new idea? [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues).
+
 ## Table of Contents
 
 1. [Core Features](#core-features)
@@ -46,7 +48,8 @@ Features are organized by feature domain.
     - [Automated Testing](#automated-testing)
     - [Error Management](#error-management)
 11. [Documentation](#documentation)
-12. [Fixes Needed](#fixes-needed)
+12. [Housekeeping & Code Quality](#housekeeping--code-quality)
+13. [Fixes Needed](#fixes-needed)
 
 ---
 
@@ -329,6 +332,7 @@ ChoiceScript-style stat displays.
 - [x] Choice tone indicator accessibility
 - [x] Icon accessibility (`aria-hidden="true"` + `.sr-only` labels)
 - [x] Loading state announcements (`aria-busy`)
+- [ ] Focus for screen readers on following paragraph after user input submit
 - [ ] Reading progress announcements
 
 ### Keyboard Navigation
@@ -455,10 +459,10 @@ Tool (local, offline) for authors to analyse playthrough stats shared by readers
 ## Documentation
 
 - [x] Public demo
+- [x] Documentation companion website (Jekyll)
 - [x] Main README
 - [x] Changelog
 - [x] TODO features list (this one!)
-- [x] Documentation companion website (Jekyll)
 - [x] Quick start guide
 - [x] Story & template configuration guide
 - [x] Text formatting guide
@@ -474,10 +478,13 @@ Tool (local, offline) for authors to analyse playthrough stats shared by readers
 - [x] Keyboard shortcuts reference
 - [x] Stat bar guide
 
-## Dev
+---
+
+## Housekeeping & Code Quality
 
 - [ ] Refactor the restart confirmation modal to hide/show instead of create/destroy
-- [ ] Focus for screen readers on following paragraph after user input submit
+
+---
 
 ## Fixes Needed
 

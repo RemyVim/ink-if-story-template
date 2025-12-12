@@ -44,11 +44,6 @@ Everything works through simple Ink tags like this:
 - Notifications and achievements
 - Stat bars for RPG-style stories
 - Utility functions for strings, math, and time
-
-**For Developers**
-
-- Vanilla JavaScript — no build tools required for basic use
-- Clean, documented codebase
 - Easy to customize with `custom.css` and `custom.js`
 
 ## Get Started

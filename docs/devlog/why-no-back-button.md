@@ -23,13 +23,17 @@ To understand why there's no back button, you need to understand a little about 
 
 When you're playing an Ink story, the engine keeps track of where you are: which passage you're in, what choices you've made, what variables have changed. All of that gets bundled into a single snapshot—a "state." Ink can serialize that state to a JSON string, and later, load it back. That's how saves work. You're not saving a file path or a bookmark; you're saving *everything* about the story at that exact moment.
 
-One small hickup for the back button though: that saved state is a point in time, not a history. Ink doesn't remember *how* you got there. It knows how many times the player has visited a knot or it they've seen this section or not, but it doesn't track what order the player went through the story. It doesn't keep a stack of previous states you can pop back through. It really just knows *now*.
+One small hiccup for the back button though: that saved state is a point in time, not a history. Ink doesn't remember *how* you got there. It knows if the player has visited a knot or not, how many times they've visited a given knot, but it doesn't track the order of the visits, the path the player took through the story.
+
+It doesn't keep a stack of previous states you can pop back through. It really just knows *now*.
 
 So to implement a back button, you'd need to do one of two things:
 
 **Option one:** Save the state before every single choice. Maintain a stack of snapshots. When the player hits "back," pop the stack and restore.
 
-This works, technically. But it means storing potentially dozens of full state snapshots per session. It complicates saves—do you save the whole history stack? It uses more memory. It makes the code more fragile. And it creates weird edge cases: how far back can you go? What happens if you go back and make different choices—do you fork the history? Discard the future?
+This works, technically. But it means storing potentially dozens of full state snapshots per session. It complicates saves—do you save the whole history stack? It uses more memory. It makes the code more fragile.
+
+And it creates weird edge cases: how far back can you go? Say you undo once, pick a different choice, then undo twice more—are you back on your original path or the new one? Do you fork the history? Discard the future?
 
 **Option two:** When the player wants to go back, restart the story from the beginning and silently replay all the choices up to the previous decision point.
 
@@ -85,6 +89,6 @@ Some choices should stick.
 
 ---
 
-If you're building your own Ink template and you *do* want a back button, I'm not going to stop you. The state snapshot approach is probably your best bet—save before each choice, keep a stack, pop on undo. Just know what you're trading away.
+If you're building your own Ink template and you *do* want a back button, I'm not going to stop you. The state snapshot approach is probably your best bet—save before each choice, keep a stack, pop on undo. Just be aware of the tradeoffs.
 
 And if you're a player who really wants undo in stories built with this template: save often. That's your back button. You just have to mean it.

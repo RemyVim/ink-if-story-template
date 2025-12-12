@@ -131,8 +131,6 @@ Quick! Let's save the Inky project file before your cat gets to touch your keybo
 
 ![Inky interface with save project menu option highlighted](/assets/images/beginner-guide/inky-menu-save-project.png)
 
-![Save dialog with folder and filename](/assets/images/beginner-guide/save-project-dialog.png)
-
 Your `.ink` file is your source code. You'll edit this whenever you want to change your story.
 
 ---
@@ -197,9 +195,7 @@ Let's export:
 
 ![Inky interface with export to JSON menu option highlighted](/assets/images/beginner-guide/inky-menu-export-json.png)
 
-![Save dialog for story.json](/assets/images/beginner-guide/save-json-dialog.png)
-
-You now have two files:
+You now have two files in your project folder:
 
 - `main.ink`: your editable source (for you)
 - `story.json`: the compiled story (for the template)
@@ -255,14 +251,14 @@ That's it. Your story is now in the template.
 ### Upload Your Files
 
 1. First, **zip your template folder**:
-   - Select all files in the template folder
+   - Select all files in the template folder (the one where you copied your `story.json` file)
    - Right-click > **`Send to > Compressed (zipped) folder`** (Windows)
    - Or right-click > **`Compress`** (Mac)
 2. In the itch.io project page, scroll to **Uploads**
 3. Click **Upload files** and select your zip file
 4. **Important:** Check the box that says **"This file will be played in the browser"**
 ![Upload section with checkbox highlighted](/assets/images/beginner-guide/itchio-create-project-upload-files.png)
-5. Under "Embed Options", make sure to tell itch.io to "Click to launch in fullscreen" and under Frame Option, tick the Mobile Friendly box.
+5. Under **Embed Options**, make sure to tell itch.io to "Click to launch in fullscreen" and under Frame Option, tick the Mobile Friendly box. (Portrait looks best for this template but feel free to experiment with landscape orientation)
 ![Upload section with embed options settings](/assets/images/beginner-guide/itchio-create-project-embed-options.png)
 
 ### Save and View
@@ -292,9 +288,9 @@ Made a typo? Want to add more content? Here's how to update your published story
 
 It sounds like a lot of steps, but after your second or third update, it becomes muscle memory—under a minute.
 
-> **Want to preview locally before uploading your files?** See the [Intermediary Guide](intermediary-guide.md) for local testing options with VS Code. (Unfortunately, you can't just double-click `index.html`—browsers block local files for security reasons.)
+> **Tip:** The [Advanced Guide](advanced-guide.md) covers how to automate this process with Git and continuous deployment: so publishing updates becomes a single command.
 
-> **Tip:** The [Advanced Guide](advanced-guide.md) covers how to automate this process with Git and continuous deployment — so publishing updates becomes a single command.
+> **Want to preview locally before uploading your files?** See the [Local Testing](local-testing.md) guide. (Unfortunately, you can't just double-click `index.html`—browsers block local files for security reasons.)
 
 ---
 
@@ -311,19 +307,14 @@ Congratulations! You've published your first interactive fiction game. Here's wh
 
 ### Learn More Ink
 
-- [Writing with Ink](https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md) — the official guide
-- [Ink Patreon](https://www.patreon.com/inkle) — advanced tutorials and community
+- [Writing with Ink](https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md): the official guide
+- [Ink Patreon](https://www.patreon.com/inkle): advanced tutorials and community
 
 ### Level Up Your Workflow
 
-- [Local Testing](local-testing.md) — more ways to preview your story
-- [Intermediary Guide](intermediary-guide.md) — better organization with VS Code
-- [Advanced Guide](advanced-guide.md) — Git and automated deployment
-
-### Join the Community
-
-- [Interactive Fiction Community Forum](https://intfiction.org/) — ask questions, share your work
-- [Ink Discord](https://discord.gg/inkle) — chat with other Ink authors
+- [Local Testing](local-testing.md): more ways to preview your story
+- [Intermediary Guide](intermediary-guide.md): better organization with VS Code
+- [Advanced Guide](advanced-guide.md): Git and automated deployment
 
 ---
 

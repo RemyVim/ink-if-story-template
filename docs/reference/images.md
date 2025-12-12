@@ -37,10 +37,10 @@ The parameters for this tag are all optional and placement-agnostic: you can put
 
 **Examples:**
 
-- `# IMAGE: map.jpg` — Centered, natural size
-- `# IMAGE: portrait.png left 40%` — Floated left at 40% width
-- `# IMAGE: hero.png "A hero on a cliff"` — With alt text for screen readers
-- `# IMAGE: diagram.png caption "System diagram"` — With visible caption
+- `# IMAGE: map.jpg`: Centered, natural size
+- `# IMAGE: portrait.png left 40%`: Floated left at 40% width
+- `# IMAGE: hero.png "A hero on a cliff"`: With alt text for screen readers
+- `# IMAGE: diagram.png caption "System diagram"`: With visible caption
 
 ## Background Images
 

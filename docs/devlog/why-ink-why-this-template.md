@@ -64,7 +64,7 @@ My background is in network infrastructure. I'd never actually built anything fo
 
 Building this template was my excuse to dig in. I wanted a real project with real goals, not just JavaScript tutorials. Something I hope it might be useful to someone other than me when I finish: a template that writers can pick up and use without fighting the tools. Something that—in the spirit of Ink itself—just gets out of the way.
 
-Ink already has a strong community. It's been around for years, created by Inkle, who make excellent narrative games. It's battle-tested. Free and open source. The missing piece was always web publishing. Ink is well established in Unity, but almost invisible in browser-based CYOA-type interactive fiction.
+Ink already has a strong community. It's been around for years. It's battle-tested. Free and open source. The missing piece was always web publishing. Ink is well established in Unity, but almost invisible in browser-based CYOA-type interactive fiction.
 
 I'd like to help change that, even a little.
 

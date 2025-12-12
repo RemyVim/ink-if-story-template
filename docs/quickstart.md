@@ -73,9 +73,9 @@ Save it as `story.json` inside the template folder (replace the existing one).
 
 ## Next Steps
 
-- [Text Formatting](reference/text-formatting.md) — bold, italics, headers, lists
-- [Images & Audio](reference/images.md) — add media to your story
-- [All Features](reference/quick-reference.md) — see everything the template can do
+- [Text Formatting](reference/text-formatting.md): bold, italics, headers, lists
+- [Images & Audio](reference/images.md): add media to your story
+- [All Features](reference/quick-reference.md): see everything the template can do
 
 ## Testing Locally (Optional)
 
