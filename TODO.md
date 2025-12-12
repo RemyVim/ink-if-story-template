@@ -483,6 +483,9 @@ Tool (local, offline) for authors to analyse playthrough stats shared by readers
 ## Housekeeping & Code Quality
 
 - [ ] Refactor the restart confirmation modal to hide/show instead of create/destroy
+- [ ] Add E2E tests for user input:
+  - [ ] Save on user input page, input text, load save: should show input box again
+  - [ ] Input text, save, load save: should not show input box again (input retained)
 
 ---
 
