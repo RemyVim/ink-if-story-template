@@ -28,6 +28,10 @@ jobs:
             echo "version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
           fi
 
+      - name: Inject version into README.txt
+        run: |
+          sed -i "s/{{VERSION}}/${{ steps.version.outputs.version }}/g" build/README.txt
+
       - name: Create release zip
         run: |
           cd build

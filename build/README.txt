@@ -1,5 +1,5 @@
 ================================================================================
-                         INK STORY TEMPLATE - QUICK START
+                         INK STORY TEMPLATE - {{VERSION}}
 ================================================================================
 
 Get your Ink story online in minutes. No programming required.
