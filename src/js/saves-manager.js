@@ -191,7 +191,10 @@ class SavesManager {
         .replace(/:/g, "-");
       const slotName =
         slotNumber === this.autosaveSlot ? "autosave" : `slot${slotNumber}`;
-      link.download = `ink-story-${slotName}-${timestamp}.json`;
+      const titleSlug = this.slugifyTitle(
+        this.storyManager.settings?.storyTitle
+      );
+      link.download = `${titleSlug}-${slotName}-${timestamp}.json`;
 
       document.body.appendChild(link);
       link.click();
@@ -526,6 +529,28 @@ class SavesManager {
     }
 
     return baseName;
+  }
+
+  /**
+   * Converts a story title to a filename-safe slug.
+   * @param {string} title - The story title
+   * @returns {string} Slugified title (lowercase, dashes for spaces, no special chars)
+   * @private
+   */
+  slugifyTitle(title) {
+    if (!title || typeof title !== "string") {
+      return "ink-story";
+    }
+
+    const slug = title
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, "") // remove special characters
+      .replace(/\s+/g, "-") // spaces to dashes
+      .replace(/-+/g, "-") // collapse multiple dashes
+      .replace(/^-|-$/g, ""); // trim leading/trailing dashes
+
+    return slug || "ink-story"; // fallback if result is empty
   }
 
   /**

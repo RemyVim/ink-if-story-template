@@ -36,6 +36,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Optimized font loading for faster page loads (LCP improved from 16s to 0.6s)
 - Monochrome color palette for better accessibility and WCAG AA contrast compliance (accent colors can be added via `custom.css`)
 - Inline links now display with underlines for accessibility
+- Save exports now use a slugified version of the story title (from # TITLE: tag) as the filename prefix, making exported saves easier to identify
 
 ### Fixed
 

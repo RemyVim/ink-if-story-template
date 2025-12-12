@@ -155,7 +155,7 @@ tasks:
     silent: true
     deps: [setup:npm]
     cmds:
-      - npm test
+      - npm test {{.CLI_ARGS}}
 
   test:unit:verbose:
     desc: Run unit tests

@@ -79,6 +79,63 @@ describe("SavesManager", () => {
     });
   });
 
+  describe("slugifyTitle", () => {
+    test("converts title to lowercase with dashes", () => {
+      expect(saveSystem.slugifyTitle("The Mysterious Manor")).toBe(
+        "the-mysterious-manor"
+      );
+    });
+
+    test("removes special characters", () => {
+      expect(saveSystem.slugifyTitle("Hello, World!")).toBe("hello-world");
+      expect(saveSystem.slugifyTitle("What's Next?")).toBe("whats-next");
+      expect(saveSystem.slugifyTitle("Test: A Story")).toBe("test-a-story");
+    });
+
+    test("collapses multiple spaces and dashes", () => {
+      expect(saveSystem.slugifyTitle("Too   Many   Spaces")).toBe(
+        "too-many-spaces"
+      );
+      expect(saveSystem.slugifyTitle("Dash---Heavy")).toBe("dash-heavy");
+    });
+
+    test("trims leading and trailing whitespace", () => {
+      expect(saveSystem.slugifyTitle("  Padded Title  ")).toBe("padded-title");
+    });
+
+    test("handles titles with numbers", () => {
+      expect(saveSystem.slugifyTitle("Chapter 1")).toBe("chapter-1");
+      expect(saveSystem.slugifyTitle("2001 A Space Odyssey")).toBe(
+        "2001-a-space-odyssey"
+      );
+    });
+
+    test("returns fallback for null or undefined", () => {
+      expect(saveSystem.slugifyTitle(null)).toBe("ink-story");
+      expect(saveSystem.slugifyTitle(undefined)).toBe("ink-story");
+    });
+
+    test("returns fallback for empty string", () => {
+      expect(saveSystem.slugifyTitle("")).toBe("ink-story");
+      expect(saveSystem.slugifyTitle("   ")).toBe("ink-story");
+    });
+
+    test("returns fallback for non-string input", () => {
+      expect(saveSystem.slugifyTitle(123)).toBe("ink-story");
+      expect(saveSystem.slugifyTitle({})).toBe("ink-story");
+    });
+
+    test("returns fallback when all characters are special", () => {
+      expect(saveSystem.slugifyTitle("!@#$%^&*()")).toBe("ink-story");
+    });
+
+    test("handles unicode and accented characters", () => {
+      expect(saveSystem.slugifyTitle("Café Stories")).toBe("caf-stories");
+      expect(saveSystem.slugifyTitle("💜 PurpleHeart")).toBe("purpleheart");
+      expect(saveSystem.slugifyTitle("日本語")).toBe("ink-story");
+    });
+  });
+
   describe("isStorageAvailable", () => {
     test("returns true when localStorage works", () => {
       expect(saveSystem.isStorageAvailable()).toBe(true);
