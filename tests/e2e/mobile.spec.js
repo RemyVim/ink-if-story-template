@@ -11,7 +11,7 @@ test.describe("Mobile Viewport", () => {
     await expect(page.locator("#story")).toBeVisible();
     await expect(page.locator("h1.nav-title")).toBeVisible();
 
-    const firstChoice = page.locator("p.choice").first();
+    const firstChoice = page.locator("button.choice").first();
     await expect(firstChoice).toBeVisible();
   });
 
@@ -34,7 +34,7 @@ test.describe("Mobile Viewport", () => {
   test("choices are tappable", async ({ page }) => {
     const initialContent = await page.locator("#story").textContent();
 
-    await page.locator("p.choice a").first().click();
+    await page.locator("button.choice").first().click();
     await expect(async () => {
       const newContent = await page.locator("#story").textContent();
       expect(newContent).not.toBe(initialContent);

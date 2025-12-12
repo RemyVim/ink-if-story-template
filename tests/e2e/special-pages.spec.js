@@ -32,7 +32,7 @@ test.describe("Special Pages", () => {
   });
 
   test("can return to story from special page", async ({ page }) => {
-    await page.locator("p.choice a").first().click();
+    await page.locator("button.choice").first().click();
     const storyContent = await page.locator("#story").textContent();
 
     await page.locator("#pages-menu-btn").click();
@@ -43,7 +43,7 @@ test.describe("Special Pages", () => {
       expect(currentContent).not.toBe(storyContent);
     }).toPass();
 
-    const returnButton = page.locator(".return-button a");
+    const returnButton = page.getByRole("button", { name: /return to story/i });
     await expect(returnButton).toBeVisible();
     await returnButton.click();
 

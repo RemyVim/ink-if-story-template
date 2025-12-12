@@ -31,10 +31,8 @@ test.describe("Story Loading", () => {
 
     await expect(page.locator("#loading-screen")).toBeHidden();
 
-    const firstChoice = page.locator("p.choice").first();
+    const firstChoice = page.locator("button.choice").first();
     await expect(firstChoice).toBeVisible();
-
-    const choiceLink = firstChoice.locator("a");
-    await expect(choiceLink).toBeVisible();
+    await expect(firstChoice).toBeEnabled();
   });
 });

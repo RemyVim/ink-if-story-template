@@ -17,7 +17,7 @@ test.describe("Save System", () => {
   });
 
   test("can save to a slot and load from it", async ({ page }) => {
-    await page.locator("p.choice a").first().click();
+    await page.locator("button.choice").first().click();
     await expect(page.locator("#story p").first()).toBeVisible();
 
     const textAfterChoice = await page.locator("#story").textContent();

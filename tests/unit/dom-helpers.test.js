@@ -86,19 +86,20 @@ describe("DOMHelpers", () => {
   });
 
   describe("createChoice", () => {
-    test("creates clickable choice with anchor", () => {
+    test("creates clickable choice button", () => {
       const element = domHelpers.createChoice("Pick me");
 
-      expect(element.tagName).toBe("P");
+      expect(element.tagName).toBe("BUTTON");
       expect(element.classList.contains("choice")).toBe(true);
-      expect(element.querySelector("a")).not.toBeNull();
+      expect(element.getAttribute("type")).toBe("button");
     });
 
-    test("creates unclickable choice with span", () => {
+    test("creates unclickable choice with aria-disabled", () => {
       const element = domHelpers.createChoice("Locked", [], false);
 
-      expect(element.querySelector("a")).toBeNull();
-      expect(element.querySelector("span.unclickable")).not.toBeNull();
+      expect(element.tagName).toBe("BUTTON");
+      expect(element.classList.contains("unclickable")).toBe(true);
+      expect(element.getAttribute("aria-disabled")).toBe("true");
     });
 
     test("adds key hint when provided", () => {
@@ -144,9 +145,11 @@ describe("DOMHelpers", () => {
       );
 
       expect(element.querySelector(".tone-icon")).not.toBeNull();
-      expect(element.querySelector(".sr-only").textContent).toContain(
-        "romantic"
+      const srOnlySpans = element.querySelectorAll(".sr-only");
+      const toneLabel = Array.from(srOnlySpans).find((span) =>
+        span.textContent.includes("romantic")
       );
+      expect(toneLabel).not.toBeUndefined();
     });
 
     test("handles multiple tone indicators", () => {
@@ -164,14 +167,12 @@ describe("DOMHelpers", () => {
       );
 
       expect(element.querySelectorAll(".tone-icon").length).toBe(2);
-      expect(element.querySelector(".sr-only").textContent).toContain(
-        "romantic",
-        "risky"
-      );
-      expect(element.querySelector(".sr-only").textContent).toContain(
-        "romantic",
-        "risky"
-      );
+      const srOnlySpans = element.querySelectorAll(".sr-only");
+      const allSrText = Array.from(srOnlySpans)
+        .map((span) => span.textContent)
+        .join(" ");
+      expect(allSrText).toContain("romantic");
+      expect(allSrText).toContain("risky");
     });
 
     test("handles empty string choiceText", () => {

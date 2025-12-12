@@ -15,7 +15,7 @@ test.describe("Story Restart", () => {
   });
 
   test("canceling restart keeps story state", async ({ page }) => {
-    await page.locator("p.choice a").first().click();
+    await page.locator("button.choice").first().click();
     const contentAfterChoice = await page.locator("#story").textContent();
 
     await page.locator("#rewind").click();
@@ -29,7 +29,7 @@ test.describe("Story Restart", () => {
   test("confirming restart returns to beginning", async ({ page }) => {
     const initialContent = await page.locator("#story").textContent();
 
-    await page.locator("p.choice a").first().click();
+    await page.locator("button.choice").first().click();
 
     await page.locator("#rewind").click();
     const confirmModal = page.getByRole("dialog", { name: "Confirm" }).first();

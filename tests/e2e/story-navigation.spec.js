@@ -9,7 +9,7 @@ test.describe("Story Navigation", () => {
   test("clicking a choice advances the story", async ({ page }) => {
     const initialText = await page.locator("#story").textContent();
 
-    const firstChoice = page.locator("p.choice a").first();
+    const firstChoice = page.locator("button.choice").first();
     await firstChoice.click();
 
     await expect(async () => {
@@ -22,7 +22,7 @@ test.describe("Story Navigation", () => {
     page,
   }) => {
     const getChoiceTexts = async () => {
-      const choices = page.locator("p.choice a");
+      const choices = page.locator("button.choice");
       const texts = await choices.allTextContents();
       return texts.sort().join("|");
     };
@@ -30,7 +30,7 @@ test.describe("Story Navigation", () => {
     const initialChoices = await getChoiceTexts();
 
     // Navigate to choices demo (known to have different choices)
-    const choicesLink = page.locator("p.choice a", { hasText: /choice/i });
+    const choicesLink = page.locator("button.choice", { hasText: /choices$/i });
     await choicesLink.first().click();
 
     await expect(page.locator("#story p").first()).toBeVisible();
@@ -40,13 +40,14 @@ test.describe("Story Navigation", () => {
   });
 
   test("unclickable choices are not clickable", async ({ page }) => {
-    const choicesLink = page.locator("p.choice a", { hasText: /choice/i });
-    await choicesLink.first().click();
+    const choicesLink = page.getByRole("button", { name: /choices$/i });
+    await choicesLink.click();
 
-    const unclickableChoice = page.locator("p.choice span.unclickable");
+    const unclickableChoice = page.locator("button.choice.unclickable");
     await expect(unclickableChoice.first()).toBeVisible();
-
-    const parentChoice = unclickableChoice.first().locator("..");
-    await expect(parentChoice.locator("a")).toHaveCount(0);
+    await expect(unclickableChoice.first()).toHaveAttribute(
+      "aria-disabled",
+      "true"
+    );
   });
 });

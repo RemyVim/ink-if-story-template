@@ -210,7 +210,7 @@ describe("ChoiceManager", () => {
       const onReturn = vi.fn();
       const choice = choiceManager.createReturnChoice(onReturn);
 
-      expect(choice.text).toBe("← Return to Story");
+      expect(choice.text).toContain("Return to Story");
       expect(choice.classes).toContain("return-button");
       expect(choice.isSpecial).toBe(true);
     });
