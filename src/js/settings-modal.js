@@ -80,8 +80,7 @@ class SettingsModal {
       const footer = modal.getFooter();
       if (footer) {
         footer.innerHTML = "";
-        footer.style.display = "flex";
-        footer.style.justifyContent = "space-between";
+        footer.className = "modal-footer modal-footer-split";
 
         const resetBtn = modal.createButton("Reset to Defaults", {
           variant: "secondary",

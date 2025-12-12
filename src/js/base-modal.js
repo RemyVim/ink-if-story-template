@@ -68,27 +68,13 @@ class BaseModal {
    */
   createModal() {
     const modalBackdrop = document.createElement("div");
-    modalBackdrop.className = `${this.config.className}-backdrop`;
+    modalBackdrop.className = `base-modal-backdrop ${this.config.className}-backdrop`;
     modalBackdrop.setAttribute("role", "presentation");
-    modalBackdrop.style.cssText = `
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.5); z-index: 1000; display: none;
-      opacity: 0; transition: opacity 0.3s ease;
-    `;
 
     const modalContent = document.createElement("div");
-    modalContent.className = `${this.config.className}-content`;
-    modalContent.style.cssText = `
-      position: fixed; top: 50%; left: 50%;
-      transform: translate(-50%, -50%) scale(0.9);
-      background: var(--color-background);
-      border: 1px solid var(--color-border-medium);
-      border-radius: var(--border-radius-lg);
-      padding: 2rem; max-width: ${this.config.maxWidth}; width: ${this.config.width}; 
-      max-height: ${this.config.maxHeight};
-      overflow-y: auto; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-      transition: transform 0.3s ease; z-index: 1001;
-    `;
+    const sizeClass = this.getSizeClass();
+    modalContent.className = `base-modal-content ${this.config.className}-content ${sizeClass}`;
+
     modalContent.setAttribute("role", "dialog");
     modalContent.setAttribute("aria-modal", "true");
     modalContent.setAttribute(
@@ -117,33 +103,17 @@ class BaseModal {
   getModalHTML() {
     return `
       <div class="modal-header">
-        <h2 id="${this.config.className}-title" style="margin: 0 0 1.5rem 0; color: var(--color-text-strong); font-size: 1.5rem;">${this.config.title}</h2>
+        <h2 id="${this.config.className}-title" tabindex="-1">${this.config.title}</h2>
         ${
           this.config.showCloseButton
-            ? `
-          <button class="modal-close" aria-label="Close" style="
-            position: absolute; top: 1rem; right: 1rem; background: none; border: none;
-            font-size: 1.5rem; color: var(--color-text-secondary); cursor: pointer;
-            padding: 0.5rem; border-radius: var(--border-radius);
-          "><span aria-hidden="true">&times;</span></button>
-        `
+            ? `<button class="modal-close" aria-label="Close"><span aria-hidden="true">&times;</span></button>`
             : ""
         }
       </div>
-
       <div class="modal-body">
         <!-- Content will be injected here -->
       </div>
-
-      ${
-        this.config.showFooter
-          ? `
-        <div class="modal-footer" style="margin-top: 2rem; text-align: right; border-top: 1px solid var(--color-border-light); padding-top: 1rem;">
-          <!-- Footer content will be injected here -->
-        </div>
-      `
-          : ""
-      }
+      ${this.config.showFooter ? `<div class="modal-footer"></div>` : ""}
     `;
   }
 
@@ -243,7 +213,7 @@ class BaseModal {
           `.${this.config.className}-content`
         );
         if (content) {
-          content.style.transform = "translate(-50%, -50%) scale(1)";
+          content.classList.add("modal-open");
         }
         // Focus the heading first, or fall back to the dialog itself
         const heading = content?.querySelector("h2");
@@ -278,7 +248,7 @@ class BaseModal {
     );
 
     if (content) {
-      content.style.transform = "translate(-50%, -50%) scale(0.9)";
+      content.classList.remove("modal-open");
     }
 
     setTimeout(() => {
@@ -352,9 +322,7 @@ class BaseModal {
       const footer = modal.getFooter();
       if (footer) {
         footer.innerHTML = "";
-        footer.style.display = "flex";
-        footer.style.justifyContent = "flex-end";
-        footer.style.gap = "0.5rem";
+        footer.className = "modal-footer modal-footer-right";
 
         const cancelBtn = modal.createButton(settings.cancelText, {
           variant: "secondary",
@@ -428,6 +396,21 @@ class BaseModal {
    */
   getFooter() {
     return this.modalElement?.querySelector(".modal-footer");
+  }
+
+  /**
+   * Returns the appropriate size class based on config.maxWidth
+   * @returns {string} CSS class name for modal size
+   * @private
+   */
+  getSizeClass() {
+    const sizeMap = {
+      "400px": "modal-small",
+      "500px": "modal-medium",
+      "600px": "modal-large",
+      "700px": "modal-wide",
+    };
+    return sizeMap[this.config.maxWidth] || "modal-medium";
   }
 
   /**

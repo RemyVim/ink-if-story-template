@@ -104,7 +104,7 @@ class SavesModal {
     const footer = this.modal.getFooter();
     if (footer) {
       footer.innerHTML = "";
-      footer.style.textAlign = "right";
+      footer.className = "modal-footer modal-footer-right";
 
       const closeBtn = this.modal.createButton("Close", {
         variant: "primary",
