@@ -228,8 +228,10 @@ tasks:
     silent: true
     cmds:
       - |
-        echo "---- Stripping EXIF data from docs/assets/images..."
+        echo "---- Stripping EXIF data from docs/assets/images/ ..."
         exiftool -all= -overwrite_original -r docs/assets/images/
+        echo "---- Stripping EXIF data from screenshots/ ..."
+        exiftool -all= -overwrite_original -r screenshots/
         echo "✅ Done"
 
   clean:
