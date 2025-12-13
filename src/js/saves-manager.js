@@ -1,5 +1,6 @@
 import { SavesModal } from "./saves-modal.js";
 import { errorManager, ERROR_SOURCES } from "./error-manager.js";
+import { TEMPLATE_VERSION } from "./version.js";
 
 const log = errorManager.forSource(ERROR_SOURCES.SAVE_SYSTEM);
 
@@ -180,7 +181,7 @@ class SavesManager {
         throw new Error("No save data found in this slot to export");
       }
 
-      const dataStr = JSON.stringify(saveData, null, 2);
+      const dataStr = JSON.stringify(saveData);
       const dataBlob = new Blob([dataStr], { type: "application/json" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(dataBlob);
@@ -435,7 +436,7 @@ class SavesManager {
       saveName: this.generateSaveName(slotNumber),
       description: this.generateDescription(),
       timestamp: Date.now(),
-      version: "1.0",
+      version: TEMPLATE_VERSION,
       isAutosave: slotNumber === this.autosaveSlot,
       currentPage: null,
       stateBeforeUserInput: this.storyManager.stateBeforeUserInput || null,

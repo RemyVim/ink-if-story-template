@@ -32,6 +32,21 @@ jobs:
         run: |
           sed -i "s/{{VERSION}}/${{ steps.version.outputs.version }}/g" build/README.txt
 
+      - name: Install Task
+        uses: arduino/setup-task@v2
+        with:
+          version: 3.x
+
+      - name: Install build dependencies
+        run: |
+          task setup:inklecate
+          task setup:npm
+
+      - name: Build with version
+        run: task build
+        env:
+          TEMPLATE_VERSION: ${{ steps.version.outputs.version }}
+
       - name: Create release zip
         run: |
           cd build

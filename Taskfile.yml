@@ -115,7 +115,10 @@ tasks:
       - |
         echo "---- Bundling and minifying JavaScript..."
         mkdir -p build/js
-        npx esbuild src/js/main.js --bundle --minify --sourcemap --outfile=build/js/template.min.js
+        VERSION="${TEMPLATE_VERSION:-dev}"
+        npx esbuild src/js/main.js --bundle --minify --sourcemap \
+          --define:__TEMPLATE_VERSION__="\"$VERSION\"" \
+          --outfile=build/js/template.min.js
         echo "✅ build/js/template.min.js created"
 
   build:css:
