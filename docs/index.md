@@ -49,3 +49,15 @@ Everything works through simple Ink tags like this:
 ## Get Started
 
 Ready to publish your story? Head to the [Quick Start](/ink-if-story-template/quickstart/) guide.
+
+## Bug Reports & Feature Requests
+
+Bug reports:
+
+- [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues) on GitHub
+- Or submit via the [Bug Report Form](https://forms.gle/a6HKbMZ7AhXV8kGu9)
+
+Feature requests:
+
+- [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues) on GitHub
+- Or submit via the [Feature Request Form](https://forms.gle/JgiFt4tNYaDFB8R59)

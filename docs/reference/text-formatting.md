@@ -5,7 +5,7 @@ description: >-
   Bold, italic, headers, lists, and other text formatting options for your Ink
   story.
 ---
-# Text Formatting Guide
+# Text Formatting
 
 Style your story text directly in Ink using markdown-like syntax. The template automatically processes these formatting marks when your story displays.
 
@@ -134,7 +134,3 @@ Start a line with `%` to disable all formatting:
 - Keep it simple: too much formatting can distract from your story.
 - Use headers to break up long sections.
 - Custom styles let you create unique text effects for your story's atmosphere.
-
----
-
-**Questions?** [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues) on GitHub.

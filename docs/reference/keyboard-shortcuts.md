@@ -3,7 +3,7 @@ layout: default
 title: Keyboard Shortcuts
 description: Keyboard controls for readers playing your Ink interactive fiction story.
 ---
-# Keyboard Shortcuts Reference
+# Keyboard Shortcuts
 
 Navigate and interact with your story using keyboard shortcuts. These work automatically—no setup required.
 
@@ -41,7 +41,3 @@ This is useful for:
 When disabled, all keyboard shortcuts (choice selection, scrolling, menu shortcuts) are turned off.
 
 > **Note:** Keyboard shortcuts are automatically disabled on mobile/touch-only devices.
-
----
-
-**Questions?** [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues) on GitHub.

@@ -5,7 +5,7 @@ description: >-
   Built-in string, math, fairmath, and time functions for Ink interactive
   fiction.
 ---
-# Functions Guide
+# Functions
 
 Use functions in your Ink story to manipulate strings, perform math, create balanced stat systems and keep track of time! This guide covers both Ink's built-in functions and the extras this template adds.
 
@@ -380,7 +380,3 @@ Use negative numbers to go back in time:
 
 - Make sure you're passing a valid locale string (e.g., "en-US", "fr-FR")
 - Invalid locales will fall back to "en-US" (check browser console for warnings)
-
----
-
-**Questions?** [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues) on GitHub.

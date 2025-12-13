@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Bug report (no GitHub account needed)
+  - name: Bug report (Google Form)
     url: https://forms.gle/a6HKbMZ7AhXV8kGu9
     about: Report a bug via Google Form
-  - name: Feature request (no GitHub account needed)
+  - name: Feature request (Google Form)
     url: https://forms.gle/JgiFt4tNYaDFB8R59
     about: Suggest an idea via Google Form

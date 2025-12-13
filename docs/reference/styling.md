@@ -106,7 +106,3 @@ These tags control the display:
 
 - For inline text styling (bold, italic, highlights), see [Text Formatting](text-formatting.md).
 - Changes to `custom.css` take effect immediately on page refresh—no build step needed.
-
----
-
-**Questions?** [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues) on GitHub.

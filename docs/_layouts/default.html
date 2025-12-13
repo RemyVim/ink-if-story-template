@@ -35,6 +35,9 @@
     <main class="content" id="main-content">
       <article>
         {{ content }}
+        {% if page.url contains '/reference/' or page.url contains '/quickstart' or page.url contains '/quick-reference' %}
+          {% include feedback.html %}
+        {% endif %}
       </article>
     </main>
   </div>

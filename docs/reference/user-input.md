@@ -41,7 +41,3 @@ If you omit the placeholder text, it defaults to "Type your answer here...":
 - Input is stored as a string. Use `{player_name}` to display it.
 - Maximum input length is 100 characters.
 - The input field auto-focuses when it appears.
-
----
-
-**Questions?** [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues) on GitHub.

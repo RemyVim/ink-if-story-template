@@ -37,6 +37,15 @@
 
   --sidebar-width: 280px;
   --content-max-width: 800px;
+
+  --spacing-xs: 3px;
+  --spacing-sm: 6px;
+  --spacing-md: 8px;
+  --spacing-lg: 10px;
+  --spacing-xl: 12px;
+  --spacing-xxl: 15px;
+  --spacing-huge: 30px;
+  --spacing-massive: 60px;
 }
 
 /* Light theme */
@@ -295,6 +304,15 @@ a {
 a:hover {
   color: var(--color-link-hover);
   text-decoration: underline;
+}
+
+hr {
+  border-top: 1px solid var(--color-separator-line);
+  /* color: transparent; */
+  width: 50%;
+  margin: 0 auto;
+  margin-top: var(--spacing-huge);
+  margin-bottom: var(--spacing-huge);
 }
 
 /* Code */

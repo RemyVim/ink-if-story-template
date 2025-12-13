@@ -26,7 +26,7 @@ You don't even have to touch a line of HTML, CSS, or JavaScript to use it (unles
 - **Accessible**: Full screen reader support, WCAG AA contrast (4.5:1), accessible touch targets, keyboard navigation (1-9, A-Z for choices), dyslexia-friendly font option
 - **Extensible**: Add custom code via `custom.js` and `custom.css` without touching core files
 
-See [TODO.md](TODO.md) for the full roadmap. Want something bumped up the list or have a new idea? [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues).
+See [TODO.md](TODO.md) for the full roadmap. Want something bumped up the list or have a new idea? See [Bug Reports & Feature Requests](#bug-reports--feature-requests) below.
 
 ## Quick Start
 
@@ -50,6 +50,20 @@ The [documentation site](https://remyvim.github.io/ink-if-story-template/) cover
 - [Styling](https://remyvim.github.io/ink-if-story-template/reference/styling/) — customizing colors and themes
 - [Quick Reference](https://remyvim.github.io/ink-if-story-template/quick-reference/) — all tags and syntax at a glance
 - ...and more
+
+## Bug Reports & Feature Requests
+
+Bug reports:
+
+- [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues) on GitHub
+- Submit via the [Google Form](https://forms.gle/a6HKbMZ7AhXV8kGu9)
+
+Feature requests:
+
+- [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues) on GitHub
+- Submit via the [Google Form](https://forms.gle/JgiFt4tNYaDFB8R59)
+
+---
 
 ## For Developers
 
@@ -149,8 +163,6 @@ Then visit `http://localhost:4000/ink-if-story-template/`
 ### Contributing
 
 Contributions welcome. Fork the repo, create a feature branch, add tests whenever possible, and submit a PR.
-
-Bug reports and feature requests: [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues)
 
 ## Browser Support
 

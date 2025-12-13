@@ -71,7 +71,3 @@ Special pages automatically appear in the navigation menu in alphabetical order 
 - Use the knot name in the `PAGE_MENU` list.
 - `,,` indicates a section separator in the menu.
 - Any special pages that are not in the `PAGE_MENU` list are added to their own section below, ordered alphabetically.
-
----
-
-**Questions?** [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues) on GitHub.

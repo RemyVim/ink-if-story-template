@@ -31,7 +31,3 @@ These are displayed in the template's header. While not strictly required, your 
 The theme tag sets the *default* appearance. Readers can always override this in the Settings menu, and their preference is saved for future visits.
 
 **Tip:** If you want your story to respect the reader's system preference (light/dark mode), simply don't include the `# THEME:` tag.
-
----
-
-**Questions?** [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues) on GitHub.

@@ -56,7 +56,3 @@ Sets a background image. Use `# BACKGROUND: none` to remove.
 
 - **Supported formats:** JPG, PNG, GIF, WebP. Use JPG for photos, PNG for graphics with transparency.
 - **File location:** Put image files in `assets/`. (Not required, all paths are relative to the template's directory, but it keeps everything organized!)
-
----
-
-**Questions?** [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues) on GitHub.

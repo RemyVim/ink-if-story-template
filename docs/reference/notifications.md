@@ -28,7 +28,3 @@ Show messages to players without interrupting the story flow. Notifications appe
 All types are purely visual: they don't affect gameplay. (Yet.)
 
 Achievements might be linked to an actual achievement system in the future.
-
----
-
-**Questions?** [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues) on GitHub.

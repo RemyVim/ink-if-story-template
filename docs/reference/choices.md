@@ -156,7 +156,3 @@ The disabled choice appears greyed out and can't be clicked.
 + {has_key} [Enter the castle]
 + {not has_key} [Enter the castle (need key) # DISABLED]
 ```
-
----
-
-**Questions?** [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues) on GitHub.

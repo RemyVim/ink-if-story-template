@@ -48,11 +48,11 @@ This might sound odd coming from someone who writes code for a living, but: when
 
 The other thing I love about Ink: it compiles.
 
-When you export your story, Ink doesn't just bundle up your source files. It parses them, checks them, and compiles them into a structured JSON file. And here's the key thing: if your Ink is broken, the JSON simply won't exist. It's not a warning you can ignore. It's a wall. The compiler cannot produce valid JSON from invalid Ink, so you find out something's wrong immediately—not three months later when a player messages you about a dead end.
+When you export your story, Ink doesn't just bundle up your source files. It parses them, checks them, and compiles them into a structured JSON file. And here's the *really* great thing: if your Ink is broken, the JSON simply won't exist. It's not a warning you can ignore. It's a wall. The compiler cannot produce valid JSON from invalid Ink, so you find out something's wrong immediately—not three months later when a player messages you about a dead end.
 
 And from a developer perspective? JSON is a gift. It's structured data—meaning the computer knows what's what. This is a knot name. This is a choice. This is a variable. Plain text is just a wall of characters; a program has to guess what anything means. Structured data comes pre-labeled.
 
-That makes introspection easy. Just the other day I added code that scans the story file for audio tags and only shows the volume controls if they're actually needed. Took maybe twenty minutes. That kind of thing is trivial when your story is data with a clear structure, not just a pile of text the program has to squint at.
+That makes introspection easy. Just the other day I added code that scans the story file for audio tags and only shows the autio panel in the settings it it's actually needed. Took maybe twenty minutes. That kind of thing is trivial when your story is data with a clear structure, not just a pile of text the program has to squint and evaluate character by character.
 
 ## Why I Built This
 

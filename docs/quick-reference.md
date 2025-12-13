@@ -191,7 +191,3 @@ These are controlled by readers in the Settings menu:
 * **Keyboard shortcuts:** On/off
 * **Tone indicators:** On/off (if your story uses them)
 * **Choice number hints:** Auto, on, or off
-
----
-
-**Questions?** [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues) on GitHub.

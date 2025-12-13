@@ -73,6 +73,8 @@ Save it as `story.json` inside the template folder (replace the existing one).
 
 ## Next Steps
 
+**Need more help?** See the [Complete Beginner's Guide](guides/beginner-guide.md) withmore detailed instructions and screenshots!
+
 - [Text Formatting](reference/text-formatting.md): bold, italics, headers, lists
 - [Images & Audio](reference/images.md): add media to your story
 - [All Features](reference/quick-reference.md): see everything the template can do
@@ -80,7 +82,3 @@ Save it as `story.json` inside the template folder (replace the existing one).
 ## Testing Locally (Optional)
 
 Browsers block local files for security reasons, so double-clicking `index.html` won't work. If you want to preview before publishing, see [Local Testing](guides/local-testing.md).
-
----
-
-**Need more help?** See the [Complete Beginner's Guide](guides/beginner-guide.md) withmore detailed instructions and screenshots, or [open an issue](https://github.com/RemyVim/ink-if-story-template/issues) on GitHub.

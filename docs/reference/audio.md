@@ -42,7 +42,3 @@ You can also use `stop` instead of `none`.
 - **Supported formats:** MP3 works everywhere. OGG and WAV also work in most browsers.
 - **File location:** Put audio files in `assets/`. (Not required, all paths are relative to the template's base directory, but it keeps everything organized!)
 - **Reader control:** Players can mute all audio in the Settings menu.
-
----
-
-**Questions?** [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues) on GitHub.

@@ -3,7 +3,7 @@
 This document tracks all planned features for the Ink Story Template.
 Features are organized by feature domain.
 
-Want something bumped up the list or have a new idea? [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues).
+Want something bumped up the list or have a new idea? [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues) or submit a request via [Google Form](https://forms.gle/JgiFt4tNYaDFB8R59).
 
 ## Table of Contents
 
@@ -491,6 +491,11 @@ Tool (local, offline) for authors to analyse playthrough stats shared by readers
 
 ## Fixes Needed
 
-None known. Spotted something? [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues)!
+None known.
+
+Spotted something? Submit a bug report:
+
+- [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues) on GitHub
+- Via the [Google Form](https://forms.gle/a6HKbMZ7AhXV8kGu9)
 
 ---

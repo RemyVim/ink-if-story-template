@@ -140,7 +140,3 @@ VAR reputation = 45
 
 -> DONE
 ```
-
----
-
-**Questions?** [Open an issue](https://github.com/RemyVim/ink-if-story-template/issues) on GitHub.
