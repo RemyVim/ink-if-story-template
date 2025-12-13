@@ -519,7 +519,7 @@ class SavesManager {
     return {
       gameState: this.getGameState(isOnSpecialPage),
       displayState: this.getDisplayState(isOnSpecialPage),
-      saveName: this.generateSaveName(slotNumber),
+      turnIndex: this.storyManager.story.state.currentTurnIndex,
       description: this.generateDescription(),
       timestamp: Date.now(),
       version: TEMPLATE_VERSION,
@@ -585,40 +585,6 @@ class SavesManager {
   }
 
   /**
-   * Generates a human-readable name for a save based on current story location.
-   * @param {number} slotNumber - Slot number (affects "(Auto)" suffix)
-   * @returns {string} Generated save name
-   * @private
-   */
-  generateSaveName(slotNumber) {
-    let baseName;
-
-    const currentPath = this.storyManager.story.state.currentPathString;
-
-    if (currentPath) {
-      const pathParts = currentPath.split(".");
-      baseName = pathParts[pathParts.length - 1];
-
-      baseName = baseName.replace(/_/g, " ");
-      baseName = baseName.replace(/([a-z])([A-Z])/g, "$1 $2");
-      baseName = baseName
-        .toLowerCase()
-        .split(" ")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ");
-    } else {
-      const turnIndex = this.storyManager.story.state.currentTurnIndex;
-      baseName = `Turn ${turnIndex + 1}`;
-    }
-
-    if (slotNumber === this.autosaveSlot) {
-      baseName += " (Auto)";
-    }
-
-    return baseName;
-  }
-
-  /**
    * Converts a story title to a filename-safe slug.
    * @param {string} title - The story title
    * @returns {string} Slugified title (lowercase, dashes for spaces, no special chars)
@@ -641,19 +607,62 @@ class SavesManager {
   }
 
   /**
-   * Generates a description from the current story text (first sentence, max 100 chars).
+   * Generates a description for a save based on current story location.
    * @returns {string} Generated description or empty string
    * @private
    */
   generateDescription() {
-    const currentText = this.storyManager.story.state.currentText;
-    if (currentText?.length > 0) {
-      let description = currentText.split(".")[0];
-      if (description.length > 100) {
-        description = description.substring(0, 97) + "...";
-      }
-      return description + ".";
+    const currentPath = this.storyManager.story.state.currentPathString;
+    if (currentPath) {
+      return this.pathToDisplayName(currentPath);
     }
+
+    const displayState = this.storyManager.display?.getState?.();
+    return this.descriptionFromHistory(displayState?.history);
+  }
+
+  /**
+   * Converts a path string to a Title Case display name.
+   * @param {string} path - Path like "chapter_one.scene_two"
+   * @returns {string} Title case name like "Scene Two"
+   */
+  pathToDisplayName(path) {
+    if (!path) return "";
+    const pathParts = path.split(".");
+    let name = pathParts[pathParts.length - 1];
+
+    name = name.replace(/_/g, " ");
+    name = name.replace(/([a-z])([A-Z])/g, "$1 $2");
+    name = name
+      .toLowerCase()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+
+    return name;
+  }
+
+  /**
+   * Extracts a description from the first history entry.
+   * @param {Array} history - Display history array
+   * @param {number} [maxLength=60] - Maximum description length
+   * @returns {string} Cleaned description or empty string
+   */
+  descriptionFromHistory(history, maxLength = 60) {
+    if (!history?.length) return "";
+
+    for (const entry of history) {
+      if (entry.type === "paragraph" && entry.text?.trim()) {
+        let description = entry.text.trim();
+        description = description.replace(/^:{1,3}\s+/, "");
+        description = description.replace(/^>{1,2}\s+/, "");
+        if (description.length > maxLength) {
+          description = description.substring(0, maxLength - 3) + "...";
+        }
+        return description;
+      }
+    }
+
     return "";
   }
 

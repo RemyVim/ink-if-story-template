@@ -38,40 +38,41 @@
 .save-slot-content {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: 1rem;
 }
 
 .save-slot-info {
-  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
 }
 
 .save-slot-name {
   color: var(--color-text-strong);
   font-weight: 600;
-  margin-bottom: 0.5rem;
 }
 
-.save-slot-timestamp {
+.save-slot-date {
   color: var(--color-text-secondary);
-  font-size: 0.8rem;
+  font-size: 0.85rem;
 }
 
-.save-slot-description {
-  color: var(--color-text-primary);
-  font-size: 0.9rem;
-  margin-bottom: 0.3rem;
-}
-
-.save-slot-detail {
+.save-slot-meta {
   color: var(--color-text-secondary);
-  font-size: 0.8rem;
-  font-style: italic;
+  font-size: 0.85rem;
 }
 
 .save-slot-actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, auto);
   gap: 0.5rem;
-  margin-left: 1rem;
+  flex-shrink: 0;
+}
+
+.save-slot-actions > :last-child:nth-child(3) {
+  grid-column: 2;
 }
 
 .save-action-button {

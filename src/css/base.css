@@ -139,6 +139,7 @@ li {
   margin: 0.3em 0;
   line-height: var(--line-height-list);
   color: var(--color-text-primary);
+  font-size: var(--text-size-base);
 }
 
 blockquote {

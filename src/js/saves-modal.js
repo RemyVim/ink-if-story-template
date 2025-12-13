@@ -189,14 +189,14 @@ class SavesModal {
       <div class="save-slot-content">
         <div class="save-slot-info">
           <strong class="save-slot-name">${slotName}</strong>
-          <div class="save-slot-description">${emptyText}</div>
-          ${helpText ? `<div class="save-slot-detail">${helpText}</div>` : ""}
+          <span class="save-slot-meta">${emptyText}</span>
+          ${helpText ? `<span class="save-slot-meta">${helpText}</span>` : ""}
         </div>
         <div class="save-slot-actions">
-        ${!isAutosave ? this.createActionButton("Save", "save-to-slot", "primary", slotName) : ""}
-        ${!isAutosave ? this.createActionButton("Import", "import-to-slot", "secondary", slotName) : ""}
+          ${!isAutosave ? this.createActionButton("Save", "save-to-slot", "primary", slotName) : ""}
+          ${!isAutosave ? this.createActionButton("Import", "import-to-slot", "secondary", slotName) : ""}
+        </div>
       </div>
-    </div>
     `;
   }
 
@@ -211,22 +211,14 @@ class SavesModal {
   createFilledSlotHTML(slotNumber, saveData, isAutosave) {
     const slotName = isAutosave ? "Autosave" : `Slot ${slotNumber}`;
     const timestamp = new Date(saveData.timestamp).toLocaleString();
+    const turnNumber = (saveData.turnIndex ?? 0) + 1;
 
     return `
       <div class="save-slot-content">
         <div class="save-slot-info">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-            <strong class="save-slot-name">${slotName}</strong>
-            <span class="save-slot-timestamp">${timestamp}</span>
-          </div>
-          <div class="save-slot-description">
-            ${saveData.saveName || "Saved Game"}
-          </div>
-          ${
-            saveData.description
-              ? `<div class="save-slot-detail">${saveData.description}</div>`
-              : ""
-          }
+          <strong class="save-slot-name">${slotName}</strong>
+          <span class="save-slot-date">${timestamp}</span>
+          <span class="save-slot-meta">Turn ${turnNumber}${saveData.description ? ` · ${saveData.description}` : ""}</span>
         </div>
         <div class="save-slot-actions">
           ${this.createActionButton("Load", "load-from-slot", "secondary", slotName)}

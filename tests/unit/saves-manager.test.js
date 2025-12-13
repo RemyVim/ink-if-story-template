@@ -136,6 +136,87 @@ describe("SavesManager", () => {
     });
   });
 
+  describe("pathToDisplayName", () => {
+    test("converts snake_case to Title Case", () => {
+      expect(saveSystem.pathToDisplayName("chapter_one")).toBe("Chapter One");
+    });
+
+    test("converts camelCase to Title Case", () => {
+      expect(saveSystem.pathToDisplayName("chapterOne")).toBe("Chapter One");
+    });
+
+    test("uses last part of dotted path", () => {
+      expect(saveSystem.pathToDisplayName("story.chapter_one.scene_two")).toBe(
+        "Scene Two"
+      );
+    });
+
+    test("returns empty string for empty input", () => {
+      expect(saveSystem.pathToDisplayName("")).toBe("");
+      expect(saveSystem.pathToDisplayName(null)).toBe("");
+    });
+  });
+
+  describe("descriptionFromHistory", () => {
+    test("returns first paragraph text", () => {
+      const history = [{ type: "paragraph", text: "Hello world" }];
+      expect(saveSystem.descriptionFromHistory(history)).toBe("Hello world");
+    });
+
+    test("strips header markdown", () => {
+      const history = [{ type: "paragraph", text: ": My Header" }];
+      expect(saveSystem.descriptionFromHistory(history)).toBe("My Header");
+    });
+
+    test("strips h2 and h3 markdown", () => {
+      expect(
+        saveSystem.descriptionFromHistory([
+          { type: "paragraph", text: ":: Subheader" },
+        ])
+      ).toBe("Subheader");
+      expect(
+        saveSystem.descriptionFromHistory([
+          { type: "paragraph", text: "::: Small" },
+        ])
+      ).toBe("Small");
+    });
+
+    test("strips list markdown", () => {
+      const history = [{ type: "paragraph", text: "> List item" }];
+      expect(saveSystem.descriptionFromHistory(history)).toBe("List item");
+    });
+
+    test("strips blockquote markdown", () => {
+      const history = [{ type: "paragraph", text: ">> Quoted text" }];
+      expect(saveSystem.descriptionFromHistory(history)).toBe("Quoted text");
+    });
+
+    test("truncates long text", () => {
+      const history = [
+        {
+          type: "paragraph",
+          text: "This is a very long paragraph that exceeds the maximum length allowed for descriptions",
+        },
+      ];
+      const result = saveSystem.descriptionFromHistory(history);
+      expect(result.length).toBe(60);
+      expect(result.endsWith("...")).toBe(true);
+    });
+
+    test("skips empty entries", () => {
+      const history = [
+        { type: "paragraph", text: "   " },
+        { type: "paragraph", text: "Actual content" },
+      ];
+      expect(saveSystem.descriptionFromHistory(history)).toBe("Actual content");
+    });
+
+    test("returns empty string for empty history", () => {
+      expect(saveSystem.descriptionFromHistory([])).toBe("");
+      expect(saveSystem.descriptionFromHistory(null)).toBe("");
+    });
+  });
+
   describe("isStorageAvailable", () => {
     test("returns true when localStorage works", () => {
       expect(saveSystem.isStorageAvailable()).toBe(true);
