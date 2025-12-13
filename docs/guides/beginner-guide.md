@@ -34,14 +34,14 @@ The **Ink Story Template** takes your Ink story and wraps it in a polished web i
    - **Windows:** `Inky_windows_64.zip` (or `Inky_windows_32.zip` for older 32-bit computers)
    - **Mac:** `Inky.dmg`
    - **Linux:** `Inky_linux.zip`
-![Inky releases page with Windows download highlighted](/assets/images/beginner-guide/inky-release-downloads.png)
+![Inky releases page with Windows download highlighted]({{ '/assets/images/beginner-guide/inky-release-downloads.png' | relative_url }})
 
 3. Unzip the downloaded file (Windows, Linux), or double click to install (Mac)
 4. Open the folder and run **Inky** (you may have to authorize it to run, and if you're on Linux you might have to give it permissions to run with `chmod +x Inky`)
 
 When Inky opens, you'll see a split screen: your script on the left, a preview of your story on the right.
 
-![Inky interface with default new file](/assets/images/beginner-guide/inky-startup-default.png)
+![Inky interface with default new file]({{ 'assets/images/beginner-guide/inky-startup-default.png' | relative_url }})
 
 > **Why Inky?** You could write Ink in any text editor, but Inky gives you a live preview as you type. You'll see exactly how your story plays, which makes writing and testing much faster. If you're already comfortable with VS Code, check out the [Intermediary Guide](intermediary-guide.md) for an alternative setup.
 
@@ -75,7 +75,7 @@ She looks up at you with an expression of pure innocence, as if she hasn't just 
 
 As you type, the right panel shows your story. Try clicking the choices to play through it.
 
-![Inky with the sample story, showing preview panel](/assets/images/beginner-guide/inky-custom-story.png)
+![Inky with the sample story, showing preview panel]({{ 'assets/images/beginner-guide/inky-custom-story.png' | relative_url }})
 
 > **Note:** Inky displays the `# TITLE` and `# AUTHOR` tags in its preview panel. Don't worry—tags are only visible in the editor, not in your final story. The template reads them behind the scenes to set up the header.
 
@@ -129,7 +129,7 @@ Quick! Let's save the Inky project file before your cat gets to touch your keybo
 2. Create a folder for your story (e.g., `CatGotMyInk`)
 3. Save the file as `main.ink`
 
-![Inky interface with save project menu option highlighted](/assets/images/beginner-guide/inky-menu-save-project.png)
+![Inky interface with save project menu option highlighted]({{ 'assets/images/beginner-guide/inky-menu-save-project.png' | relative_url }})
 
 Your `.ink` file is your source code. You'll edit this whenever you want to change your story.
 
@@ -143,7 +143,7 @@ Now let's get the template that will turn your story into a playable web game.
 2. Click **Download**
 3. Unzip the downloaded file
 
-![itch.io Ink Story Template page with download button](/assets/images/beginner-guide/ink-story-template-download.png)
+![itch.io Ink Story Template page with download button]({{ 'assets/images/beginner-guide/ink-story-template-download.png' | relative_url }})
 
 You'll see a folder structure like this:
 
@@ -193,7 +193,7 @@ Let's export:
 2. Navigate to your story folder
 3. Save it as `story.json`
 
-![Inky interface with export to JSON menu option highlighted](/assets/images/beginner-guide/inky-menu-export-json.png)
+![Inky interface with export to JSON menu option highlighted]({{ 'assets/images/beginner-guide/inky-menu-export-json.png' | relative_url }})
 
 You now have two files in your project folder:
 
@@ -213,7 +213,7 @@ This is the key step: putting your story into the template.
 3. Copy it
 4. Paste it into the template folder, **replacing** the existing `story.json`
 
-![File explorer showing copy/paste, with "Replace" dialog](/assets/images/beginner-guide/replace-json-dialog.png)
+![File explorer showing copy/paste, with "Replace" dialog]({{ 'assets/images/beginner-guide/replace-json-dialog.png' | relative_url }})
 
 That's it. Your story is now in the template.
 
@@ -236,17 +236,17 @@ That's it. Your story is now in the template.
 
 1. Click your profile icon > **`Dashboard`**
 2. Click **Create new project**
-![Dashboard with "Create new project" button](/assets/images/beginner-guide/itchio-create-project-main.png)
+![Dashboard with "Create new project" button]({{ 'assets/images/beginner-guide/itchio-create-project-main.png' | relative_url }})
 3. Fill in the details:
 
 - **Title:** Your story's name
 - **Kind of project:** Select **HTML**
 
-![Project creation form with HTML selected](/assets/images/beginner-guide/itchio-create-project-form-top.png)
+![Project creation form with HTML selected]({{ 'assets/images/beginner-guide/itchio-create-project-form-top.png' | relative_url }})
 
 > **Note:** New projects start in "Draft" mode by default—your game won't be publicly visible until you change the visibility to "Public". This lets you test everything before going live.
 
-![Project creation form element with Visibility & Access](/assets/images/beginner-guide/itchio-create-project-visibility.png)
+![Project creation form element with Visibility & Access]({{ 'assets/images/beginner-guide/itchio-create-project-visibility.png' | relative_url }})
 
 ### Upload Your Files
 
@@ -257,9 +257,9 @@ That's it. Your story is now in the template.
 2. In the itch.io project page, scroll to **Uploads**
 3. Click **Upload files** and select your zip file
 4. **Important:** Check the box that says **"This file will be played in the browser"**
-![Upload section with checkbox highlighted](/assets/images/beginner-guide/itchio-create-project-upload-files.png)
+![Upload section with checkbox highlighted]({{ 'assets/images/beginner-guide/itchio-create-project-upload-files.png' | relative_url }})
 5. Under **Embed Options**, make sure to tell itch.io to "Click to launch in fullscreen" and under Frame Option, tick the Mobile Friendly box. (Portrait looks best for this template but feel free to experiment with landscape orientation)
-![Upload section with embed options settings](/assets/images/beginner-guide/itchio-create-project-embed-options.png)
+![Upload section with embed options settings]({{ 'assets/images/beginner-guide/itchio-create-project-embed-options.png' | relative_url }})
 
 ### Save and View
 
@@ -267,7 +267,7 @@ That's it. Your story is now in the template.
 2. Your game is now live! (In draft mode for now, but you can view the page.)
 3. Click view page and then the **Run game** button to play your story.
 
-![Published game page](/assets/images/beginner-guide/cat-got-my-ink-live.png)
+![Published game page]({{ 'assets/images/beginner-guide/cat-got-my-ink-live.png' | relative_url }})
 
 When you're ready to make the page public, go edit the project on itch.io to set the visibility to public and share the URL with the world!
 
