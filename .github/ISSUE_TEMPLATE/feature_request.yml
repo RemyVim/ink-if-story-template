@@ -1,0 +1,61 @@
+name: Feature Request
+description: Suggest an idea for the template
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Got an idea? I'd love to hear it! No guarantees, but I read everything.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What would you like to see?
+      description: Describe the feature or improvement.
+      placeholder: "It would be cool if..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Why would this be useful?
+      description: What problem does it solve, or what does it enable?
+      placeholder: "This would help me because..."
+    validations:
+      required: false
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: What part of the template does this relate to?
+      multiple: true
+      options:
+        - Save/Load system
+        - Text formatting
+        - Choices
+        - Images/Audio
+        - Special pages
+        - Styling/Themes
+        - Accessibility
+        - Documentation
+        - Other
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Have you tried any workarounds, or seen this done elsewhere?
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Mockups, examples, links, or anything else.
+    validations:
+      required: false

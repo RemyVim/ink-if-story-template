@@ -1,0 +1,122 @@
+name: Bug Report
+description: There's a bug!
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this! Please fill out the form below so I can reproduce and fix the issue.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: What went wrong? The more detail, the easier it is to fix.
+      placeholder: "When I click the save button, nothing happens..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: What do I have to do to see this bug myself?
+      placeholder: |
+        1. Open the story
+        2. Click on '...'
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+      placeholder: "The game should have saved to slot 1..."
+    validations:
+      required: false
+
+  - type: dropdown
+    id: template-version
+    attributes:
+      label: Template version
+      description: Which version of the template are you using?
+      options:
+        - Latest download from itch.io
+        - Latest release from GitHub
+        - Cloned from GitHub (main branch)
+        - v1.3.0
+        - v1.2.2
+        - v1.2.1
+        - v1.2.0
+        - v1.1.1
+        - v1.1.0
+        - v1.0.0
+        - Other / not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      description: Which browser(s) does this happen in?
+      multiple: true
+      options:
+        - Chrome
+        - Firefox
+        - Safari
+        - Edge
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      description: Which operating system(s) does this happen in?
+      multiple: true
+      options:
+        - Windows
+        - MacOS
+        - Linux
+        - iOS
+        - Android
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: hosting
+    attributes:
+      label: Where is your story hosted?
+      options:
+        - itch.io
+        - Neocities
+        - GitHub Pages
+        - Netlify
+        - Local testing
+        - Other / not sure
+    validations:
+      required: false
+
+  - type: textarea
+    id: console-errors
+    attributes:
+      label: Console errors
+      description: |
+        If you see any red errors in the browser console (press F12, click "Console" tab), paste them here.
+      placeholder: "Uncaught TypeError: Cannot read property..."
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Screenshots, screen recordings, or anything else that might help.
+    validations:
+      required: false
