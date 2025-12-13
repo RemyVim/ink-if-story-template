@@ -1,0 +1,61 @@
+- title: Getting Started
+  items:
+    - title: Home
+      url: /
+    - title: Quick Start
+      url: /quickstart/
+    - title: Quick Reference
+      url: /quick-reference/
+
+- title: Template Reference
+  items:
+    - title: Story Metadata
+      url: /reference/metadata/
+    - title: Text Formatting
+      url: /reference/text-formatting/
+    - title: Choices
+      url: /reference/choices/
+    - title: User Input
+      url: /reference/user-input/
+    - title: Stat Bars
+      url: /reference/stat-bars/
+    - title: Images
+      url: /reference/images/
+    - title: Audio
+      url: /reference/audio/
+    - title: Special Pages
+      url: /reference/special-pages/
+    - title: Functions
+      url: /reference/functions/
+    - title: Notifications
+      url: /reference/notifications/
+    - title: Styling
+      url: /reference/styling/
+    - title: Keyboard Shortcuts
+      url: /reference/keyboard-shortcuts/
+
+- title: Guides & Tutorials
+  collapsed: true
+  items:
+    - title: A Complete Beginner's Guide (Inky)
+      url: /guides/beginner-guide/
+    - title: "WIP: Intermediary Guide (VS Code)"
+      url: /guides/intermediary-guide/
+    - title: "WIP: Advanced Guide (Git Workflows)"
+      url: /guides/advanced-guide/
+    - title: "WIP: Local Testing"
+      url: /guides/local-testing/
+    - title: "WIP: Developer's Guide"
+      url: /guides/dev-guide/
+
+- title: Devlog
+  collapsed: true
+  items:
+    - title: "Why Ink (and Why This Template)?"
+      url: /devlog/why-ink-why-this-template/
+    - title: "Accessibility in IF: Screen Readers"
+      url: /devlog/accessibility-screen-readers/
+    - title: "Accessibility in IF: Letting Go of Gold"
+      url: /devlog/accessibility-letting-go-gold/
+    - title: "Why there's no back button"
+      url: /devlog/why-no-back-button/

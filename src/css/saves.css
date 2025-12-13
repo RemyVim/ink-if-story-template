@@ -1,0 +1,117 @@
+/* =============================================================================
+   SAVES MODAL
+   ============================================================================= */
+
+.saves-section h3 {
+  margin: 0 0 1rem 0;
+  color: var(--color-text-strong);
+  font-size: 1.1rem;
+}
+
+.save-slots-container {
+  margin-bottom: 2rem;
+}
+
+.save-slot {
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  transition: all 0.2s ease;
+  border: 1px solid var(--color-border-medium);
+}
+
+.save-slot.autosave-slot {
+  border: 2px solid var(--color-accent-primary);
+  background: var(--color-hover-bg);
+  margin-bottom: 1rem;
+}
+
+.save-slot:hover {
+  background: var(--color-hover-bg);
+}
+
+.save-slot.autosave-slot:hover {
+  background: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+.save-slot-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.save-slot-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.save-slot-name {
+  color: var(--color-text-strong);
+  font-weight: 600;
+}
+
+.save-slot-date {
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+}
+
+.save-slot-meta {
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+}
+
+.save-slot-actions {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.save-slot-actions > :last-child:nth-child(3) {
+  grid-column: 2;
+}
+
+.save-action-button {
+  padding: 0.4rem 0.8rem;
+  min-height: 44px;
+  min-width: 44px;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+.save-action-primary {
+  background: var(--color-accent-primary);
+  color: var(--color-background);
+}
+
+.save-action-secondary {
+  background: none;
+  border: 1px solid var(--color-accent-primary);
+  color: var(--color-accent-primary);
+}
+
+.save-action-warning {
+  background: var(--color-warning-primary);
+  color: var(--color-background);
+}
+
+.save-action-danger {
+  background: var(--color-danger-primary);
+  color: var(--color-background);
+}
+
+.import-export-info {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+  padding: 1rem;
+  background: var(--color-hover-bg);
+  border-radius: var(--border-radius);
+}

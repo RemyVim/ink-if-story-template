@@ -1,0 +1,144 @@
+/* =============================================================================
+   CHOICES
+   ============================================================================= */
+
+.choices-container {
+  margin-top: 1em;
+}
+
+.choice {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: var(--text-size-base);
+  font-weight: bold;
+  color: inherit;
+  line-height: var(--line-height-choice);
+  position: relative;
+  padding: 0.5em 0 0.5em 1.5em;
+  min-height: 44px;
+}
+
+.choice::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  background-color: var(--color-accent-primary);
+  transition: width var(--transition-medium, 0.2s) ease-out;
+}
+
+.choice:hover {
+  color: var(--color-accent-primary);
+}
+
+.choice:hover::after {
+  width: 100%;
+}
+
+.choice:focus-visible {
+  outline: 2px solid var(--color-accent-primary);
+  outline-offset: 2px;
+}
+
+.choice:focus-visible::after {
+  width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .choice::after {
+    transition: none;
+  }
+}
+
+.choice.unclickable {
+  cursor: not-allowed;
+  opacity: 0.6;
+  color: var(--color-text-secondary);
+}
+
+.choice.unclickable:hover::after,
+.choice:disabled:hover::after {
+  width: 100%;
+  background-color: transparent;
+  border-bottom: 2px dashed var(--color-text-secondary);
+  height: 0;
+}
+
+:not(.choice) + .choice {
+  padding-top: 0.75em;
+}
+
+.choice-key-hint {
+  color: var(--color-text-secondary);
+  margin-right: 0.3em;
+}
+
+.choice:hover .choice-key-hint,
+.choice:focus-within .choice-key-hint {
+  color: inherit;
+}
+
+.choice-numbers-off .choice-key-hint {
+  display: none;
+}
+
+.choice-numbers-auto .choice-key-hint {
+  display: inline;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .choice-numbers-auto .choice-key-hint {
+    display: none;
+  }
+}
+
+.choice-numbers-on .choice-key-hint {
+  display: inline;
+}
+
+/* =============================================================================
+     TONE INDICATORS
+     ============================================================================= */
+
+.tone-indicator-leading {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.tone-indicator-trailing {
+  margin-left: 0.3em;
+  opacity: 0.85;
+}
+
+.tone-icon {
+  font-size: 0.95em;
+  line-height: 1;
+  vertical-align: baseline;
+}
+
+.tone-icon.material-icons {
+  font-size: 1.1em;
+  vertical-align: middle;
+}
+
+.tone-indicator-trailing .tone-icon {
+  font-size: 0.85em;
+}
+
+.tone-indicator-trailing .tone-icon.material-icons {
+  font-size: 0.95em;
+}
+
+/* Spacing between multiple trailing icons */
+.tone-indicator-trailing .tone-icon + .tone-icon {
+  margin-left: 0.15em;
+}

@@ -1,0 +1,135 @@
+/* =============================================================================
+   THEMES (light/dark)
+   ============================================================================= */
+
+:root {
+  /* Neutral Gray palette (shared by light and dark themes) */
+  --palette-black: #0a0a0a;
+  --palette-gray-950: #0a0a0a;
+  --palette-gray-900: #171717;
+  --palette-gray-800: #262626;
+  --palette-gray-700: #404040;
+  --palette-gray-600: #525252;
+  --palette-gray-500: #737373;
+  --palette-gray-400: #a3a3a3;
+  --palette-gray-300: #d4d4d4;
+  --palette-gray-200: #e5e5e5;
+  --palette-gray-100: #f5f5f5;
+  --palette-gray-50: #fafafa;
+  --palette-white: #fafafa;
+
+  /* Accent colors (unused in demo) */
+  --palette-accent: #0d9488;
+  --palette-accent-light: #5eead4;
+  --palette-accent-dark: #115e59;
+
+  /* Exceptional colors */
+  --palette-danger: #991b1b;
+  --palette-danger-light: #f87171;
+  --palette-warning: #b45309;
+  --palette-warning-light: #fcd34d;
+  --palette-success: #166534;
+  --palette-success-light: #86efac;
+  --palette-debug: #ff00ff;
+
+  /* === COLORS - LIGHT THEME === */
+
+  /* Basic colors */
+  --color-background: var(--palette-gray-200);
+  --color-hover-bg: var(--palette-gray-300);
+
+  --color-text-primary: var(--palette-gray-900);
+  --color-text-secondary: var(--palette-gray-700);
+  --color-text-strong: var(--palette-black);
+
+  --color-accent-primary: var(--palette-black);
+  --color-accent-secondary: var(--palette-gray-500);
+
+  /* --color-accent-primary: var(--palette-accent-dark); */
+  /* --color-accent-secondary: var(--palette-accent); */
+
+  --color-warning-primary: var(--palette-warning);
+  --color-warning-secondary: var(--palette-warning-light);
+
+  --color-danger-primary: var(--palette-danger);
+  --color-danger-secondary: var(--palette-danger-light);
+
+  --color-success-primary: var(--palette-success);
+  --color-success-secondary: var(--palette-success-light);
+
+  --color-border-light: var(--palette-gray-300);
+  --color-border-medium: var(--palette-gray-500);
+
+  /* Text formatting colors */
+  --color-code-bg: var(--palette-gray-700);
+
+  --color-blockquote-bg: var(--palette-gray-300);
+  --color-blockquote-border: var(--palette-gray-700);
+  --color-blockquote-text: var(--color-text-primary);
+
+  --color-separator-line: var(--palette-gray-500);
+
+  /* Inline styles */
+  --color-highlight: yellow;
+  --color-important: var(--color-danger-primary);
+  --color-quiet: var(--color-text-secondary);
+
+  /* Stat bar colors */
+  --stat-bar-track-bg: var(--palette-gray-300);
+  --stat-bar-fill-bg: var(--color-accent-primary);
+
+  /* Unused? */
+  --color-disabled: var(--palette-debug);
+}
+
+/* === COLORS - DARK THEME === */
+
+html.dark body,
+body.dark {
+  --color-background: var(--palette-gray-800);
+  --color-hover-bg: var(--palette-gray-700);
+
+  --color-text-primary: var(--palette-gray-100);
+  --color-text-secondary: var(--palette-gray-300);
+  --color-text-strong: var(--palette-white);
+
+  --color-accent-primary: var(--palette-white);
+  --color-accent-secondary: var(--palette-gray-500);
+
+  /* --color-accent-primary: var(--palette-accent-light); */
+  /* --color-accent-secondary: var(--palette-accent); */
+
+  --color-warning-primary: var(--palette-warning-light);
+  --color-warning-secondary: var(--palette-warning);
+
+  --color-danger-primary: var(--palette-danger-light);
+  --color-danger-secondary: var(--palette-danger);
+
+  --color-success-primary: var(--palette-success-light);
+  --color-success-secondary: var(--palette-success);
+
+  --color-border-light: var(--palette-gray-700);
+  --color-border-medium: var(--palette-gray-500);
+
+  --color-code-bg: var(--palette-gray-300);
+
+  --color-blockquote-bg: var(--palette-gray-700);
+  --color-blockquote-border: var(--palette-gray-300);
+  --color-blockquote-text: var(--color-text-primary);
+
+  --color-separator-line: var(--palette-gray-500);
+
+  /* Inline styles */
+  --color-highlight: yellow;
+  --color-important: var(--color-danger-primary);
+  --color-quiet: var(--color-text-secondary);
+
+  /* Stat bar colors */
+  --stat-bar-track-bg: var(--palette-gray-700);
+  --stat-bar-fill-bg: var(--color-accent-primary);
+}
+
+/* Dark mode on html element (for flash prevention) */
+html.dark {
+  color-scheme: dark;
+}

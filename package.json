@@ -1,0 +1,45 @@
+{
+  "name": "ink-if-html-template",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "A web template for [Ink](https://www.inklestudios.com/ink/) interactive stories.",
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:verbose": "vitest run --reporter=verbose",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:all": "npm test && npm run test:e2e",
+    "lint": "eslint src/js tests",
+    "lint:fix": "eslint src/js tests --fix",
+    "format": "prettier --write src/js tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RemyVim/ink-if-story-template.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RemyVim/ink-if-story-template/issues"
+  },
+  "homepage": "https://github.com/RemyVim/ink-if-story-template#readme",
+  "devDependencies": {
+    "@axe-core/playwright": "^4.11.0",
+    "@playwright/test": "^1.57.0",
+    "esbuild": "^0.27.1",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^16.5.0",
+    "jsdom": "^27.2.0",
+    "prettier": "^3.7.4",
+    "vitest": "^4.0.15"
+  },
+  "dependencies": {
+    "inkjs": "^2.3.2"
+  }
+}

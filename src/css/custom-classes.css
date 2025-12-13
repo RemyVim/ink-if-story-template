@@ -1,0 +1,27 @@
+/* =============================================================================
+   CUSTOM CLASSES
+   Demo classes for styling showcase
+   ============================================================================= */
+.dramatic {
+  color: var(--color-important);
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.whisper {
+  color: var(--color-quiet);
+  font-size: 0.85em;
+  font-style: italic;
+}
+
+.glowing {
+  color: var(--color-accent-primary, #0d9488);
+  text-shadow: 0 0 10px currentColor;
+}
+
+.old-paper {
+  background: rgba(139, 119, 92, 0.15);
+  padding: 0.8em 1em;
+  border-left: 3px solid rgba(139, 119, 92, 0.5);
+  font-style: italic;
+}

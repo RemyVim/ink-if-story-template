@@ -1,0 +1,70 @@
+/* =============================================================================
+   LAYOUT CONTAINERS
+   ============================================================================= */
+
+.header {
+  padding-top: 1em;
+  padding-bottom: 1em;
+}
+
+.byline {
+  font-style: italic;
+}
+
+.outerContainer {
+  position: absolute;
+  display: block;
+  margin: 0;
+  padding: 0;
+  -webkit-overflow-scrolling: touch;
+  overflow: scroll;
+  overflow-x: hidden;
+  height: calc(100% - var(--nav-height-desktop));
+  width: 100%;
+  top: var(--nav-height-desktop);
+  left: 0;
+}
+
+@media screen and (max-width: 680px) {
+  .outerContainer {
+    height: calc(100% - var(--nav-height-mobile));
+    top: var(--nav-height-mobile);
+  }
+}
+
+.container {
+  display: block;
+  max-width: var(--content-max-width);
+  margin: 5px auto 120px;
+  padding: var(--spacing-huge);
+  padding-top: var(--spacing-sm);
+  padding-bottom: var(--spacing-huge);
+  background: transparent;
+  position: relative;
+  z-index: 1;
+}
+
+.container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--color-background);
+  opacity: var(--container-bg-opacity);
+  z-index: -1;
+  pointer-events: none;
+}
+
+@media screen and (max-width: 680px) {
+  .container {
+    margin-top: 0;
+  }
+}
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  .switched .container {
+    transition: background-color var(--transition-slow);
+  }
+}

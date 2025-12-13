@@ -1,0 +1,39 @@
+/* =============================================================================
+   INLINE STYLES
+   ============================================================================= */
+
+code {
+  background: var(--color-code-bg);
+  padding: 0.2em 0.4em;
+  border-radius: var(--border-radius);
+  font-family: var(--font-monospace);
+  font-size: 0.9em;
+  color: var(--color-background);
+}
+
+.inline-center {
+  display: block;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+.inline-highlight {
+  background: var(--color-highlight);
+  padding: 0.1em 0.3em;
+}
+
+html.dark .inline-highlight,
+body.dark .inline-highlight {
+  color: var(--color-background);
+}
+
+.inline-important {
+  color: var(--color-important);
+  font-weight: bold;
+}
+
+.inline-quiet {
+  color: var(--color-quiet);
+  font-size: 0.9em;
+}

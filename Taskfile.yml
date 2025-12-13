@@ -1,19 +1,185 @@
 version: '3'
 
 tasks:
+  setup:
+    desc: Install all build dependencies
+    cmds:
+      - task: setup:inklecate
+      - task: setup:watch
+      - task: setup:npm
+      - task: setup:jekyll
+
+  setup:inklecate:
+    desc: Install inklecate compiler
+    silent: true
+    cmds:
+      - |
+        if [ -f "./bin/inklecate" ]; then
+          echo "✅ inklecate already installed"
+          exit 0
+        fi
+        echo "📦 Installing inklecate..."
+        mkdir -p bin
+        cd bin
+        wget -q https://github.com/inkle/ink/releases/latest/download/inklecate_linux.zip
+        unzip -q inklecate_linux.zip
+        rm -rf inklecate_linux.zip
+        chmod +x inklecate
+        echo "✅ inklecate installed"
+
+  setup:watch:
+    desc: Install inotify-tools for file watching
+    silent: true
+    cmds:
+      - |
+        if command -v inotifywait >/dev/null 2>&1; then
+          echo "✅ inotify-tools already installed"
+          exit 0
+        fi
+        echo "📦 Installing inotify-tools..."
+        if command -v apt-get >/dev/null 2>&1; then
+          sudo apt-get update && sudo apt-get install -y inotify-tools
+        elif command -v dnf >/dev/null 2>&1; then
+          sudo dnf install -y inotify-tools
+        else
+          echo "❌ Unknown package manager. Install inotify-tools manually."
+          exit 1
+        fi
+        echo "✅ inotify-tools installed"
+
+  setup:npm:
+    desc: Install npm dependencies for testing
+    silent: true
+    cmds:
+      - |
+        if ! command -v node >/dev/null 2>&1; then
+          echo "❌ Node.js not found. Install from https://nodejs.org/"
+          exit 1
+        fi
+        if [ ! -d "node_modules" ] || [ "package.json" -nt "node_modules" ]; then
+          echo "📦 Installing npm dependencies..."
+          npm install
+          echo "✅ npm dependencies installed"
+        else
+          echo "✅ npm dependencies already installed"
+        fi
+
+  setup:jekyll:
+    desc: Install Jekyll dependencies for docs site
+    silent: true
+    dir: docs
+    cmds:
+      - |
+        if ! command -v bundle >/dev/null 2>&1; then
+          echo "❌ Bundler not found. Install Ruby and run: gem install bundler jekyll"
+          exit 1
+        fi
+        if [ ! -d "vendor/bundle" ] || [ "Gemfile" -nt "Gemfile.lock" ]; then
+          echo "📦 Installing Jekyll dependencies..."
+          bundle config set --local path 'vendor/bundle'
+          bundle install
+          echo "✅ Jekyll dependencies installed"
+        else
+          echo "✅ Jekyll dependencies already installed"
+        fi
+
+  build:
+    desc: Build everything for production
+    cmds:
+      - task: clean
+      - task: build:js
+      - task: build:css
+      - task: build:html
+      - task: compile
+      - echo "✅ Production build complete."
+
   compile:
     desc: Compile Ink story to JSON
     silent: true
     cmds:
       - |
         echo "---- Compiling Ink story to JSON"
-        echo "./bin/inklecate -o build/story.json -j src/main.ink"
-        if ./bin/inklecate -o build/story.json -j src/main.ink; then
+        echo "./bin/inklecate -o build/story.json -j src/ink/main.ink"
+        if ./bin/inklecate -o build/story.json -j src/ink/main.ink; then
           echo "✅ Compilation complete! Refresh your browser."
         else
           echo ""
           echo "❌ Compilation failed. Fix errors and save to retry."
         fi
+
+  build:js:
+    desc: Bundle and minify JS
+    silent: true
+    deps: [setup:npm]
+    cmds:
+      - |
+        echo "---- Bundling and minifying JavaScript..."
+        mkdir -p build/js
+        VERSION="${TEMPLATE_VERSION:-dev}"
+        npx esbuild src/js/main.js --bundle --minify --sourcemap \
+          --define:__TEMPLATE_VERSION__="\"$VERSION\"" \
+          --outfile=build/js/template.min.js
+        echo "✅ build/js/template.min.js created"
+
+  build:css:
+    desc: Bundle and minify CSS
+    silent: true
+    deps: [setup:npm]
+    cmds:
+      - |
+        echo "---- Bundling and minifying CSS..."
+        mkdir -p build/css
+        npx esbuild src/css/main.css --bundle --minify --outfile=build/css/template.min.css --external:*.woff2 --external:*.woff
+        echo "✅ build/css/template.min.css created"
+
+  build:html:
+    desc: Copy HTML to build
+    silent: true
+    cmds:
+      - |
+        echo "---- Copying HTML..."
+        cp src/index.html build/index.html
+        echo "✅ build/index.html copied"
+
+  dev:
+    desc: Start development environment (watch + serve)
+    deps: [watch, serve]
+
+  test:
+    desc: Run all tests (unit & E2E)
+    silent: true
+    deps: [setup:npm]
+    cmds:
+      - task test:unit
+      - task test:e2e
+
+  test:unit:
+    desc: Run unit tests
+    silent: true
+    deps: [setup:npm]
+    cmds:
+      - npm test {{.CLI_ARGS}}
+
+  test:unit:verbose:
+    desc: Run unit tests
+    silent: true
+    deps: [setup:npm]
+    cmds:
+      - npm run test:verbose
+
+  test:e2e:
+    desc: Run E2E tests
+    silent: true
+    deps: [setup:npm]
+    cmds:
+      - npx playwright test {{.CLI_ARGS}}
+
+  lint:
+    desc: Run linter
+    silent: true
+    deps: [setup:npm]
+    cmds:
+      - npm run lint
 
   serve:
     desc: Start web server for development
@@ -21,91 +187,64 @@ tasks:
     cmds:
       - |
         echo "---- Starting web server for development."
-        echo "cd build && python3 -m http.server 8000"
+        echo "http://localhost:8000"
         echo "Press Ctrl+C to stop"
-        cd build && python3 -m http.server 8000
+        # cd build && python3 -m http.server 8000
+        cd build && python3 -m http.server 8000 --bind 0.0.0.0
     interactive: true
 
   watch:
-    desc: Watch for changes and auto-compile
+    desc: Watch for changes and auto-rebuild
     silent: true
     cmds:
       - |
         echo "---- Watching src/ for changes..."
-        echo "Press Ctrl+C to stop"
-        
-        # Initial compile
-        task compile
-        
-        # Watch for changes (requires inotify-tools on Linux)
+        task build
         if command -v inotifywait >/dev/null 2>&1; then
           while inotifywait -e modify,create,delete -r src/ --exclude='.*\.swp$' 2>/dev/null; do
-            echo "📝 Changes detected, recompiling..."
-            task compile
+            echo "🔄 Changes detected, rebuilding..."
+            task build
           done
         else
-          echo "❌ inotify-tools not found."
-          echo "Run 'task setup' to install prerequisites."
+          echo "❌ inotify-tools not found. Run 'task setup:watch' to install."
         fi
     interactive: true
 
-  dev:
-    desc: Start development environment (watch + serve)
-    deps: [watch, serve]  # Ensure initial compile
+  docs:
+    desc: Serve documentation site locally
+    silent: true
+    dir: docs
+    deps: [setup:jekyll]
+    cmds:
+      - |
+        echo "---- Starting docs site"
+        echo "http://localhost:4000/ink-if-story-template/"
+        echo "Press Ctrl+C to stop"
+        bundle exec jekyll serve
+    interactive: true
+
+  docs:strip-exif:
+    desc: Strip all metadata from documentation images
+    silent: true
+    cmds:
+      - |
+        echo "---- Stripping EXIF data from docs/assets/images/ ..."
+        exiftool -all= -overwrite_original -r docs/assets/images/
+        echo "---- Stripping EXIF data from screenshots/ ..."
+        exiftool -all= -overwrite_original -r screenshots/
+        echo "✅ Done"
 
   clean:
-    desc: Clean build directory
+    desc: Clean generated build files (preserves author files)
     silent: true
     cmds:
       - |
-        echo "---- Cleaning build directory"
-        echo "rm -f build/story.json"
+        echo "---- Cleaning generated build files..."
         rm -f build/story.json
+        rm -f build/js/template.min.js
+        rm -f build/css/template.min.css
+        rm -f build/index.html
         echo "Done"
-
-  setup:
-    desc: Setup development environment
-    silent: true
-    cmds:
-      - |
-        echo "---- Setting up Ink development environment..."
-        
-        # Check if inklecate exists
-        if [ ! -f "./bin/inklecate" ]; then
-          echo "❌ inklecate not found in ./bin/ - Installing inklecate"
-          mkdir -p bin
-          cd bin
-          wget -q https://github.com/inkle/ink/releases/latest/download/inklecate_linux.zip
-          unzip inklecate_linux.zip
-          rm -rf inklecate_linux.zip
-          cd ..
-        fi
-        
-        # Make inklecate executable
-        chmod +x ./bin/inklecate
-        
-        # Check for inotify-tools (Linux)
-        if command -v apt-get >/dev/null 2>&1; then
-          if ! command -v inotifywait >/dev/null 2>&1; then
-            echo "- Installing inotify-tools for file watching..."
-            sudo apt-get update && sudo apt-get install -y inotify-tools
-          fi
-        elif command -v dnf >/dev/null 2>&1; then
-          if ! command -v inotifywait >/dev/null 2>&1; then
-            echo "- Installing inotify-tools for file watching..."
-            sudo dnf update && sudo dnf install -y inotify-tools
-          fi
-        fi
-
-        echo "Setup complete."
-        echo "Run 'task dev' to start development"
-
-  build:
-    desc: Build story for production
-    cmds:
-      - task clean
-      - task compile
-      - echo "Production build complete."
 
   help:
     desc: Show available tasks
@@ -113,6 +252,5 @@ tasks:
       - task --list
 
   default:
-    desc: Default task - start development environment
     cmds:
-      - task dev
+      - task: help

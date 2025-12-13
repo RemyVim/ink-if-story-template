@@ -1,0 +1,81 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version label (e.g., v1.0.0)'
+        required: false
+        default: 'manual'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Inject version into README.txt
+        run: |
+          sed -i "s/{{VERSION}}/${{ steps.version.outputs.version }}/g" build/README.txt
+
+      - name: Install Task
+        uses: arduino/setup-task@v2
+        with:
+          version: 3.x
+
+      - name: Install build dependencies
+        run: |
+          task setup:inklecate
+          task setup:npm
+
+      - name: Build with version
+        run: task build
+        env:
+          TEMPLATE_VERSION: ${{ steps.version.outputs.version }}
+
+      - name: Create release zip
+        run: |
+          cd build
+          zip -r ../ink-story-template-${{ steps.version.outputs.version }}.zip .
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: ink-story-template-${{ steps.version.outputs.version }}.zip
+          generate_release_notes: true
+          name: Release ${{ steps.version.outputs.version }}
+
+      - name: Deploy to itch.io (HTML)
+        uses: josephbmanley/butler-publish-itchio-action@master
+        env:
+          BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
+          CHANNEL: html
+          ITCH_GAME: ${{ secrets.ITCH_GAME }}
+          ITCH_USER: ${{ secrets.ITCH_USER }}
+          PACKAGE: build
+          VERSION: ${{ steps.version.outputs.version }}
+
+      - name: Deploy to itch.io (Download)
+        uses: josephbmanley/butler-publish-itchio-action@master
+        env:
+          BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
+          CHANNEL: download
+          ITCH_GAME: ${{ secrets.ITCH_GAME }}
+          ITCH_USER: ${{ secrets.ITCH_USER }}
+          PACKAGE: build
+          VERSION: ${{ steps.version.outputs.version }}
