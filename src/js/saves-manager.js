@@ -1,6 +1,7 @@
 import { SavesModal } from "./saves-modal.js";
 import { errorManager, ERROR_SOURCES } from "./error-manager.js";
 import { TEMPLATE_VERSION } from "./version.js";
+import { errorModal } from "./error-modal.js";
 
 const log = errorManager.forSource(ERROR_SOURCES.SAVE_SYSTEM);
 
@@ -70,6 +71,18 @@ class SavesManager {
       return true;
     } catch (error) {
       log.error("Failed to save game", error);
+      if (slotNumber !== this.autosaveSlot) {
+        errorModal.show({
+          title: "Unable to Save",
+          message: "Your progress couldn't be saved.",
+          suggestions: [
+            "Your browser's storage may be full",
+            "Try deleting old saves to free up space",
+            "Private/incognito mode may be blocking storage",
+          ],
+          error: error,
+        });
+      }
       return false;
     }
   }
@@ -88,7 +101,7 @@ class SavesManager {
       }
 
       if (!saveData.gameState) {
-        throw new Error("Save data is corrupted - missing game state");
+        throw new Error("Save data is corrupted: missing game state");
       }
 
       this.storyManager.loadState(saveData);
@@ -100,6 +113,17 @@ class SavesManager {
       return true;
     } catch (error) {
       log.error("Failed to load game", error);
+
+      errorModal.show({
+        title: "Unable to Load Save",
+        message: "This save couldn't be loaded.",
+        suggestions: [
+          "The save data may be corrupted",
+          "It may be from an incompatible version of the story",
+          "Try loading a different save or restarting",
+        ],
+        error: error,
+      });
       return false;
     }
   }
@@ -166,6 +190,16 @@ class SavesManager {
       }
     } catch (error) {
       log.error("Failed to delete save slot", error);
+      errorModal.show({
+        title: "Unable to Delete Save",
+        message: "This save couldn't be deleted.",
+        suggestions: [
+          "Your browser's storage may be unavailable",
+          "Private/incognito mode may be blocking storage",
+          "Try refreshing the page and trying again",
+        ],
+        error: error,
+      });
       return false;
     }
   }
@@ -207,6 +241,15 @@ class SavesManager {
       return true;
     } catch (error) {
       log.error("Failed to export save", error);
+      errorModal.show({
+        title: "Unable to Export Save",
+        message: "This save couldn't be exported.",
+        suggestions: [
+          "The save data may be corrupted",
+          "Try saving to a new slot first, then export",
+        ],
+        error: error,
+      });
       return false;
     }
   }
@@ -228,6 +271,17 @@ class SavesManager {
 
       if (file.size > MAX_IMPORT_SIZE_BYTES) {
         const maxSizeMB = MAX_IMPORT_SIZE_BYTES / (1024 * 1024);
+        errorModal.show({
+          title: "Unable to Import Save",
+          message: "This save file couldn't be loaded.",
+          suggestions: [
+            `The file exceeds the ${maxSizeMB}MB size limit`,
+            "Make sure you're importing a save file, not a story file",
+          ],
+          error: new Error(
+            `File size ${file.size} exceeds limit of ${MAX_IMPORT_SIZE_BYTES}`
+          ),
+        });
         log.error(
           `Import file too large (>${maxSizeMB}MB)`,
           new Error("File size exceeds limit")
@@ -238,7 +292,17 @@ class SavesManager {
       const reader = new FileReader();
       const timeout = setTimeout(() => {
         reader.abort();
-        log.error("File import timed out", new Error("FileReader timeout"));
+        const error = new Error("FileReader timeout");
+        errorModal.show({
+          title: "Unable to Import Save",
+          message: "This save file couldn't be loaded.",
+          suggestions: [
+            "The file took too long to read",
+            "Try again or use a smaller file",
+          ],
+          error: error,
+        });
+        log.error("File import timed out", error);
       }, IMPORT_TIMEOUT_MS);
 
       reader.onload = (e) => {
@@ -264,12 +328,34 @@ class SavesManager {
           this.modal?.populateSaveSlots?.();
         } catch (error) {
           log.error("Failed to import save file", error);
+
+          errorModal.show({
+            title: "Unable to Import Save",
+            message: "This save file couldn't be loaded.",
+            suggestions: [
+              "The file may be corrupted or invalid",
+              "It may be from a different story",
+              "It may be from an incompatible version of the story",
+            ],
+            error: error,
+          });
         }
       };
 
       reader.onerror = () => {
         clearTimeout(timeout);
-        log.error("Failed to read import file", reader.error);
+        const error = reader.error || new Error("Unknown read error");
+        log.error("Failed to read import file", error);
+        errorModal.show({
+          title: "Unable to Import Save",
+          message: "This save file couldn't be loaded.",
+          suggestions: [
+            "The file couldn't be read",
+            "It may be corrupted",
+            "Try exporting the save again from the original source",
+          ],
+          error: error,
+        });
       };
 
       reader.readAsText(file);

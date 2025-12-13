@@ -1,0 +1,89 @@
+/* =============================================================================
+   ERROR MODAL
+   ============================================================================= */
+.error-modal-content {
+  border: 2px solid var(--color-danger-primary);
+}
+
+.error-modal-icon {
+  color: var(--color-danger-primary);
+  vertical-align: middle;
+  margin-right: 0.5rem;
+  font-size: 1.5rem;
+}
+
+.error-modal-message {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0 0 1rem 0;
+  color: var(--color-text-primary);
+}
+
+.error-modal-suggestions {
+  margin-bottom: 1rem;
+}
+
+.error-modal-suggestions p {
+  margin: 0 0 0.5rem 0;
+  color: var(--color-text-primary);
+}
+
+.error-modal-suggestions ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.error-modal-suggestions li {
+  margin-bottom: 0.25rem;
+  color: var(--color-text-secondary);
+}
+
+.error-modal-details {
+  margin-top: 1rem;
+  border: 1px solid var(--color-border-medium);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+.error-modal-details summary {
+  padding: 0.75rem 1rem;
+  background: var(--color-hover-bg);
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+.error-modal-details summary:hover {
+  background: var(--color-background);
+}
+
+.error-modal-details pre {
+  margin: 0;
+  padding: 1rem;
+  font-size: 0.85rem;
+  font-family: "Courier New", Courier, monospace;
+  line-height: 1.4;
+  background: var(--color-hover-bg);
+  border-top: 1px solid var(--color-border-medium);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--color-text-primary);
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.error-modal-console-hint {
+  margin: 0.75rem 1rem 0.75rem 1rem;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.error-modal-console-hint kbd {
+  background: var(--color-hover-bg);
+  border: 1px solid var(--color-border-medium);
+  border-radius: 3px;
+  padding: 0.1rem 0.4rem;
+  font-family: inherit;
+  font-size: 0.75rem;
+}

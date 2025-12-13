@@ -31,6 +31,7 @@
 @import "settings.css";
 @import "saves.css";
 @import "keyboard-help.css";
+@import "errors.css";
 
 /* Responsive (must be last) */
 @import "responsive.css";
