@@ -1,3 +1,4 @@
+/* global __TEMPLATE_VERSION__ */
 /**
  * Template version injected at build time via esbuild --define.
  * Returns 'dev' for local development, actual version (e.g., 'v1.2.0') for releases.
