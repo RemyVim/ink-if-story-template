@@ -66,7 +66,7 @@ Want something bumped up the list or have a new idea? [Open an issue](https://gi
 - [x] Keyboard shortcut (Ctrl+S) to open save menu
 - [x] Keyboard shortcut (Esc) to close save menu
 - [x] Keyboard shortcut (Ctrl+R) to restart story
-- [ ] Saves modal redesign to avoid scrolling overflow
+- [x] Saves modal redesign to avoid scrolling overflow
 - [ ] Configurable names/descriptions for saves
 - [ ] Auto-load prompt on story start (if save exists)
 - [ ] URL-shareable save states (encoded in URL)
@@ -332,7 +332,7 @@ ChoiceScript-style stat displays.
 - [x] Choice tone indicator accessibility
 - [x] Icon accessibility (`aria-hidden="true"` + `.sr-only` labels)
 - [x] Loading state announcements (`aria-busy`)
-- [ ] Focus for screen readers on following paragraph after user input submit
+- [ ] Focus for screen readers on following paragraph after user input submit instead of top of page (polish, non-blocking)
 - [ ] Reading progress announcements
 
 ### Keyboard Navigation
@@ -442,8 +442,8 @@ Tool (local, offline) for authors to analyse playthrough stats shared by readers
 - [ ] Browser compatibility testing
 - [ ] Mobile testing (tooltips, back button, navigation)
 - [ ] Performance testing with large stories
-- [ ] Accessibility audit (automated)
-- [ ] Save/load testing with all new features
+- [x] Accessibility audit (automated)
+- [x] Save/load testing with all features
 - [ ] Visual regression testing
 
 ### Error Management
