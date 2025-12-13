@@ -4,35 +4,36 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## In progress
+## [1.3.0] - 2025-12-13
 
-### Breaking
+### Breaking /!\
 
 - Saves from previous versions are not compatible with v1.3.0 due to internal save format changes. Start a new game after updating.
 
 ### Added
 
-- External functions (callable from Ink script):
-  - String functions: `UPPERCASE`, `LOWERCASE`, `CAPITALIZE`, `TRIM`, `LENGTH`, `CONTAINS`, `STARTS_WITH`, `ENDS_WITH`, `REPLACE`, `REPLACE_ALL`
-  - Math functions: `ROUND`, `CLAMP`, `ABS`, `PERCENT`
-  - Fairmath functions: `FAIRADD`, `FAIRSUB`
-  - Time functions: `NOW`, `SECONDS_SINCE`, `MINUTES_SINCE`, `TIME_SINCE`, `FORMAT_DATE`, `FORMAT_TIME`, `FORMAT_DATETIME`, `OFFSET_DATE`
 - Accessibility:
   - Keyboard shortcuts for choice selection (1-9, A-Z) and page scrolling (arrows, Page Up/Down, Home/End)
   - Keyboard shortcut help reference panel (`ctrl-h` or available through settings)
   - Screen reader support: ARIA landmarks, skip link, modal focus management, live regions for notifications, and accessible choice markup
   - Loading screen and dark mode flash prevention for smoother initial page load
   - Monospace font option now in settings menu
+  - Saving and loading errors now display in a modal with explicit error tracing
+
 - Ink Tags:
   - `# CHOICE_NUMBERS:` tag to configure choice numbering display (`auto`, `on`, `off`)
   - `# IMAGE:` now supports alignment, width, alt text, and caption options
   - `# TONE:` tag enables tone indicators on choices: define markers with `# TONE: tagname icon` and tag choices with `# tagname`. Players can toggle in Settings.
   - `# STATBAR: variable` tag for visual progress bars with support for custom ranges, labels, opposed pairs, and optional value clamping
+
+- External functions (callable from Ink script):
+  - String functions: `UPPERCASE`, `LOWERCASE`, `CAPITALIZE`, `TRIM`, `LENGTH`, `CONTAINS`, `STARTS_WITH`, `ENDS_WITH`, `REPLACE`, `REPLACE_ALL`
+  - Math functions: `ROUND`, `CLAMP`, `ABS`, `PERCENT`
+  - Fairmath functions: `FAIRADD`, `FAIRSUB`
+  - Time functions: `NOW`, `SECONDS_SINCE`, `MINUTES_SINCE`, `TIME_SINCE`, `FORMAT_DATE`, `FORMAT_TIME`, `FORMAT_DATETIME`, `OFFSET_DATE`
+
 - Customization:
   - `custom.js` and `custom.css` files for author customization without modifying core files
-- Documentation:
-  - Functions documentation page (`doc/functions.md`)
-  - Keyboard shortcuts documentation page (`doc/keyboard-shortcuts.md`)
 
 ### Changed
 
@@ -40,7 +41,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Optimized font loading for faster page loads (LCP improved from 16s to 0.6s)
 - Monochrome color palette for better accessibility and WCAG AA contrast compliance (accent colors can be added via `custom.css`)
 - Inline links now display with underlines for accessibility
-- Save exports now use a slugified version of the story title (from # TITLE: tag) as the filename prefix, making exported saves easier to identify
+- Save exports now use a slugified version of the story title (from `# TITLE:` tag) as the filename prefix, making exported saves easier to identify
 
 ### Fixed
 
@@ -51,8 +52,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Technical
 
 - Migrated to ES modules with esbuild bundling
-- Reorganized repository structure
-- Added unit testing (Vitest) and end-to-end testing (Playwright)
+- Reorganized repository structure: moved source files to `src/` directory
+- Added automated unit testing (Vitest) and end-to-end testing (Playwright)
 
 ## [1.2.2] - 2025-11-24
 
