@@ -312,9 +312,9 @@ Congratulations! You've published your first interactive fiction game. Here's wh
 
 ### Level Up Your Workflow
 
-- [Local Testing](local-testing.md): more ways to preview your story
-- [Intermediary Guide](intermediary-guide.md): better organization with VS Code
-- [Advanced Guide](advanced-guide.md): Git and automated deployment
+- [Local Testing](local-testing.md): ways to preview your story on your local computer
+- [Intermediary Guide](intermediary-guide.md): speed up your workflow with instant preview and multi-file projects
+- [Advanced Guide](advanced-guide.md): never lose work, automate your publishing
 
 ---
 
