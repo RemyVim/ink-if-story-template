@@ -39,7 +39,7 @@
   items:
     - title: A Complete Beginner's Guide (Inky)
       url: /guides/beginner-guide/
-    - title: "WIP: Intermediary Guide (VS Code)"
+    - title: "Intermediary Guide (VS Code)"
       url: /guides/intermediary-guide/
     - title: "WIP: Advanced Guide (Git Workflows)"
       url: /guides/advanced-guide/

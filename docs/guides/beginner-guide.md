@@ -11,7 +11,7 @@ This guide will walk you through publishing your first interactive fiction story
 
 By the end, you'll have a playable game hosted on [itch.io](https://itch.io/) that you can share with anyone.
 
-**Time required:** About 30-60 minutes for your first story.
+**Time required:** About 30-60 minutes to set up your first story.
 
 ---
 

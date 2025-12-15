@@ -18,6 +18,7 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - vendor
+  - "**/.conform.*"
 
 # Disable default syntax highlighting (using custom prism.js for Ink syntax)
 markdown: kramdown
