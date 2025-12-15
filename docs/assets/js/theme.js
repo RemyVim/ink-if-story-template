@@ -8,15 +8,27 @@
       : "dark";
   }
 
+  function updatePrismTheme(theme) {
+    const prismLink = document.getElementById("prism-theme");
+    if (prismLink) {
+      prismLink.href =
+        theme === "light"
+          ? "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
+          : "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css";
+    }
+  }
+
   function setTheme(theme) {
     root.classList.remove("light", "dark");
     root.classList.add(theme);
     localStorage.setItem("theme", theme);
+    updatePrismTheme(theme);
   }
 
   const saved = localStorage.getItem("theme");
   const initialTheme = saved || getSystemTheme();
   setTheme(initialTheme);
+  updatePrismTheme(initialTheme);
   toggle.setAttribute("aria-pressed", initialTheme === "dark");
   toggle.setAttribute(
     "aria-label",

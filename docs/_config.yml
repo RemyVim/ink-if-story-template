@@ -17,6 +17,7 @@ exclude:
   - README.md
   - Gemfile
   - Gemfile.lock
+  - vendor
 
 # Disable default syntax highlighting (using custom prism.js for Ink syntax)
 markdown: kramdown
