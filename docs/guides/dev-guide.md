@@ -4,6 +4,7 @@ title: Developer's Guide
 description: >-
   Modify and extend the template: project structure, build process, and
   contributing.
+robots: noindex
 ---
 # Developer's Guide
 

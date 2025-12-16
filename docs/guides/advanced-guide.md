@@ -2,6 +2,7 @@
 layout: default
 title: Advanced Guide
 description: 'Git workflows, version control, and collaboration for Ink projects.'
+robots: noindex
 ---
 # Advanced Guide
 
