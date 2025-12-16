@@ -19,6 +19,8 @@ This guide will set you up with **Visual Studio Code**—a free, modern code edi
 
 **Prerequisites:** You should be comfortable with the basics from the [Beginner's Guide](beginner-guide.md). You don't need any programming experience.
 
+{% include toc.html %}
+
 ---
 
 ## Why VS Code?
@@ -355,7 +357,9 @@ Your default browser will open to `http://127.0.0.1:5500/template/index.html`. Y
 
 ![Browser on localhost opened with Live Server]({{ '/assets/images/intermediate-guide/browser-live-server.png' | relative_url }})
 
-> Live Server auto-refreshes when files change. Since compilation overwrites `story.json`, the browser usually refreshes automatically—but if it doesn't, try `Ctrl+Shift+R`.
+Live Server auto-refreshes when files change. Since compilation overwrites `story.json`, the browser usually refreshes automatically—but if it doesn't, try `Ctrl+Shift+R`.
+
+> **Want other options?** See [Local Testing](local-testing.md) for alternative ways to preview locally.
 
 ---
 
@@ -439,7 +443,7 @@ On Mac, replace `Ctrl` with `Cmd`.
 - Make sure the Ink extension is installed and enabled
 - Make sure the file has a `.ink` extension
 - Click the language indicator in the bottom-right corner and select "Ink"
-- Restart VS Code (this reloads extensions)
+- Restart VS Code (this forces extensions to reload)
 
 ---
 
@@ -447,17 +451,17 @@ On Mac, replace `Ctrl` with `Cmd`.
 
 You're now set up for a professional Ink development workflow. Here's where to go from here:
 
-### Keep improving
+**Keep improving**
 
 - **[Advanced Guide](advanced-guide.md)** — Version control with Git, automated deployment, collaboration
 - **[Developer's Guide](dev-guide.md)** — Modify the template itself, contribute to the project
 
-### Explore the template
+**Explore the template**
 
 - **[Quick Reference](../quick-reference.md)** — All template features at a glance
 - **[Functions](../reference/functions.md)** — String manipulation, math, and time functions
 
-### Learn more Ink
+**Learn more Ink**
 
 - **[Writing with Ink](https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md)** — The official Ink documentation
 - **[Ink Patreon](https://www.patreon.com/inkle)** — Advanced tutorials from the creators

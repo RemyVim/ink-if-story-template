@@ -7,6 +7,8 @@ description: How to convert your .ink files to the JSON format the template need
 
 The web template doesn't read `.ink` files directly. You need to **compile** (or "export") your story to JSON first.
 
+{% include toc.html %}
+
 ## Why compile?
 
 Your `.ink` file is written for humans—it's easy to read and edit. But browsers and other programs don't understand Ink syntax. Compiling translates your story into JSON (JavaScript Object Notation), a well-known and clearly labeled format browsers can work with easily.

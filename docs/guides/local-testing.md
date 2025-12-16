@@ -11,6 +11,8 @@ This is a security feature called the same-origin policy—it prevents malicious
 
 Here are your options, from least to most technical, all quick and easy!
 
+{% include toc.html %}
+
 ## 1. Skip Local Testing
 
 The simplest approach in terms of setup: **don't test locally at all**.
@@ -56,7 +58,7 @@ If you're using VS Code, the Live Server extension makes local testing easy.
 3. Right-click `index.html` > **Open with Live Server**
 4. Your story opens in the browser and auto-refreshes when you save changes!
 
-But don't forget—you still have to compile your `.ink` files to `story.json` to see any changes in the preview. See the [Intermediary Guide](intermediary-guide.md) for tips on setting up a shortcut in VS Code to quickly compile to JSON with inklecate.
+But don't forget—you still have to compile your `.ink` files to `story.json` to see any changes in the preview. See the [Intermediary Guide](intermediary-guide.md) for a guide on setting up a shortcut in VS Code to quickly compile to JSON with inklecate.
 
 ---
 

@@ -46,7 +46,13 @@ In Inky: **File → Export to JSON...**
 
 Save it as `story.json` inside the template folder (replace the existing one).
 
-## Step 3: Publish
+## Step 3: Test Locally (Optional)
+
+Browsers block local files for security reasons, so double-clicking `index.html` won't work. If you want to preview before publishing, see [Local Testing](guides/local-testing.md).
+
+You can safely skip this step, most publishing platforms have a draft or protected mode so you can preview before publishing publically.
+
+## Step 4: Publish
 
 ### Option A: itch.io
 
@@ -78,7 +84,3 @@ Save it as `story.json` inside the template folder (replace the existing one).
 - [Text Formatting](reference/text-formatting.md): bold, italics, headers, lists
 - [Images & Audio](reference/images.md): add media to your story
 - [All Features](reference/quick-reference.md): see everything the template can do
-
-## Testing Locally (Optional)
-
-Browsers block local files for security reasons, so double-clicking `index.html` won't work. If you want to preview before publishing, see [Local Testing](guides/local-testing.md).
