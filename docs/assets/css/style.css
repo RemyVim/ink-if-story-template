@@ -73,6 +73,11 @@ body {
   background: var(--color-bg);
 }
 
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
 /* Layout */
 .layout {
   display: flex;
@@ -200,6 +205,7 @@ details.nav-section[open] > .nav-section-title::before {
 
 .sidebar-footer {
   display: flex;
+  justify-content: center;
   gap: 0.5rem;
   padding: 1rem 1.5rem;
   border-top: 1px solid var(--color-border);
@@ -226,8 +232,8 @@ details.nav-section[open] > .nav-section-title::before {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   background: none;
   border: 1px solid var(--color-border);
@@ -411,7 +417,6 @@ li {
 
 .toc ul {
   margin: var(--spacing-md) 0 0 0;
-  /* padding-left: 0; */
   padding-left: var(--spacing-huge);
   list-style: none;
 }
@@ -494,6 +499,7 @@ li {
     left: 0;
     width: 280px;
     height: calc(100vh - 56px);
+    height: calc(100dvh - 56px);
     transform: translateX(-100%);
     transition: transform 0.2s ease;
     z-index: 99;

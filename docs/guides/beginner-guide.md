@@ -14,7 +14,7 @@ By the end, you'll have a playable game hosted on [itch.io](https://itch.io/) th
 
 **Time required:** About 30-60 minutes to set up your first story.
 
-{% include toc.html %}
+{% include toc-opened.html %}
 
 ---
 

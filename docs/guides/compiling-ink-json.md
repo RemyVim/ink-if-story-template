@@ -9,7 +9,7 @@ description: >-
 
 The web template doesn't read `.ink` files directly. You need to **compile** (or "export") your story to JSON first.
 
-{% include toc.html %}
+{% include toc-opened.html %}
 
 ## Why compile?
 

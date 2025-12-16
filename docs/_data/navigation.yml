@@ -6,6 +6,10 @@
       url: /quickstart/
     - title: Quick Reference
       url: /quick-reference/
+    - title: FAQ
+      url: /faq/
+    - title: Troubleshooting
+      url: /troubleshooting/
 
 - title: Template Reference
   items:

@@ -374,6 +374,10 @@ ChoiceScript-style stat displays.
 - [ ] Real-world time awareness (time of day, day of week)
 - [ ] Real-time wait mechanics (come back in X hours)
 
+#### Utility Functions
+
+- [ ] `DEBUG_LOG` and `DEBUG_WARNING` for console logging
+
 ### Content & Sensitivity
 
 - [ ] Content warning definitions (`# CONTENT_WARNING_DEF: id | label | description`)
@@ -382,6 +386,11 @@ ChoiceScript-style stat displays.
 - [ ] Warning dialog before sensitive content
 - [ ] Auto-summarize option (skip graphic details)
 - [ ] Content warning presets (violence, death, etc.)
+
+### Localization
+
+- [ ] Support RTL languages
+- [ ] Localization for interface elements (modals, buttons, etc.)
 
 ### Playthrough Analytics
 

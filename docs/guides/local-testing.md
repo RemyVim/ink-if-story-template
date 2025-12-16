@@ -13,7 +13,7 @@ This is a security feature called the same-origin policy—it prevents malicious
 
 Here are your options, from least to most technical, all quick and easy!
 
-{% include toc.html %}
+{% include toc-opened.html %}
 
 ## 1. Skip Local Testing
 

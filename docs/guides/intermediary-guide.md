@@ -19,7 +19,7 @@ This guide will set you up with **Visual Studio Code**—a free, modern code edi
 
 **Prerequisites:** You should be comfortable with the basics from the [Beginner's Guide](beginner-guide.md). You don't need any programming experience.
 
-{% include toc.html %}
+{% include toc-opened.html %}
 
 ---
 
