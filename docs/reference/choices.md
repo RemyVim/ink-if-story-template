@@ -2,8 +2,8 @@
 layout: default
 title: Choices
 description: >-
-  Customize how choices appear in your Ink story—tone indicators, numbering, and
-  disabled options.
+  Customize Ink choices with keyboard hints, tone indicators, and disabled
+  options.
 ---
 # Choices
 

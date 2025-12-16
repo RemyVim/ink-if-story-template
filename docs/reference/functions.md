@@ -1,9 +1,7 @@
 ---
 layout: default
 title: Functions
-description: >-
-  Built-in string, math, fairmath, and time functions for Ink interactive
-  fiction.
+description: 'Built-in functions for strings, math, fairmath, and date/time in Ink.'
 ---
 # Functions
 

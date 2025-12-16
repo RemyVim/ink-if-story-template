@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Keyboard Shortcuts
-description: Keyboard controls for readers playing your Ink interactive fiction story.
+description: 'Keyboard navigation for choices, scrolling, saves, and settings.'
 ---
 # Keyboard Shortcuts
 

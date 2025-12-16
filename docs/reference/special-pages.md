@@ -2,8 +2,8 @@
 layout: default
 title: Special Pages
 description: >-
-  Create separate pages for character sheets, codex entries, and reference
-  material in your Ink story.
+  Create reference pages like character sheets, maps, and credits outside your
+  Ink story flow.
 ---
 # Special Pages
 

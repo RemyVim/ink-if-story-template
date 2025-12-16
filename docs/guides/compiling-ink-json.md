@@ -1,7 +1,9 @@
 ---
 layout: default
 title: Compiling Ink to JSON
-description: How to convert your .ink files to the JSON format the template needs.
+description: >-
+  How to export your Ink story to JSON using Inky, inklecate, or the command
+  line. Required step before publishing with the template.
 ---
 # Compiling Ink to JSON
 

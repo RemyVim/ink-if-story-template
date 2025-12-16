@@ -1,9 +1,7 @@
 ---
 layout: default
 title: User Input
-description: >-
-  Add text input fields to collect player names and other input in your Ink
-  story.
+description: Capture text input from readers and store it in Ink variables.
 ---
 # User Input
 

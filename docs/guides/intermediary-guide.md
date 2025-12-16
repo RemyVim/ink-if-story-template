@@ -2,8 +2,8 @@
 layout: default
 title: Intermediary Guide
 description: >-
-  Level up your workflow with VS Code, live preview, better file organization,
-  and productivity tips for larger Ink projects.
+  Set up VS Code for Ink with live preview, auto-compile, and multi-file
+  projects. Level up from Inky to a faster workflow.
 ---
 # Intermediary Guide
 

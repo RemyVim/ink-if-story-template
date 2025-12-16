@@ -2,8 +2,8 @@
 layout: default
 title: Images
 description: >-
-  Display inline images and background images in your Ink interactive fiction
-  story.
+  Add images and backgrounds to your Ink story with alignment, sizing, and
+  captions.
 ---
 # Images
 

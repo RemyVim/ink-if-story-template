@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Audio
-description: Add sound effects and background music to your Ink interactive fiction story.
+description: Play sound effects and looping background music in your Ink story.
 ---
 # Audio
 

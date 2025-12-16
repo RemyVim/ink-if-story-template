@@ -1,10 +1,10 @@
 ---
 layout: default
-title: A Complete Beginner's Guide
-toc: true
+title: Beginner's Guide
 description: >-
   Publish your first Ink interactive fiction game with the Ink Story Template.
-  No programming required: from zero to live on itch.io in under an hour.
+  Step-by-step tutorial from installing Inky to live on itch.io. No coding
+  required.
 ---
 # A Complete Beginner's Guide
 
@@ -290,8 +290,6 @@ Made a typo? Want to add more content? Here's how to update your published story
 8. Save
 
 It sounds like a lot of steps, but after your second or third update, it becomes muscle memory—under a minute.
-
-> **Tip:** The [Advanced Guide](advanced-guide.md) covers how to automate this process with Git and continuous deployment: so publishing updates becomes a single command.
 
 > **Getting tired of re-uploading to test changes?** Once you're making frequent edits, previewing on your own computer saves a lot of time. See the [Local Testing](local-testing.md) guide—the easiest option takes about a minute to set up.
 

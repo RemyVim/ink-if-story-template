@@ -1,7 +1,9 @@
 ---
 layout: default
 title: Local Testing
-description: How to preview your story locally before publishing.
+description: >-
+  Preview your Ink story locally before publishing. Options for all skill
+  levels: Servez, VS Code Live Server, Python, and more.
 ---
 # Local Testing
 

@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Story Metadata
-description: 'Set your story''s title, author, and default theme.'
+description: 'Set your Ink story''s title, author, and default theme with global tags.'
 ---
 # Story Metadata
 

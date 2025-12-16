@@ -2,8 +2,8 @@
 layout: default
 title: 'Accessibility in Interactive Fiction: Letting Go of Gold'
 description: >-
-  On contrast ratios, killing your darlings, and accepting that aesthetics don't
-  matter if people can't read your text.
+  On WCAG contrast ratios, killing your darlings, and accepting that aesthetics
+  don't matter if people can't read your text.
 ---
 # Accessibility in Interactive Fiction: Letting Go of Gold
 

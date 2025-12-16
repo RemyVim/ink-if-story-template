@@ -1,9 +1,11 @@
 ---
 layout: default
 title: Quick Start
-description: Get your Ink story published in 5 minutes.
+description: >-
+  Publish your Ink story to the web in 5 minutes. Download the template, export
+  your Ink story to JSON, upload to itch.io or any web host.
 ---
-# Quick Start
+# Quick Start: Publish Your Ink Story
 
 Get your Ink story online in minutes. No programming required.
 

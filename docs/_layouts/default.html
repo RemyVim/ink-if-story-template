@@ -4,14 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="{{ '/favicon.ico' | relative_url }}" />
-  <title>{{ page.title }} - {{ site.title }}</title>
+  <title>{% if page.url == '/' %}Ink Story Template - Free Web Template for Ink Interactive Fiction{% else %}{{ page.title }} - {{ site.title }}{% endif %}</title>
   <meta name="description" content="{{ page.description | default: site.description }}">
   
   <!-- SEO -->
   <link rel="canonical" href="{{ page.url | absolute_url }}">
-  {% if page.title %}<meta property="og:title" content="{{ page.title }}">{% endif %}
+  <meta property="og:title" content="{% if page.url == '/' %}Ink Story Template - Free Web Template for Ink Interactive Fiction{% else %}{{ page.title }} | {{ site.title }}{% endif %}">
   <meta property="og:description" content="{{ page.description | default: site.description }}">
+  <meta property="og:url" content="{{ page.url | absolute_url }}">
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="{{ site.title }}">
+  <meta property="og:image" content="{{ '/assets/images/social-preview.png' | absolute_url }}">
+  <meta property="og:image:width" content="630">
+  <meta property="og:image:height" content="500">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="{{ '/assets/images/social-preview.png' | absolute_url }}">
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,6 +28,25 @@
   <!-- Syntax highlighting with Prism -->
   <link id="prism-theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
   <script src="{{ '/assets/js/toc.js' | relative_url }}"></script>
+  {% if page.url == '/' %}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Ink Story Template",
+      "applicationCategory": "GameApplication",
+      "operatingSystem": "Web browser",
+      "description": "{{ site.description }}",
+      "url": "{{ site.url }}{{ site.baseurl }}",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "license": "https://opensource.org/licenses/MIT"
+    }
+    </script>
+  {% endif %}
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to content</a>
