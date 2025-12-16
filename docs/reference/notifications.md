@@ -2,8 +2,8 @@
 layout: default
 title: Notifications
 description: >-
-  Show popup notifications and achievements in your Ink interactive fiction
-  story.
+  Show alerts, achievements, warnings, and info messages to readers within your
+  Ink story.
 ---
 # Notifications
 

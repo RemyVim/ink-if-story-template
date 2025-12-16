@@ -29,6 +29,7 @@
   --color-accent: var(--palette-white);
   --color-border: var(--palette-gray-700);
   --color-code-bg: var(--palette-gray-900);
+  --color-separator-line: var(--palette-gray-400);
 
   --font-body: "Merriweather", Georgia, "Times New Roman", serif;
   --font-sans:
@@ -59,6 +60,7 @@
   --color-accent: var(--palette-black);
   --color-border: var(--palette-gray-300);
   --color-code-bg: var(--palette-gray-300);
+  --color-separator-line: var(--palette-gray-600);
 }
 
 /* BASE */
@@ -308,7 +310,6 @@ a:hover {
 
 hr {
   border-top: 1px solid var(--color-separator-line);
-  /* color: transparent; */
   width: 50%;
   margin: 0 auto;
   margin-top: var(--spacing-huge);
@@ -391,6 +392,46 @@ ol {
 
 li {
   margin-bottom: 0.25rem;
+}
+
+/* Table of Contents */
+.toc {
+  background: var(--color-bg-sidebar);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: var(--spacing-md) var(--spacing-lg);
+  margin-bottom: var(--spacing-huge);
+}
+
+.toc summary {
+  font-weight: 600;
+  cursor: pointer;
+  padding: var(--spacing-sm) 0;
+}
+
+.toc ul {
+  margin: var(--spacing-md) 0 0 0;
+  /* padding-left: 0; */
+  padding-left: var(--spacing-huge);
+  list-style: none;
+}
+
+.toc li {
+  margin: var(--spacing-xs) 0;
+}
+
+.toc .toc-h3 {
+  padding-left: var(--spacing-huge);
+}
+
+.toc a {
+  color: var(--color-link-hover);
+  text-decoration: none;
+}
+
+.toc a:hover {
+  color: var(--color-link);
+  text-decoration: underline;
 }
 
 /* Screen readers */

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://remyvim.github.io/ink-if-story-template/sitemap.xml

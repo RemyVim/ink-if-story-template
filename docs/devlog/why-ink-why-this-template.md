@@ -2,7 +2,7 @@
 layout: default
 title: Why Ink (and Why This Template)?
 description: >-
-  On choosing a scripting language, the joy of JSON, and building something that
+  On choosing Ink over Twine, the joy of JSON, and building a web template that
   didn't exist.
 ---
 # Why Ink (and Why This Template)?

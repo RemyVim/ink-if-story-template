@@ -1,13 +1,18 @@
 ---
 layout: default
-title: Quick Ink Story Template Reference
+title: Quick Reference
 description: >-
-  Quick reference for all Ink Story Template features: tags, text formatting,
-  functions, and keyboard shortcuts.
+  All Ink Story Template features at a glance: tags, text formatting, images,
+  audio, stat bars, functions, and keyboard shortcuts.
 ---
-# Quick Ink Story Template Reference
+# Quick Reference
 
 Quick reference for all template features. For detailed explanations and examples, follow the links to individual documentation pages.
+
+<details class="toc" closed>
+  <summary>Table of Contents</summary>
+  <nav id="toc"></nav>
+</details>
 
 ## Text Formatting
 

@@ -1,9 +1,7 @@
 ---
 layout: default
 title: Text Formatting
-description: >-
-  Bold, italic, headers, lists, and other text formatting options for your Ink
-  story.
+description: 'Add bold, italics, headers, lists, links, and custom styles to your Ink story.'
 ---
 # Text Formatting
 

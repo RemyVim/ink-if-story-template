@@ -2,8 +2,8 @@
 layout: default
 title: Stat Bars
 description: >-
-  Display visual stat bars and opposed pair meters in your Ink interactive
-  fiction story.
+  Display visual progress bars for health, skills, relationships, or any Ink
+  variable.
 ---
 # Stat Bars
 

@@ -1,9 +1,10 @@
 ---
 layout: default
-title: A Complete Beginner's Guide
+title: Beginner's Guide
 description: >-
   Publish your first Ink interactive fiction game with the Ink Story Template.
-  No programming required: from zero to live on itch.io in under an hour.
+  Step-by-step tutorial from installing Inky to live on itch.io. No coding
+  required.
 ---
 # A Complete Beginner's Guide
 
@@ -11,7 +12,9 @@ This guide will walk you through publishing your first interactive fiction story
 
 By the end, you'll have a playable game hosted on [itch.io](https://itch.io/) that you can share with anyone.
 
-**Time required:** About 30-60 minutes for your first story.
+**Time required:** About 30-60 minutes to set up your first story.
+
+{% include toc.html %}
 
 ---
 
@@ -288,9 +291,7 @@ Made a typo? Want to add more content? Here's how to update your published story
 
 It sounds like a lot of steps, but after your second or third update, it becomes muscle memory—under a minute.
 
-> **Tip:** The [Advanced Guide](advanced-guide.md) covers how to automate this process with Git and continuous deployment: so publishing updates becomes a single command.
-
-> **Want to preview locally before uploading your files?** See the [Local Testing](local-testing.md) guide. (Unfortunately, you can't just double-click `index.html`—browsers block local files for security reasons.)
+> **Getting tired of re-uploading to test changes?** Once you're making frequent edits, previewing on your own computer saves a lot of time. See the [Local Testing](local-testing.md) guide—the easiest option takes about a minute to set up.
 
 ---
 
@@ -298,29 +299,30 @@ It sounds like a lot of steps, but after your second or third update, it becomes
 
 Congratulations! You've published your first interactive fiction game. Here's where to go from here:
 
-### Improve Your Story
+**Improve Your Story**
 
 - **Add images and audio:** See [Images](../reference/images.md) and [Audio](../reference/audio.md)
 - **Format your text:** Learn [bold, italics, headers, and more](../reference/text-formatting.md)
 - **Create reference pages:** Add a [character sheet or credits page](../reference/special-pages.md)
 - **Track stats:** Use [stat bars](../reference/stat-bars.md) for RPG-style stories
 
-### Learn More Ink
+**Learn More Ink**
 
 - [Writing with Ink](https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md): the official guide
 - [Ink Patreon](https://www.patreon.com/inkle): advanced tutorials and community
 
-### Level Up Your Workflow
+**Level Up Your Workflow**
 
-- [Local Testing](local-testing.md): more ways to preview your story
-- [Intermediary Guide](intermediary-guide.md): better organization with VS Code
-- [Advanced Guide](advanced-guide.md): Git and automated deployment
+- [Local Testing](local-testing.md): ways to preview your story on your local computer
+- [Intermediary Guide](intermediary-guide.md): speed up your workflow with instant preview and multi-file projects
+- [Advanced Guide](advanced-guide.md): never lose work, automate your publishing
 
 ---
 
 ## Tips & Troubleshooting
 
 **The preview in Inky shows an error**
+
 Check your syntax. Common mistakes:
 
 - Missing `-> END` at the end of a path

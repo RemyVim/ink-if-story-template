@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Styling
-description: 'Customize colors, fonts, and appearance of your Ink interactive fiction story.'
+description: 'Customize colors, fonts, and CSS classes for your Ink story.'
 ---
 # Styling
 

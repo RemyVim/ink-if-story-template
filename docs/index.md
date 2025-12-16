@@ -1,9 +1,6 @@
 ---
 layout: default
 title: Home
-description: >-
-  Documentation for the Ink Story Template, a ready-to-use web template for Ink
-  interactive fiction.
 ---
 # Ink Story Template Documentation
 

@@ -2,8 +2,8 @@
 layout: default
 title: Why There's No Back Button
 description: >-
-  On resisting a feature request, respecting the engine, and why choices should
-  matter.
+  Why this Ink template has no undo button, and why choices in interactive
+  fiction should matter.
 ---
 # Why There's No Back Button
 
