@@ -27,6 +27,7 @@
   --color-link: var(--palette-white);
   --color-link-hover: var(--palette-gray-300);
   --color-accent: var(--palette-white);
+  --color-accent-muted: var(--palette-gray-300);
   --color-border: var(--palette-gray-700);
   --color-code-bg: var(--palette-gray-900);
   --color-separator-line: var(--palette-gray-400);
@@ -58,6 +59,7 @@
   --color-link: var(--palette-black);
   --color-link-hover: var(--palette-gray-700);
   --color-accent: var(--palette-black);
+  --color-accent-muted: var(--palette-gray-700);
   --color-border: var(--palette-gray-300);
   --color-code-bg: var(--palette-gray-300);
   --color-separator-line: var(--palette-gray-600);
@@ -76,6 +78,10 @@ body {
 :focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
+}
+
+.centered {
+  text-align: center;
 }
 
 /* Layout */
@@ -437,6 +443,58 @@ li {
 .toc a:hover {
   color: var(--color-link);
   text-decoration: underline;
+}
+
+/* Index page hero buttons */
+.hero-links {
+  margin: 1.5em 0;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.hero-nav {
+  text-align: center;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.6em 1.2em;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.btn:hover {
+  text-decoration: none;
+}
+
+.btn svg {
+  flex-shrink: 0;
+}
+
+.btn-primary {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
+
+.btn-primary:hover {
+  background: var(--color-accent-muted);
+  color: var(--color-bg);
+}
+
+.btn-secondary {
+  background: var(--color-bg-sidebar);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.btn-secondary:hover {
+  background: var(--color-border);
+  color: var(--color-text);
 }
 
 /* Screen readers */
