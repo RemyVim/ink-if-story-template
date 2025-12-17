@@ -19,7 +19,7 @@ The WCAG accessibility guidelines say text needs a contrast ratio of at least 4.
 
 It failed. **2.58:1**. The minimum is 4.5:1. Not even close.
 
-![Contrast checker with failed 2.58:1 results on original template colors]({{ 'assets/images/accessibility-letting-go-gold/gold-contrast-check-fail.png' | relative_url }})
+![Contrast checker with failed 2.58:1 results on original template colors]({{ 'assets/images/accessibility-letting-go-gold/gold-contrast-check-fail.png' | relative_url }}){: width="1234" height="1388"}
 
 Okay, I thought, I'll just find a darker gold. A more saturated gold. A gold that passes.
 
@@ -27,7 +27,7 @@ Here's the thing about gold on white: the whole reason it looks soft and warm is
 
 This is the best I could do and it is decidedly ***not*** gold...
 
-![Contrast checker with passing 4.58:1 results but not gold]({{ 'assets/images/accessibility-letting-go-gold/gold-contrast-check-pass.png' | relative_url }})
+![Contrast checker with passing 4.58:1 results but not gold]({{ 'assets/images/accessibility-letting-go-gold/gold-contrast-check-pass.png' | relative_url }}){: width="1225" height="1383"}
 
 I'm not good with colors. Never have been. Some people have an intuitive sense for palettes and harmonies; I just see "that looks okay" or "that looks wrong." So I wasn't exactly well-equipped for this fight.
 
@@ -37,11 +37,11 @@ It was the right call. I know that now. But it still stings a little, letting go
 
 | Before (Light) | After (Light) |
 |:------:|:-----:|
-| ![Template with light theme and gold accent]({{ 'assets/images/accessibility-letting-go-gold/template-before-light-gold.png' | relative_url }}) | ![Template with light theme, monochrome]({{ 'assets/images/accessibility-letting-go-gold/template-after-light-no-gold.png' | relative_url }}) |
+| ![Template with light theme and gold accent]({{ 'assets/images/accessibility-letting-go-gold/template-before-light-gold.png' | relative_url }}){: width="1141" height="1405"} | ![Template with light theme, monochrome]({{ 'assets/images/accessibility-letting-go-gold/template-after-light-no-gold.png' | relative_url }}){: width="1152" height="1405"} |
 
 | Before (Dark) | After (Dark) |
 |:------:|:-----:|
-| ![Template with dark theme and gold accent]({{ 'assets/images/accessibility-letting-go-gold/template-before-dark-gold.png' | relative_url }}) | ![Template with dark theme, monochrome]({{ 'assets/images/accessibility-letting-go-gold/template-after-dark-no-gold.png' | relative_url }}) |
+| ![Template with dark theme and gold accent]({{ 'assets/images/accessibility-letting-go-gold/template-before-dark-gold.png' | relative_url }}){: width="1135" height="1400"} | ![Template with dark theme, monochrome]({{ 'assets/images/accessibility-letting-go-gold/template-after-dark-no-gold.png' | relative_url }}){: width="1128" height="1405"} |
 
 ---
 

@@ -233,7 +233,7 @@ tasks:
         done
     interactive: true
 
-  docs:strip-exif:
+  docs:images:exif:
     desc: Strip all metadata from documentation images
     silent: true
     cmds:
@@ -243,6 +243,13 @@ tasks:
         echo "---- Stripping EXIF data from screenshots/ ..."
         exiftool -all= -overwrite_original -r screenshots/
         echo "✅ Done"
+
+  docs:images:sizes:
+    desc: Print sizes of all documentation images
+    silent: true
+    cmds:
+      - |
+       for f in docs/assets/images/*/*.png; do echo "$f: $(identify -format '%wx%h' "$f")"; done
 
   clean:
     desc: Clean generated build files (preserves author files)
