@@ -1,9 +1,10 @@
 ---
-layout: default
+layout: devlog
 title: Why Ink (and Why This Template)?
 description: >-
   On choosing Ink over Twine, the joy of JSON, and building a web template that
   didn't exist.
+date: 2025-11-27T00:00:00.000Z
 ---
 # Why Ink (and Why This Template)?
 

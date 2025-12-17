@@ -1,9 +1,10 @@
 ---
-layout: default
+layout: devlog
 title: 'Accessibility in Interactive Fiction: Letting Go of Gold'
 description: >-
   On WCAG contrast ratios, killing your darlings, and accepting that aesthetics
   don't matter if people can't read your text.
+date: 2025-12-09T00:00:00.000Z
 ---
 # Accessibility in Interactive Fiction: Letting Go of Gold
 

@@ -85,4 +85,4 @@ You can safely skip this step, most publishing platforms have a draft or protect
 
 - [Text Formatting](reference/text-formatting.md): bold, italics, headers, lists
 - [Images & Audio](reference/images.md): add media to your story
-- [All Features](reference/quick-reference.md): see everything the template can do
+- [All Features](quick-reference.md): see everything the template can do

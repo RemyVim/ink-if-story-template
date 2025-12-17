@@ -160,7 +160,7 @@ body {
 
 .nav-item a.active {
   color: var(--color-accent);
-  background: rgba(110, 181, 255, 0.1);
+  background: var(--color-bg);
   border-right: 2px solid var(--color-accent);
 }
 
@@ -170,7 +170,7 @@ body {
 }
 
 .nav-section-title {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -205,6 +205,26 @@ details.nav-section[open] > .nav-section-title::before {
 .nav-section .nav-list {
   margin: 0;
   padding: 0;
+}
+
+.nav-section-link {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  padding: 0.5rem 1.5rem;
+  display: block;
+  margin-left: 1.3em;
+}
+
+.nav-section-link:hover {
+  color: var(--color-link-hover);
+}
+
+.nav-section-link.active {
+  color: var(--color-accent);
 }
 
 /* Footer icon row */
@@ -495,6 +515,13 @@ li {
 .btn-secondary:hover {
   background: var(--color-border);
   color: var(--color-text);
+}
+
+/* Devlog */
+.devlog-date {
+  font-size: 0.9em;
+  color: var(--color-text-muted);
+  font-style: italic;
 }
 
 /* Screen readers */

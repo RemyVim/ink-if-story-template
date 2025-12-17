@@ -1,9 +1,10 @@
 ---
-layout: default
+layout: devlog
 title: 'Accessibility in Interactive Fiction: Screen Readers'
 description: >-
   What I learned about making text-based stories work with screen readers—and
   why it's not as simple as you'd think.
+date: 2025-12-12T00:00:00.000Z
 ---
 # Accessibility in Interactive Fiction: Screen Readers
 
