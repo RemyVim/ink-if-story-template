@@ -217,10 +217,20 @@ tasks:
     deps: [setup:jekyll]
     cmds:
       - |
-        echo "---- Starting docs site"
-        echo "http://localhost:4000/ink-if-story-template/"
-        echo "Press Ctrl+C to stop"
-        bundle exec jekyll serve --livereload --force_polling
+        echo "---- Building docs..."
+        bundle exec jekyll build --config _config.yml,_config_dev.yml
+        echo ""
+        echo "---- Serving at http://localhost:4000/"
+        echo "---- Watching for changes. Press Ctrl+C to stop."
+        echo ""
+        cd _site && python3 -m http.server 4000 &
+        SERVER_PID=$!
+        trap "kill $SERVER_PID 2>/dev/null" EXIT
+        while inotifywait -q -e modify,create,delete -r . --exclude='(_site|vendor|\.conform|\.\#|\.swp)' 2>/dev/null; do
+          echo "🔄 Rebuilding..."
+          bundle exec jekyll build --config _config.yml,_config_dev.yml
+          echo "✅ Done. Refresh browser with Ctrl+R or Ctrl+Shift+R"
+        done
     interactive: true
 
   docs:strip-exif:
