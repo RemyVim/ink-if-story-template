@@ -9,10 +9,7 @@ description: >-
 
 Quick reference for all template features. For detailed explanations and examples, follow the links to individual documentation pages.
 
-<details class="toc" closed>
-  <summary>Table of Contents</summary>
-  <nav id="toc"></nav>
-</details>
+{% include toc-closed.html %}
 
 ## Text Formatting
 

@@ -6,8 +6,13 @@
       url: /quickstart/
     - title: Quick Reference
       url: /quick-reference/
+    - title: FAQ
+      url: /faq/
+    - title: Troubleshooting
+      url: /troubleshooting/
 
 - title: Template Reference
+  collapsed: true
   items:
     - title: Story Metadata
       url: /reference/metadata/
@@ -51,13 +56,4 @@
       url: /guides/dev-guide/
 
 - title: Devlog
-  collapsed: true
-  items:
-    - title: "Why Ink (and Why This Template)?"
-      url: /devlog/why-ink-why-this-template/
-    - title: "Accessibility in IF: Screen Readers"
-      url: /devlog/accessibility-screen-readers/
-    - title: "Accessibility in IF: Letting Go of Gold"
-      url: /devlog/accessibility-letting-go-gold/
-    - title: "Why there's no back button"
-      url: /devlog/why-no-back-button/
+  url: /devlog/

@@ -19,7 +19,7 @@ This guide will set you up with **Visual Studio Code**—a free, modern code edi
 
 **Prerequisites:** You should be comfortable with the basics from the [Beginner's Guide](beginner-guide.md). You don't need any programming experience.
 
-{% include toc.html %}
+{% include toc-opened.html %}
 
 ---
 
@@ -44,7 +44,7 @@ VS Code is free and works on Windows, Mac, and Linux.
 2. Download the installer for your operating system
 3. Run the installer and follow the prompts
 
-![VS Code download page]({{ '/assets/images/intermediate-guide/vscode-download-page.png' | relative_url }})
+![VS Code download page]({{ '/assets/images/intermediate-guide/vscode-download-page.png' | relative_url }}){: width="931" height="900"}
 
 **Platform-specific notes:**
 
@@ -54,7 +54,7 @@ VS Code is free and works on Windows, Mac, and Linux.
 
 When you first open VS Code, it might ask about themes and settings. Pick whatever you want—and you can customize later.
 
-![VS Code welcome screen]({{ '/assets/images/intermediate-guide/vscode-welcome-screen.png' | relative_url }})
+![VS Code welcome screen]({{ '/assets/images/intermediate-guide/vscode-welcome-screen.png' | relative_url }}){: width="1201" height="800"}
 
 > You might notice AI features advertised on the welcome screen—these are optional and won't activate unless you explicitly set them up. VS Code is just a text editor; your files stay on your computer.
 
@@ -70,7 +70,7 @@ In VS Code, open your project.
 
 You can open and close the Explorer with the first tab on the side.
 
-![VS Code with open Ink project]({{ '/assets/images/intermediate-guide/vscode-editor-view.png' | relative_url }})
+![VS Code with open Ink project]({{ '/assets/images/intermediate-guide/vscode-editor-view.png' | relative_url }}){: width="1201" height="800"}
 
 Tips:
 
@@ -156,7 +156,7 @@ VS Code doesn't know what Ink is out of the box. We need to install an extension
 4. Click "Trust Publisher & Install"
 5. You may have to restart VS Code to see some of the extension's features like word count
 
-![Extensions panel with Ink extension]({{ '/assets/images/intermediate-guide/vscode-extension-inkle.png' | relative_url }})
+![Extensions panel with Ink extension]({{ '/assets/images/intermediate-guide/vscode-extension-inkle.png' | relative_url }}){: width="1201" height="800"}
 
 This extension gives you:
 
@@ -166,7 +166,7 @@ This extension gives you:
 - **Autocomplete for diverts:** Start typing `->` and get suggestions for knot names, including from `INCLUDE`d files
 - **Go to definition:** `Ctrl+Click` on a knot, stitch, variable, or function to jump to where it's defined—works across multiple files
 
-![VS Code with ink syntax highlighting with word count and file type]({{ '/assets/images/intermediate-guide/vscode-ink-syntax-highlighting.png' | relative_url }})
+![VS Code with ink syntax highlighting with word count and file type]({{ '/assets/images/intermediate-guide/vscode-ink-syntax-highlighting.png' | relative_url }}){: width="1201" height="800"}
 
 > **Tip:** After installing, open a `.ink` file. If the colors look wrong, make sure VS Code detected the file type. Look at the bottom-right corner—it should say "Ink". If it says "Plain Text", click it and select "Ink" from the list.
 
@@ -189,7 +189,7 @@ For this part, we're going to have to dip into the command line with a terminal 
    - **Mac:** `inklecate_mac.zip`
    - **Linux:** `inklecate_linux.zip`
 
-![Ink releases page with inklecate downloads]({{ '/assets/images/intermediate-guide/ink-inklecate-releases.png' | relative_url }})
+![Ink releases page with inklecate downloads]({{ '/assets/images/intermediate-guide/ink-inklecate-releases.png' | relative_url }}){: width="737" height="223"}
 
 ### Install inklecate
 
@@ -212,7 +212,7 @@ This is a one-time setup. Once it's done, you can run `inklecate` from anywhere.
 
 | | | |
 |:------:|:-----:|:-----:|
-|[![Windows system properties with environment variables button highlighted]({{ '/assets/images/intermediate-guide/windows-system-properties.png' | relative_url }})]({{ '/assets/images/intermediate-guide/windows-system-properties.png' | relative_url }})|[![Windows environment variables settings]({{ '/assets/images/intermediate-guide/windows-environment-variables.png' | relative_url }})]({{ '/assets/images/intermediate-guide/windows-environment-variables.png' | relative_url }})|[![Windows environment variables edit panel]({{ '/assets/images/intermediate-guide/windows-environment-variables-edit.png' | relative_url }})]({{ '/assets/images/intermediate-guide/windows-environment-variables-edit.png' | relative_url }})|
+|[![Windows system properties with environment variables button highlighted]({{ '/assets/images/intermediate-guide/windows-system-properties.png' | relative_url }})]({{ '/assets/images/intermediate-guide/windows-system-properties.png' | relative_url }}){: width="412" height="486"}|[![Windows environment variables settings]({{ '/assets/images/intermediate-guide/windows-environment-variables.png' | relative_url }})]({{ '/assets/images/intermediate-guide/windows-environment-variables.png' | relative_url }}){: width="618" height="585"}|[![Windows environment variables edit panel]({{ '/assets/images/intermediate-guide/windows-environment-variables-edit.png' | relative_url }})]({{ '/assets/images/intermediate-guide/windows-environment-variables-edit.png' | relative_url }}){: width="527" height="501"}|
 
 #### Install inklecate on MacOS/Linux
 
@@ -242,7 +242,7 @@ inklecate
 
 You should see the usage for the command appear. If you get "command not found", the PATH isn't set up correctly—try restarting VS Code or your computer.
 
-![Terminal showing inklecate usage output]({{ '/assets/images/intermediate-guide/vscode-inklecate-usage.png' | relative_url }})
+![Terminal showing inklecate usage output]({{ '/assets/images/intermediate-guide/vscode-inklecate-usage.png' | relative_url }}){: width="1201" height="800"}
 
 ---
 
@@ -273,7 +273,7 @@ This tells inklecate to:
 
 If there are errors (as in the screenshot below), inklecate will show them with line numbers. Fix them and run the command again.
 
-![VSCode terminal showing inklecate error]({{ '/assets/images/intermediate-guide/vscode-inklecate-error.png' | relative_url }})
+![VSCode terminal showing inklecate error]({{ '/assets/images/intermediate-guide/vscode-inklecate-error.png' | relative_url }}){: width="1201" height="800"}
 
 On success, inklecate prints nothing by default.
 
@@ -286,7 +286,7 @@ Typing that command every time gets old. Let's create a VS Code task to do it wi
 3. Select "Create tasks.json file from template"
 4. Select "Others"
 
-![VS Code command palette configure task]({{ '/assets/images/intermediate-guide/vscode-configure-task.png' | relative_url }})
+![VS Code command palette configure task]({{ '/assets/images/intermediate-guide/vscode-configure-task.png' | relative_url }}){: width="1201" height="800"}
 
 This creates a `.vscode/tasks.json` file. Replace its contents with:
 
@@ -319,7 +319,7 @@ This creates a `.vscode/tasks.json` file. Replace its contents with:
 
 Now you can compile by pressing `Ctrl+Shift+B` (the default "Build" shortcut). The first time you do this you will be prompted to confirm the task. The terminal will open and show you if there were any errors.
 
-![VS Code compile build task error]({{ '/assets/images/intermediate-guide/vscode-compile-task-error.png' | relative_url }})
+![VS Code compile build task error]({{ '/assets/images/intermediate-guide/vscode-compile-task-error.png' | relative_url }}){: width="1201" height="800"}
 
 Once you're confident it works, you can change the `"reveal": "always"` to `"reveal": "silent"` to hide the output on success. If silent, an icon will briefly flash at the bottom of the screen near the word count, but the terminal will pop up to show you if it encounters an error.
 
@@ -341,7 +341,7 @@ Here's the problem with testing locally on your own computer: you can't just dou
 4. Click **Trust Publisher & Install**
 5. You may have to restart VS Code
 
-![VS Code Extensions panel with Live Server]({{ '/assets/images/intermediate-guide/vscode-live-server-extension.png' | relative_url }})
+![VS Code Extensions panel with Live Server]({{ '/assets/images/intermediate-guide/vscode-live-server-extension.png' | relative_url }}){: width="1201" height="800"}
 
 ### Preview with Live Server
 
@@ -351,11 +351,11 @@ Finally, let's see your story in action with the template!
 2. Right-click on `index.html`
 3. Click **"Open with Live Server"**  (you may have to allow it to run)
 
-![VS Code Right-click context menu with "Open with Live Server"]({{ '/assets/images/intermediate-guide/vscode-live-server-open.png' | relative_url }})
+![VS Code Right-click context menu with "Open with Live Server"]({{ '/assets/images/intermediate-guide/vscode-live-server-open.png' | relative_url }}){: width="1201" height="800"}
 
 Your default browser will open to `http://127.0.0.1:5500/template/index.html`. Your story is now running locally!
 
-![Browser on localhost opened with Live Server]({{ '/assets/images/intermediate-guide/browser-live-server.png' | relative_url }})
+![Browser on localhost opened with Live Server]({{ '/assets/images/intermediate-guide/browser-live-server.png' | relative_url }}){: width="798" height="762"}
 
 Live Server auto-refreshes when files change. Since compilation overwrites `story.json`, the browser usually refreshes automatically—but if it doesn't, try `Ctrl+Shift+R`.
 

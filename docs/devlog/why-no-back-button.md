@@ -1,9 +1,10 @@
 ---
-layout: default
+layout: devlog
 title: Why There's No Back Button
 description: >-
   Why this Ink template has no undo button, and why choices in interactive
   fiction should matter.
+date: 2025-12-06T00:00:00.000Z
 ---
 # Why There's No Back Button
 

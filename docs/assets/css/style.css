@@ -27,6 +27,7 @@
   --color-link: var(--palette-white);
   --color-link-hover: var(--palette-gray-300);
   --color-accent: var(--palette-white);
+  --color-accent-muted: var(--palette-gray-300);
   --color-border: var(--palette-gray-700);
   --color-code-bg: var(--palette-gray-900);
   --color-separator-line: var(--palette-gray-400);
@@ -58,6 +59,7 @@
   --color-link: var(--palette-black);
   --color-link-hover: var(--palette-gray-700);
   --color-accent: var(--palette-black);
+  --color-accent-muted: var(--palette-gray-700);
   --color-border: var(--palette-gray-300);
   --color-code-bg: var(--palette-gray-300);
   --color-separator-line: var(--palette-gray-600);
@@ -71,6 +73,15 @@ body {
   line-height: 1.6;
   color: var(--color-text);
   background: var(--color-bg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.centered {
+  text-align: center;
 }
 
 /* Layout */
@@ -149,7 +160,7 @@ body {
 
 .nav-item a.active {
   color: var(--color-accent);
-  background: rgba(110, 181, 255, 0.1);
+  background: var(--color-bg);
   border-right: 2px solid var(--color-accent);
 }
 
@@ -159,7 +170,7 @@ body {
 }
 
 .nav-section-title {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -196,10 +207,31 @@ details.nav-section[open] > .nav-section-title::before {
   padding: 0;
 }
 
+.nav-section-link {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  padding: 0.5rem 1.5rem;
+  display: block;
+  margin-left: 1.3em;
+}
+
+.nav-section-link:hover {
+  color: var(--color-link-hover);
+}
+
+.nav-section-link.active {
+  color: var(--color-accent);
+}
+
 /* Footer icon row */
 
 .sidebar-footer {
   display: flex;
+  justify-content: center;
   gap: 0.5rem;
   padding: 1rem 1.5rem;
   border-top: 1px solid var(--color-border);
@@ -226,8 +258,8 @@ details.nav-section[open] > .nav-section-title::before {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   background: none;
   border: 1px solid var(--color-border);
@@ -411,7 +443,6 @@ li {
 
 .toc ul {
   margin: var(--spacing-md) 0 0 0;
-  /* padding-left: 0; */
   padding-left: var(--spacing-huge);
   list-style: none;
 }
@@ -432,6 +463,65 @@ li {
 .toc a:hover {
   color: var(--color-link);
   text-decoration: underline;
+}
+
+/* Index page hero buttons */
+.hero-links {
+  margin: 1.5em 0;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.hero-nav {
+  text-align: center;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.6em 1.2em;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.btn:hover {
+  text-decoration: none;
+}
+
+.btn svg {
+  flex-shrink: 0;
+}
+
+.btn-primary {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
+
+.btn-primary:hover {
+  background: var(--color-accent-muted);
+  color: var(--color-bg);
+}
+
+.btn-secondary {
+  background: var(--color-bg-sidebar);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.btn-secondary:hover {
+  background: var(--color-border);
+  color: var(--color-text);
+}
+
+/* Devlog */
+.devlog-date {
+  font-size: 0.9em;
+  color: var(--color-text-muted);
+  font-style: italic;
 }
 
 /* Screen readers */
@@ -494,6 +584,7 @@ li {
     left: 0;
     width: 280px;
     height: calc(100vh - 56px);
+    height: calc(100dvh - 56px);
     transform: translateX(-100%);
     transition: transform 0.2s ease;
     z-index: 99;
