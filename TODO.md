@@ -279,7 +279,7 @@ ChoiceScript-style persistent achievements.
 ChoiceScript-style stat displays.
 
 - [x] Percent stat bars (`# STAT_BAR: variable 0 100`)
-- [x] Opposed pair bars (`# OPPOSED: var1 Label1 | var2 Label2`)
+- [x] Opposed pair bars (`# STAT_BAR: variable Label1 Label2`)
 - [ ] Stat bar custom colors
 
 ---

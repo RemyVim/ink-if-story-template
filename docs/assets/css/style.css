@@ -295,6 +295,7 @@ details.nav-section[open] > .nav-section-title::before {
 
 article {
   max-width: var(--content-max-width);
+  margin: 0 auto;
 }
 
 /* Typography */
@@ -381,6 +382,36 @@ pre code {
 
 .content blockquote p {
   margin: 0;
+}
+
+/* Back to top button */
+.back-to-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-bg-sidebar);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-size: 1.25rem;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.2s,
+    visibility 0.2s;
+  z-index: 100;
+}
+
+.back-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.back-to-top:hover {
+  background: var(--color-hover-bg);
 }
 
 /* Images */
@@ -622,5 +653,9 @@ li {
 
   .menu-overlay.open {
     display: block;
+  }
+
+  .back-to-top {
+    display: none;
   }
 }

@@ -44,7 +44,7 @@ At the top of your main `.ink` file in Inky, add:
 
 ## Step 2: Export to JSON
 
-In Inky: **File → Export to JSON...**
+In Inky: **File > Export to JSON...**
 
 Save it as `story.json` inside the template folder (replace the existing one).
 
@@ -60,7 +60,7 @@ You can safely skip this step, most publishing platforms have a draft or protect
 
 1. Zip the entire template folder
 2. Go to [itch.io](https://itch.io) and create an account (free)
-3. Dashboard → Create new project
+3. Dashboard > Create new project
 4. Set "Kind of project" to **HTML**
 5. Upload your zip file
 6. Check "This file will be played in the browser"

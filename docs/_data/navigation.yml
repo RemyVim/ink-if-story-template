@@ -10,6 +10,8 @@
       url: /faq/
     - title: Troubleshooting
       url: /troubleshooting/
+    - title: Glossary
+      url: /glossary/
 
 - title: Template Reference
   collapsed: true
