@@ -57,5 +57,13 @@
     - title: "WIP: Developer's Guide"
       url: /guides/dev-guide/
 
+- title: Ink Patterns
+  collapsed: true
+  items:
+    - title: Ink Basics
+      url: /ink-basics/
+    # - title: Building Blocks
+    #   url: /building-blocks/
+
 - title: Devlog
   url: /devlog/

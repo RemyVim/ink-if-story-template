@@ -555,6 +555,38 @@ li {
   font-style: italic;
 }
 
+/* Prism wrap on ink */
+div.code-toolbar pre.language-ink,
+div.code-toolbar pre.language-ink code {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* Prism copy button */
+div.code-toolbar > .toolbar {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+div.code-toolbar:hover > .toolbar {
+  opacity: 1;
+}
+
+div.code-toolbar > .toolbar > .toolbar-item > button {
+  background: var(--color-bg-sidebar);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.code-toolbar > .toolbar > .toolbar-item > button:hover {
+  color: var(--color-text);
+  border-color: var(--color-text-muted);
+}
+
 /* Screen readers */
 .skip-link {
   position: absolute;

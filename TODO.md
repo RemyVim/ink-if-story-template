@@ -354,6 +354,7 @@ ChoiceScript-style stat displays.
 - [ ] `PLURAL(word, count)` - Returns pluralized word
 - [ ] `PLURAL_COUNT(count, singular, plural)` - "1 apple" / "3 apples"
 - [ ] `A_OR_AN(word)` - Returns "a" or "an" appropriately
+- [ ] `CONTAINS_WORD(string, word)` — Returns whether a string contains a specific space-separated distinct word
 - [ ] `ORDINAL(number)` - Returns "1st", "2nd", "3rd", etc.
 - [ ] `LIST_AND(items)` - "apples, oranges, and bananas"
 - [ ] `LIST_OR(items)` - "apples, oranges, or bananas"
@@ -377,6 +378,8 @@ ChoiceScript-style stat displays.
 #### Utility Functions
 
 - [ ] `DEBUG_LOG` and `DEBUG_WARNING` for console logging
+- [ ] `SHOW_PAGE` function for navigating to special pages from the story (e.g. from a choice)
+- [ ] `SHOW_*` functions for opening modals from the story (e.g. save menu)
 
 ### Content & Sensitivity
 
