@@ -223,7 +223,7 @@ tasks:
         echo "---- Serving at http://localhost:4000/"
         echo "---- Watching for changes. Press Ctrl+C to stop."
         echo ""
-        cd _site && python3 -m http.server 4001 &
+        cd _site && python3 -m http.server 4000 &
         SERVER_PID=$!
         trap "kill $SERVER_PID 2>/dev/null" EXIT
         while inotifywait -q -e modify,create,delete -r . --exclude='(_site|vendor|\.conform|\.\#|\.swp)' 2>/dev/null; do

@@ -55,6 +55,10 @@ EXTERNAL FORMAT_DATETIME(timestamp, locale)
 EXTERNAL OFFSET_DATE(timestamp, years, months, days, hours, minutes)
 EXTERNAL DEBUG_LOG(message)
 EXTERNAL DEBUG_WARN(message)
+EXTERNAL OPEN_SAVES()
+EXTERNAL OPEN_SETTINGS()
+EXTERNAL OPEN_PAGE(knotName)
+EXTERNAL RESTART()
 
 : Template Feature Demo
 

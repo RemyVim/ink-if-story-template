@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 - `DEBUG_LOG()` and `DEBUG_WARN()` functions to print to browser console
+- `OPEN_SAVES()`, `OPEN_SETTINGS()`, `OPEN_PAGE(knotName)`, `RESTART()` functions for template control through the Ink story files
 
 ## [1.3.0] - 2025-12-13
 

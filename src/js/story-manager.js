@@ -23,9 +23,10 @@ class StoryManager {
   constructor(storyContent, { display, settings, contentProcessor }) {
     try {
       this.story = new Story(storyContent);
-      InkFunctions.bindAll(this.story);
+      InkFunctions.bindAll(this.story, this);
 
       this.savePoint = "";
+      this.queuedPage = null;
       this.display = display;
       this.settings = settings;
       this.contentProcessor = contentProcessor;
@@ -144,6 +145,13 @@ class StoryManager {
 
       // Update save point after generating new content
       this.savePoint = this.story.state.ToJson();
+
+      // Check if OPEN_PAGE was called - show it now that content is fully rendered
+      if (this.queuedPage) {
+        const pageToShow = this.queuedPage;
+        this.queuedPage = null;
+        this.pages.show(pageToShow);
+      }
     } catch (error) {
       log.error("Failed to continue story", error);
     }
@@ -479,7 +487,7 @@ class StoryManager {
    */
   createTempStory() {
     const tempStory = new Story(this.story.ToJson());
-    InkFunctions.bindAll(tempStory);
+    InkFunctions.bindAll(tempStory, this);
     return tempStory;
   }
 

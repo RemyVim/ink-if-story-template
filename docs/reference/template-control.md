@@ -15,10 +15,14 @@ Control the template directly from your Ink story. Clear the screen, restart the
 
 ### Display control
 
-| Tag | Effect | Aliases |
+| Tag/Function | Effect | Aliases |
 |-----|--------|---------|
 | `# CLEAR` | Clears all text from the screen | — |
 | `# RESTART` | Restarts the story from the beginning | `RESET`, `NEW_GAME` |
+| `RESTART()` | Restart story (with confirmation) | Tag above |
+| `OPEN_SAVES()` | Open the save/load menu | - |
+| `OPEN_SETTINGS()` | Open the settings menu | - |
+| `OPEN_PAGE(knotName)` | Open a special page by knot name | - |
 
 ### Debug Functions
 
@@ -46,12 +50,103 @@ Removes all text from the screen. Useful for scene transitions or dramatic momen
 
 Triggers a story restart with confirmation dialog. The reader will be asked to confirm before losing progress.
 
+Using the tag:
+
 ```ink
 * [Start over from the beginning]
   # RESTART
 ```
 
 **Aliases:** `# RESET`, `# NEW_GAME`
+
+Using the function (Same behavior as the `# RESTART` tag, but as a function).
+
+```ink
+EXTERNAL RESTART()
+
++ [Start a new game]
+  ~ RESTART()
+```
+
+## Opening Menus
+
+Open the template's built-in menus from your story.
+
+### OPEN_SAVES
+
+Opens the save/load menu. Useful for "point of no return" moments.
+
+```ink
+EXTERNAL OPEN_SAVES()
+
+This choice cannot be undone.
+
++ [Save first]
+  ~ OPEN_SAVES()
+  -> continue_story
++ [I'm ready]
+  -> point_of_no_return
+```
+
+### OPEN_SETTINGS
+
+Opens the settings menu. Useful for accessibility reminders.
+
+```ink
+EXTERNAL OPEN_SETTINGS()
+
+The next section contains audio.
+
++ [Adjust audio settings]
+  ~ OPEN_SETTINGS()
+  -> audio_scene
++ [Continue]
+  -> audio_scene
+```
+
+## Opening Special Pages
+
+Navigate to special pages programmatically from your story.
+
+### Usage
+
+Pass the **knot name** (not the display name):
+
+```ink
+EXTERNAL OPEN_PAGE(knotName)
+
+=== inventory ===
+# SPECIAL_PAGE: Your Inventory
+...
+-> DONE
+
+=== some_scene ===
+Before entering the dungeon, you should check your supplies.
+
++ [Check inventory]
+  ~ OPEN_PAGE("inventory")
++ [Enter the dungeon]
+  -> dungeon_entrance
+```
+
+### Dynamic Pages
+
+Since it's a function, you can use variables:
+
+```ink
+VAR current_hint_page = ""
+
+=== chapter_1 ===
+~ current_hint_page = "hints_ch1"
+...
+
+=== show_hint ===
+~ OPEN_PAGE(current_hint_page)
+```
+
+### Error Handling
+
+If the page doesn't exist, a warning is logged to the browser console (F12 > Console) and nothing happens. The story continues normally.
 
 ## Debug Functions
 
@@ -96,7 +191,7 @@ VAR player_name = "Alex"
 
 ## Troubleshooting
 
-**CLEAR doesn't work in Inky?**
+**Tag or function doesn't work in Inky?**
 
 Tags are processed by the template at runtime. Test in browser using [local testing](../guides/local-testing.md).
 

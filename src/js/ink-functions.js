@@ -8,12 +8,15 @@ class InkFunctions {
    * Bind all utility functions to an ink story
    * @param {Story} story - The inkjs Story instance
    */
-  static bindAll(story) {
+  static bindAll(story, storyManager = null) {
     this.bindStringFunctions(story);
     this.bindMathFunctions(story);
     this.bindFairMathFunctions(story);
     this.bindTimeFunctions(story);
     this.bindDebugFunctions(story);
+    if (storyManager) {
+      this.bindTemplateControlFunctions(story, storyManager);
+    }
   }
 
   /**
@@ -205,6 +208,32 @@ class InkFunctions {
 
     story.BindExternalFunction("DEBUG_WARN", (message) => {
       console.warn(`[INK WARNING] ${message}`);
+      return 0;
+    });
+  }
+
+  static bindTemplateControlFunctions(story, storyManager) {
+    story.BindExternalFunction("OPEN_SAVES", () => {
+      storyManager.saves.modal.show();
+      return 0;
+    });
+
+    story.BindExternalFunction("OPEN_SETTINGS", () => {
+      storyManager.settings.settingsModal.show();
+      return 0;
+    });
+
+    story.BindExternalFunction("OPEN_PAGE", (knotName) => {
+      if (!storyManager.pages.pageExists(knotName)) {
+        console.warn(`[INK] OPEN_PAGE: Page "${knotName}" not found`);
+        return 0;
+      }
+      storyManager.queuedPage = knotName;
+      return 0;
+    });
+
+    story.BindExternalFunction("RESTART", () => {
+      storyManager.confirmRestart();
       return 0;
     });
   }

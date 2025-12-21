@@ -377,6 +377,7 @@ ChoiceScript-style stat displays.
 #### Utility Functions
 
 - [x] `DEBUG_LOG` and `DEBUG_WARN` for console logging
+- [x] `OPEN_SETTINGS`, `OPEN_SAVES`, `OPEN_PAGE` functions for template control
 
 ### Content & Sensitivity
 

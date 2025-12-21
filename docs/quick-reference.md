@@ -93,10 +93,19 @@ Quick reference for all template features. For detailed explanations and example
 
 ### Template Control
 
-| Tag | Purpose | Aliases | Reference |
+| Tag/Frunction | Purpose | Aliases | Reference |
 |-----|---------|---------|-----------|
 | `# CLEAR` | Clear screen | — | [Template Control](reference/template-control.md) |
 | `# RESTART` | Restart story | `RESET`, `NEW_GAME` | [Template Control](reference/template-control.md) |
+| `RESTART()` | Restart story (with confirmation) | Tag above |  [Template Control](reference/template-control.md) |
+| `OPEN_SAVES()` | Open the save/load menu | - | [Template Control](reference/template-control.md) |
+| `OPEN_SETTINGS()` | Open the settings menu | - | [Template Control](reference/template-control.md) |
+| `OPEN_PAGE(knotName)` | Open a special page by knot name | - | [Template Control](reference/template-control.md) |
+
+### Debug
+
+| Tag/Function | Purpose | Aliases | Reference |
+|-----|---------|---------|-----------|
 | `DEBUG_LOG()` | Console log | — | [Template Control](reference/template-control.md) |
 | `DEBUG_WARN()` | Console warning | — | [Template Control](reference/template-control.md) |
 
