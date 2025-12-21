@@ -1,4 +1,4 @@
-=== styling_demo
+=== styling_demo ===
 : Styling & Visual Customization
 
 The `\# CLASS:` tag lets you apply custom CSS classes to any paragraph. Define your styles in `css/custom.css`, then use them in your story.
@@ -50,10 +50,5 @@ In `css/custom.css`:
 Aliases: `\# CSS:`, `\# CSS_CLASS:` and `\# STYLE:` work the same way.
 
 __Note:__ The class only applies to the immediately following paragraph. For multiple styled paragraphs, add the tag before each one. To style all paragraphs globally, override the `p` element in `css/custom.css` instead.
-
-:: System Commands
-
-> `\# CLEAR` - Clears all text from the screen
-> `\# RESTART` - Restarts the story from the beginning
 
  -> feature_menu

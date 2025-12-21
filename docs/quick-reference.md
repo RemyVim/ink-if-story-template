@@ -85,13 +85,20 @@ Quick reference for all template features. For detailed explanations and example
 | `# SPECIAL_PAGE:` | Reference page | `PAGE` | [Special Pages](reference/special-pages.md) |
 | `# PAGE_MENU:` | Menu order | `MENU`, `MENU_ORDER`, `PAGE_ORDER`, `SPECIAL_PAGE_ORDER` | [Special Pages](reference/special-pages.md) |
 
-### Styling & Control
+### Styling
 
 | Tag | Purpose | Aliases | Reference |
 |-----|---------|---------|-----------|
 | `# CLASS:` | Add CSS class | `CSS`, `CSS_CLASS`, `STYLE` | [Styling](reference/styling.md) |
-| `# CLEAR` | Clear screen | — | [Styling](reference/styling.md) |
-| `# RESTART` | Restart story | `RESET`, `NEW_GAME` | [Styling](reference/styling.md) |
+
+### Template Control
+
+| Tag | Purpose | Aliases | Reference |
+|-----|---------|---------|-----------|
+| `# CLEAR` | Clear screen | — | [Template Control](reference/template-control.md) |
+| `# RESTART` | Restart story | `RESET`, `NEW_GAME` | [Template Control](reference/template-control.md) |
+| `DEBUG_LOG()` | Console log | — | [Template Control](reference/template-control.md) |
+| `DEBUG_WARN()` | Console warning | — | [Template Control](reference/template-control.md) |
 
 ### Tag Tips
 

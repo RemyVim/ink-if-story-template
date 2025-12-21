@@ -221,7 +221,7 @@ Each save stores the title at save time. If you changed `# TITLE:`, old saves sh
 
 Functions added by the template are processed by the template, not Ink—you won't see their effects in Inky's preview.
 
-See the list of supported [functions](reference/functions.md).
+See the list of supported [functions](reference/functions.md) and [debug functions](reference/template-control.md#debug-functions).
 
 See [local testing](guides/local-testing.md) for options to preview in your browser.
 
@@ -240,6 +240,43 @@ See [local testing](guides/local-testing.md) for options to preview in your brow
 ### Date showing wrong format
 
 Pass a valid locale string: `"en-US"`, `"fr-FR"`, etc. Invalid locales fall back to `"en-US"`. Check the console for warnings (Right-click > Inspect > Console).
+
+---
+
+## Template Controls Not Working
+
+Control tags and debug functions (`DEBUG_LOG`, `DEBUG_WARN`) are processed by the template, not Ink—you may not see their effects in Inky's preview.
+
+See the [Template Control reference](reference/template-control.md).
+
+See [local testing](guides/local-testing.md) for options to preview in your browser.
+
+### CLEAR doesn't clear the screen
+
+<!-- TODO: fix once continuous display is fixed -->
+- The tag must be on its own line: `# CLEAR`
+- Check for typos (though tags are case-insensitive)
+
+### RESTART doesn't work
+
+- `# RESTART` shows a confirmation dialog: the reader must confirm
+- Check the browser console for errors (F12 > Console)
+
+### Debug output not appearing
+
+1. **Open the browser console**: F12 (or Ctrl+Shift+I), then click "Console"
+2. **Check declarations**: Make sure you added `EXTERNAL DEBUG_LOG(message)` and `EXTERNAL DEBUG_WARN(message)` at the top of your `.ink` file
+3. **Check spelling**: Function names must be exact—`DEBUG_LOG` not `debug_log`
+4. **Test in browser**: Debug functions don't work in Inky's preview
+4. **Check filters**: Check that info and warning level logs aren't filtered in the browser console
+
+### "Missing function binding" for DEBUG_LOG/DEBUG_WARN
+
+Same fix as other functions:
+
+- Declare with `EXTERNAL` at the top of your `.ink` file
+- Spelling must match exactly (uppercase)
+- Make sure `template.min.js` loads before your story runs
 
 ---
 

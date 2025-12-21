@@ -26,6 +26,7 @@ INCLUDE features/settings.ink
 INCLUDE features/special_pages.ink
 INCLUDE features/statbars.ink
 INCLUDE features/styling.ink
+INCLUDE features/template-control.ink
 
 // Include functions provided by the template
 EXTERNAL UPPERCASE(string)
@@ -52,9 +53,13 @@ EXTERNAL FORMAT_DATE(timestamp, locale)
 EXTERNAL FORMAT_TIME(timestamp, locale)
 EXTERNAL FORMAT_DATETIME(timestamp, locale)
 EXTERNAL OFFSET_DATE(timestamp, years, months, days, hours, minutes)
+EXTERNAL DEBUG_LOG(message)
+EXTERNAL DEBUG_WARN(message)
 
 : Template Feature Demo
 
+~ DEBUG_LOG("Story started!")
+~ DEBUG_WARN("This will be a long demo...!")
 ~ session_start = NOW()
 
 Welcome, storyteller!
@@ -90,5 +95,6 @@ What would you like to explore in more detail?
 + [Functions] -> functions  
 + [Notifications] -> notifications_demo  
 + [Styling] -> styling_demo  
++ [Template Control] -> template_control_demo  
 + [Getting Started] -> getting_started
 

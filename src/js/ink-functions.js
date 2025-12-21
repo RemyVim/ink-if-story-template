@@ -13,6 +13,7 @@ class InkFunctions {
     this.bindMathFunctions(story);
     this.bindFairMathFunctions(story);
     this.bindTimeFunctions(story);
+    this.bindDebugFunctions(story);
   }
 
   /**
@@ -187,6 +188,25 @@ class InkFunctions {
         return Math.floor(date.getTime() / 1000);
       }
     );
+  }
+
+  /**
+   * Binds debug utility functions to the story.
+   * Functions: DEBUG_LOG, DEBUG_WARNING
+   * These only output to browser console, useful for authors debugging their stories.
+   * @param {Story} story - The inkjs Story instance
+   * @private
+   */
+  static bindDebugFunctions(story) {
+    story.BindExternalFunction("DEBUG_LOG", (message) => {
+      console.log(`[INK DEBUG] ${message}`);
+      return 0; // Ink external functions must return a value
+    });
+
+    story.BindExternalFunction("DEBUG_WARN", (message) => {
+      console.warn(`[INK WARNING] ${message}`);
+      return 0;
+    });
   }
 }
 

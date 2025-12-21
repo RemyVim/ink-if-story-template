@@ -376,7 +376,7 @@ ChoiceScript-style stat displays.
 
 #### Utility Functions
 
-- [ ] `DEBUG_LOG` and `DEBUG_WARNING` for console logging
+- [x] `DEBUG_LOG` and `DEBUG_WARN` for console logging
 
 ### Content & Sensitivity
 
