@@ -52,9 +52,7 @@ class DisplayManager {
     this.focusMarkerElement = document.createElement("span");
     this.focusMarkerElement.id = "focus-marker";
     this.focusMarkerElement.className = "sr-only";
-    this.focusMarkerElement.setAttribute("role", "group");
     this.focusMarkerElement.setAttribute("tabindex", "-1");
-    this.focusMarkerElement.setAttribute("aria-label", "Story content");
   }
 
   /**
@@ -563,34 +561,24 @@ class DisplayManager {
   }
 
   /**
-   * Focuses the marker element and optionally updates its aria-label.
-   * Scrolls the marker into view respecting reduced motion preferences.
-   * @param {string} [ariaLabel] - Optional label to set before focusing
+   * Scrolls to the marker and announces a message.
+   * @param {string} [announcement="Next"] - Text to announce
    */
-  focusMarker(ariaLabel) {
+  focusMarker(announcement = "Next") {
     if (!this.focusMarkerElement) return;
 
-    if (ariaLabel) {
-      this.focusMarkerElement.setAttribute("aria-label", ariaLabel);
-    } else {
-      // Remove label for silent focus
-      this.focusMarkerElement.removeAttribute("aria-label");
-    }
+    this.focusMarkerElement.textContent = announcement;
 
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
 
+    this.focusMarkerElement.focus();
+
     this.focusMarkerElement.scrollIntoView({
       behavior: prefersReducedMotion ? "auto" : "smooth",
       block: "start",
     });
-
-    // Focus after scroll (or immediately if reduced motion)
-    const focusDelay = prefersReducedMotion ? 0 : 300;
-    setTimeout(() => {
-      this.focusMarkerElement.focus();
-    }, focusDelay);
   }
 
   /**
@@ -601,6 +589,7 @@ class DisplayManager {
     if (this.focusMarkerElement?.parentNode) {
       this.focusMarkerElement.parentNode.removeChild(this.focusMarkerElement);
     }
+    this.focusMarkerElement.textContent = "";
     this.focusMarkerIndex = null;
   }
 
