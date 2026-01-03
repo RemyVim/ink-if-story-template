@@ -76,6 +76,21 @@ class TagProcessor {
           if (value) ctx.customClasses.push(value);
         },
       ],
+      [
+        TAGS.AUTOCLEAR,
+        (value, ctx) => {
+          const v = value.toLowerCase();
+          if (v === "on") {
+            ctx.specialActions?.push(() => "AUTOCLEAR_ON");
+          } else if (v === "off") {
+            ctx.specialActions?.push(() => "AUTOCLEAR_OFF");
+          } else {
+            log.warning(
+              `Invalid AUTOCLEAR value: "${value}". Use "on" or "off".`
+            );
+          }
+        },
+      ],
     ]);
 
     this.simpleTagHandlers = new Map([

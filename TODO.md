@@ -332,7 +332,7 @@ ChoiceScript-style stat displays.
 - [x] Choice tone indicator accessibility
 - [x] Icon accessibility (`aria-hidden="true"` + `.sr-only` labels)
 - [x] Loading state announcements (`aria-busy`)
-- [ ] Focus for screen readers on following paragraph after user input submit instead of top of page (polish, non-blocking)
+- [x] Focus for screen readers on following paragraph after user input submit instead of top of page (polish, non-blocking)
 - [ ] Reading progress announcements
 
 ### Keyboard Navigation
@@ -487,6 +487,7 @@ Tool (local, offline) for authors to analyse playthrough stats shared by readers
 - [x] Special tags reference
 - [x] Keyboard shortcuts reference
 - [x] Stat bar guide
+- [x] Template controls guide
 
 ---
 

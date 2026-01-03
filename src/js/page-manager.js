@@ -108,10 +108,7 @@ class PageManager {
 
       this.storyManager.display.showHeader();
       this.storyManager.createChoices?.();
-      this.storyManager.display.scrollToTop();
-
-      // Focus story container for screen readers
-      this.storyManager.display?.container?.focus();
+      this.storyManager.display.focusMarker("Returning to story");
 
       this.savedDisplayState = null;
       this.savedStoryState = null;

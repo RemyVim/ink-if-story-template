@@ -148,6 +148,74 @@ describe("DisplayManager", () => {
     });
   });
 
+  describe("setMaxHistory", () => {
+    test("sets max history limit", () => {
+      displayManager.setMaxHistory(50);
+      expect(displayManager.maxHistory).toBe(50);
+    });
+
+    test("clears limit when set to null", () => {
+      displayManager.setMaxHistory(50);
+      displayManager.setMaxHistory(null);
+      expect(displayManager.maxHistory).toBeNull();
+    });
+
+    test("ignores negative values", () => {
+      displayManager.setMaxHistory(-1);
+      expect(displayManager.maxHistory).toBeNull();
+    });
+
+    test("ignores zero", () => {
+      displayManager.setMaxHistory(0);
+      expect(displayManager.maxHistory).toBeNull();
+    });
+
+    test("ignores non-number values", () => {
+      displayManager.setMaxHistory("fifty");
+      expect(displayManager.maxHistory).toBeNull();
+    });
+  });
+
+  describe("trackInHistory with maxHistory", () => {
+    test("enforces history limit", () => {
+      displayManager.setMaxHistory(3);
+
+      displayManager.trackInHistory({ type: "paragraph", text: "One" });
+      displayManager.trackInHistory({ type: "paragraph", text: "Two" });
+      displayManager.trackInHistory({ type: "paragraph", text: "Three" });
+      displayManager.trackInHistory({ type: "paragraph", text: "Four" });
+
+      expect(displayManager.history.length).toBe(3);
+      expect(displayManager.history[0].text).toBe("Two");
+      expect(displayManager.history[1].text).toBe("Three");
+      expect(displayManager.history[2].text).toBe("Four");
+    });
+
+    test("does not limit when maxHistory is null", () => {
+      displayManager.setMaxHistory(null);
+
+      for (let i = 0; i < 10; i++) {
+        displayManager.trackInHistory({ type: "paragraph", text: `Item ${i}` });
+      }
+
+      expect(displayManager.history.length).toBe(10);
+    });
+
+    test("removes multiple items when overflow is large", () => {
+      displayManager.setMaxHistory(2);
+
+      displayManager.trackInHistory({ type: "paragraph", text: "One" });
+      displayManager.trackInHistory({ type: "paragraph", text: "Two" });
+      displayManager.trackInHistory({ type: "paragraph", text: "Three" });
+      displayManager.trackInHistory({ type: "paragraph", text: "Four" });
+      displayManager.trackInHistory({ type: "paragraph", text: "Five" });
+
+      expect(displayManager.history.length).toBe(2);
+      expect(displayManager.history[0].text).toBe("Four");
+      expect(displayManager.history[1].text).toBe("Five");
+    });
+  });
+
   describe("shouldAnimateContent", () => {
     test("returns true when settings is null", () => {
       const dm = new DisplayManager(null);

@@ -22,7 +22,7 @@ test.describe("Template Control Functions", () => {
       await goToTemplateControlDemo(page);
 
       const openPageChoice = page.locator("button.choice", {
-        hasText: /OPEN_PAGE/,
+        hasText: /OPEN_PAGE\("content_warnings"\)/,
       });
       await openPageChoice.click();
 
@@ -38,7 +38,7 @@ test.describe("Template Control Functions", () => {
       await goToTemplateControlDemo(page);
 
       const openPageChoice = page.locator("button.choice", {
-        hasText: /OPEN_PAGE/,
+        hasText: /OPEN_PAGE\("content_warnings"\)/,
       });
       await openPageChoice.click();
 
@@ -59,7 +59,7 @@ test.describe("Template Control Functions", () => {
       await goToTemplateControlDemo(page);
 
       const openPageChoice = page.locator("button.choice", {
-        hasText: /OPEN_PAGE/,
+        hasText: /OPEN_PAGE\("content_warnings"\)/,
       });
       await openPageChoice.click();
 

@@ -361,6 +361,8 @@ class ContentProcessor {
         return (
           result === "RESTART" ||
           result === "CLEAR" ||
+          result === "AUTOCLEAR_ON" ||
+          result === "AUTOCLEAR_OFF" ||
           (typeof result === "object" && result !== null)
         );
       } catch (error) {

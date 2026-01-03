@@ -517,12 +517,13 @@ class SavesManager {
     const isOnSpecialPage = this.storyManager.pages?.isViewingSpecialPage?.();
 
     return {
+      version: TEMPLATE_VERSION,
       gameState: this.getGameState(isOnSpecialPage),
       displayState: this.getDisplayState(isOnSpecialPage),
       turnIndex: this.storyManager.story.state.currentTurnIndex,
       description: this.generateDescription(),
       timestamp: Date.now(),
-      version: TEMPLATE_VERSION,
+      autoClear: this.storyManager.autoClear,
       isAutosave: slotNumber === this.autosaveSlot,
       currentPage: null,
       stateBeforeUserInput: this.storyManager.stateBeforeUserInput || null,

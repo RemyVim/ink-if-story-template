@@ -251,11 +251,20 @@ See the [Template Control reference](reference/template-control.md).
 
 See [local testing](guides/local-testing.md) for options to preview in your browser.
 
+### Content keeps accumulating / screen won't clear
+
+You're in continuous display mode (the default). To clear on each choice:
+
+```ink
+# AUTOCLEAR: on
+```
+
+Or use `# CLEAR` for a one-time clear at specific moments.
+
 ### CLEAR doesn't clear the screen
 
-<!-- TODO: fix once continuous display is fixed -->
 - The tag must be on its own line: `# CLEAR`
-- Check for typos (though tags are case-insensitive)
+- Check for typos (tags are case-insensitive, so `# clear` works too)
 
 ### RESTART doesn't work
 

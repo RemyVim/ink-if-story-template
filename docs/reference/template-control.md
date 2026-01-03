@@ -17,12 +17,14 @@ Control the template directly from your Ink story. Clear the screen, restart the
 
 | Tag/Function | Effect | Aliases |
 |-----|--------|---------|
-| `# CLEAR` | Clears all text from the screen | — |
-| `# RESTART` | Restarts the story from the beginning | `RESET`, `NEW_GAME` |
-| `RESTART()` | Restart story (with confirmation) | Tag above |
-| `OPEN_SAVES()` | Open the save/load menu | - |
-| `OPEN_SETTINGS()` | Open the settings menu | - |
-| `OPEN_PAGE(knotName)` | Open a special page by knot name | - |
+| `# AUTOCLEAR:` | Clear screen on each choice (`on`/`off`) | `AUTO_CLEAR` |
+| `# CLEAR` | Clear screen once (one-time) | — |
+| `# MAX_HISTORY:` | Limit saved history size (saves optimization) | `HISTORY_LIMIT` |
+| `# RESTART` | Restart story from beginning | `RESET`, `NEW_GAME` |
+| `RESTART()` | Restart story (shows confirmation) | — |
+| `OPEN_SAVES()` | Open save/load menu | — |
+| `OPEN_SETTINGS()` | Open settings menu | — |
+| `OPEN_PAGE(knotName)` | Open a special page | — |
 
 ### Debug Functions
 
@@ -33,22 +35,63 @@ Control the template directly from your Ink story. Clear the screen, restart the
 
 ## Display Control
 
-### CLEAR
+### Display Modes
 
-<!-- TODO: Update once this is fixed and continuous display is reimplemented -->
+By default, the template uses **continuous display**: when the reader makes a choice, old content stays on screen and new content appears below—just like Inky's preview panel and web export.
 
-Removes all text from the screen. Useful for scene transitions or dramatic moments.
+You can switch to **auto-clear mode** where the screen clears with each choice, or mix both modes throughout your story.
+
+### AUTOCLEAR
+
+Controls how content behaves when the reader makes a choice.
 
 ```ink
-* [The world fades to black...]
-    # CLEAR
+# AUTOCLEAR: on
+// Screen clears on every choice from now on (until turned off)
 
-- You wake up somewhere new.
+# AUTOCLEAR: off  
+// Back to continuous display (default)
 ```
+
+**Alias:** `# AUTO_CLEAR:`
+
+The setting persists until changed. Use this to switch modes mid-story. For example, auto-clear during fast-paced action, continuous display during dialogue-heavy scenes.
+
+### CLEAR
+
+Clears all text from the screen once, without changing the display mode. (Although it is only really useful in continuous display mode.)
+
+```ink
+The world begins to fade...
+
+* [Close your eyes]
+    # CLEAR
+    You wake up somewhere new.
+```
+
+Use `# CLEAR` for scene transitions, chapter breaks, dramatic pauses, "meanwhile, elsewhere..." moments, etc.
+
+### MAX_HISTORY
+
+In continuous display mode, the template saves your display history so it can restore exactly what the reader was seeing when they load a save. This works great for most stories.
+
+If you notice your save files are unusually large or slow to load (for very long stories with lots of content accumulation), you can use `# MAX_HISTORY:` as a **global tag** to limit how many content elements are kept in saves:
+
+```ink
+# TITLE: My Epic Saga
+# AUTHOR: Jane Smith
+# MAX_HISTORY: 200
+```
+
+**Alias:** `# HISTORY_LIMIT:`
+
+When the limit is reached, the oldest content is dropped from saved history. This only affects saves—the reader still sees all content on screen until they make a choice or the screen is cleared.
+
+**Note:** Most stories don't need this tag. Only add it if you're experiencing performance issues with saves.
 
 ### RESTART
 
-Triggers a story restart with confirmation dialog. The reader will be asked to confirm before losing progress.
+Restarts the story from the beginning. Shows a confirmation dialog so readers don't lose progress accidentally.
 
 Using the tag:
 
@@ -59,7 +102,7 @@ Using the tag:
 
 **Aliases:** `# RESET`, `# NEW_GAME`
 
-Using the function (Same behavior as the `# RESTART` tag, but as a function).
+Using the function:
 
 ```ink
 EXTERNAL RESTART()
@@ -67,6 +110,8 @@ EXTERNAL RESTART()
 + [Start a new game]
   ~ RESTART()
 ```
+
+Both behave identically, use whichever fits your story's style.
 
 ## Opening Menus
 

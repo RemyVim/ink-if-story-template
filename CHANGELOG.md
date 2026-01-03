@@ -6,10 +6,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## In progress
 
+### Breaking /!\
+
+- Default display mode changed: content now accumulates on screen (Inky-style) instead of clearing on each choice. Add `# AUTOCLEAR: on` at the top of your story to restore the previous behavior.
+- Saves from previous versions are not compatible with v1.4.0. Readers will need to start a new game after you update.
+
 ### Added
 
-- `DEBUG_LOG()` and `DEBUG_WARN()` functions to print to browser console
-- `OPEN_SAVES()`, `OPEN_SETTINGS()`, `OPEN_PAGE(knotName)`, `RESTART()` functions for template control through the Ink story files
+- Continuous display mode (Inky-style):
+  - Content now accumulates on screen by default instead of clearing on each choice
+  - `# AUTOCLEAR: on/off` tag to switch between display modes mid-story
+  - `# MAX_HISTORY: number` global tag to limit saved history size for performance
+- Accessibility:
+  - Screen reader focus management: focus marker tracks reading position across choices, saves, and page navigation
+
+- Functions:
+  - `DEBUG_LOG()` and `DEBUG_WARN()` functions to print to browser console
+  - `OPEN_SAVES()`, `OPEN_SETTINGS()`, `OPEN_PAGE(knotName)`, `RESTART()` functions for template control through the Ink story files
+
+### Changed
+
+- `# CLEAR` tag now works as a one-time clear without changing display mode
+
+### Fixed
+
+- Screen readers: Focus now returns to line after user input on submit rather than top of page
 
 ## [1.3.0] - 2025-12-13
 

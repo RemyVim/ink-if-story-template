@@ -22,6 +22,7 @@ class SettingsManager {
 
     this.storyTitle = "Untitled";
     this.storyAuthor = null;
+    this.maxHistory = null;
     this.toneIndicatorsAvailable = false;
     this.authorToneIndicators = true;
     this.toneIndicatorsTrailing = false;
@@ -390,6 +391,15 @@ class SettingsManager {
           const bylineElement = document.querySelector(".byline");
           if (bylineElement) {
             bylineElement.textContent = `by ${tagValue}`;
+          }
+          break;
+
+        case TAGS.MAX_HISTORY:
+          const limit = parseInt(tagValue, 10);
+          if (!isNaN(limit) && limit > 0) {
+            this.maxHistory = limit;
+          } else {
+            log.warning(`Invalid MAX_HISTORY value: ${tagValue}`);
           }
           break;
 

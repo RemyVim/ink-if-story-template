@@ -10,6 +10,8 @@ const log = errorManager.forSource(ERROR_SOURCES.DISPLAY_MANAGER);
  * Maintains display history for save/restore functionality.
  */
 class DisplayManager {
+  static CONTENT_SELECTOR =
+    "p, h2, h3, h4, ul, blockquote, hr, figure, .stat-bar-container, .user-input-inline-container";
   /**
    * Creates the DisplayManager with dependencies
    * @param {Object} settings - SettingsManager instance for animation preferences
@@ -25,6 +27,11 @@ class DisplayManager {
     this.container = document.querySelector("#story");
     this.scrollContainer = document.querySelector(".outerContainer");
     this.history = [];
+    this.maxHistory = null;
+    this.focusMarkerIndex = null; // Tracks position in history for save/restore
+    this.focusMarkerElement = null; // DOM element reference
+
+    this.initFocusMarker();
 
     if (!this.container) {
       log.critical(
@@ -35,6 +42,19 @@ class DisplayManager {
     }
 
     this.domHelpers = new DOMHelpers(this.container, this.settings);
+  }
+
+  /**
+   * Creates the focus marker element for screen reader navigation.
+   * @private
+   */
+  initFocusMarker() {
+    this.focusMarkerElement = document.createElement("span");
+    this.focusMarkerElement.id = "focus-marker";
+    this.focusMarkerElement.className = "sr-only";
+    this.focusMarkerElement.setAttribute("role", "group");
+    this.focusMarkerElement.setAttribute("tabindex", "-1");
+    this.focusMarkerElement.setAttribute("aria-label", "Story content");
   }
 
   /**
@@ -347,11 +367,16 @@ class DisplayManager {
           this.storyManager.stateBeforeUserInput = null;
         }
 
+        // Remove content from focus marker onwards (will be regenerated)
+        // Returns element count at user-input position for marker placement
+        const markerPosition = this.truncateFromFocusMarker();
+
         // Set flag so content-processor knows to skip input on re-process
-        // and clear and re-render with variable now set
         this.storyManager.reprocessingAfterUserInput = true;
+        this.storyManager.userInputMarkerPosition = markerPosition;
         this.storyManager.continue();
         this.storyManager.reprocessingAfterUserInput = false;
+        this.storyManager.userInputMarkerPosition = null;
       } catch (error) {
         log.error("Failed to set user input variable", error);
         inputField.style.borderColor = "var(--color-important)";
@@ -477,6 +502,168 @@ class DisplayManager {
   }
 
   /**
+   * Positions the focus marker before a specific element.
+   * @param {HTMLElement} beforeElement - Element to insert marker before
+   * @param {number|null} historyIndex - Index in history for save/restore
+   */
+  positionFocusMarker(beforeElement, historyIndex = null) {
+    if (!this.focusMarkerElement || !beforeElement?.parentNode) return;
+
+    beforeElement.parentNode.insertBefore(
+      this.focusMarkerElement,
+      beforeElement
+    );
+    this.focusMarkerIndex = historyIndex;
+  }
+
+  /**
+   * Positions the focus marker at a specific history index.
+   * Used when restoring from a save.
+   * @param {number} index - History index
+   */
+  positionFocusMarkerAtIndex(index) {
+    if (!this.container) return;
+
+    const contentElements = this.container.querySelectorAll(
+      DisplayManager.CONTENT_SELECTOR
+    );
+
+    const targetElement = contentElements[index];
+    if (targetElement) {
+      this.positionFocusMarker(targetElement, index);
+    } else if (contentElements.length > 0) {
+      const lastElement = contentElements[contentElements.length - 1];
+      this.positionFocusMarker(lastElement, contentElements.length - 1);
+    }
+  }
+
+  /**
+   * Positions marker before the first new content element.
+   * @param {number} previousHistoryLength - History length before new content was added
+   */
+  positionFocusMarkerAtNewContent(previousHistoryLength) {
+    if (!this.container) return;
+
+    const contentElements = this.container.querySelectorAll(
+      DisplayManager.CONTENT_SELECTOR
+    );
+
+    if (previousHistoryLength < contentElements.length) {
+      const firstNewElement = contentElements[previousHistoryLength];
+      this.positionFocusMarker(firstNewElement, previousHistoryLength);
+    }
+  }
+
+  /**
+   * Sets the maximum history size.
+   * @param {number|null} limit - Max items, or null for unlimited
+   */
+  setMaxHistory(limit) {
+    this.maxHistory = typeof limit === "number" && limit > 0 ? limit : null;
+  }
+
+  /**
+   * Focuses the marker element and optionally updates its aria-label.
+   * Scrolls the marker into view respecting reduced motion preferences.
+   * @param {string} [ariaLabel] - Optional label to set before focusing
+   */
+  focusMarker(ariaLabel) {
+    if (!this.focusMarkerElement) return;
+
+    if (ariaLabel) {
+      this.focusMarkerElement.setAttribute("aria-label", ariaLabel);
+    } else {
+      // Remove label for silent focus
+      this.focusMarkerElement.removeAttribute("aria-label");
+    }
+
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    this.focusMarkerElement.scrollIntoView({
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+      block: "start",
+    });
+
+    // Focus after scroll (or immediately if reduced motion)
+    const focusDelay = prefersReducedMotion ? 0 : 300;
+    setTimeout(() => {
+      this.focusMarkerElement.focus();
+    }, focusDelay);
+  }
+
+  /**
+   * Resets the focus marker (removes from DOM but keeps reference).
+   * Called when display is cleared.
+   */
+  resetFocusMarker() {
+    if (this.focusMarkerElement?.parentNode) {
+      this.focusMarkerElement.parentNode.removeChild(this.focusMarkerElement);
+    }
+    this.focusMarkerIndex = null;
+  }
+
+  /**
+   * Removes all content from the focus marker position onwards.
+   * Used when rolling back after user input submission.
+   * @returns {number|null} The element count at the user-input field, for marker positioning
+   */
+  truncateFromFocusMarker() {
+    if (!this.focusMarkerElement?.parentNode) return null;
+
+    // Find where the user-input container is (for marker positioning after regeneration)
+    let elementsBeforeInput = null;
+    const userInputContainer = this.container.querySelector(
+      ".user-input-inline-container"
+    );
+    if (userInputContainer) {
+      const allElements = this.container.querySelectorAll(
+        DisplayManager.CONTENT_SELECTOR
+      );
+      elementsBeforeInput = 0;
+      for (const el of allElements) {
+        if (el === userInputContainer) break;
+        elementsBeforeInput++;
+      }
+    }
+
+    let elementsAfterMarker = 0;
+    let sibling = this.focusMarkerElement.nextSibling;
+    while (sibling) {
+      if (sibling.nodeType === Node.ELEMENT_NODE) {
+        elementsAfterMarker++;
+      }
+      sibling = sibling.nextSibling;
+    }
+
+    while (this.focusMarkerElement.nextSibling) {
+      this.focusMarkerElement.nextSibling.remove();
+    }
+
+    if (elementsAfterMarker > 0 && this.history.length >= elementsAfterMarker) {
+      this.history.length = this.history.length - elementsAfterMarker;
+    }
+
+    this.resetFocusMarker();
+    return elementsBeforeInput;
+  }
+
+  /**
+   * Returns the count of content elements currently in the DOM.
+   * Used for focus marker positioning.
+   * @returns {number} Count of content elements
+   */
+  getContentElementCount() {
+    if (!this.container) return 0;
+
+    const contentElements = this.container.querySelectorAll(
+      DisplayManager.CONTENT_SELECTOR
+    );
+    return contentElements.length;
+  }
+
+  /**
    * Checks whether content animations are enabled in settings.
    * @returns {boolean} True if animations should play (defaults to true)
    * @private
@@ -506,12 +693,21 @@ class DisplayManager {
    */
   clear() {
     if (!this.domHelpers) {
-      log.error("Cannot clear - DOM helpers not available");
+      log.error("Cannot clear — DOM helpers not available");
       return;
     }
 
     this.domHelpers.clearStoryContent();
     this.history = [];
+    this.resetFocusMarker();
+  }
+
+  /**
+   * Removes choice elements without clearing other content.
+   * Used in continuous display mode when advancing the story.
+   */
+  removeChoices() {
+    this.domHelpers?.removeAll?.(".choices-container");
   }
 
   /**
@@ -572,6 +768,7 @@ class DisplayManager {
   getState() {
     return {
       history: [...this.history],
+      focusMarkerIndex: this.focusMarkerIndex,
     };
   }
 
@@ -586,13 +783,20 @@ class DisplayManager {
     }
 
     this.clearContent();
+    this.resetFocusMarker();
 
-    // Don't set history directly - render will rebuild it
     const savedHistory = Array.isArray(state.history) ? state.history : [];
     this.history = [];
 
     if (savedHistory.length > 0) {
       this.render(savedHistory);
+    }
+
+    const markerIndex = state.focusMarkerIndex;
+    if (markerIndex !== null && markerIndex !== undefined) {
+      this.positionFocusMarkerAtIndex(markerIndex);
+    } else if (savedHistory.length > 0) {
+      this.positionFocusMarkerAtIndex(savedHistory.length - 1);
     }
   }
 
@@ -611,6 +815,11 @@ class DisplayManager {
       ...item,
       timestamp: Date.now(),
     });
+
+    if (this.maxHistory && this.history.length > this.maxHistory) {
+      const overflow = this.history.length - this.maxHistory;
+      this.history.splice(0, overflow);
+    }
   }
 
   /**
