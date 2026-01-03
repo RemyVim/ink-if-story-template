@@ -2,7 +2,7 @@
 # TITLE: Ink Story Template
 # PAGE_MENU: sheet, inventory_page, relationships ,,credits,content_warnings
 # THEME: light
-// # AUTOCLEAR: on
+# AUTOCLEAR: on
 
 # TONE_INDICATORS: on
 # TONE: flirty local_fire_department

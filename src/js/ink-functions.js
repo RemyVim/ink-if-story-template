@@ -214,12 +214,12 @@ class InkFunctions {
 
   static bindTemplateControlFunctions(story, storyManager) {
     story.BindExternalFunction("OPEN_SAVES", () => {
-      storyManager.saves.modal.show();
+      storyManager.queuedModal = "saves";
       return 0;
     });
 
     story.BindExternalFunction("OPEN_SETTINGS", () => {
-      storyManager.settings.settingsModal.show();
+      storyManager.queuedModal = "settings";
       return 0;
     });
 

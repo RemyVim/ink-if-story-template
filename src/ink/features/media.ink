@@ -44,41 +44,41 @@ Alt text improves accessibility for screen reader users.
 
 = change_background
 # BACKGROUND: assets/background.jpg
-: Ink Tags
+: Media
 Called `\# BACKGROUND: assets/background.jpg`
 
 -> media_submenu
 
 = remove_background
 # BACKGROUND: none
-: Ink Tags
+: Media
 Called `\# BACKGROUND: none`
 
 -> media_submenu
 
 = play_sound
 # AUDIO: assets/notification-bell.mp3
-: Ink Tags
+: Media
 Called `\# AUDIO: assets/notification-bell.mp3`
 
 -> media_submenu
 
 = play_sound_loop
 # AUDIOLOOP: assets/notification-bell.mp3
-: Ink Tags
+: Media
 Called `\# AUDIOLOOP: assets/notification-bell.mp3`
 
 -> media_submenu
 
 = stop_sound_loop
 # AUDIOLOOP: none
-: Ink Tags
+: Media
 Called `\# AUDIOLOOP: none`
 
 -> media_submenu
 
 = add_image_inline
-: Ink Tags
+: Media
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc tincidunt scelerisque odio, non luctus turpis volutpat in. Vestibulum dapibus dapibus quam, ac posuere mauris bibendum quis. 
 

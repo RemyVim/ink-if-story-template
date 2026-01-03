@@ -34,7 +34,6 @@ class DOMHelpers {
    */
   createParagraph(text, customClasses = []) {
     if (!text || typeof text !== "string" || !text.trim()) {
-      log.warning("Invalid text passed to createParagraph");
       return null;
     }
 

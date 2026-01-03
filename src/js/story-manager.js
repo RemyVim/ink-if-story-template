@@ -28,6 +28,7 @@ class StoryManager {
       this.savePoint = "";
       this.autoClear = false; // Default: continuous display (Inky behavior)
       this.queuedPage = null;
+      this.queuedModal = null;
       this.display = display;
       this.settings = settings;
       this.contentProcessor = contentProcessor;
@@ -183,6 +184,17 @@ class StoryManager {
         const pageToShow = this.queuedPage;
         this.queuedPage = null;
         this.pages.show(pageToShow);
+      }
+
+      // Check if a modal was queued (OPEN_SAVES, OPEN_SETTINGS)
+      if (this.queuedModal) {
+        const modalToShow = this.queuedModal;
+        this.queuedModal = null;
+        if (modalToShow === "saves") {
+          this.saves?.modal?.show?.();
+        } else if (modalToShow === "settings") {
+          this.settings?.settingsModal?.show?.();
+        }
       }
     } catch (error) {
       log.error("Failed to continue story", error);
@@ -359,7 +371,7 @@ class StoryManager {
             return true;
           case "RESTART":
             this.confirmRestart();
-            return false;
+            return true;
           default:
             return true;
         }

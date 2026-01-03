@@ -568,17 +568,7 @@ class DisplayManager {
     if (!this.focusMarkerElement) return;
 
     this.focusMarkerElement.textContent = announcement;
-
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-
     this.focusMarkerElement.focus();
-
-    this.focusMarkerElement.scrollIntoView({
-      behavior: prefersReducedMotion ? "auto" : "smooth",
-      block: "start",
-    });
   }
 
   /**

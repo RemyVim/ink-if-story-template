@@ -65,6 +65,7 @@ class PageManager {
 
       this.addReturnButton();
       this.storyManager.display.scrollToTop();
+      this.storyManager.display?.container?.focus();
     }
   }
 
