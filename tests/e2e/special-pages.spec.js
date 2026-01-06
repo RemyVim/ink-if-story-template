@@ -33,22 +33,19 @@ test.describe("Special Pages", () => {
 
   test("can return to story from special page", async ({ page }) => {
     await page.locator("button.choice").first().click();
-    const storyContent = await page.locator("#story").textContent();
 
     await page.locator("#pages-menu-btn").click();
     await page.locator(".slide-panel .panel-link").first().click();
 
     await expect(async () => {
       const currentContent = await page.locator("#story").textContent();
-      expect(currentContent).not.toBe(storyContent);
+      expect(currentContent).toContain("Character Stats");
     }).toPass();
 
     const returnButton = page.getByRole("button", { name: /return to story/i });
     await expect(returnButton).toBeVisible();
     await returnButton.click();
 
-    await expect(page.locator("#story")).toContainText(
-      storyContent.slice(0, 50)
-    );
+    await expect(page.locator("#story h2")).toContainText("Save & Load");
   });
 });

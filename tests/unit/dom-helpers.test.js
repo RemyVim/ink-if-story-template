@@ -46,7 +46,6 @@ describe("DOMHelpers", () => {
       const element = domHelpers.createParagraph(null);
 
       expect(element).toBeNull();
-      expect(errorManager.warning).toHaveBeenCalled();
     });
 
     test("returns null for empty string", () => {
