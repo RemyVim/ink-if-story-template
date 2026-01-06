@@ -86,6 +86,13 @@ class NavigationManager {
       const newButton = button.cloneNode(true);
       button.parentNode.replaceChild(newButton, button);
 
+      // Prevent focus on mousedown for aria-hidden buttons
+      if (newButton.getAttribute("aria-hidden") === "true") {
+        newButton.addEventListener("mousedown", (e) => {
+          e.preventDefault();
+        });
+      }
+
       newButton.addEventListener("click", (e) => {
         try {
           clickHandler(e);
