@@ -161,4 +161,46 @@ describe("InkFunctions", () => {
       expect(boundFunctions.PERCENT(0, 100)).toBe(0);
     });
   });
+
+  describe("Debug Functions", () => {
+    let consoleSpy;
+
+    afterEach(() => {
+      consoleSpy?.mockRestore();
+    });
+
+    test("DEBUG_LOG outputs to console.log with prefix", () => {
+      consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      boundFunctions.DEBUG_LOG("test message");
+      expect(consoleSpy).toHaveBeenCalledWith("[INK DEBUG] test message");
+    });
+
+    test("DEBUG_LOG returns 0", () => {
+      consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      expect(boundFunctions.DEBUG_LOG("test")).toBe(0);
+    });
+
+    test("DEBUG_WARN outputs to console.warn with prefix", () => {
+      consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      boundFunctions.DEBUG_WARN("warning message");
+      expect(consoleSpy).toHaveBeenCalledWith("[INK WARNING] warning message");
+    });
+
+    test("DEBUG_WARN returns 0", () => {
+      consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      expect(boundFunctions.DEBUG_WARN("test")).toBe(0);
+    });
+
+    test("DEBUG_LOG handles empty string", () => {
+      consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      boundFunctions.DEBUG_LOG("");
+      expect(consoleSpy).toHaveBeenCalledWith("[INK DEBUG] ");
+    });
+
+    test("DEBUG_LOG handles numbers", () => {
+      consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      boundFunctions.DEBUG_LOG(42);
+      expect(consoleSpy).toHaveBeenCalledWith("[INK DEBUG] 42");
+    });
+  });
 });

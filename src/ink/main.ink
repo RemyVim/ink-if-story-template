@@ -2,6 +2,7 @@
 # TITLE: Ink Story Template
 # PAGE_MENU: sheet, inventory_page, relationships ,,credits,content_warnings
 # THEME: light
+# AUTOCLEAR: on
 
 # TONE_INDICATORS: on
 # TONE: flirty local_fire_department
@@ -19,13 +20,14 @@ INCLUDE features/media.ink
 INCLUDE features/input.ink
 INCLUDE features/formatting.ink
 INCLUDE features/functions.ink
-INCLUDE features/getting_started.ink
+INCLUDE features/getting-started.ink
 INCLUDE features/notifications.ink
 INCLUDE features/saves.ink
 INCLUDE features/settings.ink
-INCLUDE features/special_pages.ink
+INCLUDE features/special-pages.ink
 INCLUDE features/statbars.ink
 INCLUDE features/styling.ink
+INCLUDE features/template-control.ink
 
 // Include functions provided by the template
 EXTERNAL UPPERCASE(string)
@@ -52,9 +54,17 @@ EXTERNAL FORMAT_DATE(timestamp, locale)
 EXTERNAL FORMAT_TIME(timestamp, locale)
 EXTERNAL FORMAT_DATETIME(timestamp, locale)
 EXTERNAL OFFSET_DATE(timestamp, years, months, days, hours, minutes)
+EXTERNAL DEBUG_LOG(message)
+EXTERNAL DEBUG_WARN(message)
+EXTERNAL OPEN_SAVES()
+EXTERNAL OPEN_SETTINGS()
+EXTERNAL OPEN_PAGE(knotName)
+EXTERNAL RESTART()
 
 : Template Feature Demo
 
+~ DEBUG_LOG("Story started!")
+~ DEBUG_WARN("This will be a long demo...!")
 ~ session_start = NOW()
 
 Welcome, storyteller!
@@ -90,5 +100,6 @@ What would you like to explore in more detail?
 + [Functions] -> functions  
 + [Notifications] -> notifications_demo  
 + [Styling] -> styling_demo  
++ [Template Control] -> template_control_demo  
 + [Getting Started] -> getting_started
 

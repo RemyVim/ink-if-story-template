@@ -394,6 +394,20 @@ describe("ContentProcessor", () => {
       expect(result()).toBe("CLEAR");
     });
 
+    test("finds AUTOCLEAR_ON action", () => {
+      const actions = [() => "AUTOCLEAR_ON"];
+      const result = processor.findSpecialAction(actions);
+      expect(result).toBeDefined();
+      expect(result()).toBe("AUTOCLEAR_ON");
+    });
+
+    test("finds AUTOCLEAR_OFF action", () => {
+      const actions = [() => "AUTOCLEAR_OFF"];
+      const result = processor.findSpecialAction(actions);
+      expect(result).toBeDefined();
+      expect(result()).toBe("AUTOCLEAR_OFF");
+    });
+
     test("finds object action", () => {
       const actions = [() => ({ type: "custom" })];
       const result = processor.findSpecialAction(actions);

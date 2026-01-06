@@ -8,11 +8,15 @@ class InkFunctions {
    * Bind all utility functions to an ink story
    * @param {Story} story - The inkjs Story instance
    */
-  static bindAll(story) {
+  static bindAll(story, storyManager = null) {
     this.bindStringFunctions(story);
     this.bindMathFunctions(story);
     this.bindFairMathFunctions(story);
     this.bindTimeFunctions(story);
+    this.bindDebugFunctions(story);
+    if (storyManager) {
+      this.bindTemplateControlFunctions(story, storyManager);
+    }
   }
 
   /**
@@ -187,6 +191,51 @@ class InkFunctions {
         return Math.floor(date.getTime() / 1000);
       }
     );
+  }
+
+  /**
+   * Binds debug utility functions to the story.
+   * Functions: DEBUG_LOG, DEBUG_WARNING
+   * These only output to browser console, useful for authors debugging their stories.
+   * @param {Story} story - The inkjs Story instance
+   * @private
+   */
+  static bindDebugFunctions(story) {
+    story.BindExternalFunction("DEBUG_LOG", (message) => {
+      console.log(`[INK DEBUG] ${message}`);
+      return 0; // Ink external functions must return a value
+    });
+
+    story.BindExternalFunction("DEBUG_WARN", (message) => {
+      console.warn(`[INK WARNING] ${message}`);
+      return 0;
+    });
+  }
+
+  static bindTemplateControlFunctions(story, storyManager) {
+    story.BindExternalFunction("OPEN_SAVES", () => {
+      storyManager.queuedModal = "saves";
+      return 0;
+    });
+
+    story.BindExternalFunction("OPEN_SETTINGS", () => {
+      storyManager.queuedModal = "settings";
+      return 0;
+    });
+
+    story.BindExternalFunction("OPEN_PAGE", (knotName) => {
+      if (!storyManager.pages.pageExists(knotName)) {
+        console.warn(`[INK] OPEN_PAGE: Page "${knotName}" not found`);
+        return 0;
+      }
+      storyManager.queuedPage = knotName;
+      return 0;
+    });
+
+    story.BindExternalFunction("RESTART", () => {
+      storyManager.confirmRestart();
+      return 0;
+    });
   }
 }
 

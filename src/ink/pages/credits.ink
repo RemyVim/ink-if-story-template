@@ -6,6 +6,10 @@ This _Ink Story Template_ is developed and maintained by [Rémy Vim](www.tumblr.
 
 You can find the source code on GitHub: [github.com/RemyVim/ink-if-story-template](github.com/RemyVim/ink-if-story-template).
 
+Bug reports and feature requests welcome!
+> Open an [issue on GitHub](github.com/RemyVim/ink-if-story-template/issues)
+> Or submit via the [bug report](forms.gle/a6HKbMZ7AhXV8kGu9) or [feature request](forms.gle/JgiFt4tNYaDFB8R59) forms
+
 :: Built With
 > __[Ink](www.inklestudios.com/ink/)__ by Inkle Studios
 > __[inkjs](github.com/y-lohse/inkjs)__ for web playback

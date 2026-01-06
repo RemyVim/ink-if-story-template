@@ -46,6 +46,12 @@ const TAGS = {
     value: TAG_VALUE.REQUIRED,
     description: "Story title",
   },
+  MAX_HISTORY: {
+    names: ["MAX_HISTORY", "HISTORY_LIMIT"],
+    phase: TAG_PHASE.GLOBAL,
+    value: TAG_VALUE.REQUIRED,
+    description: "Maximum display history items to keep in saves",
+  },
   TONE: {
     names: ["TONE"],
     phase: TAG_PHASE.GLOBAL,
@@ -165,6 +171,12 @@ const TAGS = {
     phase: TAG_PHASE.EFFECT,
     value: TAG_VALUE.REQUIRED,
     description: "Add CSS class to element",
+  },
+  AUTOCLEAR: {
+    names: ["AUTOCLEAR", "AUTO_CLEAR"],
+    phase: TAG_PHASE.EFFECT,
+    value: TAG_VALUE.REQUIRED,
+    description: "Toggle auto-clear on choice selection (on/off)",
   },
   CLEAR: {
     names: ["CLEAR"],

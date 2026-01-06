@@ -93,16 +93,8 @@ Helpful tools:
 
 **Tip:** Test both light and dark themes. A color that works well on a light background may not have enough contrast on dark (and vice versa).
 
-## Screen Commands
-
-These tags control the display:
-
-| Tag | Effect | Aliases |
-|-----|--------|---------|
-| `# CLEAR` | Clears all text from the screen | — |
-| `# RESTART` | Restarts the story from the beginning | `RESET`, `NEW_GAME` |
-
 ## Tips
 
 - For inline text styling (bold, italic, highlights), see [Text Formatting](text-formatting.md).
+- For screen control (`# CLEAR`, `# RESTART`), see [Template Control](template-control.md).
 - Changes to `custom.css` take effect immediately on page refresh—no build step needed.

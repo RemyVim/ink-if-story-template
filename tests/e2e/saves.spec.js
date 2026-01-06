@@ -20,7 +20,7 @@ test.describe("Save System", () => {
     await page.locator("button.choice").first().click();
     await expect(page.locator("#story p").first()).toBeVisible();
 
-    const textAfterChoice = await page.locator("#story").textContent();
+    const headingText = await page.locator("#story h2").first().textContent();
 
     await page.locator("#saves-btn").click();
     const modal = page.locator(".saves-modal-content");
@@ -36,17 +36,15 @@ test.describe("Save System", () => {
     await expect(confirmModal).toBeVisible();
     await confirmModal.locator("button", { hasText: "Restart" }).click();
 
-    await expect(page.locator("#story")).not.toContainText(
-      textAfterChoice.slice(0, 50)
+    await expect(page.locator("#story h2").first()).not.toContainText(
+      headingText
     );
 
     await page.locator("#saves-btn").click();
     await expect(modal).toBeVisible();
     await slot1.locator(".load-from-slot").click();
 
-    await expect(page.locator("#story")).toContainText(
-      textAfterChoice.slice(0, 50)
-    );
+    await expect(page.locator("#story h2").first()).toContainText(headingText);
   });
 
   test("save data persists to localStorage", async ({ page }) => {

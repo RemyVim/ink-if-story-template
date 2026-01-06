@@ -332,7 +332,7 @@ ChoiceScript-style stat displays.
 - [x] Choice tone indicator accessibility
 - [x] Icon accessibility (`aria-hidden="true"` + `.sr-only` labels)
 - [x] Loading state announcements (`aria-busy`)
-- [ ] Focus for screen readers on following paragraph after user input submit instead of top of page (polish, non-blocking)
+- [x] Focus for screen readers on following paragraph after user input submit instead of top of page (polish, non-blocking)
 - [ ] Reading progress announcements
 
 ### Keyboard Navigation
@@ -376,7 +376,8 @@ ChoiceScript-style stat displays.
 
 #### Utility Functions
 
-- [ ] `DEBUG_LOG` and `DEBUG_WARNING` for console logging
+- [x] `DEBUG_LOG` and `DEBUG_WARN` for console logging
+- [x] `OPEN_SETTINGS`, `OPEN_SAVES`, `OPEN_PAGE` functions for template control
 
 ### Content & Sensitivity
 
@@ -486,6 +487,7 @@ Tool (local, offline) for authors to analyse playthrough stats shared by readers
 - [x] Special tags reference
 - [x] Keyboard shortcuts reference
 - [x] Stat bar guide
+- [x] Template controls guide
 
 ---
 

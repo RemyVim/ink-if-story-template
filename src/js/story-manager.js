@@ -23,9 +23,12 @@ class StoryManager {
   constructor(storyContent, { display, settings, contentProcessor }) {
     try {
       this.story = new Story(storyContent);
-      InkFunctions.bindAll(this.story);
+      InkFunctions.bindAll(this.story, this);
 
       this.savePoint = "";
+      this.autoClear = false; // Default: continuous display (Inky behavior)
+      this.queuedPage = null;
+      this.queuedModal = null;
       this.display = display;
       this.settings = settings;
       this.contentProcessor = contentProcessor;
@@ -72,6 +75,9 @@ class StoryManager {
     try {
       // Process global tags for theme, metadata, and menu order
       this.settings.processGlobalTags(this.story.globalTags);
+      if (this.settings.maxHistory) {
+        this.display.setMaxHistory(this.settings.maxHistory);
+      }
       this.pages.processMenuOrderTag(this.story.globalTags);
       this.navigation.updateVisibility(
         this.pages.availablePages,
@@ -94,9 +100,18 @@ class StoryManager {
     try {
       if (this.pages?.isViewingSpecialPage()) return;
 
+      const previousContentCount =
+        this.display?.getContentElementCount?.() || 0;
+
       if (!isFirstTime) {
-        this.display?.clear?.();
-        this.display?.scrollToTop?.();
+        if (this.autoClear) {
+          // Auto-clear mode: clear screen
+          this.display?.clear?.();
+          this.display?.scrollToTop?.();
+        } else {
+          // Continuous display mode: just remove choices, keep content
+          this.display?.removeChoices?.();
+        }
       }
 
       const {
@@ -113,9 +128,28 @@ class StoryManager {
           })
         );
 
-        // Focus story container for screen readers (not on initial load)
+        // Position focus marker at new content
         if (!isFirstTime) {
-          this.display?.container?.focus();
+          let markerPosition;
+          if (this.userInputMarkerPosition != null) {
+            // After user input: position where the input field was
+            markerPosition = this.userInputMarkerPosition;
+          } else if (this.autoClear) {
+            // Auto-clear: marker at start of content
+            markerPosition = 0;
+          } else {
+            // Continuous: marker at first new element
+            markerPosition = previousContentCount;
+          }
+          this.display?.positionFocusMarkerAtNewContent?.(markerPosition);
+          if (this.userInputMarkerPosition != null) {
+            this.display?.focusMarker?.("Input submitted");
+          } else {
+            this.display?.focusMarker?.(); // Silent focus, no announcement
+          }
+        } else {
+          // First load: position marker at start, don't focus (let page load naturally)
+          this.display?.positionFocusMarkerAtNewContent?.(0);
         }
       }
 
@@ -144,30 +178,26 @@ class StoryManager {
 
       // Update save point after generating new content
       this.savePoint = this.story.state.ToJson();
-    } catch (error) {
-      log.error("Failed to continue story", error);
-    }
-  }
 
-  /**
-   * Continues the story without clearing the display.
-   * Used after user input submission to append new content.
-   */
-  continueWithoutClearing() {
-    try {
-      if (this.pages?.isViewingSpecialPage()) return;
-
-      const { content: storyContent } = this.generateContent();
-      if (storyContent.length > 0) {
-        this.display?.render?.(storyContent);
+      // Check if OPEN_PAGE was called - show it now that content is fully rendered
+      if (this.queuedPage) {
+        const pageToShow = this.queuedPage;
+        this.queuedPage = null;
+        this.pages.show(pageToShow);
       }
 
-      this.createChoices();
-
-      // Update save point after generating new content
-      this.savePoint = this.story.state.ToJson();
+      // Check if a modal was queued (OPEN_SAVES, OPEN_SETTINGS)
+      if (this.queuedModal) {
+        const modalToShow = this.queuedModal;
+        this.queuedModal = null;
+        if (modalToShow === "saves") {
+          this.saves?.modal?.show?.();
+        } else if (modalToShow === "settings") {
+          this.settings?.settingsModal?.show?.();
+        }
+      }
     } catch (error) {
-      log.error("Failed to continue story without clearing", error);
+      log.error("Failed to continue story", error);
     }
   }
 
@@ -237,6 +267,7 @@ class StoryManager {
       this.display?.reset?.();
       this.pages?.reset?.();
       this.savePoint = this.story.state.ToJson();
+      this.autoClear = false;
       this.continue(true);
       this.display?.scrollToTop?.();
 
@@ -332,9 +363,15 @@ class StoryManager {
             this.display?.clear?.();
             this.display?.hideHeader?.();
             return true;
+          case "AUTOCLEAR_ON":
+            this.autoClear = true;
+            return true;
+          case "AUTOCLEAR_OFF":
+            this.autoClear = false;
+            return true;
           case "RESTART":
             this.confirmRestart();
-            return false;
+            return true;
           default:
             return true;
         }
@@ -358,6 +395,7 @@ class StoryManager {
         currentPage: this.pages?.currentPage,
         savePoint: this.savePoint,
         timestamp: Date.now(),
+        autoClear: this.autoClear,
       };
     } catch (error) {
       log.error("Failed to get current state", error);
@@ -386,6 +424,7 @@ class StoryManager {
       this.story.state.LoadJson(state.gameState);
       this.pages.currentPage = state.currentPage || null;
       this.savePoint = state.savePoint || this.story.state.ToJson();
+      this.autoClear = state.autoClear ?? false;
 
       this.pages?.reset?.();
 
@@ -397,10 +436,9 @@ class StoryManager {
       if (state.displayState) {
         this.display?.restoreState?.(state.displayState);
 
-        // Check if the restored state has a pending user-input
-        hasUserInput = state.displayState.history?.some(
-          (item) => item.type === "user-input"
-        );
+        // Check if we saved while actually waiting for user input
+        // (stateBeforeUserInput is only set when input is pending, not after submission)
+        hasUserInput = state.stateBeforeUserInput != null;
       } else {
         this.display?.clear?.();
         this.regenerateCurrentDisplay();
@@ -411,7 +449,7 @@ class StoryManager {
         this.createChoices();
       }
 
-      this.display?.scrollToTop?.();
+      this.display?.focusMarker?.("Continuing story");
     } catch (error) {
       log.error("Failed to load state", error, "save-system");
     }
@@ -479,7 +517,7 @@ class StoryManager {
    */
   createTempStory() {
     const tempStory = new Story(this.story.ToJson());
-    InkFunctions.bindAll(tempStory);
+    InkFunctions.bindAll(tempStory, this);
     return tempStory;
   }
 
